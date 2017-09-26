@@ -5,34 +5,32 @@
 #include "../../CMS_lumi.h"
 
 // recoil binning
-vector <float> bins_monojet_recoil   = {0.,50.,60.,70.,80.,85.,95.,100., 110., 120., 130., 140., 150., 160., 170., 180., 190., 200., 225., 250., 275., 300., 325., 350., 400., 450., 500., 550., 650., 800., 1000., 1250};
-vector <float> bins_vbf_recoil       = {0.,50.,60.,70.,80.,85.,95.,100., 110., 120., 130., 140., 150., 160., 180., 200., 250., 300., 350., 400., 450., 500., 550., 650., 800., 1000., 1500};
-vector <float> bins_monoV_recoil     = {0.,50.,60.,70.,80.,85.,95.,100., 110., 120., 130., 140., 150., 160., 180., 200., 250., 300., 350., 400., 450., 500., 550., 650., 800., 1000., 1500};
+vector <float> bins_monojet_recoil = {0.,50.,60.,70.,80.,85.,95.,100., 110., 120., 130., 140., 150., 160., 170., 180., 190., 200., 225., 250., 275., 300., 325., 350., 400., 450., 500., 550., 650., 800., 1000., 1250};
+vector <float> bins_monoV_recoil   = {0.,50.,60.,70.,80.,85.,95.,100., 110., 120., 130., 140., 150., 160., 180., 200., 250., 300., 350., 400., 450., 500., 550., 650., 800., 1000., 1500};
 
 // eras
 vector<string> RunEra = {"Run2016B","Run2016C","Run2016D","Run2016E","Run2016F","Run2016G","Run2016H"};
 
-//########## VBF selections
-static float jetmetdphi  = 0.5; 
+// Options
 static bool  drawUncertaintyBand   = false;
 static bool  useDoubleMuonTriggers = true;
 static bool  applyJetSelections    = true;
 
+// Samples
+enum class Sample {wmn,wen,zmm,zee};
+
 /// plotting result
-void plotTurnOn(TCanvas* canvas, TEfficiency* eff, TF1* fitfunc, const string & axisLabel, const TString & postfix, const string & ouputDIR, const float  & luminosity, 
-		const bool & singleMuon, const TString & banner = "");
+void plotTurnOn(TCanvas* canvas, TEfficiency* eff, TF1* fitfunc, const string & axisLabel, const string & postfix, const string & outputDIR);
 
 /// confidence interval for the band
 void GetConfidenceIntervals(TF1* funz, TH1F* obj, Double_t cl, const TFitResultPtr & fitResult);
 
 /// main function
-void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity = 0.81, bool isMuon = true, bool doubleLepton = false) {
-
-  ROOT::Math::MinimizerOptions::SetDefaultMaxFunctionCalls(1410065408);
+void makeMETTriggerEfficiencyMonoJet_Data(string inputDIR, string outputDIR, Sample sample, bool doubleLepton = false) {
 
   gROOT->SetBatch(kTRUE);
   setTDRStyle();
-  system(("mkdir -p "+ouputDIR).c_str());
+  system(("mkdir -p "+outputDIR).c_str());
 
   TCanvas* canvas = new TCanvas("canvas", "canvas", 600, 600);
   canvas->cd();
@@ -40,9 +38,9 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
   // input tree
   TChain* tree = new TChain("tree/tree");
   // use only a subset of directories
-  if(isMuon)
+  if(sample == Sample::zmm or sample == Sample::wmn)
     system(("ls "+inputDIR+"  | grep SingleMu > list_dir.txt").c_str());
-  else
+  else if(sample == Sample::wen)
     system(("ls "+inputDIR+"  | grep SingleEle > list_dir.txt").c_str());
   ifstream dirlist ("list_dir.txt");
   string dirname;
@@ -72,27 +70,32 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
   }
   system("rm list_dir.txt");
 
+  ////
+  string postfix = "recoil_monojet";
+  if(sample == Sample::wmn) postfix += "_Wmn";
+  else if(sample == Sample::wen) postfix += "_Wen";
+  else if(sample == Sample::zmm) postfix += "_Zmm";
+  else if(sample == Sample::zee) postfix += "_Zee";
+
+  TFile* outputFile = new TFile((outputDIR+"/triggerEfficiency_"+postfix+".root").c_str(),"RECREATE");
+  outputFile->cd();
+
   // fitting function for the turn-on  as a function of recoil
-  TF1 *fitfunc_monojet_recoil = new TF1("fitfunc_monojet_recoil",ErfCB,bins_monojet_recoil.front(), bins_monojet_recoil.back(),5);
-  fitfunc_monojet_recoil->SetParameters(120., 25., 30., 4., 1.);
-  TF1 *fitfunc_monoV_recoil   = new TF1("fitfunc_monoV_recoil", ErfCB, bins_monoV_recoil.front(), bins_monoV_recoil.back(), 5);
-  fitfunc_monoV_recoil->SetParameters(120., 25., 30., 4., 1.);
-  
+  TF1 *fitfunc_monojet_recoil = new TF1("fitfunc_monojet_recoil","[0]*1./((1.+[1]*exp(-[2]*(x-[3])))^(1./[4]))",bins_monojet_recoil.front(), bins_monojet_recoil.back());
+  fitfunc_monojet_recoil->SetParameters(1.,0.01,0.02,50,0.01);
+  fitfunc_monojet_recoil->SetParLimits(0,0.,1.01);
+  fitfunc_monojet_recoil->SetParLimits(1,-100.,100.);
+  fitfunc_monojet_recoil->SetParLimits(3,0.,500.);
+  fitfunc_monojet_recoil->SetParLimits(4,0.,100);
+
   TH1F* hnum_monojet_recoil = new TH1F("hnum_monojet_recoil", "", bins_monojet_recoil.size()-1, &bins_monojet_recoil[0]);
   TH1F* hden_monojet_recoil = new TH1F("hden_monojet_recoil", "", bins_monojet_recoil.size()-1, &bins_monojet_recoil[0]);
   hnum_monojet_recoil->Sumw2();
   hden_monojet_recoil->Sumw2();
-  TH1F* hnum_monoV_recoil = new TH1F("hnum_monoV_recoil", "", bins_monoV_recoil.size()-1, &bins_monoV_recoil[0]);
-  TH1F* hden_monoV_recoil = new TH1F("hden_monoV_recoil", "", bins_monoV_recoil.size()-1, &bins_monoV_recoil[0]);
-  hnum_monoV_recoil->Sumw2();
-  hden_monoV_recoil->Sumw2();
   
   // define numerator as event with tight muon + trigger requirement
   // define denominator as an event with a tight muon passing single muon trigger
   TTreeReader reader(tree);
-  TTreeReaderValue<unsigned int> run    (reader,"run");
-  TTreeReaderValue<unsigned int> lumi   (reader,"lumi");
-  TTreeReaderValue<unsigned int> event  (reader,"event");
   TTreeReaderValue<UChar_t> hltm90     (reader,"hltmet90");
   TTreeReaderValue<UChar_t> hltm100    (reader,"hltmet100");
   TTreeReaderValue<UChar_t> hltm110    (reader,"hltmet110");
@@ -136,7 +139,7 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
   TTreeReaderValue<UChar_t> fvtx   (reader,"flaggoodvertices");
   TTreeReaderValue<UChar_t> fbadmu (reader,"flagbadpfmu");                                                                                                                                       
   TTreeReaderValue<UChar_t> fbadch (reader,"flagbadchpf");                                                                                                                                       
-  TTreeReaderValue<unsigned int> ntaus       (reader,"ntausold");
+  TTreeReaderValue<unsigned int> ntaus       (reader,"ntaus");
   TTreeReaderValue<unsigned int> nmuons      (reader,"nmuons");
   TTreeReaderValue<unsigned int> nelectrons  (reader,"nelectrons");
   TTreeReaderValue<unsigned int> nphotons    (reader,"nphotons");
@@ -158,13 +161,15 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
   TTreeReaderValue<float> metcalo     (reader,"calomet");
   TTreeReaderValue<float> jmmdphi (reader,"incjetmumetdphimin4");
   TTreeReaderValue<float> jemdphi (reader,"incjetelmetdphimin4");
+  TTreeReaderValue<float> zmass (reader,"zmass");
+  TTreeReaderValue<float> zeemass (reader,"zeemass");
  
   //////////////////
   long int nTotal = tree->GetEntries();
   cout<<"Total number of events: "<<nTotal<<endl;
   long int nEvents = 0;
 
-  TH1D* efficiencyMonojetSelections = new TH1D("efficiencyMonojetSelections","efficiencyMonojetSelections",16,0,17);
+  TH1D* efficiencyMonojetSelections = new TH1D("efficiencyMonojetSelections","efficiencyMonojetSelections",14,0,13);
   efficiencyMonojetSelections->Sumw2();
   efficiencyMonojetSelections->GetXaxis()->SetBinLabel(1,"Total");
   efficiencyMonojetSelections->GetXaxis()->SetBinLabel(2,"B-veto");
@@ -180,30 +185,23 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
   efficiencyMonojetSelections->GetXaxis()->SetBinLabel(12,"Jet cuts");
   efficiencyMonojetSelections->GetXaxis()->SetBinLabel(13,"Trigger");
 
-  TH1D* efficiencyMonoVSelections = (TH1D*) efficiencyMonojetSelections->Clone("efficiencyMonoVSelections");
-  efficiencyMonoVSelections->GetXaxis()->SetBinLabel(13,"V-tagging");
-  efficiencyMonoVSelections->GetXaxis()->SetBinLabel(14,"Trigger");
-
   long int nPart = 100000;
   while(reader.Next()){
+
     cout.flush();
     if(nEvents % nPart == 0) cout<<"\r"<<"Analyzing events "<<double(nEvents)/nTotal*100<<" % ";
     nEvents++;
 
     // define the denominator
     efficiencyMonojetSelections->SetBinContent(1,efficiencyMonojetSelections->GetBinContent(1)+1);
-    efficiencyMonoVSelections->SetBinContent(1,efficiencyMonoVSelections->GetBinContent(1)+1);
     if(*nbjets != 0) continue;
     efficiencyMonojetSelections->SetBinContent(2,efficiencyMonojetSelections->GetBinContent(2)+1);
-    efficiencyMonoVSelections->SetBinContent(2,efficiencyMonoVSelections->GetBinContent(2)+1);
     ///
     if(*ntaus != 0) continue;
     ///
     efficiencyMonojetSelections->SetBinContent(3,efficiencyMonojetSelections->GetBinContent(3)+1);
-    efficiencyMonoVSelections->SetBinContent(3,efficiencyMonoVSelections->GetBinContent(3)+1);
     if(*nphotons  != 0) continue;
     efficiencyMonojetSelections->SetBinContent(4,efficiencyMonojetSelections->GetBinContent(4)+1);
-    efficiencyMonoVSelections->SetBinContent(4,efficiencyMonoVSelections->GetBinContent(4)+1);
     //
     if(not *fcsc)  continue;
     if(not *feeb)  continue;
@@ -213,12 +211,9 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
     if(not *fbadch) continue; 
     if(not *fhbhe)  continue;
     if(not *fhbiso) continue;
-
     efficiencyMonojetSelections->SetBinContent(5,efficiencyMonojetSelections->GetBinContent(5)+1);
-    efficiencyMonoVSelections->SetBinContent(5,efficiencyMonoVSelections->GetBinContent(5)+1);
     
-    if(isMuon){
-
+    if(sample == Sample::wmn or sample == Sample::zmm){
       // trigger selection for the denominator
       if(not doubleLepton){
 	if(not *hltsinglemu) continue;    
@@ -230,114 +225,41 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
 	if(not *hltdoublemu) continue;
 	if(not *hltsinglemu) continue;
       }
-      
-      efficiencyMonojetSelections->SetBinContent(6,efficiencyMonojetSelections->GetBinContent(6)+1);
-      efficiencyMonoVSelections->SetBinContent(6,efficiencyMonoVSelections->GetBinContent(6)+1);
+    }
+    else if(sample == Sample::wen or sample == Sample::zee){
+      if(not *hlte) continue;
+    }
+
+    efficiencyMonojetSelections->SetBinContent(6,efficiencyMonojetSelections->GetBinContent(6)+1);
+
+    if(sample == Sample::wmn or sample == Sample::zmm){
       if(*mu1pt < 20) continue;
       if(fabs(*mu1eta) > 2.4) continue;
       efficiencyMonojetSelections->SetBinContent(7,efficiencyMonojetSelections->GetBinContent(7)+1);
-      efficiencyMonoVSelections->SetBinContent(7,efficiencyMonoVSelections->GetBinContent(7)+1);
-      if(not doubleLepton  and *mu1id != 1) continue;      
-      if(not doubleLepton  and *nmuons != 1) continue;      
-      else if(doubleLepton and *nmuons != 2) continue;      
-      if(doubleLepton){
-	if(*mu1pid == *mu2pid) continue; //opposite charge
-	TLorentzVector mu1, mu2;
-	mu1.SetPtEtaPhiM(*mu1pt,*mu1eta,*mu1phi,0.);
-	mu2.SetPtEtaPhiM(*mu2pt,*mu2eta,*mu2phi,0.);
-	if((*mu1pt > 20 and *mu1id != 1) or (*mu2pt > 20 and *mu2id != 1)) continue;
- 	if((mu1+mu2).M() < 60 or (mu1+mu2).M() > 120) continue;
-      }
-      efficiencyMonojetSelections->SetBinContent(8,efficiencyMonojetSelections->GetBinContent(8)+1);
-      efficiencyMonoVSelections->SetBinContent(8,efficiencyMonoVSelections->GetBinContent(8)+1);
-      if(*nelectrons > 0 ) continue;
-      efficiencyMonojetSelections->SetBinContent(9,efficiencyMonojetSelections->GetBinContent(9)+1);
-      efficiencyMonoVSelections->SetBinContent(9,efficiencyMonoVSelections->GetBinContent(9)+1);
-      if(isMuon and fabs(*metpf-*metcalo)/(*mmet) > 0.5) continue;
-      else if(not isMuon and fabs(*metpf-*metcalo)/(*emet) > 0.5) continue;
-      efficiencyMonojetSelections->SetBinContent(10,efficiencyMonojetSelections->GetBinContent(10)+1);
-      efficiencyMonoVSelections->SetBinContent(10,efficiencyMonoVSelections->GetBinContent(10)+1);
-      if(applyJetSelections and *jmmdphi < 0.5) continue;      
-      efficiencyMonojetSelections->SetBinContent(11,efficiencyMonojetSelections->GetBinContent(11)+1);
-      efficiencyMonoVSelections->SetBinContent(11,efficiencyMonoVSelections->GetBinContent(11)+1);
-      // transverse mass cut
-      if(not doubleLepton){
-	float dphi = fabs(*mu1phi-*metphi);
-	if(dphi > TMath::Pi())
-	  dphi = 2*TMath::Pi()-dphi;
-	float mtw = sqrt(2*(*mu1pt)*(*met)*(1-cos(dphi)));
-	if(mtw > 160) continue;
-      }
-      
-      // MONOJET
-      if(applyJetSelections and jetpt->at(0) > 100 and fabs(jeteta->at(0)) < 2.5 and jetchfrac->at(0) > 0.1 and jetnhfrac->at(0) < 0.8 and jetchfrac->at(0) < 0.997){
-	
-	// monojet vs recoil and met
-	hden_monojet_recoil->Fill(*mmet);
-
-	efficiencyMonojetSelections->SetBinContent(12,efficiencyMonojetSelections->GetBinContent(12)+1);
-	// numerator monojet
-	if(*hltm90 or *hltm100 or *hltm110 or *hltm120 or *hltmwm120 or *hltmwm90 or *hltmwm100 or *hltmwm110 or *hltmwm170 or *hltmwm300 or *hltjm){
-	  hnum_monojet_recoil->Fill(*mmet);	
-	  efficiencyMonojetSelections->SetBinContent(13,efficiencyMonojetSelections->GetBinContent(13)+1);	 
-	}
-	
-	if(*mmet > 800 and not (*hltm90 or *hltm100 or *hltm110 or *hltm120 or *hltmwm120 or *hltmwm90 or *hltmwm170 or *hltmwm300 or *hltmwm100 or *hltmwm110 or *hltjm)){
-	  cout<<"Monojet analysis: run "<<*run<<" lumi "<<*lumi<<" event "<<*event<<" t1mumet "<<*mmet<<" muon pt "<<*mu1pt<<" muon eta "<<*mu1eta<<" jet pt "<<jetpt->at(0)<<" eta "<<jeteta->at(0)<<" njets "<<*nincjets<<" pfmet "<<*met<<" calomet "<<*metcalo<<endl;
-	}
-      }
-      else if(not applyJetSelections){
-	// monojet vs recoil and met
-	hden_monojet_recoil->Fill(*mmet);
-	efficiencyMonojetSelections->SetBinContent(12,efficiencyMonojetSelections->GetBinContent(12)+1);
-	// numerator monojet
-	if(*hltm90 or *hltm100 or *hltm110 or *hltm120 or *hltmwm120 or *hltmwm90 or *hltmwm100 or *hltmwm110 or *hltmwm170 or *hltmwm300 or *hltjm){
-	  hnum_monojet_recoil->Fill(*mmet);	
-	  efficiencyMonojetSelections->SetBinContent(13,efficiencyMonojetSelections->GetBinContent(13)+1);	 
-	}	
-	if(*mmet > 800 and not (*hltm90 or *hltm100 or *hltm110 or *hltm120 or *hltmwm120 or *hltmwm90 or *hltmwm170 or *hltmwm300 or *hltmwm100 or *hltmwm110)){
-	  cout<<"Monojet analysis: run "<<*run<<" lumi "<<*lumi<<" event "<<*event<<" t1mumet "<<*mmet<<" muon pt "<<*mu1pt<<" muon eta "<<*mu1eta<<" jet pt "<<jetpt->at(0)<<" eta "<<jeteta->at(0)<<" njets "<<*nincjets<<" pfmet "<<*met<<" calomet "<<*metcalo<<endl;
-	}
-      }      
     }
-    else{// electron case
-      if(not *hlte) continue;    
-      efficiencyMonojetSelections->SetBinContent(6,efficiencyMonojetSelections->GetBinContent(6)+1);
-      efficiencyMonoVSelections->SetBinContent(6,efficiencyMonoVSelections->GetBinContent(6)+1);
+    else if(sample == Sample::wen or sample == Sample::zee){
       if(*el1pt < 40) continue;
       if(fabs(*el1eta) > 2.5) continue;
-      efficiencyMonojetSelections->SetBinContent(7,efficiencyMonojetSelections->GetBinContent(7)+1);
-      efficiencyMonoVSelections->SetBinContent(7,efficiencyMonoVSelections->GetBinContent(7)+1);
-  
-      if(not doubleLepton  and *nelectrons != 1) continue;
-      else if(doubleLepton and *nelectrons != 2) continue;
-      if(not doubleLepton  and *el1id != 1) continue;
-      if(doubleLepton){
-	if((*el1pt > 40 and *el1id != 1) or (*el2pt > 20 and *el2id != 1)) continue;
-        if(*el1pid == *el2pid) continue; //opposite charge                                                                                                                                            
-        TLorentzVector el1, el2;
-        el1.SetPtEtaPhiM(*el1pt,*el1eta,*el1phi,0.);
-        el2.SetPtEtaPhiM(*el2pt,*el2eta,*el2phi,0.);
-        if((el1+el2).M() < 60 or (el1+el2).M() > 120) continue;
+    }
+    ////
+    if(sample == Sample::wmn){
+      if(*mu1id != 1) continue;
+      if(*nmuons != 1) continue;
+      float dphi = fabs(*mu1phi-*metphi);
+      if(dphi > TMath::Pi())
+	dphi = 2*TMath::Pi()-dphi;
+      float mtw = sqrt(2*(*mu1pt)*(*met)*(1-cos(dphi)));
+      if(mtw > 160) continue;
+    }
+    else if (sample == Sample::zmm){
+	if(*nmuons != 2) continue;
+	if(not ((*mu1pt > 20 and *mu1id == 1) or (*mu2pt > 20 and *mu2id == 1))) continue;
+	if(*mu1pid == *mu2pid) continue;
+	if(*zmass < 60 or *zmass > 120) continue;
       }
-
-      efficiencyMonojetSelections->SetBinContent(8,efficiencyMonojetSelections->GetBinContent(8)+1);
-      efficiencyMonoVSelections->SetBinContent(8,efficiencyMonoVSelections->GetBinContent(8)+1);
-  
-      if(*nmuons > 0 ) continue;
-      efficiencyMonojetSelections->SetBinContent(9,efficiencyMonojetSelections->GetBinContent(9)+1);
-      efficiencyMonoVSelections->SetBinContent(9,efficiencyMonoVSelections->GetBinContent(9)+1);
-  
-      if(fabs(*metpf-*metcalo)/(*emet) > 0.5) continue;
-      efficiencyMonojetSelections->SetBinContent(10,efficiencyMonojetSelections->GetBinContent(10)+1);
-      efficiencyMonoVSelections->SetBinContent(10,efficiencyMonoVSelections->GetBinContent(10)+1);
-  
-      if(*jemdphi < 0.5) continue;
-      efficiencyMonojetSelections->SetBinContent(11,efficiencyMonojetSelections->GetBinContent(11)+1);
-      efficiencyMonoVSelections->SetBinContent(11,efficiencyMonoVSelections->GetBinContent(11)+1);
-
-      // transverse mass cut
-      if(not doubleLepton){
+      else if (sample == Sample::wen){
+	if(*el1id != 1) continue;
+	if(*nelectrons != 1) continue;
 	float dphi = fabs(*el1phi-*metphi);
 	if(dphi > TMath::Pi())
 	  dphi = 2*TMath::Pi()-dphi;
@@ -345,35 +267,55 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
 	if(mtw > 160) continue;
 	if(*met < 50) continue;
       }
+      else if (sample == Sample::zee){
+	if(*nelectrons != 2) continue;
+	if(not ((*el1pt > 40 and *el1id == 1) or (*el2pt > 40 and *el2id == 1))) continue;
+	if(*el1pid == *el2pid) continue;
+	if(*zeemass < 60 or *zeemass > 120) continue;
+      }
 
-      // denominator monojet
-      if(applyJetSelections and jetpt->at(0) > 100 and fabs(jeteta->at(0)) < 2.5 and jetchfrac->at(0) > 0.1 and jetnhfrac->at(0) < 0.8 and jetchfrac->at(0) < 0.997){
-	hden_monojet_recoil->Fill(*met);
+      efficiencyMonojetSelections->SetBinContent(8,efficiencyMonojetSelections->GetBinContent(8)+1);
+
+      if((sample == Sample::wmn or sample == Sample::zmm) and *nelectrons > 0 ) continue;
+      else if((sample == Sample::wen or sample == Sample::zee) and *nmuons > 0 ) continue;
+      efficiencyMonojetSelections->SetBinContent(9,efficiencyMonojetSelections->GetBinContent(9)+1);
+
+      if((sample == Sample::wmn or sample == Sample::zmm) and fabs(*metpf-*metcalo)/(*mmet) > 0.5) continue;
+      else if((sample == Sample::wen or sample == Sample::zee) and fabs(*metpf-*metcalo)/(*emet) > 0.5) continue;
+      efficiencyMonojetSelections->SetBinContent(10,efficiencyMonojetSelections->GetBinContent(10)+1);
+
+      if((sample == Sample::wmn or sample == Sample::zmm) and applyJetSelections and *jmmdphi < 0.5) continue;      
+      else if((sample == Sample::wen or sample == Sample::zee) and  applyJetSelections and *jemdphi < 0.5) continue;
+      efficiencyMonojetSelections->SetBinContent(11,efficiencyMonojetSelections->GetBinContent(11)+1);
+
+      float metVal = *mmet;
+      if(sample == Sample::wen or sample == Sample::zee)
+	metVal = *met;
+
+      // MONOJET
+      if(applyJetSelections and 
+	 jetpt->at(0) > 100 and 
+	 fabs(jeteta->at(0)) < 2.5 and jetchfrac->at(0) > 0.1 and jetnhfrac->at(0) < 0.8){
+	
+	// monojet vs recoil and met
+	hden_monojet_recoil->Fill(metVal);
 	efficiencyMonojetSelections->SetBinContent(12,efficiencyMonojetSelections->GetBinContent(12)+1);
 	// numerator monojet
-	if(*hltm90 or *hltm100 or *hltm110 or *hltm120 or *hltmwm120 or *hltmwm90 or *hltmwm170 or *hltmwm300 or *hltmwm100 or *hltmwm110 or *hltjm){
-	  efficiencyMonojetSelections->SetBinContent(13,efficiencyMonojetSelections->GetBinContent(13)+1);
-	  hnum_monojet_recoil->Fill(*met);	
-	}
-	
-	if(*met > 800 and not (*hltm90 or *hltm100 or *hltm110 or *hltm120 or *hltmwm120 or *hltmwm90 or *hltmwm170 or *hltmwm300 or *hltmwm100 or *hltmwm110 or *hltjm)){
-	  cout<<"Monojet analysis: run "<<*run<<" lumi "<<*lumi<<" event "<<*event<<" t1pfmet "<<*emet<<" ele pt "<<*el1pt<<" ele eta "<<*el1eta<<" jet pt "<<jetpt->at(0)<<" eta "<<jeteta->at(0)<<" njets "<<*nincjets<<" met "<<*met<<" calomet "<<*metcalo<<endl;
+	if(*hltm90 or *hltm100 or *hltm110 or *hltm120 or *hltmwm120 or *hltmwm90 or *hltmwm100 or *hltmwm110 or *hltmwm170 or *hltmwm300 or *hltjm){
+	  hnum_monojet_recoil->Fill(metVal);	
+	  efficiencyMonojetSelections->SetBinContent(13,efficiencyMonojetSelections->GetBinContent(13)+1);	 
 	}
       }
       else if(not applyJetSelections){
-	hden_monojet_recoil->Fill(*met);
+	// monojet vs recoil and met
+	hden_monojet_recoil->Fill(metVal);
 	efficiencyMonojetSelections->SetBinContent(12,efficiencyMonojetSelections->GetBinContent(12)+1);
 	// numerator monojet
-	if(*hltm90 or *hltm100 or *hltm110 or *hltm120 or *hltmwm120 or *hltmwm90 or *hltmwm170 or *hltmwm300 or *hltmwm100 or *hltmwm110 or *hltjm){
-	  efficiencyMonojetSelections->SetBinContent(13,efficiencyMonojetSelections->GetBinContent(13)+1);
-	  hnum_monojet_recoil->Fill(*met);	
-	}
-	
-	if(*met > 800 and not (*hltm90 or *hltm100 or *hltm110 or *hltm120 or *hltmwm120 or *hltmwm90 or *hltmwm170 or *hltmwm300 or *hltmwm100 or *hltmwm110 or *hltjm)){
-	  cout<<"Monojet analysis: run "<<*run<<" lumi "<<*lumi<<" event "<<*event<<" t1pfmet "<<*emet<<" ele pt "<<*el1pt<<" ele eta "<<*el1eta<<" jet pt "<<jetpt->at(0)<<" eta "<<jeteta->at(0)<<" njets "<<*nincjets<<" met "<<*met<<" calomet "<<*metcalo<<endl;
-	}
-      }
-    }
+	if(*hltm90 or *hltm100 or *hltm110 or *hltm120 or *hltmwm120 or *hltmwm90 or *hltmwm100 or *hltmwm110 or *hltmwm170 or *hltmwm300 or *hltjm){
+	  hnum_monojet_recoil->Fill(metVal);	
+	  efficiencyMonojetSelections->SetBinContent(13,efficiencyMonojetSelections->GetBinContent(13)+1);	 
+	}	
+      }      
   }
     
   cout<<endl;
@@ -393,21 +335,27 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
   fitfunc_monojet_recoil->SetLineColor(kBlue);
   fitfunc_monojet_recoil->SetLineWidth(2);
   
-  plotTurnOn(canvas,eff_monojet_recoil,fitfunc_monojet_recoil,"Recoil [GeV]","recoil_monojet",ouputDIR,luminosity,isMuon);
+  plotTurnOn(canvas,eff_monojet_recoil,fitfunc_monojet_recoil,"Recoil [GeV]",postfix,outputDIR);
+
+  outputFile->cd();
+  eff_monojet_recoil->Write();
+  fitfunc_monojet_recoil->Write();
+  outputFile->Close();
   
 }
 
-void plotTurnOn(TCanvas* canvas, TEfficiency* eff, TF1* fitfunc, const string & axisLabel, const TString & postfix, const string & ouputDIR, const float  & luminosity, const bool & singleMuon, const TString & banner){
-
-
+void plotTurnOn(TCanvas* canvas, TEfficiency* eff, TF1* fitfunc, const string & axisLabel, const string & postfix, const string & outputDIR){
+  
+  
   TH1* frame = canvas->DrawFrame(fitfunc->GetXaxis()->GetXmin(),0.,fitfunc->GetXaxis()->GetXmax(), 1.1, "");
   frame->GetXaxis()->SetTitle(axisLabel.c_str());  
   frame->GetYaxis()->SetTitle("Trigger Efficiency");
-  frame->GetYaxis()->SetLabelSize(0.8*frame->GetYaxis()->GetLabelSize());
-  frame->GetXaxis()->SetLabelSize(0.8*frame->GetXaxis()->GetLabelSize());
-  frame->GetYaxis()->SetTitleSize(0.8*frame->GetYaxis()->GetTitleSize());
-  frame->GetXaxis()->SetTitleSize(0.8*frame->GetXaxis()->GetTitleSize());
-  frame->GetXaxis()->SetTitleOffset(1.0);
+  frame->GetYaxis()->SetLabelSize(0.85*frame->GetYaxis()->GetLabelSize());
+  frame->GetXaxis()->SetLabelSize(0.85*frame->GetXaxis()->GetLabelSize());
+  frame->GetYaxis()->SetTitleSize(0.95*frame->GetYaxis()->GetTitleSize());
+  frame->GetXaxis()->SetTitleSize(0.95*frame->GetXaxis()->GetTitleSize());
+  frame->GetXaxis()->SetTitleOffset(1.1);
+  frame->GetYaxis()->SetTitleOffset(1.2);
 
   // make the fit
   TGraphAsymmErrors* graph = eff->CreateGraph();
@@ -431,34 +379,10 @@ void plotTurnOn(TCanvas* canvas, TEfficiency* eff, TF1* fitfunc, const string & 
   fitfunc->Draw("SAME");
   
   canvas->RedrawAxis();
-  CMS_lumi(canvas,string(Form("%.2f",luminosity)),true);
+  CMS_lumi(canvas,"35.9",true);
 
-  TLegend leg (0.6,0.3,0.9,0.4);
-  leg.SetFillColor(0);
-  leg.SetFillStyle(0);
-  leg.SetBorderSize(0);
-
-  leg.AddEntry((TObject*)0,banner,"");
-  leg.Draw("same");
-
-  if(singleMuon){
-    canvas->SaveAs((ouputDIR+"/metTriggerEfficiency_"+string(postfix)+".png").c_str(),"png");
-    canvas->SaveAs((ouputDIR+"/metTriggerEfficiency_"+string(postfix)+".pdf").c_str(),"pdf");
-    TFile* outputFile = new TFile((ouputDIR+"/metTriggerEfficiency_"+string(postfix)+".root").c_str(),"RECREATE");
-    outputFile->cd();
-    // efficiency
-    eff->Write("efficiency");
-    fitfunc->Write("efficiency_func");
-  }
-  else{
-    canvas->SaveAs((ouputDIR+"/metTriggerEfficiency_ele_"+string(postfix)+".png").c_str(),"png");
-    canvas->SaveAs((ouputDIR+"/metTriggerEfficiency_ele_"+string(postfix)+".pdf").c_str(),"pdf");
-    TFile* outputFile = new TFile((ouputDIR+"/metTriggerEfficiency_ele_"+string(postfix)+".root").c_str(),"RECREATE");
-    outputFile->cd();
-    // efficiency
-    eff->Write("efficiency");
-    fitfunc->Write("efficiency_func");
-  }
+  canvas->SaveAs((outputDIR+"/metTriggerEfficiency_"+string(postfix)+".png").c_str(),"png");
+  canvas->SaveAs((outputDIR+"/metTriggerEfficiency_"+string(postfix)+".pdf").c_str(),"pdf");
 
 }
 

@@ -154,98 +154,28 @@ void createHistograms1D(vector<pair<string,TH1F*> > & histo, const string & post
   }
 }
 
-/////
-void createHistograms2D(vector<pair<string,TH2F*> > & histo, const string & postfix, const vector<float> & binningX, const vector<float> & binningY, const string & obs){
+/////                                                                                                                                                                                                 
+void createHistograms2D(vector<pair<string,vector<TH1F* > > > & histo, const string & postfix, const vector<float> & binningX, const vector<float> & binningY, const string & obs){
+  vector<TH1F*> binVector;
   
-  TH2F* h_inclusive = new TH2F(Form("h_Inclusive_%s_%s",obs.c_str(),postfix.c_str()), "", binningX.size()-1, &binningX[0], binningY.size()-1, &binningY[0]);
-  TH2F* h_inclusive_cc = new TH2F(Form("h_Inclusive_cc_%s_%s",obs.c_str(),postfix.c_str()), "", binningX.size()-1, &binningX[0], binningY.size()-1, &binningY[0]);
-  TH2F* h_inclusive_cf = new TH2F(Form("h_Inclusive_cf_%s_%s",obs.c_str(),postfix.c_str()), "", binningX.size()-1, &binningX[0], binningY.size()-1, &binningY[0]);
-  TH2F* h_inclusive_ff = new TH2F(Form("h_Inclusive_ff_%s_%s",obs.c_str(),postfix.c_str()), "", binningX.size()-1, &binningX[0], binningY.size()-1, &binningY[0]);
-  TH2F* h_L1ETM     = new TH2F(Form("h_L1ETM_%s_%s",obs.c_str(),postfix.c_str()),"", binningX.size()-1, &binningX[0], binningY.size()-1, &binningY[0]);
-  TH2F* h_caloMET   = new TH2F(Form("h_caloMET_%s_%s",obs.c_str(),postfix.c_str()),"", binningX.size()-1, &binningX[0], binningY.size()-1, &binningY[0]);
-  TH2F* h_caloMETClean = new TH2F(Form("h_caloMETClean_%s_%s",obs.c_str(),postfix.c_str()), "", binningX.size()-1, &binningX[0], binningY.size()-1, &binningY[0]);
-  TH2F* h_caloMHT   = new TH2F(Form("h_caloMHT_%s_%s",obs.c_str(),postfix.c_str()),"", binningX.size()-1, &binningX[0], binningY.size()-1, &binningY[0]);
-  TH2F* h_PFMHT     = new TH2F(Form("h_PFMHT_%s_%s",obs.c_str(),postfix.c_str()),"", binningX.size()-1, &binningX[0], binningY.size()-1, &binningY[0]);
-  TH2F* h_PFMET     = new TH2F(Form("h_PFMET_%s_%s",obs.c_str(),postfix.c_str()),"", binningX.size()-1, &binningX[0], binningY.size()-1, &binningY[0]);
-  TH2F* h_PFMHTNoMu = new TH2F(Form("h_PFMHTNoMu_%s_%s",obs.c_str(),postfix.c_str()),"", binningX.size()-1, &binningX[0], binningY.size()-1, &binningY[0]);
-  TH2F* h_PFMETNoMu = new TH2F(Form("h_PFMETNoMu_%s_%s",obs.c_str(),postfix.c_str()), "", binningX.size()-1, &binningX[0], binningY.size()-1, &binningY[0]);
-  TH2F* h_PFMETPath = new TH2F(Form("h_PFMETPath_%s_%s",obs.c_str(),postfix.c_str()), "", binningX.size()-1, &binningX[0], binningY.size()-1, &binningY[0]);
-  TH2F* h_PFMETNoMuPath = new TH2F(Form("h_PFMETNoMuPath_%s_%s",obs.c_str(),postfix.c_str()), "", binningX.size()-1, &binningX[0], binningY.size()-1, &binningY[0]);
-  TH2F* h_TotalPath     = new TH2F(Form("h_TotalPath_%s_%s",obs.c_str(),postfix.c_str()), "", binningX.size()-1, &binningX[0], binningY.size()-1, &binningY[0]);
-  TH2F* h_BigTriggerOR  = new TH2F(Form("h_BigTriggerOR_%s_%s",obs.c_str(),postfix.c_str()), "", binningX.size()-1, &binningX[0], binningY.size()-1, &binningY[0]);
-  TH2F* h_BigTriggerOR_cc = new TH2F(Form("h_BigTriggerOR_cc_%s_%s",obs.c_str(),postfix.c_str()), "", binningX.size()-1, &binningX[0], binningY.size()-1, &binningY[0]);
-  TH2F* h_BigTriggerOR_cf = new TH2F(Form("h_BigTriggerOR_cf_%s_%s",obs.c_str(),postfix.c_str()), "", binningX.size()-1, &binningX[0], binningY.size()-1, &binningY[0]);
-  TH2F* h_BigTriggerOR_ff = new TH2F(Form("h_BigTriggerOR_ff_%s_%s",obs.c_str(),postfix.c_str()), "", binningX.size()-1, &binningX[0], binningY.size()-1, &binningY[0]);
-  
-  h_inclusive->Sumw2();
-  h_inclusive_cc->Sumw2();
-  h_inclusive_cf->Sumw2();
-  h_inclusive_ff->Sumw2();
-  h_L1ETM->Sumw2();
-  h_caloMET->Sumw2();
-  h_caloMETClean->Sumw2();
-  h_caloMHT->Sumw2();
-  h_PFMHT->Sumw2();
-  h_PFMET->Sumw2();
-  h_PFMHTNoMu->Sumw2();
-  h_PFMETNoMu->Sumw2();
-  h_PFMETPath->Sumw2();
-  h_PFMETNoMuPath->Sumw2();
-  h_TotalPath->Sumw2();
-  h_BigTriggerOR->Sumw2();
-  h_BigTriggerOR_cc->Sumw2();
-  h_BigTriggerOR_cf->Sumw2();
-  h_BigTriggerOR_ff->Sumw2();
-  
-  h_inclusive->SetDirectory(0);
-  h_inclusive_cc->SetDirectory(0);
-  h_inclusive_cf->SetDirectory(0);
-  h_inclusive_ff->SetDirectory(0);
-  h_L1ETM->SetDirectory(0);
-  h_caloMET->SetDirectory(0);
-  h_caloMETClean->SetDirectory(0);
-  h_caloMHT->SetDirectory(0);
-  h_PFMHT->SetDirectory(0);
-  h_PFMET->SetDirectory(0);
-  h_PFMHTNoMu->SetDirectory(0);
-  h_PFMETNoMu->SetDirectory(0);
-  h_PFMETPath->SetDirectory(0);
-  h_PFMETNoMuPath->SetDirectory(0);
-  h_BigTriggerOR->SetDirectory(0);
-  h_BigTriggerOR_cc->SetDirectory(0);
-  h_BigTriggerOR_cf->SetDirectory(0);
-  h_BigTriggerOR_ff->SetDirectory(0);
-  
-  histo.push_back(pair<string,TH2F*>(obs,h_inclusive));
-  if(doJetStudy){
-    histo.push_back(pair<string,TH2F*>(obs,h_inclusive_cc));
-    histo.push_back(pair<string,TH2F*>(obs,h_inclusive_cf));
-    histo.push_back(pair<string,TH2F*>(obs,h_inclusive_ff));    
+  for(int iBin = 0; iBin < binningY.size()-1; iBin++){
+    binVector.push_back(new TH1F(Form("h_Inclusive_%s_%s_bin_%d",obs.c_str(),postfix.c_str(),iBin), "", binningX.size()-1, &binningX[0]));
+    binVector.back()->Sumw2();
+    binVector.back()->SetDirectory(0);
+    binVector.push_back(new TH1F(Form("h_BigTriggerOR_%s_%s_bin_%d",obs.c_str(),postfix.c_str(),iBin), "", binningX.size()-1, &binningX[0]));
+    binVector.back()->Sumw2();
+    binVector.back()->SetDirectory(0);
   }
-  histo.push_back(pair<string,TH2F*>(obs,h_L1ETM));
-  histo.push_back(pair<string,TH2F*>(obs,h_caloMET));
-  histo.push_back(pair<string,TH2F*>(obs,h_caloMETClean));
-  histo.push_back(pair<string,TH2F*>(obs,h_caloMHT));
-  histo.push_back(pair<string,TH2F*>(obs,h_PFMHTNoMu));
-  histo.push_back(pair<string,TH2F*>(obs,h_PFMETNoMu));
-  histo.push_back(pair<string,TH2F*>(obs,h_PFMHT));
-  histo.push_back(pair<string,TH2F*>(obs,h_PFMET));
-  histo.push_back(pair<string,TH2F*>(obs,h_PFMETPath));
-  histo.push_back(pair<string,TH2F*>(obs,h_PFMETNoMuPath));
-  histo.push_back(pair<string,TH2F*>(obs,h_TotalPath));
-  histo.push_back(pair<string,TH2F*>(obs,h_BigTriggerOR));
-  if(doJetStudy){
-    histo.push_back(pair<string,TH2F*>(obs,h_BigTriggerOR_cc));
-    histo.push_back(pair<string,TH2F*>(obs,h_BigTriggerOR_cf));
-    histo.push_back(pair<string,TH2F*>(obs,h_BigTriggerOR_ff));
-  }
+  
+  histo.push_back(pair<string,vector<TH1F* > >(obs,binVector));
     
 }
+
 
 //////////
 void makeTriggerAnalysis(TChain* tree, 
 			 vector<pair<string,TH1F*> > &  histograms, // depends on the selection one wants to apply
-			 vector<pair<string,TH2F*> > &  histograms2D, // depends on the selection one wants to apply
+			 vector<pair<string,vector<TH1F*> > > &  histograms2D, // depends on the selection one wants to apply  
 			 const Sample &   sample, // sample to be selected
 			 const Category & category,
 			 vector<double> & wgtsum, // sum of weights
@@ -747,170 +677,180 @@ void makeTriggerAnalysis(TChain* tree,
     for(auto obs : histograms2D){
       
       if(*mmet < 250) continue; // cut harder in met
-      
-      // values
+
+      // values                                                                                                                                                                                       
       float valueX = 0;
       float valueY = 0;
+
+      vector<float> binningY;
+
       if(obs.first == "mjj-ptj1"){
-	valueX = (jet1+jet2).M();
-	valueY = jet1.Pt();
+        valueX = (jet1+jet2).M();
+        valueY = jet1.Pt();
+	binningY = bins_VBFrelaxed_ptj1_2d;
       }
       else if(obs.first == "mjj-ptj2"){
-	valueX = (jet1+jet2).M();
-	valueY = jet2.Pt();
+        valueX = (jet1+jet2).M();
+        valueY = jet2.Pt();
+	binningY = bins_VBFrelaxed_ptj2_2d;
       }
       else if(obs.first == "mjj-detajj"){
-	valueX = (jet1+jet2).M();
-	valueY = fabs(jet1.Eta()-jet2.Eta());
+        valueX = (jet1+jet2).M();
+        valueY = fabs(jet1.Eta()-jet2.Eta());
+	binningY = bins_VBFrelaxed_detajj_2d;
       }
-            
-      // handling overflow
-      if(valueX > obs.second->GetXaxis()->GetBinLowEdge(obs.second->GetNbinsX()+1))
-	valueX = obs.second->GetXaxis()->GetBinLowEdge(obs.second->GetNbinsX()+1)-1;	
-      // handling overflow
-      if(valueY > obs.second->GetYaxis()->GetBinLowEdge(obs.second->GetNbinsY()+1))
-	valueY = obs.second->GetYaxis()->GetBinLowEdge(obs.second->GetNbinsY()+1)-1;	
+      
+      if(valueY > binningY.back())
+	valueY = binningY.back()-0.001;
 
-      TString name (obs.second->GetName());
-      if(name.Contains("Inclusive_cc")){
-	if(fabs(jet1.Eta()) < 3 and fabs(jet2.Eta()) < 3)	    
-	    obs.second->Fill(valueX,valueY,luminosity*(*xsec)*(*wgt)*puwgt*sfwgt*kwgt/wgtsum.at(ifile));
+      /// decide the histogram
+      int binToFill = -1;
+      for(int iBinY = 0; iBinY < binningY.size()-1; iBinY++){
+	if(valueY >= binningY.at(iBinY) and valueY <= binningY.at(iBinY+1)) binToFill = iBinY;
       }
-      else if(name.Contains("Inclusive_cf")){
-	if(((fabs(jet1.Eta()) < 3 and fabs(jet2.Eta()) > 3) or (fabs(jet1.Eta()) > 3 and fabs(jet2.Eta()) < 3)))
-	  obs.second->Fill(valueX,valueY,luminosity*(*xsec)*(*wgt)*puwgt*sfwgt*kwgt/wgtsum.at(ifile));
-      }
-      else if(name.Contains("Inclusive_ff")){ // fill with all the events i.e. numerator
-	if(fabs(jet1.Eta()) > 3.0 and fabs(jet2.Eta()) > 3.)
-	  obs.second->Fill(valueX,valueY,luminosity*(*xsec)*(*wgt)*puwgt*sfwgt*kwgt/wgtsum.at(ifile));
-      }
-      else if(name.Contains("Inclusive")) // fill with all the events i.e. numerator
-	obs.second->Fill(valueX,valueY,luminosity*(*xsec)*(*wgt)*puwgt*sfwgt*kwgt/wgtsum.at(ifile));
-      
-      // L1 efficiency
-      else if(name.Contains("L1ETM")){ // fill with all the events passing L1 selection
-	if(*trig_L1ETM_pt > L1_ETM_CUT) 
-	  obs.second->Fill(valueX,valueY,luminosity*(*xsec)*(*wgt)*puwgt*sfwgt*kwgt/wgtsum.at(ifile));
-      }
-      
-      // L1 + caloMET + caloMETClean
-      else if(name.Contains("caloMETClean")){// fill with all the events passing calo-MET + calo-MET clean cut
-	if(*trig_L1ETM_pt > L1_ETM_CUT and
-	   caloMET > caloMET_CUT and
-	   caloMETClean > caloMETClean_CUT) 
-	  obs.second->Fill(valueX,valueY,luminosity*(*xsec)*(*wgt)*puwgt*sfwgt*kwgt/wgtsum.at(ifile));
-      }
-      
-      // L1 + caloMET
-      else if(name.Contains("caloMET")){ // fill with all the events passing calo-MET 
-	if(*trig_L1ETM_pt > L1_ETM_CUT and
-	   caloMET > caloMET_CUT)
-	  obs.second->Fill(valueX,valueY,luminosity*(*xsec)*(*wgt)*puwgt*sfwgt*kwgt/wgtsum.at(ifile));
-      }
-      
-      // L1 + caloMET + caloMETClean + caloMHT
-      else if(name.Contains("caloMHT")){// fill with all the events passing calo MHT
-	if(*trig_L1ETM_pt > L1_ETM_CUT and
-	   caloMET > caloMET_CUT and
-	   caloMETClean > caloMETClean_CUT and
-	   caloMHT > caloMHT_CUT)
-	  obs.second->Fill(valueX,valueY,luminosity*(*xsec)*(*wgt)*puwgt*sfwgt*kwgt/wgtsum.at(ifile));
-      }
-      
-      // L1 + caloMET + caloMETClean + caloMHT + PFMHTNoMu
-      else if(name.Contains("PFMHTNoMu")){
-	if(*trig_L1ETM_pt > L1_ETM_CUT and
-	   caloMET > caloMET_CUT and 
-	   caloMETClean > caloMETClean_CUT and
-	   caloMHT > caloMHT_CUT and
-	   PFMHTNoMu > PFMHTNoMu_CUT)
-	  obs.second->Fill(valueX,valueY,luminosity*(*xsec)*(*wgt)*puwgt*sfwgt*kwgt/wgtsum.at(ifile));
-      }
-      
-      // L1 + caloMET + caloMETClean + caloMHT + PFMHT
-      else if(name.Contains("PFMHT")){  // fill with all the events passing PFMHT
-	if(*trig_L1ETM_pt > L1_ETM_CUT and
-	   caloMET > caloMET_CUT and
-	   caloMETClean > caloMETClean_CUT and
-	   caloMHT > caloMHT_CUT and
-	   PFMHT > PFMHT_CUT)
-	  obs.second->Fill(valueX,valueY,luminosity*(*xsec)*(*wgt)*puwgt*sfwgt*kwgt/wgtsum.at(ifile));
-      }
-      
-      // L1 + caloMET + caloMETClean + caloMHT + PFMHTNoMu + PFMETNoMu
-      else if(name.Contains("PFMETNoMu")){
-	if(*trig_L1ETM_pt > L1_ETM_CUT and
-	   caloMET > caloMET_CUT and
-	   caloMETClean > caloMETClean_CUT and
-	   caloMHT   > caloMHT_CUT and
-	   PFMHTNoMu > PFMHTNoMu_CUT and
-	   PFMETNoMu > PFMETNoMu_CUT)
-	  obs.second->Fill(valueX,valueY,luminosity*(*xsec)*(*wgt)*puwgt*sfwgt*kwgt/wgtsum.at(ifile));	    
-      }	  
-      
-      // L1 + caloMET + caloMETClean + caloMHT + PFMHT + PFMET
-      else if(name.Contains("PFMET")){ // fill with all the events passing PFMET
-	if(*trig_L1ETM_pt > L1_ETM_CUT and
-	   caloMET > caloMET_CUT and
-	   caloMETClean > caloMETClean_CUT and
-	   caloMHT > caloMHT_CUT and
-	   PFMHT > PFMHT_CUT and
-	   PFMET > PFMET_CUT) 
-	  obs.second->Fill(valueX,valueY,luminosity*(*xsec)*(*wgt)*puwgt*sfwgt*kwgt/wgtsum.at(ifile));	  
-      } 
-      
-      // PFMET path
-      else if(name.Contains("PFMETPath")){
-	if(*trig_L1ETM_pt > L1_ETM_CUT and
-	   *hltmetwithmu != 0) 
-	  obs.second->Fill(valueX,valueY,luminosity*(*xsec)*(*wgt)*puwgt*sfwgt*kwgt/wgtsum.at(ifile));	  
-      } 
-      
-      // PFMETNoMu path
-      else if(name.Contains("PFMETNoMuPath")){
-	if(*trig_L1ETM_pt > L1_ETM_CUT and
-	   *hltmet != 0) 
-	  obs.second->Fill(valueX,valueY,luminosity*(*xsec)*(*wgt)*puwgt*sfwgt*kwgt/wgtsum.at(ifile));	  
-      } 
-      
-      else if(name.Contains("TotalPath")){
-	if(*trig_L1ETM_pt > L1_ETM_CUT and
-	   (*hltmet != 0 or *hltmetwithmu != 0)) 
-	   obs.second->Fill(valueX,valueY,luminosity*(*xsec)*(*wgt)*puwgt*sfwgt*kwgt/wgtsum.at(ifile));	  
-      }
-      
-      /////// ---
-      else if(name.Contains("h_BigTriggerOR_cc")){
-	if(*trig_L1ETM_pt > L1_ETM_CUT and
-	   (*hltmet90 != 0 or *hltmet100 != 0 or *hltmet110 != 0 or *hltmet120 != 0 or
-	    *hltmetwithmu90 != 0 or *hltmetwithmu100 != 0 or *hltmetwithmu110 != 0 or *hltmetwithmu120 != 0 or
-	    *hltjetmet != 0) and fabs(jet1.Eta()) < 3 and fabs(jet2.Eta()) < 3)
-	  obs.second->Fill(valueX,valueY,luminosity*(*xsec)*(*wgt)*puwgt*sfwgt*kwgt/wgtsum.at(ifile));	  
-      } 
 
-      else if(name.Contains("h_BigTriggerOR_cf")){
-	if(*trig_L1ETM_pt > L1_ETM_CUT and
-	   (*hltmet90 != 0 or *hltmet100 != 0 or *hltmet110 != 0 or *hltmet120 != 0 or
-	    *hltmetwithmu90 != 0 or *hltmetwithmu100 != 0 or *hltmetwithmu110 != 0 or *hltmetwithmu120 != 0 or
-	    *hltjetmet != 0) and ((fabs(jet1.Eta()) < 3 and fabs(jet2.Eta()) > 3) or (fabs(jet1.Eta()) > 3 and fabs(jet2.Eta()) < 3)))
-	    obs.second->Fill(valueX,valueY,luminosity*(*xsec)*(*wgt)*puwgt*sfwgt*kwgt/wgtsum.at(ifile));	  
-      } 
-      
-      else if(name.Contains("h_BigTriggerOR_ff")){
-	if(*trig_L1ETM_pt > L1_ETM_CUT and
-	   (*hltmet90 != 0 or *hltmet100 != 0 or *hltmet110 != 0 or *hltmet120 != 0 or
-	    *hltmetwithmu90 != 0 or *hltmetwithmu100 != 0 or *hltmetwithmu110 != 0 or *hltmetwithmu120 != 0 or
-	    *hltjetmet != 0) and fabs(jet1.Eta()) > 3.0 and fabs(jet2.Eta()) > 3.)
-	    obs.second->Fill(valueX,valueY,luminosity*(*xsec)*(*wgt)*puwgt*sfwgt*kwgt/wgtsum.at(ifile));	  
-      } 
-      
-      else if(name.Contains("h_BigTriggerOR")){
-	if(*trig_L1ETM_pt > L1_ETM_CUT and
-	   (*hltmet90 != 0 or *hltmet100 != 0 or *hltmet110 != 0 or *hltmet120 != 0 or
-	    *hltmetwithmu90 != 0 or *hltmetwithmu100 != 0 or *hltmetwithmu110 != 0 or *hltmetwithmu120 != 0 or
-	    *hltjetmet != 0))
-	  obs.second->Fill(valueX,valueY,luminosity*(*xsec)*(*wgt)*puwgt*sfwgt*kwgt/wgtsum.at(ifile));	  
-      } 
+      TString stringToSearch = Form("_bin_%d",binToFill);
+
+      for(auto histo : obs.second){
+
+	if(not TString(histo->GetName()).Contains(stringToSearch)) continue;
+
+	// handling overflow                                                                                                                                                                           
+	if(valueX > histo->GetXaxis()->GetBinLowEdge(histo->GetNbinsX()+1))
+	  valueX = histo->GetXaxis()->GetBinLowEdge(histo->GetNbinsX()+1)-1;
+
+	TString name (histo->GetName());
+
+	if(name.Contains("Inclusive_cc")){
+	  if(fabs(jet1.Eta()) < 3 and fabs(jet2.Eta()) < 3)
+	    histo->Fill(valueX,luminosity*(*xsec)*(*wgt)*puwgt*sfwgt*kwgt/wgtsum.at(ifile));
+	}
+	if(name.Contains("Inclusive_cf")){
+	  if(((fabs(jet1.Eta()) < 3 and fabs(jet2.Eta()) > 3) or (fabs(jet1.Eta()) > 3 and fabs(jet2.Eta()) < 3)))
+	    histo->Fill(valueX,luminosity*(*xsec)*(*wgt)*puwgt*sfwgt*kwgt/wgtsum.at(ifile));
+	}
+	if(name.Contains("Inclusive_ff")){ // fill with all the events i.e. numerator                                                                                                                   
+	  if(fabs(jet1.Eta()) > 3 and fabs(jet2.Eta()) > 3)
+	    histo->Fill(valueX,luminosity*(*xsec)*(*wgt)*puwgt*sfwgt*kwgt/wgtsum.at(ifile));
+	}
+	else if(name.Contains("Inclusive")) // fill with all the events i.e. numerator                                                                                                                 
+	  histo->Fill(valueX,luminosity*(*xsec)*(*wgt)*puwgt*sfwgt*kwgt/wgtsum.at(ifile));
+
+	// L1 efficiency                                                                                                                                                                           
+	else if(name.Contains("L1ETM")){ // fill with all the events passing L1 selection                                                                                                
+	  if(*trig_L1ETM_pt > L1_ETM_CUT)
+	    histo->Fill(valueX,luminosity*(*xsec)*(*wgt)*puwgt*sfwgt*kwgt/wgtsum.at(ifile));
+	}
+	// L1 + caloMET + caloMETClean                                                                                                                                                            
+	else if(name.Contains("caloMETClean")){// fill with all the events passing calo-MET + calo-MET clean cut                                                                        
+	  if(*trig_L1ETM_pt > L1_ETM_CUT and
+           caloMET > caloMET_CUT and
+	     caloMETClean > caloMETClean_CUT)
+	    histo->Fill(valueX,luminosity*(*xsec)*(*wgt)*puwgt*sfwgt*kwgt/wgtsum.at(ifile));
+	}
+	
+	// L1 + caloMET                                                                                                                                                                         
+	else if(name.Contains("caloMET")){ // fill with all the events passing calo-MET                                                                                                  
+	  if(*trig_L1ETM_pt > L1_ETM_CUT and
+	     caloMET > caloMET_CUT)
+	    histo->Fill(valueX,luminosity*(*xsec)*(*wgt)*puwgt*sfwgt*kwgt/wgtsum.at(ifile));
+	}
+	
+	// L1 + caloMET + caloMETClean + caloMHT                                                                                                                                                    
+	else if(name.Contains("caloMHT")){// fill with all the events passing calo MHT                                                                                                      
+	  if(*trig_L1ETM_pt > L1_ETM_CUT and
+	     caloMET > caloMET_CUT and
+	     caloMETClean > caloMETClean_CUT and
+	     caloMHT > caloMHT_CUT)
+	    histo->Fill(valueX,luminosity*(*xsec)*(*wgt)*puwgt*sfwgt*kwgt/wgtsum.at(ifile));
+	}
+	
+	// L1 + caloMET + caloMETClean + caloMHT + PFMHTNoMu                                                                                                                                        
+	else if(name.Contains("PFMHTNoMu")){
+	  if(*trig_L1ETM_pt > L1_ETM_CUT and
+	     caloMET > caloMET_CUT and
+	     caloMETClean > caloMETClean_CUT and
+	     caloMHT > caloMHT_CUT and
+	     PFMHTNoMu > PFMHTNoMu_CUT)
+	    histo->Fill(valueX,luminosity*(*xsec)*(*wgt)*puwgt*sfwgt*kwgt/wgtsum.at(ifile));
+	}
+	
+	// L1 + caloMET + caloMETClean + caloMHT + PFMHT                                                                                                                                           
+	else if(name.Contains("PFMHT")){  // fill with all the events passing PFMHT                                                                                                             
+	  if(*trig_L1ETM_pt > L1_ETM_CUT and
+	     caloMET > caloMET_CUT and
+	     caloMETClean > caloMETClean_CUT and
+	     caloMHT > caloMHT_CUT and
+	     PFMHT > PFMHT_CUT)
+	    histo->Fill(valueX,luminosity*(*xsec)*(*wgt)*puwgt*sfwgt*kwgt/wgtsum.at(ifile));
+	}
+	
+	// L1 + caloMET + caloMETClean + caloMHT + PFMHTNoMu + PFMETNoMu                                                                                                                       
+	else if(name.Contains("PFMETNoMu")){
+	  if(*trig_L1ETM_pt > L1_ETM_CUT and
+	     caloMET > caloMET_CUT and
+	     caloMETClean > caloMETClean_CUT and
+	     caloMHT   > caloMHT_CUT and
+	     PFMHTNoMu > PFMHTNoMu_CUT and
+	     PFMETNoMu > PFMETNoMu_CUT)
+	    histo->Fill(valueX,luminosity*(*xsec)*(*wgt)*puwgt*sfwgt*kwgt/wgtsum.at(ifile));
+	}
+	
+	// L1 + caloMET + caloMETClean + caloMHT + PFMHT + PFMET                                                                                                                                 
+	else if(name.Contains("PFMET")){ // fill with all the events passing PFMET                                                                                                              
+	  if(*trig_L1ETM_pt > L1_ETM_CUT and
+	     caloMET > caloMET_CUT and
+	     caloMETClean > caloMETClean_CUT and
+	     caloMHT > caloMHT_CUT and
+	     PFMHT > PFMHT_CUT and
+	     PFMET > PFMET_CUT)
+	    histo->Fill(valueX,luminosity*(*xsec)*(*wgt)*puwgt*sfwgt*kwgt/wgtsum.at(ifile));
+	}
+	
+	// PFMET path                                                                                                                                                                                  
+	else if(name.Contains("PFMETPath")){
+	  if(*hltmetwithmu != 0)
+	    histo->Fill(valueX,luminosity*(*xsec)*(*wgt)*puwgt*sfwgt*kwgt/wgtsum.at(ifile));
+	}
+	// PFMETNoMu path                                                                                                                                                                             
+	else if(name.Contains("PFMETNoMuPath")){
+	  if(*hltmet != 0)
+	    histo->Fill(valueX,luminosity*(*xsec)*(*wgt)*puwgt*sfwgt*kwgt/wgtsum.at(ifile));
+	}
+	
+	else if(name.Contains("TotalPath")){
+	  if(*hltmet != 0 or *hltmetwithmu != 0)
+	    histo->Fill(valueX,luminosity*(*xsec)*(*wgt)*puwgt*sfwgt*kwgt/wgtsum.at(ifile));
+	}
+	
+	/////// ---                                                                                                                                                                                   
+	else if(name.Contains("h_BigTriggerOR_cc")){
+	  if((*hltmet90 != 0 or *hltmet100 != 0 or *hltmet110 != 0 or *hltmet120 != 0 or
+	      *hltmetwithmu90 != 0 or *hltmetwithmu100 != 0 or *hltmetwithmu110 != 0 or *hltmetwithmu120 != 0 or
+	      *hltjetmet != 0) and fabs(jet1.Eta()) < 3 and fabs(jet2.Eta()) < 3)
+	    histo->Fill(valueX,luminosity*(*xsec)*(*wgt)*puwgt*sfwgt*kwgt/wgtsum.at(ifile));
+	}
+	else if(name.Contains("h_BigTriggerOR_cf")){
+	  if((*hltmet90 != 0 or *hltmet100 != 0 or *hltmet110 != 0 or *hltmet120 != 0 or
+	      *hltmetwithmu90 != 0 or *hltmetwithmu100 != 0 or *hltmetwithmu110 != 0 or *hltmetwithmu120 != 0 or
+	      *hltjetmet != 0) and ((fabs(jet1.Eta()) < 3 and fabs(jet2.Eta()) > 3) or (fabs(jet1.Eta()) > 3 and fabs(jet2.Eta()) < 3)))
+	    histo->Fill(valueX,luminosity*(*xsec)*(*wgt)*puwgt*sfwgt*kwgt/wgtsum.at(ifile));
+	}
+	
+	else if(name.Contains("h_BigTriggerOR_ff")){
+	  if((*hltmet90 != 0 or *hltmet100 != 0 or *hltmet110 != 0 or *hltmet120 != 0 or
+	      *hltmetwithmu90 != 0 or *hltmetwithmu100 != 0 or *hltmetwithmu110 != 0 or *hltmetwithmu120 != 0 or
+	      *hltjetmet != 0) and fabs(jet1.Eta()) > 3 and fabs(jet2.Eta()) > 3.)
+	    histo->Fill(valueX,luminosity*(*xsec)*(*wgt)*puwgt*sfwgt*kwgt/wgtsum.at(ifile));
+	}
+	
+	else if(name.Contains("h_BigTriggerOR")){
+	  if((*hltmet90 != 0 or *hltmet100 != 0 or *hltmet110 != 0 or *hltmet120 != 0 or
+	      *hltmetwithmu90 != 0 or *hltmetwithmu100 != 0 or *hltmetwithmu110 != 0 or *hltmetwithmu120 != 0 or
+	      *hltjetmet != 0))
+	    histo->Fill(valueX,luminosity*(*xsec)*(*wgt)*puwgt*sfwgt*kwgt/wgtsum.at(ifile));
+	}
+      }
     }            
   }
   cout<<endl;
@@ -948,177 +888,6 @@ void fillTreeList(TChain* tree, TChain* gentree, const string & inputDIR, const 
   }
   system("rm list_dir.txt");
 }
-
-/// plotting efficiency
-void plotEfficiency(TCanvas* canvas, 
-		    TH1* histo_zjet, 
-		    TH1* histo_wjet, 
-		    TH1* histo_wmn, 
-		    TH1* histo_zmm, 
-		    const string & outputDIR, 
-		    const float &  luminosity, 
-		    const string & observable){
-
-  
-  histo_zjet->SetMarkerColor(kBlack);
-  histo_zjet->SetLineColor(kBlack);
-  histo_zjet->SetMarkerStyle(20);
-  histo_zjet->SetMarkerSize(0.75);
-  histo_zjet->SetLineWidth(1);
-  histo_zjet->SetFillStyle(0);
-  histo_zjet->SetFillColor(0);
-
-  histo_wjet->SetMarkerColor(kRed);
-  histo_wjet->SetLineColor(kRed);
-  histo_wjet->SetMarkerStyle(24);
-  histo_wjet->SetMarkerSize(0.75);
-  histo_wjet->SetLineWidth(1);
-  histo_wjet->SetFillStyle(0);
-  histo_wjet->SetFillColor(0);
-
-  histo_wmn->SetMarkerColor(kBlue);
-  histo_wmn->SetLineColor(kBlue);
-  histo_wmn->SetMarkerStyle(20);
-  histo_wmn->SetMarkerStyle(26);
-  histo_wmn->SetMarkerSize(0.75);
-  histo_wmn->SetLineWidth(1);
-  histo_wmn->SetFillStyle(0);
-  histo_wmn->SetFillColor(0);
-
-  histo_zmm->SetMarkerColor(kGreen+1);
-  histo_zmm->SetLineColor(kGreen+1);
-  histo_zmm->SetMarkerStyle(20);
-  histo_zmm->SetMarkerStyle(26);
-  histo_zmm->SetMarkerSize(0.75);
-  histo_zmm->SetLineWidth(1);
-  histo_zmm->SetFillStyle(0);
-  histo_zmm->SetFillColor(0);
-
-  // Plotting final result for MC turn ons
-  TH1* frame = NULL;
-  if(TString(observable).Contains("mjj"))
-    frame = canvas->DrawFrame(histo_zjet->GetXaxis()->GetBinLowEdge(1),0.2,
-			      histo_zjet->GetXaxis()->GetBinLowEdge(histo_zjet->GetNbinsX()+1), 1.1, "");
-  else
-    frame = canvas->DrawFrame(histo_zjet->GetXaxis()->GetBinLowEdge(1),0.6,
-			      histo_zjet->GetXaxis()->GetBinLowEdge(histo_zjet->GetNbinsX()+1), 1.1, "");
-  
-  frame->GetYaxis()->SetTitle("Trigger Efficiency");
-  frame->GetXaxis()->SetTitleOffset(1.1);
-  frame->GetYaxis()->SetTitleOffset(1.30);
-  frame->GetYaxis()->SetTitleSize(0.04);
-  frame->GetYaxis()->SetLabelSize(0.03);
-  frame->GetXaxis()->SetTitleSize(0);
-  frame->GetXaxis()->SetLabelSize(0);
-  frame->GetYaxis()->SetLabelSize(0.85*frame->GetYaxis()->GetLabelSize());
-
-  canvas->SetTopMargin(0.06);
-  canvas->SetBottomMargin(0.3);
-  canvas->Draw();
-  canvas->cd();
-  frame->Draw();
-  CMS_lumi(canvas,string(Form("%.2f",luminosity)),true);
-
-  histo_zjet->Draw("EPLsame");
-  histo_wjet->Draw("EPLsame");
-  histo_wmn->Draw("EPLsame");
-  histo_zmm->Draw("EPLsame");
-
-  TLegend* leg = NULL;
-  if(TString(observable).Contains("met"))
-    leg = new TLegend(0.6,0.4,0.9,0.6);
-  else
-    leg = new TLegend(0.25,0.4,0.55,0.6);
-
-  leg->SetFillColor(0);
-  leg->SetFillStyle(0);
-  leg->SetBorderSize(0);
-  leg->AddEntry(histo_zjet,"Z(#nu#nu)+jets SR","EPL");
-  leg->AddEntry(histo_wjet,"W+jets SR","EPL");
-  leg->AddEntry(histo_wmn,"W+jets W(#mu#nu)-CR","EPL");
-  leg->AddEntry(histo_zmm,"Z+jets Z(#mu#mu)-CR","EPL");
-  leg->Draw("same");
-
-  TString plotName(histo_zjet->GetName());
-  plotName.ReplaceAll("_zjet","");
-
-  //// ----
-  TPad* pad2 = new TPad("pad2","pad2",0,0.,1,0.9);
-  pad2->SetTopMargin(0.7);
-  pad2->SetFillColor(0);
-  pad2->SetGridy(1);
-  pad2->SetFillStyle(0);
-  pad2->Draw();
-  pad2->cd();
-
-  // Plotting final result for MC turn ons
-  TH1* frame2 = NULL;
-  if(TString(observable).Contains("mjj"))
-    frame2 = pad2->DrawFrame(histo_zjet->GetXaxis()->GetBinLowEdge(1),0.8,
-			     histo_zjet->GetXaxis()->GetBinLowEdge(histo_zjet->GetNbinsX()+1), 1.05, "");
-  else
-    frame2 = pad2->DrawFrame(histo_zjet->GetXaxis()->GetBinLowEdge(1),0.9,
-			     histo_zjet->GetXaxis()->GetBinLowEdge(histo_zjet->GetNbinsX()+1), 1.05, "");
-
-  if(observable == "met")
-    frame2->GetXaxis()->SetTitle("Recoil [GeV]");
-  else if(observable == "mjj")
-    frame2->GetXaxis()->SetTitle("M_{jj} [GeV]");
-  else if(observable == "ptj1")
-    frame2->GetXaxis()->SetTitle("p_{T}_{j1} [GeV]");
-  else if(observable == "ptj2")
-    frame2->GetXaxis()->SetTitle("p_{T}_{j2} [GeV]");
-  else if(observable == "detajj")
-    frame2->GetXaxis()->SetTitle("#Delta#eta_{jj}");
-
-  frame2->GetYaxis()->SetTitle("Ratio");
-  frame2->GetXaxis()->SetTitleOffset(1.1);
-  frame2->GetYaxis()->SetTitleOffset(1.32);
-  frame2->GetYaxis()->SetTitleSize(0.04);
-  frame2->GetYaxis()->SetLabelSize(0.03);
-  frame2->GetYaxis()->SetNdivisions(504);
-  frame2->GetYaxis()->SetLabelSize(0.85*frame2->GetYaxis()->GetLabelSize());
-  frame2->Draw();
-
-  /// ------
-  TH1F* ratio_wjet_over_zjet = (TH1F*) histo_wjet->Clone();
-  ratio_wjet_over_zjet->Divide(histo_zjet);
-
-  TH1F* ratio_wmn_over_zjet = (TH1F*) histo_wmn->Clone();
-  ratio_wmn_over_zjet->Divide(histo_zjet);
-
-  TH1F* ratio_zmm_over_zjet = (TH1F*) histo_zmm->Clone();
-  ratio_zmm_over_zjet->Divide(histo_zjet);
-
-  ratio_wjet_over_zjet->SetMarkerColor(kRed);
-  ratio_wjet_over_zjet->SetLineColor(kRed);
-  ratio_wjet_over_zjet->SetMarkerStyle(24);
-  ratio_wjet_over_zjet->SetMarkerSize(0.75);
-  ratio_wjet_over_zjet->SetLineWidth(1);
-  ratio_wjet_over_zjet->Draw("EPsame");
-
-  ratio_wmn_over_zjet->SetMarkerColor(kBlue);
-  ratio_wmn_over_zjet->SetLineColor(kBlue);
-  ratio_wmn_over_zjet->SetMarkerStyle(20);
-  ratio_wmn_over_zjet->SetMarkerStyle(26);
-  ratio_wmn_over_zjet->SetMarkerSize(0.75);
-  ratio_wmn_over_zjet->SetLineWidth(1);
-  ratio_wmn_over_zjet->Draw("EPsame");
-
-  ratio_zmm_over_zjet->SetMarkerColor(kGreen+1);
-  ratio_zmm_over_zjet->SetLineColor(kGreen+1);
-  ratio_zmm_over_zjet->SetMarkerStyle(20);
-  ratio_zmm_over_zjet->SetMarkerStyle(26);
-  ratio_zmm_over_zjet->SetMarkerSize(0.75);
-  ratio_zmm_over_zjet->SetLineWidth(1);
-  ratio_zmm_over_zjet->Draw("EPsame");
-
-  canvas->SaveAs((outputDIR+"/"+string(plotName.Data())+".pdf").c_str(),"pdf");
-  if(frame2) delete frame2;
-  if(pad2) delete pad2;
-  if(leg) delete leg;
-}
-
 
 /// plotting efficiency
 void plotEfficiency(TCanvas* canvas, 
@@ -1301,14 +1070,14 @@ void plotEfficiency(TCanvas* canvas,
 
 
 /// Main function 
-void makeMETTriggerEfficiencyMC_ZvsW(string   inputDIR, 
-				     string   outputDIR, 
-				     Category category,
-				     string   triggerPath, // PFMET90, PFMET100, PFMET110, PFMET120
-				     vector<string> observable, // study the trigger efficiency vs mjj or recoil
-				     vector<string> observable2D,
-				     bool     splitJets = false,
-				     float    luminosity = 35.9){
+void makeMETTriggerFilterEfficiencyMC(string   inputDIR, 
+				      string   outputDIR, 
+				      Category category,
+				      string   triggerPath, // PFMET90, PFMET100, PFMET110, PFMET120
+				      vector<string> observable, // study the trigger efficiency vs mjj or recoil
+				      vector<string> observable2D,
+				      bool     splitJets = false,
+				      float    luminosity = 35.9){
 
   doJetStudy = splitJets;
 
@@ -1379,12 +1148,11 @@ void makeMETTriggerEfficiencyMC_ZvsW(string   inputDIR,
     createHistograms1D(histo_zmm,"zmm",binning,obs);
   }
 
-
-  /////// start analysis  
-  vector<pair<string,TH2F*> > histo_zjet_2d;
-  vector<pair<string,TH2F*> > histo_wjet_2d;
-  vector<pair<string,TH2F*> > histo_wmn_2d;
-  vector<pair<string,TH2F*> > histo_zmm_2d;
+  ////// start analysis                                                                                                                                                                                
+  vector<pair<string,vector<TH1F*> > > histo_zjet_2d;
+  vector<pair<string,vector<TH1F*> > > histo_wjet_2d;
+  vector<pair<string,vector<TH1F*> > > histo_wmn_2d;
+  vector<pair<string,vector<TH1F*> > > histo_zmm_2d;
 
   for(auto obs : observable2D){
     vector<float> binningX;
@@ -1406,12 +1174,15 @@ void makeMETTriggerEfficiencyMC_ZvsW(string   inputDIR,
       cerr<<"Observable not found --> skip it "<<endl;
       continue;
     }
-    
     createHistograms2D(histo_zjet_2d,"zjet",binningX,binningY,obs);
     createHistograms2D(histo_wjet_2d,"wjet",binningX,binningY,obs);
     createHistograms2D(histo_wmn_2d,"wmn",binningX,binningY,obs);
     createHistograms2D(histo_zmm_2d,"zmm",binningX,binningY,obs);
   }
+
+
+  TFile* outputFile = new TFile((outputDIR+"/efficiency.root").c_str(),"RECREATE");
+  outputFile->cd();
 
   // k-factors
   TFile* kffile = TFile::Open(kfactorFile.c_str());
@@ -1454,9 +1225,6 @@ void makeMETTriggerEfficiencyMC_ZvsW(string   inputDIR,
   ////---
   TCanvas* canvas = new TCanvas("canvas", "canvas", 600, 650);
   canvas->cd();
-
-  TFile* outputFile = new TFile((outputDIR+"/efficiency.root").c_str(),"RECREATE");
-  outputFile->cd();
   
   // calculate the efficiency
   vector<pair<string,TEfficiency* > > eff_zjet;
@@ -1529,135 +1297,129 @@ void makeMETTriggerEfficiencyMC_ZvsW(string   inputDIR,
 
   }
 
-  // plot Efficiency
-  for(size_t ihist = 0; ihist < eff_zjet.size(); ihist++)
-    plotEfficiency(canvas,eff_zjet.at(ihist).second,eff_wjet.at(ihist).second,eff_wmn.at(ihist).second,eff_zmm.at(ihist).second,outputDIR,luminosity,eff_zjet.at(ihist).first);
 
-  // 2D efficiencies
-  vector<pair<string,TEfficiency* > > eff_zjet_2d;
-  vector<pair<string,TEfficiency* > > eff_wjet_2d;
-  vector<pair<string,TEfficiency* > > eff_wmn_2d;
-  vector<pair<string,TEfficiency* > > eff_zmm_2d;
-  
-  idenom = 0;
-  for(size_t ihist = 1; ihist < histo_zjet_2d.size(); ihist++){
+  // 2D efficiencies                                                                                                                                                                                
+  vector<pair<string,vector<TEfficiency* > > > eff_zjet_2d;
+  vector<pair<string,vector<TEfficiency* > > > eff_wjet_2d;
+  vector<pair<string,vector<TEfficiency* > > > eff_wmn_2d;
+  vector<pair<string,vector<TEfficiency* > > > eff_zmm_2d;
 
-    if(histo_zjet_2d.at(ihist).first != histo_zjet_2d.at(idenom).first){
-      idenom = ihist;
-      continue;
+  for(size_t iobs = 0; iobs < histo_zjet_2d.size(); iobs++){ // loop on the observable
+
+    vector<TH1F*> denom_zjet_eff;
+    vector<TH1F*> num_zjet_eff;
+    
+    for(size_t ihist = 0; ihist < histo_zjet_2d.at(iobs).second.size(); ihist++){ // loop on the histogram
+      TString name (histo_zjet_2d.at(iobs).second.at(ihist)->GetName());
+      if(name.Contains("Inclusive"))
+	denom_zjet_eff.push_back(histo_zjet_2d.at(iobs).second.at(ihist));
+      else
+	num_zjet_eff.push_back(histo_zjet_2d.at(iobs).second.at(ihist));      
     }
 
+    vector<TH1F*> denom_wjet_eff;
+    vector<TH1F*> num_wjet_eff;
     
-    TString name (histo_zjet_2d.at(ihist).second->GetName());
-    size_t idenom_temp = idenom;
-    TString name2;      
-    if(name.Contains("_cc") and not name.Contains("Inclusive")){
-      for(size_t jhist = 1; jhist < histo_zjet_2d.size(); jhist++){
-	name2 = TString(histo_zjet_2d.at(jhist).second->GetName());
-	if(name2.Contains("_cc") and name2.Contains("Inclusive")){
-	  idenom_temp = jhist;
-	  break;
-	}
+    for(size_t ihist = 0; ihist < histo_wjet_2d.at(iobs).second.size(); ihist++){ // loop on the histogram
+      TString name (histo_wjet_2d.at(iobs).second.at(ihist)->GetName());
+      if(name.Contains("Inclusive"))
+	denom_wjet_eff.push_back(histo_wjet_2d.at(iobs).second.at(ihist));
+      else
+	num_wjet_eff.push_back(histo_wjet_2d.at(iobs).second.at(ihist));      
+    }
+
+    vector<TH1F*> denom_wmn_eff;
+    vector<TH1F*> num_wmn_eff;
+    
+    for(size_t ihist = 0; ihist < histo_wmn_2d.at(iobs).second.size(); ihist++){ // loop on the histogram
+      TString name (histo_wmn_2d.at(iobs).second.at(ihist)->GetName());
+      if(name.Contains("Inclusive"))
+	denom_wmn_eff.push_back(histo_wmn_2d.at(iobs).second.at(ihist));
+      else
+	num_wmn_eff.push_back(histo_wmn_2d.at(iobs).second.at(ihist));      
+    }
+
+    vector<TH1F*> denom_zmm_eff;
+    vector<TH1F*> num_zmm_eff;
+
+    for(size_t ihist = 0; ihist < histo_zmm_2d.at(iobs).second.size(); ihist++){ // loop on the histogram
+      TString name (histo_zmm_2d.at(iobs).second.at(ihist)->GetName());
+      if(name.Contains("Inclusive")) denom_zmm_eff.push_back(histo_zmm_2d.at(iobs).second.at(ihist));
+      else num_zmm_eff.push_back(histo_zmm_2d.at(iobs).second.at(ihist));      
+    }
+
+    // taking into account the order in which histogram vector has been filled
+    vector<TEfficiency*> eff_temp_zjet;
+    vector<TEfficiency*> eff_temp_wjet;
+    vector<TEfficiency*> eff_temp_wmn;
+    vector<TEfficiency*> eff_temp_zmm;
+
+    for(size_t ihist = 0; ihist < num_zjet_eff.size(); ihist++){
+      TString name (num_zjet_eff.at(ihist)->GetName());
+      name.ReplaceAll("h_","eff_");
+      if(ihist <= denom_zjet_eff.size()-1){
+	eff_temp_zjet.push_back(new TEfficiency(*num_zjet_eff.at(ihist),*denom_zjet_eff.at(ihist)));
       }
-    }
-    else if(name.Contains("_cf") and not name.Contains("Inclusive")){
-      for(size_t jhist = 1; jhist < histo_zjet_2d.size(); jhist++){
-	name2 = TString(histo_zjet_2d.at(jhist).second->GetName());
-	if(name2.Contains("_cf") and name2.Contains("Inclusive")){
-	  idenom_temp = jhist;
-	  break;
-	}
+      else{
+	int pos = (ihist % denom_zjet_eff.size());
+	eff_temp_zjet.push_back(new TEfficiency(*num_zjet_eff.at(ihist),*denom_zjet_eff.at(pos)));
       }
+      eff_temp_zjet.back()->SetName(name.Data());
     }
-    else if(name.Contains("_ff") and not name.Contains("Inclusive")){
-      for(size_t jhist = 1; jhist < histo_zjet_2d.size(); jhist++){
-	name2 = TString(histo_zjet_2d.at(jhist).second->GetName());
-	if(name2.Contains("_ff") and name2.Contains("Inclusive")){
-	  idenom_temp = jhist;
-	  break;
-	}
+
+
+    for(size_t ihist = 0; ihist < num_wjet_eff.size(); ihist++){
+      TString name (num_wjet_eff.at(ihist)->GetName());
+      name.ReplaceAll("h_","eff_");
+      if(ihist <= denom_wjet_eff.size()-1){
+	eff_temp_wjet.push_back(new TEfficiency(*num_wjet_eff.at(ihist),*denom_wjet_eff.at(ihist)));
       }
+      else{
+	int pos = (ihist % denom_wjet_eff.size());
+	eff_temp_wjet.push_back(new TEfficiency(*num_wjet_eff.at(ihist),*denom_wjet_eff.at(pos)));
+      }
+      eff_temp_wjet.back()->SetName(name.Data());
     }
 
-    name.ReplaceAll("h_","eff_");
-    eff_zjet_2d.push_back(pair<string,TEfficiency*>(histo_zjet_2d.at(ihist).first,new TEfficiency(*histo_zjet_2d.at(ihist).second,*histo_zjet_2d.at(idenom_temp).second)));
-    eff_zjet_2d.back().second->SetName(name.Data());
 
-    name = TString(histo_wjet_2d.at(ihist).second->GetName());
-    name.ReplaceAll("h_","eff_");
-    eff_wjet_2d.push_back(pair<string,TEfficiency*>(histo_wjet_2d.at(ihist).first,new TEfficiency(*histo_wjet_2d.at(ihist).second,*histo_wjet_2d.at(idenom_temp).second)));
-    eff_wjet_2d.back().second->SetName(name.Data());
-    
-    name = TString(histo_wmn_2d.at(ihist).second->GetName());
-    name.ReplaceAll("h_","eff_");
-    eff_wmn_2d.push_back(pair<string,TEfficiency*>(histo_wmn_2d.at(ihist).first,new TEfficiency(*histo_wmn_2d.at(ihist).second,*histo_wmn_2d.at(idenom_temp).second)));
-    eff_wmn_2d.back().second->SetName(name.Data());
+    for(size_t ihist = 0; ihist < num_wmn_eff.size(); ihist++){
+      TString name (num_wmn_eff.at(ihist)->GetName());
+      name.ReplaceAll("h_","eff_");
+      if(ihist <= denom_wmn_eff.size()-1){
+	eff_temp_wmn.push_back(new TEfficiency(*num_wmn_eff.at(ihist),*denom_wmn_eff.at(ihist)));
+      }
+      else{
+	int pos = (ihist % denom_wmn_eff.size());
+	eff_temp_wmn.push_back(new TEfficiency(*num_wmn_eff.at(ihist),*denom_wmn_eff.at(pos)));
+      }
+      eff_temp_wmn.back()->SetName(name.Data());
+    }
 
-    name = TString(histo_zmm_2d.at(ihist).second->GetName());
-    name.ReplaceAll("h_","eff_");
-    eff_zmm_2d.push_back(pair<string,TEfficiency*>(histo_zmm_2d.at(ihist).first,new TEfficiency(*histo_zmm_2d.at(ihist).second,*histo_zmm_2d.at(idenom_temp).second)));
-    eff_zmm_2d.back().second->SetName(name.Data());
-    
-    eff_zjet_2d.back().second->Write();
-    eff_wjet_2d.back().second->Write();
-    eff_wmn_2d.back().second->Write();
-    eff_zmm_2d.back().second->Write();
-    
+    for(size_t ihist = 0; ihist < num_zmm_eff.size(); ihist++){
+      TString name (num_zmm_eff.at(ihist)->GetName());
+      name.ReplaceAll("h_","eff_");
+      if(ihist <= denom_zmm_eff.size()-1)
+	eff_temp_zmm.push_back(new TEfficiency(*num_zmm_eff.at(ihist),*denom_zmm_eff.at(ihist)));
+      else{
+	int pos = (ihist % denom_zmm_eff.size());
+	eff_temp_zmm.push_back(new TEfficiency(*num_zmm_eff.at(ihist),*denom_zmm_eff.at(pos)));
+      }
+      eff_temp_zmm.back()->SetName(name.Data());
+    }
+
+    ////
+    eff_zjet_2d.push_back(pair<string,vector<TEfficiency* > >(histo_zjet_2d.at(iobs).first,eff_temp_zjet));
+    eff_wjet_2d.push_back(pair<string,vector<TEfficiency* > >(histo_wjet_2d.at(iobs).first,eff_temp_wjet));
+    eff_wmn_2d.push_back(pair<string,vector<TEfficiency* > >(histo_wmn_2d.at(iobs).first,eff_temp_wmn));
+    eff_zmm_2d.push_back(pair<string,vector<TEfficiency* > >(histo_zmm_2d.at(iobs).first,eff_temp_zmm));
   }
 
-  for(size_t ihist = 0; ihist < eff_zjet_2d.size(); ihist++){
-    
-    TH2* zjet_2d = eff_zjet_2d.at(ihist).second->CreateHistogram();
-    zjet_2d->SetName(eff_zjet_2d.at(ihist).second->GetName());
-    TH2* wjet_2d = eff_wjet_2d.at(ihist).second->CreateHistogram();
-    wjet_2d->SetName(eff_wjet_2d.at(ihist).second->GetName());
-    TH2* wmn_2d = eff_wmn_2d.at(ihist).second->CreateHistogram();
-    wmn_2d->SetName(eff_wmn_2d.at(ihist).second->GetName());
-    TH2* zmm_2d = eff_zmm_2d.at(ihist).second->CreateHistogram();
-    zmm_2d->SetName(eff_zmm_2d.at(ihist).second->GetName());
-
-    if(eff_zjet_2d.at(ihist).first == "mjj-ptj1"){
-      
-      TProfile* profile_zjet_x = zjet_2d->ProfileX(Form("%s_mjj",zjet_2d->GetName()));
-      TProfile* profile_zjet_y = zjet_2d->ProfileY(Form("%s_ptj1",zjet_2d->GetName()));
-      TProfile* profile_wjet_x = wjet_2d->ProfileX(Form("%s_mjj",wjet_2d->GetName()));
-      TProfile* profile_wjet_y = wjet_2d->ProfileY(Form("%s_ptj1",wjet_2d->GetName()));
-      TProfile* profile_wmn_x = wmn_2d->ProfileX(Form("%s_mjj",wmn_2d->GetName()));
-      TProfile* profile_wmn_y = wmn_2d->ProfileY(Form("%s_ptj1",wmn_2d->GetName()));
-      TProfile* profile_zmm_x = zmm_2d->ProfileX(Form("%s_mjj",zmm_2d->GetName()));
-      TProfile* profile_zmm_y = zmm_2d->ProfileY(Form("%s_ptj1",zmm_2d->GetName()));
-
-      plotEfficiency(canvas,profile_zjet_x,profile_wjet_x,profile_wmn_x,profile_zmm_y,outputDIR,luminosity,"mjj");
-      plotEfficiency(canvas,profile_zjet_y,profile_wjet_y,profile_wmn_y,profile_zmm_y,outputDIR,luminosity,"ptj1");
-      
-    }
-    else if(eff_wmn_2d.at(ihist).first == "mjj-ptj2"){
-
-      TProfile* profile_zjet_x = zjet_2d->ProfileX(Form("%s_mjj",zjet_2d->GetName()));
-      TProfile* profile_zjet_y = zjet_2d->ProfileX(Form("%s_ptj2",zjet_2d->GetName()));
-      TProfile* profile_wjet_x = wjet_2d->ProfileX(Form("%s_mjj",wjet_2d->GetName()));
-      TProfile* profile_wjet_y = wjet_2d->ProfileX(Form("%s_ptj2",wjet_2d->GetName()));
-      TProfile* profile_wmn_x = wmn_2d->ProfileX(Form("%s_mjj",wmn_2d->GetName()));
-      TProfile* profile_wmn_y = wmn_2d->ProfileX(Form("%s_ptj2",wmn_2d->GetName()));
-      TProfile* profile_zmm_x = wmn_2d->ProfileX(Form("%s_mjj",zmm_2d->GetName()));
-      TProfile* profile_zmm_y = wmn_2d->ProfileX(Form("%s_ptj2",zmm_2d->GetName()));
-
-      plotEfficiency(canvas,profile_zjet_x,profile_wjet_x,profile_wmn_x,profile_zmm_y,outputDIR,luminosity,"mjj");
-      plotEfficiency(canvas,profile_zjet_y,profile_wjet_y,profile_wmn_y,profile_zmm_y,outputDIR,luminosity,"ptj2");      
-    }			 
-    else if(eff_wmn_2d.at(ihist).first == "mjj-detajj"){
-      
-      TProfile* profile_zjet_x = zjet_2d->ProfileX(Form("%s_mjj",zjet_2d->GetName()));
-      TProfile* profile_zjet_y = zjet_2d->ProfileY(Form("%s_detajj",zjet_2d->GetName()));
-      TProfile* profile_wjet_x = wjet_2d->ProfileX(Form("%s_mjj",wjet_2d->GetName()));
-      TProfile* profile_wjet_y = wjet_2d->ProfileY(Form("%s_detajj",wjet_2d->GetName()));
-      TProfile* profile_wmn_x = wmn_2d->ProfileX(Form("%s_mjj",wmn_2d->GetName()));
-      TProfile* profile_wmn_y = wmn_2d->ProfileY(Form("%s_detajj",wmn_2d->GetName()));
-      TProfile* profile_zmm_x = zmm_2d->ProfileX(Form("%s_mjj",zmm_2d->GetName()));
-      TProfile* profile_zmm_y = zmm_2d->ProfileY(Form("%s_detajj",zmm_2d->GetName()));
-      
-      plotEfficiency(canvas,profile_zjet_x,profile_wjet_x,profile_wmn_x,profile_zmm_x,outputDIR,luminosity,"mjj");
-      plotEfficiency(canvas,profile_zjet_y,profile_wjet_y,profile_wmn_y,profile_zmm_y,outputDIR,luminosity,"detajj");      
+  ///////// ------ plot
+  for(size_t iobs = 0; iobs < eff_wmn_2d.size(); iobs++){
+    for(size_t ieff = 0; ieff < eff_wmn_2d.at(iobs).second.size(); ieff++){
+      plotEfficiency(canvas,eff_zjet_2d.at(iobs).second.at(ieff),eff_wjet_2d.at(iobs).second.at(ieff),eff_wmn_2d.at(iobs).second.at(ieff),eff_zmm_2d.at(iobs).second.at(ieff),outputDIR,luminosity,eff_wmn_2d.at(iobs).first);
     }
   }
+
+
 }

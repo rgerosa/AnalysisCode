@@ -883,14 +883,14 @@ void plotEfficiency(TCanvas* canvas,
 
 
 /// Main function 
-void makeMETTriggerEfficiencyData_ZvsW(string   inputDIR, 
-				       string   outputDIR, 
-				       Category category,
-				       string   triggerPath, // PFMET90, PFMET100, PFMET110, PFMET120
-				       vector<string>   observable, // study the trigger efficiency vs mjj or recoil
-				       vector<string>   observable2D, // study the trigger efficiency vs mjj or recoil
-				       bool     splitJets = false,
-				       float    luminosity = 35.9){
+void makeMETTriggerFilterEfficiencyData(string   inputDIR, 
+					string   outputDIR, 
+					Category category,
+					string   triggerPath, // PFMET90, PFMET100, PFMET110, PFMET120
+					vector<string>   observable, // study the trigger efficiency vs mjj or recoil
+					vector<string>   observable2D, // study the trigger efficiency vs mjj or recoil
+					bool     splitJets = false,
+					float    luminosity = 35.9){
 
   ROOT::Math::MinimizerOptions::SetDefaultMaxFunctionCalls(1410065408);
 
