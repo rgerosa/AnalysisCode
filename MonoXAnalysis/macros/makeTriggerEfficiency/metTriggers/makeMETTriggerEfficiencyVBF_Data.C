@@ -5,18 +5,25 @@
 #include "../../CMS_lumi.h"
 
 // Recoil binning
-vector <float> bins_recoil_cc  = {0.,40.,80.,100.,120.,140.,150.,160.,170.,180.,190.,200.,215.,230.,250.,275.,300., 350.,400.,450.,500.,550.,650.,800.,1000.,1250};
-vector <float> bins_recoil_cf  = {0.,40.,80.,100.,120.,140.,160.,180.,200.,225.,250.,275.,300., 350.,400.,450.,500.,550.,650.,800.,1000.,1250};
+vector <float> bins_recoil_cc_wmn  = {0.,40.,80.,100.,120.,140.,150.,160.,170.,180.,190.,200.,215.,230.,250.,275.,300., 350.,400.,450.,500.,550.,650.,800.,1000.,1250};
+vector <float> bins_recoil_cc_zmm  = {0.,80.,120.,160.,180.,200.,235,275.,350.,450.,550.,650.,800.,1000.,1250};
+vector <float> bins_recoil_cf_wmn  = {0.,40.,80.,100.,120.,140.,160.,180.,200.,225.,250.,275.,300., 350.,400.,450.,500.,550.,650.,800.,1000.,1250};
+vector <float> bins_recoil_cf_zmm  = {0.,40.,80.,100.,120.,140.,160.,180.,200.,225.,250.,275.,300., 350.,400.,450.,500.,550.,650.,800.,1000.,1250};
 vector <float> bins_recoil_cf_trailCen  = {0.,80.,100.,120.,140.,160.,180.,200.,225.,250.,300.,400.,500.,1250.};
 vector <float> bins_recoil_cf_highpt = {0,100.,140.,180.,220.,250.,300.,400.,500.,1250.};
 // Mjj
-vector <float> bins_mjj     = {200.,600,1000.,1500.,2000.,2500,4000};
+vector <float> bins_mjj_wmm     = {200.,600,1000.,1500.,2000.,2500,4000};
+vector <float> bins_mjj_zmm     = {200.,800,1400.,2200.,5000};
 // Cuts
-vector <float> cuts_mjj_cc  = {200,750,1500,5000};
-vector <float> cuts_mjj_cf  = {200,800,1800,5000};
-vector <float> cuts_ptj1_cf = {80,110,140,600};
-vector <float> cuts_ptj2_cf = {40,70,110,350};
-vector <float> cuts_eta     = {0,3,4.7};
+vector <float> cuts_mjj_cc_wmn  = {200,750,1500,5000};
+vector <float> cuts_mjj_cf_wmn  = {200,800,1800,5000};
+vector <float> cuts_ptj1_cf_wmn = {80,140,600};
+vector <float> cuts_ptj2_cf_wmn = {40,70,110,350};
+
+vector <float> cuts_mjj_cc_zmm  = {200,1250,5000};
+vector <float> cuts_mjj_cf_zmm  = {200,1500,5000};
+vector <float> cuts_ptj1_cf_zmm = {80,140,600};
+vector <float> cuts_ptj2_cf_zmm = {40,100,350};
 
 // eras
 vector<string> RunEra = {"Run2016B","Run2016C","Run2016D","Run2016E","Run2016F","Run2016G","Run2016H"};
@@ -56,6 +63,33 @@ void plotTurnOn(TCanvas* canvas,
 
 /// main function
 void makeMETTriggerEfficiencyVBF_Data(string inputDIR, string outputDIR, Sample sample, bool doubleLepton = false) {
+
+  vector<float> bins_recoil_cc;
+  vector<float> bins_recoil_cf;
+  vector<float> bins_mjj;
+  vector<float> cuts_mjj_cc;
+  vector<float> cuts_mjj_cf;
+  vector<float> cuts_ptj1_cf;
+  vector<float> cuts_ptj2_cf;
+
+  if(sample == Sample::wmn){
+    bins_recoil_cc = bins_recoil_cc_wmn;
+    bins_recoil_cf = bins_recoil_cf_wmn;
+    bins_mjj = bins_mjj_wmm;
+    cuts_mjj_cc = cuts_mjj_cc_wmn;
+    cuts_mjj_cf = cuts_mjj_cf_wmn;
+    cuts_ptj1_cf = cuts_ptj1_cf_wmn; 
+    cuts_ptj2_cf = cuts_ptj2_cf_wmn; 
+  }
+  else{
+    bins_recoil_cc = bins_recoil_cc_zmm;
+    bins_recoil_cf = bins_recoil_cf_zmm;
+    bins_mjj = bins_mjj_zmm;
+    cuts_mjj_cc = cuts_mjj_cc_zmm;
+    cuts_mjj_cf = cuts_mjj_cf_zmm;
+    cuts_ptj1_cf = cuts_ptj1_cf_zmm; 
+    cuts_ptj2_cf = cuts_ptj2_cf_zmm; 
+  }
 
 
   gROOT->SetBatch(kTRUE);
@@ -98,9 +132,11 @@ void makeMETTriggerEfficiencyVBF_Data(string inputDIR, string outputDIR, Sample 
   }
   system("rm list_dir.txt");
 
-  TFile* outputFile = new TFile((outputDIR+"/efficiencyVBF_Wmn.root").c_str(),"RECREATE");
-  if(sample == Sample::zmm)
-    outputFile->SetName((outputDIR+"/efficiencyVBF_Zmm.root").c_str());
+  TFile* outputFile = NULL;
+  if(sample == Sample::wmn)
+    outputFile = new TFile((outputDIR+"/efficiencyVBF_Wmn.root").c_str(),"RECREATE");
+  else if(sample == Sample::zmm)
+    outputFile = new TFile((outputDIR+"/efficiencyVBF_Zmm.root").c_str(),"RECREATE");
   outputFile->cd();
 
   /// CENTRAL JETS  : inclusive vs recoil, inclusive vs mjj, vs recoil in bins of Mjj
@@ -326,7 +362,7 @@ void makeMETTriggerEfficiencyVBF_Data(string inputDIR, string outputDIR, Sample 
   cout<<"Total number of events: "<<nTotal<<endl;
   long int nEvents = 0;
 
-  TH1D* efficiencyVBFSelections = new TH1D("efficiencyVBFSelections","efficiencyVBFSelections",18,0,19);
+  TH1D* efficiencyVBFSelections = new TH1D("efficiencyVBFSelections","efficiencyVBFSelections",17,0,16);
   efficiencyVBFSelections->Sumw2();
   efficiencyVBFSelections->GetXaxis()->SetBinLabel(1,"Total");
   efficiencyVBFSelections->GetXaxis()->SetBinLabel(2,"MET preselection");
@@ -429,7 +465,6 @@ void makeMETTriggerEfficiencyVBF_Data(string inputDIR, string outputDIR, Sample 
     if(fabs(jeteta->at(0)) < 2.4 and jetchfrac->at(0) < 0.1) continue;
     if(fabs(jeteta->at(0)) < 2.4 and jetnhfrac->at(0) > 0.8) continue;    
     efficiencyVBFSelections->SetBinContent(13,efficiencyVBFSelections->GetBinContent(13)+1);
-
     ////
     float deltaPhi = fabs(jetphi->at(0)-jetphi->at(1));
     if(deltaPhi > TMath::Pi()) deltaPhi = 2*TMath::Pi()-deltaPhi;
@@ -441,6 +476,8 @@ void makeMETTriggerEfficiencyVBF_Data(string inputDIR, string outputDIR, Sample 
     jet1.SetPtEtaPhiM(jetpt->at(0),jeteta->at(0),jetphi->at(0),jetm->at(0));
     jet2.SetPtEtaPhiM(jetpt->at(1),jeteta->at(1),jetphi->at(1),jetm->at(1));
     if(fabs(jet1.Eta()-jet2.Eta()) < detajj) continue;
+    if(jet1.Eta()*jet2.Eta() > 0) continue;
+
     efficiencyVBFSelections->SetBinContent(15,efficiencyVBFSelections->GetBinContent(15)+1);
 
     if((jet1+jet2).M() < mjj) continue;
@@ -571,6 +608,11 @@ void makeMETTriggerEfficiencyVBF_Data(string inputDIR, string outputDIR, Sample 
   eff_recoil_cc->SetMarkerSize(1);
   fitfunc_recoil_cc->SetLineColor(kBlack);
   fitfunc_recoil_cc->SetLineWidth(2);
+
+  TString name (hnum_recoil_cc->GetName());
+  name.ReplaceAll("hnum","eff");
+  eff_recoil_cc->SetName(name.Data());
+
   TEfficiency* eff_recoil_cf = new TEfficiency(*hnum_recoil_cf,*hden_recoil_cf);
   eff_recoil_cf->SetMarkerColor(kBlue);
   eff_recoil_cf->SetLineColor(kBlue);
@@ -578,7 +620,11 @@ void makeMETTriggerEfficiencyVBF_Data(string inputDIR, string outputDIR, Sample 
   eff_recoil_cf->SetMarkerSize(1);
   fitfunc_recoil_cf->SetLineColor(kBlue);
   fitfunc_recoil_cf->SetLineWidth(2);
-  
+
+  name = TString(hnum_recoil_cf->GetName());
+  name.ReplaceAll("hnum","eff");
+  eff_recoil_cf->SetName(name.Data());
+
   vector<TEfficiency*> eff_recoil; eff_recoil.push_back(eff_recoil_cc); eff_recoil.push_back(eff_recoil_cf);
   vector<TF1*> fit_recoil; fit_recoil.push_back(fitfunc_recoil_cc); fit_recoil.push_back(fitfunc_recoil_cf);
   vector<string> label; label.push_back("central-central"); label.push_back("central-forward");
@@ -602,6 +648,14 @@ void makeMETTriggerEfficiencyVBF_Data(string inputDIR, string outputDIR, Sample 
   eff_mjj_cf->SetMarkerSize(1);
   TF1* fitfunc_mjj_cf = NULL;
 
+  name = TString(hnum_mjj_cc->GetName());
+  name.ReplaceAll("hnum","eff");
+  eff_mjj_cc->SetName(name.Data());
+
+  name = TString(hnum_mjj_cf->GetName());
+  name.ReplaceAll("hnum","eff");
+  eff_mjj_cf->SetName(name.Data());
+
   vector<TEfficiency*> eff_mjj; eff_mjj.push_back(eff_mjj_cc); eff_mjj.push_back(eff_mjj_cf);
   vector<TF1*> fitfunc_mjj; fitfunc_mjj.push_back(fitfunc_mjj_cc); fitfunc_mjj.push_back(fitfunc_mjj_cf);
 
@@ -623,6 +677,11 @@ void makeMETTriggerEfficiencyVBF_Data(string inputDIR, string outputDIR, Sample 
     eff_recoil_cc_vs_mjj.back()->SetMarkerSize(1);
     fitfunc_recoil_cc_vs_mjj.at(ibin)->SetLineColor(icolor);
     fitfunc_recoil_cc_vs_mjj.at(ibin)->SetLineWidth(2);
+
+    name = TString(hnum_recoil_cc_vs_mjj.at(ibin)->GetName());
+    name.ReplaceAll("hnum","eff");
+    eff_recoil_cc_vs_mjj.back()->SetName(name.Data());
+
   }
   plotTurnOn(canvas,eff_recoil_cc_vs_mjj,fitfunc_recoil_cc_vs_mjj,"Recoil [GeV]","recoil_cc_vs_mjj",outputDIR,cuts_mjj_cc,"M_{jj}");
 
@@ -632,6 +691,11 @@ void makeMETTriggerEfficiencyVBF_Data(string inputDIR, string outputDIR, Sample 
   eff_mjj_cf_leadCen->SetLineColor(kBlack);
   eff_mjj_cf_leadCen->SetMarkerStyle(20);
   eff_mjj_cf_leadCen->SetMarkerSize(1);
+
+  name = TString(hnum_mjj_cf_leadCen->GetName());
+  name.ReplaceAll("hnum","eff");
+  eff_mjj_cf_leadCen->SetName(name.Data());
+
   TEfficiency* eff_mjj_cf_trailCen = new TEfficiency(*hnum_mjj_cf_trailCen,*hden_mjj_cf_trailCen);
   eff_mjj_cf_trailCen->SetMarkerColor(kBlue);
   eff_mjj_cf_trailCen->SetLineColor(kBlue);
@@ -640,6 +704,10 @@ void makeMETTriggerEfficiencyVBF_Data(string inputDIR, string outputDIR, Sample 
   TF1* fitfunc_mjj_cf_leadCen = NULL;
   TF1* fitfunc_mjj_cf_trailCen = NULL;
 
+  name = TString(hnum_mjj_cf_trailCen->GetName());
+  name.ReplaceAll("hnum","eff");
+  eff_mjj_cf_trailCen->SetName(name.Data());
+  
   vector<TEfficiency*> eff_mjj_pos; eff_mjj_pos.push_back(eff_mjj_cf_leadCen); eff_mjj_pos.push_back(eff_mjj_cf_trailCen);
   vector<TF1*> fitfunc_mjj_pos; fitfunc_mjj_pos.push_back(fitfunc_mjj_cf_leadCen); fitfunc_mjj_pos.push_back(fitfunc_mjj_cf_trailCen);
   
@@ -662,6 +730,10 @@ void makeMETTriggerEfficiencyVBF_Data(string inputDIR, string outputDIR, Sample 
     eff_recoil_cf_vs_mjj.back()->SetMarkerSize(1);
     fitfunc_recoil_cf_vs_mjj.at(ibin)->SetLineColor(icolor);
     fitfunc_recoil_cf_vs_mjj.at(ibin)->SetLineWidth(2);
+
+    name = TString(hnum_recoil_cf_vs_mjj.at(ibin)->GetName());
+    name.ReplaceAll("hnum","eff");
+    eff_recoil_cf_vs_mjj.back()->SetName(name.Data());
   }
   plotTurnOn(canvas,eff_recoil_cf_vs_mjj,fitfunc_recoil_cf_vs_mjj,"Recoil [GeV]","recoil_cf_vs_mjj",outputDIR,cuts_mjj_cf,"M_{jj}");
 
@@ -676,6 +748,9 @@ void makeMETTriggerEfficiencyVBF_Data(string inputDIR, string outputDIR, Sample 
     eff_recoil_cf_vs_ptj1.back()->SetMarkerSize(1);
     fitfunc_recoil_cf_vs_ptj1.at(ibin)->SetLineColor(icolor);
     fitfunc_recoil_cf_vs_ptj1.at(ibin)->SetLineWidth(2);
+    name = TString(hnum_recoil_cf_vs_ptj1.at(ibin)->GetName());
+    name.ReplaceAll("hnum","eff");
+    eff_recoil_cf_vs_ptj1.back()->SetName(name.Data());
   }
   plotTurnOn(canvas,eff_recoil_cf_vs_ptj1,fitfunc_recoil_cf_vs_ptj1,"Recoil [GeV]","recoil_cf_vs_ptj1",outputDIR,cuts_ptj1_cf,"p_{T}^{j1}");
 
@@ -690,6 +765,9 @@ void makeMETTriggerEfficiencyVBF_Data(string inputDIR, string outputDIR, Sample 
     eff_recoil_cf_vs_ptj2.back()->SetMarkerSize(1);
     fitfunc_recoil_cf_vs_ptj2.at(ibin)->SetLineColor(icolor);
     fitfunc_recoil_cf_vs_ptj2.at(ibin)->SetLineWidth(2);
+    name = TString(hnum_recoil_cf_vs_ptj2.at(ibin)->GetName());
+    name.ReplaceAll("hnum","eff");
+    eff_recoil_cf_vs_ptj2.back()->SetName(name.Data());
   }
   plotTurnOn(canvas,eff_recoil_cf_vs_ptj2,fitfunc_recoil_cf_vs_ptj2,"Recoil [GeV]","recoil_cf_vs_ptj2",outputDIR,cuts_ptj2_cf,"p_{T}^{j2}");
 
@@ -704,6 +782,9 @@ void makeMETTriggerEfficiencyVBF_Data(string inputDIR, string outputDIR, Sample 
     eff_recoil_cf_vs_mjj_leadCen.back()->SetMarkerSize(1);
     fitfunc_recoil_cf_vs_mjj_leadCen.at(ibin)->SetLineColor(icolor);
     fitfunc_recoil_cf_vs_mjj_leadCen.at(ibin)->SetLineWidth(2);
+    name = TString(hnum_recoil_cf_vs_mjj_leadCen.at(ibin)->GetName());
+    name.ReplaceAll("hnum","eff");
+    eff_recoil_cf_vs_mjj_leadCen.back()->SetName(name.Data());
   }
   plotTurnOn(canvas,eff_recoil_cf_vs_mjj_leadCen,fitfunc_recoil_cf_vs_mjj_leadCen,"Recoil [GeV]","recoil_cf_vs_mjj_leadCen",outputDIR,cuts_mjj_cf,"M_{jj}");
   
@@ -718,9 +799,12 @@ void makeMETTriggerEfficiencyVBF_Data(string inputDIR, string outputDIR, Sample 
     eff_recoil_cf_vs_mjj_trailCen.back()->SetMarkerSize(1);
     fitfunc_recoil_cf_vs_mjj_trailCen.at(ibin)->SetLineColor(icolor);
     fitfunc_recoil_cf_vs_mjj_trailCen.at(ibin)->SetLineWidth(2);
+    name = TString(hnum_recoil_cf_vs_mjj_trailCen.at(ibin)->GetName());
+    name.ReplaceAll("hnum","eff");
+    eff_recoil_cf_vs_mjj_trailCen.back()->SetName(name.Data());
   } 
   plotTurnOn(canvas,eff_recoil_cf_vs_mjj_trailCen,fitfunc_recoil_cf_vs_mjj_trailCen,"Recoil [GeV]","recoil_cf_vs_mjj_trailCen",outputDIR,cuts_mjj_cf,"M_{jj}");
-  /*
+  
   // fill output file
   outputFile->cd();
   outputFile->mkdir("efficiency_cc");
@@ -748,9 +832,9 @@ void makeMETTriggerEfficiencyVBF_Data(string inputDIR, string outputDIR, Sample 
   for(auto eff: eff_recoil_cf_vs_mjj_leadCen) eff->Write();
   for(auto fit: fitfunc_recoil_cf_vs_mjj_leadCen) fit->Write();
   for(auto eff: eff_recoil_cf_vs_mjj_trailCen) eff->Write();
-  vfor(auto fit: fitfunc_recoil_cf_vs_mjj_trailCen) fit->Write();
+  for(auto fit: fitfunc_recoil_cf_vs_mjj_trailCen) fit->Write();
   outputFile->Close();
-  */
+  
 }
 
 ////// -------------
@@ -783,7 +867,7 @@ void plotTurnOn(TCanvas* canvas,
   vector<TH1F*> error_band;
   for(size_t iobj = 0; iobj < graph.size(); iobj++){
     if(fitfunc.size() != 0){
-      //      TFitResultPtr fitResult = graph.at(iobj)->Fit(fitfunc.at(iobj),"RSM");
+      TFitResultPtr fitResult = graph.at(iobj)->Fit(fitfunc.at(iobj),"RS");
       int npoints       = 350;                                                                                                                                                                   
       error_band.push_back(new TH1F(Form("%s_error_band",fitfunc.at(iobj)->GetName()),"",npoints,fitfunc.at(iobj)->GetXaxis()->GetXmin(),fitfunc.at(iobj)->GetXaxis()->GetXmax()));
       if(drawUncertaintyBand)
@@ -855,7 +939,7 @@ void plotTurnOn(TCanvas* canvas,
   vector<TH1F*> error_band;
   for(size_t iobj = 0; iobj < eff.size(); iobj++){
     if(fitfunc.size() != 0 and fitfunc.at(iobj) != 0 and fitfunc.at(iobj) != NULL){
-      //      TFitResultPtr fitResult = graph.at(iobj)->Fit(fitfunc.at(iobj),"RSM");
+      TFitResultPtr fitResult = graph.at(iobj)->Fit(fitfunc.at(iobj),"RS");
       int npoints       = 350;                                                                                                                                                                   
       error_band.push_back(new TH1F(Form("%s_error_band",fitfunc.at(iobj)->GetName()),"",npoints,fitfunc.at(iobj)->GetXaxis()->GetXmin(),fitfunc.at(iobj)->GetXaxis()->GetXmax()));
       if(drawUncertaintyBand)

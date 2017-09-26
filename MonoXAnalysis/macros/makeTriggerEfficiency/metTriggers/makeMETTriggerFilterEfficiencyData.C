@@ -991,9 +991,13 @@ void makeMETTriggerFilterEfficiencyData(string   inputDIR,
 
     TString name (histo_wmn.at(ihist).second->GetName());
     size_t idenom_temp = idenom;
+
+    if(name.Contains("Inclusive_cc") or name.Contains("Inclusive_cf") or name.Contains("Inclusive_ff")) continue;
+
     TString name2;
     if(name.Contains("_cc") and not name.Contains("Inclusive")){
       for(size_t jhist = 1; jhist < histo_wmn.size(); jhist++){
+	if(histo_wmn.at(jhist).first != histo_wmn.at(ihist).first) continue;
         name2 = TString(histo_wmn.at(jhist).second->GetName());
         if(name2.Contains("_cc") and name2.Contains("Inclusive")){
           idenom_temp = jhist;
@@ -1003,6 +1007,7 @@ void makeMETTriggerFilterEfficiencyData(string   inputDIR,
     }
     else if(name.Contains("_cf") and not name.Contains("Inclusive")){
       for(size_t jhist = 1; jhist < histo_wmn.size(); jhist++){
+	if(histo_wmn.at(jhist).first != histo_wmn.at(ihist).first) continue;
         name2 = TString(histo_wmn.at(jhist).second->GetName());
         if(name2.Contains("_cf") and name2.Contains("Inclusive")){
           idenom_temp = jhist;
@@ -1012,6 +1017,7 @@ void makeMETTriggerFilterEfficiencyData(string   inputDIR,
     }
     else if(name.Contains("_ff") and not name.Contains("Inclusive")){
       for(size_t jhist = 1; jhist < histo_wmn.size(); jhist++){
+	if(histo_wmn.at(jhist).first != histo_wmn.at(ihist).first) continue;
         name2 = TString(histo_wmn.at(jhist).second->GetName());
         if(name2.Contains("_ff") and name2.Contains("Inclusive")){
           idenom_temp = jhist;
@@ -1019,7 +1025,7 @@ void makeMETTriggerFilterEfficiencyData(string   inputDIR,
         }
       }
     }
-      
+
     name.ReplaceAll("h_","eff_");
     eff_wmn.push_back(pair<string,TEfficiency*>(histo_wmn.at(ihist).first,new TEfficiency(*histo_wmn.at(ihist).second,*histo_wmn.at(idenom_temp).second)));
     eff_wmn.back().second->SetName(name.Data());
@@ -1047,7 +1053,7 @@ void makeMETTriggerFilterEfficiencyData(string   inputDIR,
 
     vector<TH1F*> denom_wmn_eff;
     vector<TH1F*> num_wmn_eff;
-    
+
     for(size_t ihist = 0; ihist < histo_wmn_2d.at(iobs).second.size(); ihist++){ // loop on the histogram
       TString name (histo_wmn_2d.at(iobs).second.at(ihist)->GetName());
       if(name.Contains("Inclusive"))

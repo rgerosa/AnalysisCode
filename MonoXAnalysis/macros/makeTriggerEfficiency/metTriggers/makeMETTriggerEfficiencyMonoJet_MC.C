@@ -13,7 +13,6 @@ static bool askForTriggerDenominator = true;
 static bool applyJetSelections = true;
 
 void calculateSumWeight(TChain* gentree, vector<double> & wgtsum){
-  int itree = 0;
   TTreeReader reader(gentree);
   TTreeReaderValue<float> wgt (reader,"wgt");
   //////////////////                                                                                                                                                                           
@@ -36,7 +35,8 @@ void calculateSumWeight(TChain* gentree, vector<double> & wgtsum){
       wgtsum.push_back(0);
       cout<<currentFile<<" "<<ifile<<endl;
     }    
-    wgtsum.at(itree) += *wgt;
+    nEvents++;
+    wgtsum.at(ifile) += *wgt;
   }
 }
 
@@ -138,7 +138,7 @@ void makeTriggerAnalysis(TChain* tree, TH1F* hnum, TH1F* hden, const Sample & sa
       itree = 0;
       cout<<currentFile<<" "<<itree<<endl;
     }
-    
+
     cout.flush();
     if(nEvents % nPart == 0) cout<<"\r"<<"Analyzing events "<<double(nEvents)/nTotal*100<<" % ";
     nEvents++;
@@ -382,7 +382,7 @@ void makeMETTriggerEfficiencyMonoJet_MC(string inputDIR, string outputDIR, float
   fitfunc_monojet_recoil_zvv->SetLineWidth(2);
   fitfunc_monojet_recoil_zvv->SetLineStyle(7);
   eff_monojet_recoil_zvv->Fit(fitfunc_monojet_recoil_zvv,"RS");
-
+  
   TEfficiency* eff_monojet_recoil_wjet = new TEfficiency(*hnum_monojet_recoil_wjet,*hden_monojet_recoil_wjet);
   eff_monojet_recoil_wjet->SetMarkerColor(kRed);
   eff_monojet_recoil_wjet->SetLineColor(kRed);
@@ -412,7 +412,7 @@ void makeMETTriggerEfficiencyMonoJet_MC(string inputDIR, string outputDIR, float
   fitfunc_monojet_recoil_zmm->SetLineStyle(7);
   fitfunc_monojet_recoil_zmm->SetLineWidth(2);
   eff_monojet_recoil_zmm->Fit(fitfunc_monojet_recoil_zmm,"RS");
-
+  
   // Plotting final result for MC turn ons
   TH1* frame = canvas->DrawFrame(bins_monojet_recoil.front(),0.,bins_monojet_recoil.back(), 1.1, "");
   frame->GetXaxis()->SetTitle("Recoil [GeV]");

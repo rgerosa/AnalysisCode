@@ -896,7 +896,7 @@ void plotEfficiency(TCanvas* canvas,
 		    TEfficiency* histo_wmn, 
 		    TEfficiency* histo_zmm, 
 		    const string & outputDIR, 
-		    const float &  luminosity, 
+		    const float  & luminosity, 
 		    const string & observable){
   
   // Make efficiencies as TGraph
@@ -1062,7 +1062,7 @@ void plotEfficiency(TCanvas* canvas,
   ratio_zmm_over_zjet->Draw("EPsame");
 
   canvas->SaveAs((outputDIR+"/"+string(plotName.Data())+".pdf").c_str(),"pdf");
-
+  
   if(frame2) delete frame2;
   if(pad2) delete pad2;
   if(leg) delete leg;
@@ -1231,7 +1231,8 @@ void makeMETTriggerFilterEfficiencyMC(string   inputDIR,
   vector<pair<string,TEfficiency* > > eff_wjet;
   vector<pair<string,TEfficiency* > > eff_wmn;
   vector<pair<string,TEfficiency* > > eff_zmm;
-  
+
+  outputFile->cd();  
   size_t idenom = 0;
   for(size_t ihist = 1; ihist < histo_zjet.size(); ihist++){
     
@@ -1241,10 +1242,13 @@ void makeMETTriggerFilterEfficiencyMC(string   inputDIR,
     }
     
     TString name (histo_zjet.at(ihist).second->GetName());
+    if(name.Contains("Inclusive_cc") or name.Contains("Inclusive_cf") or name.Contains("Inclusive_ff")) continue;
+
     size_t idenom_temp = idenom;
     TString name2;      
     if(name.Contains("_cc") and not name.Contains("Inclusive")){
       for(size_t jhist = 1; jhist < histo_zjet.size(); jhist++){
+	if(histo_zjet.at(ihist).first != histo_zjet.at(jhist).first) continue;
 	name2 = TString(histo_zjet.at(jhist).second->GetName());
 	if(name2.Contains("_cc") and name2.Contains("Inclusive")){
 	  idenom_temp = jhist;
@@ -1254,6 +1258,7 @@ void makeMETTriggerFilterEfficiencyMC(string   inputDIR,
     }
     else if(name.Contains("_cf") and not name.Contains("Inclusive")){
       for(size_t jhist = 1; jhist < histo_zjet.size(); jhist++){
+	if(histo_zjet.at(ihist).first != histo_zjet.at(jhist).first) continue;
 	name2 = TString(histo_zjet.at(jhist).second->GetName());
 	if(name2.Contains("_cf") and name2.Contains("Inclusive")){
 	  idenom_temp = jhist;
@@ -1263,6 +1268,7 @@ void makeMETTriggerFilterEfficiencyMC(string   inputDIR,
     }
     else if(name.Contains("_ff") and not name.Contains("Inclusive")){
       for(size_t jhist = 1; jhist < histo_zjet.size(); jhist++){
+	if(histo_zjet.at(ihist).first != histo_zjet.at(jhist).first) continue;
 	name2 = TString(histo_zjet.at(jhist).second->GetName());
 	if(name2.Contains("_ff") and name2.Contains("Inclusive")){
 	  idenom_temp = jhist;
@@ -1295,8 +1301,12 @@ void makeMETTriggerFilterEfficiencyMC(string   inputDIR,
     eff_wmn.back().second->Write();
     eff_zmm.back().second->Write();
 
+
   }
 
+  ////// ---- plot Efficiency
+  for(size_t ihist = 0; ihist < eff_wmn.size(); ihist++)
+    plotEfficiency(canvas,eff_zjet.at(ihist).second,eff_wjet.at(ihist).second,eff_wmn.at(ihist).second,eff_zmm.at(ihist).second,outputDIR,luminosity,eff_wmn.at(ihist).first);
 
   // 2D efficiencies                                                                                                                                                                                
   vector<pair<string,vector<TEfficiency* > > > eff_zjet_2d;
@@ -1347,6 +1357,8 @@ void makeMETTriggerFilterEfficiencyMC(string   inputDIR,
       if(name.Contains("Inclusive")) denom_zmm_eff.push_back(histo_zmm_2d.at(iobs).second.at(ihist));
       else num_zmm_eff.push_back(histo_zmm_2d.at(iobs).second.at(ihist));      
     }
+
+
 
     // taking into account the order in which histogram vector has been filled
     vector<TEfficiency*> eff_temp_zjet;

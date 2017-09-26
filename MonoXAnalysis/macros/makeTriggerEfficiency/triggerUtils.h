@@ -45,3 +45,19 @@ Double_t ErfCB(double *x, double *par) {
   }
 }
 
+Double_t Logistic(double *x, double*par){
+
+  double xx = x[0];
+  double p0 = par[0]; 
+  double p1 = par[1]; 
+  double p2 = par[2]; 
+  double p3 = par[3]; 
+  double p4 = par[4]; 
+
+  double denom = TMath::Power((1.+p1*exp(-p2*(xx-p3))),1./p4);
+  double val = p0*1./denom;
+  return val;		      
+  
+} 
+
+
