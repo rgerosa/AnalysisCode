@@ -293,13 +293,14 @@ void drawHistogram(TH1F* histogram_lo, TH1F* histogram_nlo, TH1F* histogram_rewe
 }
 
 /////////////
-void makeVJetsShapeComparisons(string inputDIR_LO, string inputDIR_NLO, string kfactorFile, Sample sample, Category category, string outputDIR){
+void makeVJetsShapeComparisons(string inputDIR_LO, string inputDIR_NLO, Sample sample, Category category, string outputDIR){
 
   system(("mkdir -p "+outputDIR).c_str());
   setTDRStyle();
   gROOT->SetBatch(kTRUE);
 
-  TFile* kffile = TFile::Open(kfactorFile.c_str());
+  TFile* kffile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_24bins.root");
+  TFile* kfile_vbf     = NULL;
   TH1* hist_nloqcd    = NULL;
   TH1* hist_loqcd     = NULL;
 
@@ -314,8 +315,48 @@ void makeVJetsShapeComparisons(string inputDIR_LO, string inputDIR_NLO, string k
  
   hist_nloqcd->Divide(hist_loqcd);
 
-  vector<TH1*> khists; khists.push_back(hist_nloqcd);
+  vector<TH1*> khists; 
+  khists.push_back(hist_nloqcd);
   vector<TH1*> ehists;
+
+  if(category == Category::VBF or category == Category::VBFrelaxed){ // VBF k-factors
+    if(sample == Sample::zjet)
+      kfile_vbf  = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_zjets_v2.root");
+    else if(sample == Sample::wjet)
+      kfile_vbf  = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_wjets_v2.root");
+
+    if(sample == Sample::zjet){
+      TH1* zjet_nlo_vbf = (TH1*) kfile_vbf->Get("bosonPt_NLO_vbf");
+      if(category == Category::VBFrelaxed)
+	zjet_nlo_vbf = (TH1*) kfile_vbf->Get("bosonPt_NLO_vbf_relaxed");
+      TH1* zjet_nlo_mj  = (TH1*) kfile_vbf->Get("bosonPt_NLO_monojet");
+      
+      if(category == Category::VBF)
+	zjet_nlo_vbf->Divide((TH1*) kfile_vbf->Get("bosonPt_LO_vbf"));
+      else if(category == Category::VBFrelaxed)
+	zjet_nlo_vbf->Divide((TH1*) kfile_vbf->Get("bosonPt_LO_vbf_relaxed"));
+      zjet_nlo_mj->Divide((TH1*) kfile_vbf->Get("bosonPt_LO_monojet"));
+      zjet_nlo_vbf->Divide(zjet_nlo_mj);
+
+      khists.push_back(zjet_nlo_vbf);
+    }
+    else if(sample == Sample::wjet){
+      ///////////////////
+      TH1* wjet_nlo_vbf = (TH1*) kfile_vbf->Get("bosonPt_NLO_vbf");
+      if(category == Category::VBFrelaxed)
+	wjet_nlo_vbf = (TH1*) kfile_vbf->Get("bosonPt_NLO_vbf_relaxed");
+      TH1* wjet_nlo_mj  = (TH1*) kfile_vbf->Get("bosonPt_NLO_monojet");
+      
+      if(category == Category::VBF)
+	wjet_nlo_vbf->Divide((TH1*) kfile_vbf->Get("bosonPt_LO_vbf"));
+      else if(category == Category::VBFrelaxed)
+	wjet_nlo_vbf->Divide((TH1*) kfile_vbf->Get("bosonPt_LO_vbf_relaxed"));
+      
+      wjet_nlo_mj->Divide((TH1*) kfile_vbf->Get("bosonPt_LO_monojet"));
+      wjet_nlo_vbf->Divide(wjet_nlo_mj);
+      khists.push_back(wjet_nlo_vbf);            
+    }
+  }
 
   TChain* chain_lo = new TChain("gentree/tree");
   TChain* chain_nlo = new TChain("gentree/tree");

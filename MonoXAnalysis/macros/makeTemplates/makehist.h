@@ -62,11 +62,9 @@ static bool doSmoothing      = false;
 // trigger and object corrections
 const float recoilThresholdTrigger = 350; // for photon trigger application
 const bool  useSingleMuon   = true;
-const bool  useMoriondSetup = true;
-const bool  usePOGScaleFactors = true;
 const bool  applyLeptonVetoWeight = true;
 // other general options
-const bool  runOnlyData     = false;
+const bool  runOnlyData      = false;
 // k-factors
 const bool  applyEWKVKfactor = true;
 
@@ -78,8 +76,11 @@ string kFactorTheoristFile_zvv = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/dat
 string kFactorTheoristFile_wln = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors_theorist/evj.root";
 string kFactorTheoristFile_zll = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors_theorist/eej.root";
 string kFactorTheoristFile_gam = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors_theorist/aj.root";
-string kFactorFile_wjetewk = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kFactor_WToLNu_pT_Mjj.root";
+string kFactorVBF_zjet = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_zjets_v2.root";
+string kFactorVBF_wjet = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_wjets_v2.root";
+string kFactorVBF_gjet = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_gjets_v2.root";
 string kFactorFile_zjetewk = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kFactor_ZToNuNu_pT_Mjj.root";
+string kFactorFile_wjetewk = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kFactor_WToLNu_pT_Mjj.root";
 
 /// basic trees
 string baseInputTreePath = "/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_6_06_2017/";
@@ -168,99 +169,23 @@ void makehist4(TTree* tree,            /*input tree*/
   // Pileup Weights
   TFile* pufile = NULL;
   TH1*   puhist = NULL;
-  if(useMoriondSetup){
-    if(reweightNVTX){
-      pufile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/npvWeight/purwt_36.40_summer16.root");    
-      puhist = (TH1*) pufile->Get("puhist");
-    }
-  }
-  else{
-    if(reweightNVTX){
-      pufile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/npvWeight/puwrt_12p9fb.root");    
-      puhist = (TH1*) pufile->Get("puhist");
-    }
+  if(reweightNVTX){
+    pufile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/npvWeight/purwt_36.40_summer16.root");    
+    puhist = (TH1*) pufile->Get("puhist");
   }
   
   // Lepton ID scale factors
-  TFile* sffile_eleTight = NULL;
-  TFile* sffile_eleVeto  = NULL;
-  TFile* sffile_muTight  = NULL;
-  TFile* sffile_muLoose  = NULL;
-  
-  if(useMoriondSetup){
-    if(not usePOGScaleFactors){
-      sffile_eleTight = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/leptonSF_Moriond/scaleFactor_electron_tightid_summer16.root");
-      sffile_eleVeto  = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/leptonSF_Moriond/scaleFactor_electron_vetoid_summer16.root");
-    }
-    else{
-      sffile_eleTight = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/leptonSF_Moriond/scalefactors_80x_egpog_37ifb.root");
-      sffile_eleVeto  = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/leptonSF_Moriond/scalefactors_80x_egpog_37ifb.root");	
-    }
-  
-    if(usePOGScaleFactors){
-      sffile_muTight  = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/leptonSF_Moriond/muon_scalefactors.root");
-      sffile_muLoose  = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/leptonSF_Moriond/muon_scalefactors.root");
-    }
-    else{
-      sffile_muTight  = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/leptonSF_Moriond/scaleFactor_muon_tightid.root");
-      sffile_muLoose  = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/leptonSF_Moriond/scaleFactor_muon_looseid.root");
-    }
-  }
-  else{
-    sffile_eleTight = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/leptonSF_ICHEP/scaleFactor_electron_tightid_12p9.root");
-    sffile_eleVeto  = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/leptonSF_ICHEP/scaleFactor_electron_vetoid_12p9.root");
-    sffile_muTight  = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/leptonSF_ICHEP/scaleFactor_muon_tightid_12p9.root");
-    sffile_muLoose  = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/leptonSF_ICHEP/scaleFactor_muon_looseid_12p9.root");
-  }
-  
-
-  TH2*  msfloose_lowpu  = NULL;
-  TH2*  msftight_lowpu  = NULL;
-  TH2*  msfloose_id   = NULL;
-  TH2*  msftight_id   = NULL;
-  TH2*  msfloose_iso  = NULL;
-  TH2*  msftight_iso  = NULL;
-  TH2*  esfveto_lowpu   = NULL;
-  TH2*  esftight_lowpu  = NULL;
-  TH2*  msfloose_highpu = NULL;
-  TH2*  msftight_highpu = NULL;
-  TH2*  esfveto_highpu  = NULL;
-  TH2*  esftight_highpu = NULL;
-  TH2*  esfveto  = NULL;
-  TH2*  esftight = NULL;
-  
-  if(useMoriondSetup){
-    if(not usePOGScaleFactors){
-      msfloose_lowpu  = (TH2*) sffile_muLoose->Get("scaleFactor_muon_looseid_RooCMSShape_pu_0_17");
-      msftight_lowpu  = (TH2*) sffile_muTight->Get("scaleFactor_muon_tightid_RooCMSShape_pu_0_17");
-      msfloose_highpu = (TH2*) sffile_muLoose->Get("scaleFactor_muon_looseid_RooCMSShape_pu_17_50");
-      msftight_highpu = (TH2*) sffile_muTight->Get("scaleFactor_muon_tightid_RooCMSShape_pu_17_50");
-      }
-    else{
-      msfloose_id  = (TH2*) sffile_muLoose->Get("scalefactors_MuonLooseId_Muon");
-      msfloose_iso = (TH2*) sffile_muLoose->Get("scalefactors_Iso_MuonLooseId");
-      msftight_id  = (TH2*) sffile_muLoose->Get("scalefactors_TightId_Muon");
-      msftight_iso = (TH2*) sffile_muLoose->Get("scalefactors_Iso_MuonTightId");
-    }
-    if(not usePOGScaleFactors){
-      esfveto    = (TH2*) sffile_eleVeto->Get("scaleFactor_electron_vetoid_RooCMSShape_pu_0_100");
-      esftight   = (TH2*) sffile_eleTight->Get("scaleFactor_electron_tightid_RooCMSShape_pu_0_100");
-      }
-    else{
-      esfveto    = (TH2*) sffile_eleVeto->Get("scalefactors_Veto_Electron");
-      esftight   = (TH2*) sffile_eleTight->Get("scalefactors_Tight_Electron");
-    }
-  }
-  else{
-    msfloose_lowpu  = (TH2*) sffile_muLoose->Get("scaleFactor_muon_looseid_RooCMSShape");
-    msftight_lowpu  = (TH2*) sffile_muTight->Get("scaleFactor_muon_tightid_RooCMSShape");
-    esfveto_lowpu   = (TH2*) sffile_eleVeto->Get("scaleFactor_electron_vetoid_RooCMSShape");
-    esftight_lowpu  = (TH2*) sffile_eleTight->Get("scaleFactor_electron_tightid_RooCMSShape");
-    msfloose_highpu = (TH2*) sffile_muLoose->Get("scaleFactor_muon_looseid_RooCMSShape");
-    msftight_highpu = (TH2*) sffile_muTight->Get("scaleFactor_muon_tightid_RooCMSShape");
-    esfveto_highpu  = (TH2*) sffile_eleVeto->Get("scaleFactor_electron_vetoid_RooCMSShape");
-    esftight_highpu = (TH2*) sffile_eleTight->Get("scaleFactor_electron_tightid_RooCMSShape");
-  }
+  TFile* sffile_eleTight = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/leptonSF_Moriond/scalefactors_80x_egpog_37ifb.root");
+  TFile* sffile_eleVeto  = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/leptonSF_Moriond/scalefactors_80x_egpog_37ifb.root");
+  TFile* sffile_muTight  = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/leptonSF_Moriond/muon_scalefactors.root");
+  TFile* sffile_muLoose  = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/leptonSF_Moriond/muon_scalefactors.root");
+    
+  TH2*  msfloose_id   = (TH2*) sffile_muLoose->Get("scalefactors_MuonLooseId_Muon");
+  TH2*  msftight_id   = (TH2*) sffile_muLoose->Get("scalefactors_Iso_MuonLooseId");
+  TH2*  msfloose_iso  = (TH2*) sffile_muLoose->Get("scalefactors_Iso_MuonLooseId");
+  TH2*  msftight_iso  = (TH2*) sffile_muLoose->Get("scalefactors_Iso_MuonTightId");
+  TH2*  esfveto       = (TH2*) sffile_eleVeto->Get("scalefactors_Veto_Electron");
+  TH2*  esftight      = (TH2*) sffile_eleTight->Get("scalefactors_Tight_Electron");
 
   // lepton loose id files --> MC efficiency
   TFile* muon_efficiency_file = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonEfficiency_MC_2016/muon_efficiency_MC.root");
@@ -273,76 +198,18 @@ void makehist4(TTree* tree,            /*input tree*/
   TH2F* efftauloose_id = (TH2F*) tau_efficiency_file->Get("efficiency_tau_MC");
     
   // Photon ID scale factor                                                                                                                                                     
-  TFile* sffile_phoMedium = NULL;
-  TH2*  psfmedium_lowpu   = NULL;
-  TH2*  psfmedium_highpu  = NULL;
-  TH2*  psfmedium         = NULL;
-
-  if(useMoriondSetup){
-    sffile_phoMedium = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF_2016/photonSF_Moriond/photonSF_egamma_80X.root");
-    psfmedium = (TH2*) sffile_phoMedium->Get("EGamma_SF2D");
-  }
-  else{
-    sffile_phoMedium = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF_2016/photonSF_ICHEP/scaleFactor_photon_mediumid_12p9.root");
-    psfmedium_lowpu  = (TH2*) sffile_phoMedium->Get("scaleFactor_photon_mediumid_RooCMSShape");
-    psfmedium_highpu = (TH2*) sffile_phoMedium->Get("scaleFactor_photon_mediumid_RooCMSShape");
-  }
+  TFile* sffile_phoMedium = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF_2016/photonSF_Moriond/photonSF_egamma_80X.root");
+  TH2* psfmedium = (TH2*) sffile_phoMedium->Get("EGamma_SF2D");
 
   // Photon Purity                                                                                                                                                              
-  TFile* purityfile_photon = NULL;
-  TH2*   purhist           = NULL; 
-  TGraphAsymmErrors*   purgraph  = NULL; 
-  if(useMoriondSetup){
-    purityfile_photon = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF_2016/photonSF_Moriond/finalPurity_weightedAverage_36fb.root");
-    purgraph = (TGraphAsymmErrors*) purityfile_photon->Get("purity_weightedAverage_totUnc");
-  }
-  else{
-    purityfile_photon = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF_2016/photonSF_ICHEP/PhotonSFandEffandPurity_Lumi12p9fb_28072016.root");  
-    purhist = (TH2*) purityfile_photon->Get("purity");
-  }
+  TFile* purityfile_photon = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF_2016/photonSF_Moriond/finalPurity_weightedAverage_36fb.root");  
+  TGraphAsymmErrors*   purgraph  = (TGraphAsymmErrors*) purityfile_photon->Get("purity_weightedAverage_totUnc");
   
   // Lepton track efficiency
-  TFile* trackingefficiency_muon        = NULL;
-  TH2F*  trackingefficiency_muon_lowpu  = NULL;
-  TH2F*  trackingefficiency_muon_highpu = NULL;
-  TGraphAsymmErrors*  trackingefficiency_pog = NULL;
-
-  if(useMoriondSetup){
-    if(not usePOGScaleFactors){
-      trackingefficiency_muon = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/trackingSF_2016/trackingSF_Moriond/scaleFactor_muon_trackerid.root");
-      trackingefficiency_muon_lowpu = (TH2F*) trackingefficiency_muon->Get("scaleFactor_muon_trackerid_RooCMSShape_pu_0_17");
-      trackingefficiency_muon_highpu = (TH2F*) trackingefficiency_muon->Get("scaleFactor_muon_trackerid_RooCMSShape_pu_17_50");
-    }
-    else{
-      trackingefficiency_muon = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/trackingSF_2016/trackingSF_Moriond/Tracking_EfficienciesAndSF_BCDEFGH.root");
-      trackingefficiency_pog = (TGraphAsymmErrors*) trackingefficiency_muon->Get("ratio_eff_vtx_dr030e030_corr");
-    }
-  }
-  else{
-    trackingefficiency_muon = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/trackingSF_2016/trackingSF_ICHEP/scaleFactor_muon_trackerid.root");
-    trackingefficiency_muon_lowpu  = (TH2F*) trackingefficiency_muon->Get("scaleFactor_muon_trackerid_Exp_pu_0_16");
-    trackingefficiency_muon_highpu = (TH2F*) trackingefficiency_muon->Get("scaleFactor_muon_trackerid_Exp_pu_16_50");
-  }
-  
-  TFile* trackingefficiencyFile_electron   = NULL;
-  TH2F* trackingefficiency_electron_lowpu  = NULL;
-  TH2F* trackingefficiency_electron_highpu = NULL;
-  TH2F* trackingefficiency_electron        = NULL;
-  if(useMoriondSetup){
-    if(usePOGScaleFactors){
-      trackingefficiencyFile_electron = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/leptonSF_Moriond/scalefactors_80x_egpog_37ifb.root");
-      trackingefficiency_electron = (TH2F*) trackingefficiencyFile_electron->Get("scalefactors_Reco_Electron");
-    }
-    else{
-      trackingefficiencyFile_electron = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/trackingSF_2016/trackingSF_Moriond/scaleFactor_electron_recoelectronmatch_summer16.root");
-      trackingefficiency_electron = (TH2F*) trackingefficiencyFile_electron->Get("scaleFactor_electron_recoelectronmatch_RooCMSShape_pu_0_100");	
-    }
-  }
-  else{
-    trackingefficiencyFile_electron = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/trackingSF_2016/trackingSF_ICHEP/scaleFactor_electron_recoelectronmatch.root");  
-    trackingefficiency_electron_lowpu  = (TH2F*) trackingefficiencyFile_electron->Get("scaleFactor_electron_recoelectronmatch_RooCMSShape_pu_0_16");
-    trackingefficiency_electron_highpu = (TH2F*) trackingefficiencyFile_electron->Get("scaleFactor_electron_recoelectronmatch_RooCMSShape_pu_16_50");
-  } 
+  TFile* trackingefficiency_muon        = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/trackingSF_2016/trackingSF_Moriond/Tracking_EfficienciesAndSF_BCDEFGH.root");
+  TGraphAsymmErrors*  trackingefficiency_pog = (TGraphAsymmErrors*) trackingefficiency_muon->Get("ratio_eff_vtx_dr030e030_corr");  
+  TFile* trackingefficiencyFile_electron  = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/leptonSF_Moriond/scalefactors_80x_egpog_37ifb.root");
+  TH2F* trackingefficiency_electron       = (TH2F*) trackingefficiencyFile_electron->Get("scalefactors_Reco_Electron");
 
   /////////////////////////////////////////
   // trigger files used for 2016                                                                                                                                                
@@ -354,192 +221,102 @@ void makehist4(TTree* tree,            /*input tree*/
   TH2* triggerelhist    = NULL;
   TH2* triggerelhist_ht = NULL;
 
-
-  if(useMoriondSetup){
-    if(category != Category::VBF and category != Category::VBFrelaxed){
-      triggerfile_SinglEle       = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/Monojet/triggerEfficiency_DATA_SingleElectron.root");
-      triggerfile_SinglEle_jetHT = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/Monojet/triggerEfficiency_DATA_SingleElectron.root");
-      triggerel_eff        = (TEfficiency*) triggerfile_SinglEle->Get("trgeff_ele");
-      triggerel_eff_jetHT  = (TEfficiency*) triggerfile_SinglEle_jetHT->Get("trgeff_ele");
-      triggerelhist    = triggerel_eff->CreateHistogram();
-      triggerelhist_ht = triggerel_eff_jetHT->CreateHistogram();
-      triggerelhist->SetName("triggerelhist");
-      triggerelhist_ht->SetName("triggerelhist_ht");
-    }
-    else{
-      triggerfile_SinglEle       = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/VBF/eleTrig.root");
-      triggerfile_SinglEle_jetHT = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/VBF/eleTrig.root");
-      triggerelhist     = (TH2*) triggerfile_SinglEle->Get("hEffEtaPt");
-      triggerelhist_ht  = (TH2*) triggerfile_SinglEle_jetHT->Get("hEffEtaPt");
-    }
+  if(category != Category::VBF and category != Category::VBFrelaxed){
+    triggerfile_SinglEle       = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/Monojet/triggerEfficiency_DATA_SingleElectron.root");
+    triggerfile_SinglEle_jetHT = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/Monojet/triggerEfficiency_DATA_SingleElectron.root");
+    triggerel_eff        = (TEfficiency*) triggerfile_SinglEle->Get("trgeff_ele");
+    triggerel_eff_jetHT  = (TEfficiency*) triggerfile_SinglEle_jetHT->Get("trgeff_ele");
+    triggerelhist    = triggerel_eff->CreateHistogram();
+    triggerelhist_ht = triggerel_eff_jetHT->CreateHistogram();
+    triggerelhist->SetName("triggerelhist");
+    triggerelhist_ht->SetName("triggerelhist_ht");
   }
   else{
-    triggerfile_SinglEle       = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_ICHEP/Monojet/triggerEfficiency_DATA_SingleElectron_12p9fb.root");
-    triggerfile_SinglEle_jetHT = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_ICHEP/Monojet/triggerEfficiency_DATA_SingleElectron_jetHT_12p9.root");
-    triggerel_eff        = (TEfficiency*) triggerfile_SinglEle->Get("trgeff_ele");
-    triggerel_eff_jetHT  = (TEfficiency*) triggerfile_SinglEle_jetHT->Get("efficiency");
+    triggerfile_SinglEle       = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/VBF/eleTrig.root");
+    triggerfile_SinglEle_jetHT = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/VBF/eleTrig.root");
+    triggerelhist     = (TH2*) triggerfile_SinglEle->Get("hEffEtaPt");
+    triggerelhist_ht  = (TH2*) triggerfile_SinglEle_jetHT->Get("hEffEtaPt");
   }
-
-
   
   // Met trigger efficiency
-  TFile* triggerfile_MET     = NULL;
+  TFile* triggerfile_MET_wmn = NULL;
   TFile* triggerfile_MET_zmm = NULL;
-  vector<TFile*> triggerfile_MET_binned_Wmn;
-  vector<TFile*> triggerfile_MET_binned_Zmm;
-  if(useMoriondSetup){
-    if(category != Category::VBF and category != Category::twojet and category != Category::VBFrelaxed){ // monojet
-      // Use Wmn or Wen for W+jets and SR
-      if(useSingleMuon){
-	triggerfile_MET = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/Monojet/metTriggerEfficiency_recoil_monojet.root");
-      }
-      else
-	triggerfile_MET = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/Monojet/metTriggerEfficiency_ele_recoil_monojet.root");
-      // Zmm measurement for Zmm CR
-      triggerfile_MET_zmm = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/Monojet/metTriggerEfficiency_recoil_monojet_zmm.root");
 
-    }
-    else{
-      if(useSingleMuon){
-	triggerfile_MET_binned_Wmn.push_back(TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/VBF/metTriggerEfficiency_mjj_vbf_0.0_800.0.root"));
-	triggerfile_MET_binned_Wmn.push_back(TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/VBF/metTriggerEfficiency_mjj_vbf_800.0_1200.0.root"));
-	triggerfile_MET_binned_Wmn.push_back(TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/VBF/metTriggerEfficiency_mjj_vbf_1200.0_1700.0.root"));
-	triggerfile_MET_binned_Wmn.push_back(TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/VBF/metTriggerEfficiency_mjj_vbf_1700.0_3000.0.root"));
-	triggerfile_MET_binned_Zmm.push_back(TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/VBF/metTriggerEfficiency_mjj_vbf_zmm_0.0_800.0.root"));
-	triggerfile_MET_binned_Zmm.push_back(TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/VBF/metTriggerEfficiency_mjj_vbf_zmm_800.0_1200.0.root"));
-	triggerfile_MET_binned_Zmm.push_back(TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/VBF/metTriggerEfficiency_mjj_vbf_zmm_1200.0_1700.0.root"));
-	triggerfile_MET_binned_Zmm.push_back(TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/VBF/metTriggerEfficiency_mjj_vbf_zmm_1700.0_3000.0.root"));
-      }
-      else{
-	triggerfile_MET_binned_Wmn.push_back(TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/VBF/metTriggerEfficiency_ele_mjj_vbf_0.0_800.0.root"));
-	triggerfile_MET_binned_Wmn.push_back(TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/VBF/metTriggerEfficiency_ele_mjj_vbf_800.0_1200.0.root"));
-	triggerfile_MET_binned_Wmn.push_back(TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/VBF/metTriggerEfficiency_ele_mjj_vbf_1200.0_1700.0.root"));
-	triggerfile_MET_binned_Wmn.push_back(TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/VBF/metTriggerEfficiency_ele_mjj_vbf_1700.0_3000.0.root"));
-	triggerfile_MET_binned_Zmm.push_back(TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/VBF/metTriggerEfficiency_mjj_vbf_zmm_0.0_800.0.root"));
-	triggerfile_MET_binned_Zmm.push_back(TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/VBF/metTriggerEfficiency_mjj_vbf_zmm_800.0_1200.0.root"));
-	triggerfile_MET_binned_Zmm.push_back(TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/VBF/metTriggerEfficiency_mjj_vbf_zmm_1200.0_1700.0.root"));
-	triggerfile_MET_binned_Zmm.push_back(TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/VBF/metTriggerEfficiency_mjj_vbf_zmm_1700.0_3000.0.root"));
-      }
-    }
-  }
-  else{
-    if(category != Category::VBF and category != Category::twojet and category != Category::VBFrelaxed){ // monojet
-      if(useSingleMuon)
-	triggerfile_MET = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_ICHEP/Monojet/metTriggerEfficiency_12p9.root");
-      else
-	triggerfile_MET = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_ICHEP/Monojet/metTriggerEfficiency_12p9.root");
-    }
-    else{ // VBF
-      if(useSingleMuon)
-	triggerfile_MET = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_ICHEP/VBF/metTriggerEfficiency_muon.root");      
-      else
-	triggerfile_MET = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_ICHEP/VBF/metTriggerEfficiency_electron.root");
-    }
-  }
-  
   TEfficiency*       triggermet         = NULL;
   TEfficiency*       triggermet_zmm     = NULL;
   TGraphAsymmErrors* triggermet_graph   = NULL;    
   TGraphAsymmErrors* triggermet_graph_zmm     = NULL;    
-  TGraphAsymmErrors* triggermet_graph_zvv_mc  = NULL;    
-  TGraphAsymmErrors* triggermet_graph_wjet_mc = NULL;    
-  TGraphAsymmErrors* triggermet_graph_wjet_sf = NULL;    
+  
+  vector<TF1*> triggermet_func_binned_Wmn_cc;
+  vector<TF1*> triggermet_func_binned_Zmm_cc;
+  vector<TF1*> triggermet_func_binned_Wmn_cf;
+  vector<TF1*> triggermet_func_binned_Zmm_cf;
 
-  if(triggerfile_MET != NULL){
-    triggermet = (TEfficiency*) triggerfile_MET->Get("trig_eff");
+  if(category != Category::VBF and category != Category::twojet and category != Category::VBFrelaxed){ 
+    // monojet
+    triggerfile_MET_wmn = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/Monojet/metTriggerEfficiency_recoil_monojet.root");
+    triggerfile_MET_zmm = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/Monojet/metTriggerEfficiency_recoil_monojet_zmm.root");
+    ///// ---
+    triggermet = (TEfficiency*) triggerfile_MET_wmn->Get("trig_eff");
     if(triggermet == 0 or triggermet == NULL)
-      triggermet = (TEfficiency*) triggerfile_MET->Get("efficiency_vbf_loose");
-    if(triggermet == 0 or triggermet == NULL)
-      triggermet = (TEfficiency*) triggerfile_MET->Get("efficiency");
+      triggermet = (TEfficiency*) triggerfile_MET_wmn->Get("efficiency");
     triggermet_graph = triggermet->CreateGraph();
-  }
-
-  if(triggerfile_MET_zmm != NULL){
+    ///// ---
     triggermet_zmm = (TEfficiency*) triggerfile_MET_zmm->Get("trig_eff");
-    if(triggermet_zmm == 0 or triggermet_zmm == NULL)
-      triggermet_zmm = (TEfficiency*) triggerfile_MET_zmm->Get("efficiency_vbf_loose");
     if(triggermet_zmm == 0 or triggermet_zmm == NULL)
       triggermet_zmm = (TEfficiency*) triggerfile_MET_zmm->Get("efficiency");
     triggermet_graph_zmm = triggermet_zmm->CreateGraph();
   }
+  else{
+    triggerfile_MET_wmn = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/VBF/metTriggerEfficiency_VBF_Wmn.root");
+    triggerfile_MET_zmm = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/VBF/metTriggerEfficiency_VBF_Zmm.root");    
+
+    triggermet_func_binned_Wmn_cc.push_back((TF1*) triggerfile_MET_wmn->Get("efficiency_cc/fitfunc_recoil_cc_vs_detajj_1.0_1.5"));
+    triggermet_func_binned_Wmn_cc.push_back((TF1*) triggerfile_MET_wmn->Get("efficiency_cc/fitfunc_recoil_cc_vs_detajj_1.5_2.0"));
+    triggermet_func_binned_Wmn_cc.push_back((TF1*) triggerfile_MET_wmn->Get("efficiency_cc/fitfunc_recoil_cc_vs_detajj_2.0_2.5"));
+    triggermet_func_binned_Wmn_cc.push_back((TF1*) triggerfile_MET_wmn->Get("efficiency_cc/fitfunc_recoil_cc_vs_detajj_2.5_3.0"));
+    triggermet_func_binned_Wmn_cc.push_back((TF1*) triggerfile_MET_wmn->Get("efficiency_cc/fitfunc_recoil_cc_vs_detajj_3.0_3.5"));
+    triggermet_func_binned_Wmn_cc.push_back((TF1*) triggerfile_MET_wmn->Get("efficiency_cc/fitfunc_recoil_cc_vs_detajj_3.5_4.0"));
+    triggermet_func_binned_Wmn_cc.push_back((TF1*) triggerfile_MET_wmn->Get("efficiency_cc/fitfunc_recoil_cc_vs_detajj_4.0_5.0"));
+    triggermet_func_binned_Wmn_cc.push_back((TF1*) triggerfile_MET_wmn->Get("efficiency_cc/fitfunc_recoil_cc_vs_detajj_5.0_10.0"));
+
+    triggermet_func_binned_Zmm_cc.push_back((TF1*) triggerfile_MET_zmm->Get("efficiency_cc/fitfunc_recoil_cc_vs_detajj_1.0_2.0"));
+    triggermet_func_binned_Zmm_cc.push_back((TF1*) triggerfile_MET_zmm->Get("efficiency_cc/fitfunc_recoil_cc_vs_detajj_2.0_3.0"));
+    triggermet_func_binned_Zmm_cc.push_back((TF1*) triggerfile_MET_zmm->Get("efficiency_cc/fitfunc_recoil_cc_vs_detajj_3.0_4.0"));
+    triggermet_func_binned_Zmm_cc.push_back((TF1*) triggerfile_MET_zmm->Get("efficiency_cc/fitfunc_recoil_cc_vs_detajj_4.0_10.0"));
+
+    triggermet_func_binned_Wmn_cf.push_back((TF1*) triggerfile_MET_wmn->Get("efficiency_cf/fitfunc_recoil_cf_vs_detajj_3.0_3.5"));
+    triggermet_func_binned_Wmn_cf.push_back((TF1*) triggerfile_MET_wmn->Get("efficiency_cf/fitfunc_recoil_cf_vs_detajj_3.5_4.0"));
+    triggermet_func_binned_Wmn_cf.push_back((TF1*) triggerfile_MET_wmn->Get("efficiency_cf/fitfunc_recoil_cf_vs_detajj_4.0_5.0"));
+    triggermet_func_binned_Wmn_cf.push_back((TF1*) triggerfile_MET_wmn->Get("efficiency_cf/fitfunc_recoil_cf_vs_detajj_5.0_6.0"));
+    triggermet_func_binned_Wmn_cf.push_back((TF1*) triggerfile_MET_wmn->Get("efficiency_cf/fitfunc_recoil_cf_vs_detajj_6.0_10.0"));
+
+    triggermet_func_binned_Zmm_cf.push_back((TF1*) triggerfile_MET_zmm->Get("efficiency_cf/fitfunc_recoil_cf_vs_detajj_3.0_4.0"));
+    triggermet_func_binned_Zmm_cf.push_back((TF1*) triggerfile_MET_zmm->Get("efficiency_cf/fitfunc_recoil_cf_vs_detajj_4.0_5.0"));
+    triggermet_func_binned_Zmm_cf.push_back((TF1*) triggerfile_MET_zmm->Get("efficiency_cf/fitfunc_recoil_cf_vs_detajj_5.0_10.0"));
+
+  }
   
-  vector<TF1*> triggermet_func_binned_Wmn;
-  vector<TF1*> triggermet_func_binned_Zmm;
-  if(triggerfile_MET_binned_Wmn.size() != 0){
-    for(auto ifile : triggerfile_MET_binned_Wmn)
-      triggermet_func_binned_Wmn.push_back((TF1*) ifile->Get("efficiency_func"));    
-  }
-  if(triggerfile_MET_binned_Zmm.size() != 0){
-    for(auto ifile : triggerfile_MET_binned_Zmm)
-      triggermet_func_binned_Zmm.push_back((TF1*) ifile->Get("efficiency_func"));    
-  }
 
   // Photon trigger efficiency measured in jetHT
   TFile* triggerfile_SinglePhoton_jetHT = NULL;
   TFile* triggerfile_SinglePhoton       = NULL;
   TEfficiency* triggerphoton       = NULL;
   TEfficiency* triggerphoton_jetHT = NULL;
-  if(useMoriondSetup){
-    if(category != Category::VBF and category != Category::VBFrelaxed){
-      triggerfile_SinglePhoton_jetHT = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/Monojet/photonTriggerEfficiency_jetHT.root");
-      triggerfile_SinglePhoton       = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/Monojet/photonTriggerEfficiency_photon.root");
-      triggerphoton = (TEfficiency*) triggerfile_SinglePhoton->Get("eff_photonpt");
-      triggerphoton_jetHT = (TEfficiency*) triggerfile_SinglePhoton_jetHT->Get("eff_recover_photonpt");
-    }
-    else{
-      triggerfile_SinglePhoton_jetHT = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/VBF/photonTriggerEfficiency_jetHT.root");
-      triggerfile_SinglePhoton       = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/VBF/photonTriggerEfficiency_photon.root");
-      triggerphoton = (TEfficiency*) triggerfile_SinglePhoton->Get("eff_vbf_recoil");
-      triggerphoton_jetHT = (TEfficiency*) triggerfile_SinglePhoton_jetHT->Get("eff_recover_vbf_recoil");
-    }
+  if(category != Category::VBF and category != Category::VBFrelaxed){
+    triggerfile_SinglePhoton_jetHT = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/Monojet/photonTriggerEfficiency_jetHT.root");
+    triggerfile_SinglePhoton       = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/Monojet/photonTriggerEfficiency_photon.root");
+    triggerphoton = (TEfficiency*) triggerfile_SinglePhoton->Get("eff_photonpt");
+    triggerphoton_jetHT = (TEfficiency*) triggerfile_SinglePhoton_jetHT->Get("eff_recover_photonpt");
   }
   else{
-    triggerfile_SinglePhoton_jetHT = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_ICHEP/VBF/photonTriggerEfficiency_photonpt120_jetHT.root");
-    triggerfile_SinglePhoton       = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_ICHEP/VBF/photonTriggerEfficiency_photonpt120.root");
-    triggerphoton       = (TEfficiency*) triggerfile_SinglePhoton->Get("eff_recoil");
-    triggerphoton_jetHT = (TEfficiency*) triggerfile_SinglePhoton_jetHT->Get("eff_recover_recoil");
-  }
-
+    triggerfile_SinglePhoton_jetHT = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/VBF/photonTriggerEfficiency_jetHT.root");
+    triggerfile_SinglePhoton       = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/VBF/photonTriggerEfficiency_photon.root");
+    triggerphoton = (TEfficiency*) triggerfile_SinglePhoton->Get("eff_vbf_recoil");
+    triggerphoton_jetHT = (TEfficiency*) triggerfile_SinglePhoton_jetHT->Get("eff_recover_vbf_recoil");
+  }  
   TGraphAsymmErrors* triggerphoton_graph       = triggerphoton->CreateGraph();
   TGraphAsymmErrors* triggerphoton_graph_jetHT = triggerphoton_jetHT->CreateGraph();
-
-  /////////////////////////////////////////
-  // Post-fit weights
-  TFile* postFitFile = NULL;
-  if(sample == Sample::sig and applyPostFitWeight and (category == Category::monojet or category == Category::inclusive))
-    postFitFile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/postFitOverPrefit/monoJ_2016_2p6fb/postfit_weights_Sig.root");
-  if(sample == Sample::zmm and applyPostFitWeight and (category == Category::monojet or category == Category::inclusive))
-    postFitFile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/postFitOverPrefit/monoJ_2016_2p6fb/postfit_weights_ZM.root");
-  else if(sample == Sample::wmn and applyPostFitWeight and (category == Category::monojet or category == Category::inclusive))
-    postFitFile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/postFitOverPrefit/monoJ_2016_2p6fb/postfit_weights_WM.root");
-  else if(sample == Sample::zee and applyPostFitWeight and (category == Category::monojet or category == Category::inclusive))
-    postFitFile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/postFitOverPrefit/monoJ_2016_2p6fb/postfit_weights_ZE.root");
-  else if(sample == Sample::wen and applyPostFitWeight and (category == Category::monojet or category == Category::inclusive))
-    postFitFile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/postFitOverPrefit/monoJ_2016_2p6fb/postfit_weights_WE.root");
-  else if(sample == Sample::qcdgam and applyPostFitWeight and (category == Category::monojet or category == Category::inclusive))
-    postFitFile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/postFitOverPrefit/monoJ_2016_2p6fb/postfit_weights_GJ.root");
-  else if(sample == Sample::gam and applyPostFitWeight and (category == Category::monojet or category == Category::inclusive))
-    postFitFile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/postFitOverPrefit/monoJ_2016_2p6fb/postfit_weights_GJ.root");
-  else if(sample == Sample::sig and applyPostFitWeight and category == Category::monoV)
-    postFitFile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/postFitOverPrefit/monoV/postfit_weights_Sig.root");
-  else if(sample == Sample::zmm and applyPostFitWeight and category == Category::monoV)
-    postFitFile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/postFitOverPrefit/monoV/postfit_weights_ZM.root");
-  else if(sample == Sample::wmn and applyPostFitWeight and category == Category::monoV)
-    postFitFile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/postFitOverPrefit/monoV/postfit_weights_WM.root");
-  else if(sample == Sample::zee and applyPostFitWeight and category == Category::monoV)
-    postFitFile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/postFitOverPrefit/monoV/postfit_weights_ZE.root");
-  else if(sample == Sample::wen and applyPostFitWeight and category == Category::monoV)
-    postFitFile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/postFitOverPrefit/monoV/postfit_weights_WE.root");
-  else if(sample == Sample::qcdgam and applyPostFitWeight and category == Category::monoV)
-    postFitFile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/postFitOverPrefit/monoV/postfit_weights_GJ.root");
-  else if(sample == Sample::gam and applyPostFitWeight and category == Category::monoV)
-    postFitFile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/postFitOverPrefit/monoV/postfit_weights_GJ.root");
-
-  TH1* postFitWeight = NULL;
-  if(postFitFile != NULL){
-    postFitWeight = (TH1*) postFitFile->FindObjectAny("post_fit_post_fit");
-    postFitWeight->Divide((TH1*) postFitFile->FindObjectAny("pre_fit_post_fit"));
-  }
 
   // histogram to be filled
   for(size_t ihist  = 0 ; ihist < hist1D.size(); ihist++){
@@ -564,14 +341,13 @@ void makehist4(TTree* tree,            /*input tree*/
   TTreeReaderValue<float> wgt                (myReader,"wgt");
 
   TTreeReaderValue<double>* wgtsum = NULL;
-  if(isMC){
+  if(isMC)
     wgtsum  = new TTreeReaderValue<double>(myReader,"wgtsum");
-  }
 
-  string wgtpuname = "wgtpileup";
+  string wgtpuname   = "wgtpileup";
   string wgtbtagname = "wgtbtag";
   if(not isMC){
-    wgtpuname = "wgt";
+    wgtpuname   = "wgt";
     wgtbtagname = "wgt";
   }
 
@@ -588,6 +364,8 @@ void makehist4(TTree* tree,            /*input tree*/
   TTreeReaderValue<UChar_t> hltm110     (myReader,"hltmet110");
   TTreeReaderValue<UChar_t> hltm120     (myReader,"hltmet120");
   TTreeReaderValue<UChar_t> hltmwm90    (myReader,"hltmetwithmu90");
+  TTreeReaderValue<UChar_t> hltmwm100   (myReader,"hltmetwithmu100");
+  TTreeReaderValue<UChar_t> hltmwm110   (myReader,"hltmetwithmu110");
   TTreeReaderValue<UChar_t> hltmwm120   (myReader,"hltmetwithmu120");
   TTreeReaderValue<UChar_t> hltmwm170   (myReader,"hltmetwithmu170");
   TTreeReaderValue<UChar_t> hltmwm300   (myReader,"hltmetwithmu300");
@@ -724,12 +502,6 @@ void makehist4(TTree* tree,            /*input tree*/
   TTreeReaderValue<float>  el2eta (myReader,"el2eta");
   TTreeReaderValue<float>  el1phi (myReader,"el1phi");
   TTreeReaderValue<float>  el2phi (myReader,"el2phi");
-  ////////////////
-  //  TTreeReaderValue<float>  tau1id  (myReader,"tau1idold");
-  //  TTreeReaderValue<float>  tau1pt  (myReader,"tau1pt");
-  //  TTreeReaderValue<float>  tau1eta (myReader,"tau1eta");
-  //  TTreeReaderValue<float>  tau1phi (myReader,"tau1phi");
-  //  TTreeReaderValue<float>  tau1m   (myReader,"tau1m");
   ////////////////  
   TTreeReaderValue<int>   phidm (myReader,"phidm");
   TTreeReaderValue<float> phpt  (myReader,"phpt");
@@ -738,7 +510,6 @@ void makehist4(TTree* tree,            /*input tree*/
   ////////////////
   TTreeReaderValue<float> wmt    (myReader,"wmt");
   TTreeReaderValue<float> wemt   (myReader,"wemt");
-  //TTreeReaderValue<float> wtmt   (myReader,"wtmt");
   TTreeReaderValue<float> wzpt   (myReader,"wzpt");
   TTreeReaderValue<int>   wzid   (myReader,"wzid");
   TTreeReaderValue<float> wzpt_h (myReader,"wzpt_h");
@@ -782,15 +553,11 @@ void makehist4(TTree* tree,            /*input tree*/
   // loop on events
   while(myReader.Next()){
 
-    //ICHEP dataset
-    if(not useMoriondSetup and not isMC and *run > 276811) continue;
-
-    // check trigger depending on the sample
     Double_t hlt   = 0.0;
     Double_t hltw  = 1.0;
     
     if (sample == Sample::sig || sample == Sample::zmm || sample == Sample::wmn || sample == Sample::taun || sample == Sample::topmu || sample == Sample::qcd)// single and double muon
-      hlt = *hltm90+*hltm100+*hltm110+*hltm120+*hltmwm90+*hltmwm120+*hltmwm170+*hltmwm300;
+      hlt = *hltm90+*hltm100+*hltm110+*hltm120+*hltmwm90+*hltmwm100+*hltmwm110+*hltmwm120+*hltmwm170+*hltmwm300;
     else if (sample == Sample::zee || sample == Sample::wen || sample == Sample::topel) // single and double electron
       hlt = *hlte+*hltenoiso;      
     else if (sample == Sample::qcdgam || sample == Sample::gam){ // single photon
@@ -827,12 +594,12 @@ void makehist4(TTree* tree,            /*input tree*/
     }
     
     // set lepton info
-    Int_t    id1   = 0, id2   = 0;
+    Int_t    id1   = 0,   id2   = 0;
     Double_t pt1   = 0.0, pt2   = 0.0;
     Double_t eta1  = 0.0, eta2  = 0.0;
     Double_t phi1  = 0.0, phi2  = 0.0;
-    int      pid1  = 0, pid2  = 0;
-    int leadingjet_notau = -1;
+    int      pid1  = 0,   pid2  = 0;
+    int leadingjet_notau  = -1;
     int trailingjet_notau = -1;
 
     if (sample == Sample::zmm || sample == Sample::wmn || sample == Sample::topmu) {
@@ -886,6 +653,7 @@ void makehist4(TTree* tree,            /*input tree*/
     Double_t bosonPt  = 0.0;
     Double_t bosonPhi = 0.0;
     Double_t bosonEta = 0.0;
+
     if (sample == Sample::zmm){
       bosonPt  = *zmmpt; // di-muon CR
       bosonEta = *zmmeta;
@@ -917,7 +685,7 @@ void makehist4(TTree* tree,            /*input tree*/
       bosonEta = 0;
       bosonPhi = (lep4V+met4V).Phi();
     }
-
+    
     // control regions with two leptons --> one should be tight
     if ((sample == Sample::zmm || sample == Sample::zee)){
       if(sample == Sample::zmm){	
@@ -957,7 +725,6 @@ void makehist4(TTree* tree,            /*input tree*/
       if(fabs(eta1) > 2.3) continue;
       if(pt1 < 30) continue;
       if(id1 != 1) continue;
-      //if(*wtmt > 160) continue;
     }
 
     // n-bjets cut for unboosted categories
@@ -981,7 +748,7 @@ void makehist4(TTree* tree,            /*input tree*/
       if (pfmet < pfMetVBFLower) continue;
       if (pfmet > pfMetVBFUpper) continue;
     }
-    else  if(category == Category::monojet or category == Category::inclusive){
+    else if(category == Category::monojet or category == Category::inclusive){
       if (pfmet < pfMetMonoJLower) continue;
       if (pfmet > pfMetMonoJUpper) continue;
     }
@@ -1037,446 +804,7 @@ void makehist4(TTree* tree,            /*input tree*/
     
     if(category != Category::VBF and category != Category::twojet and category != Category::VBFrelaxed and leadingCentralJetPos < 0)  continue;
     if(category != Category::VBF and category != Category::twojet and category != Category::VBFrelaxed and leadingCentralJetPos != 0) continue; 
-        
-    /// re-miniADO specific to adjust lumi
-    Double_t sfwgt = 1.0;
-    //float sf_track = 1.0;
-    // apply tracking efficiency for electrons from POGs / private files
-    if(isMC && (sample == Sample::zee or sample == Sample::wen)){
-      if(pt1 > 0.){	  
-	float ptVal = pt1;
-	if(pt1 < trackingefficiency_electron->GetYaxis()->GetBinLowEdge(1)) ptVal =  trackingefficiency_electron->GetYaxis()->GetBinLowEdge(1)+1;
-	else if(pt1 > trackingefficiency_electron->GetYaxis()->GetBinLowEdge(trackingefficiency_electron->GetNbinsY()+1)) ptVal = trackingefficiency_electron->GetYaxis()->GetBinLowEdge(trackingefficiency_electron->GetNbinsY()+1)-1;
-	sfwgt *= trackingefficiency_electron->GetBinContent(trackingefficiency_electron->FindBin(eta1,ptVal));
-      }
-      if(pt2 > 0.){
-	float ptVal = pt1;
-	if(pt2 < trackingefficiency_electron->GetYaxis()->GetBinLowEdge(1)) ptVal =  trackingefficiency_electron->GetYaxis()->GetBinLowEdge(1)+1;
-	else if(pt2 > trackingefficiency_electron->GetYaxis()->GetBinLowEdge(trackingefficiency_electron->GetNbinsY()+1)) ptVal = trackingefficiency_electron->GetYaxis()->GetBinLowEdge(trackingefficiency_electron->GetNbinsY()+1)-1;
-	sfwgt *= trackingefficiency_electron->GetBinContent(trackingefficiency_electron->FindBin(eta2,ptVal));
-      }
-    }
 
-    // reco-muon scale factor --> private scale factors aleady starting at 10 GeV
-    if(isMC && (sample == Sample::zmm or sample == Sample::wmn or sample == Sample::topmu)){
-      double trackwgt = 1;
-      if(not usePOGScaleFactors){ // private SF binned in nvtx (2bins), eta and pt
-	if(pt1 > 0. and *nvtx <= numberOfVtxCorrection)
-	  trackwgt *= trackingefficiency_muon_lowpu->GetBinContent(trackingefficiency_muon_lowpu->FindBin(fabs(eta1),min(pt1,trackingefficiency_muon_lowpu->GetYaxis()->GetBinLowEdge(trackingefficiency_muon_lowpu->GetNbinsY()+1)-1)));
-	if(pt2 > 0. and *nvtx <= numberOfVtxCorrection)
-	  trackwgt *= trackingefficiency_muon_lowpu->GetBinContent(trackingefficiency_muon_lowpu->FindBin(fabs(eta2),min(pt2,trackingefficiency_muon_lowpu->GetYaxis()->GetBinLowEdge(trackingefficiency_muon_lowpu->GetNbinsY()+1)-1)));
-	if(pt1 > 0. and *nvtx > numberOfVtxCorrection)
-	  trackwgt *= trackingefficiency_muon_highpu->GetBinContent(trackingefficiency_muon_highpu->FindBin(fabs(eta1),min(pt1,trackingefficiency_muon_highpu->GetYaxis()->GetBinLowEdge(trackingefficiency_muon_highpu->GetNbinsY()+1)-1)));
-	if(pt2 > 0. and *nvtx > numberOfVtxCorrection)
-	  trackwgt *= trackingefficiency_muon_highpu->GetBinContent(trackingefficiency_muon_highpu->FindBin(fabs(eta2),min(pt2,trackingefficiency_muon_highpu->GetYaxis()->GetBinLowEdge(trackingefficiency_muon_highpu->GetNbinsY()+1)-1)));      
-      }
-      else{
-	if(pt1 > 0.)
-	  trackwgt *= trackingefficiency_pog->Eval(*nvtx);
-	if(pt2 > 0.)
-	  trackwgt *= trackingefficiency_pog->Eval(*nvtx);
-      }      
-      sfwgt *= trackwgt;
-    }
-
-    // scale factor for leptons
-    TH2* sflhist_lowpu = NULL;
-    TH2* sfthist_lowpu = NULL;
-    TH2* sflhist_highpu = NULL;
-    TH2* sfthist_highpu = NULL;
-
-    if (sample == Sample::zmm || sample == Sample::wmn || sample == Sample::topmu) {
-      if(not usePOGScaleFactors){
-	if (pt1 > 0.) {	
-	  if(*nvtx <= numberOfVtxCorrection){
-	    if (id1 == 1)
-	      sfwgt *= msftight_lowpu->GetBinContent(msftight_lowpu->FindBin(fabs(eta1),min(pt1,msftight_lowpu->GetYaxis()->GetBinLowEdge(msftight_lowpu->GetNbinsY()+1)-1))); 
-	    else
-	      sfwgt *= msfloose_lowpu->GetBinContent(msfloose_lowpu->FindBin(fabs(eta1),min(pt1,msfloose_lowpu->GetYaxis()->GetBinLowEdge(msfloose_lowpu->GetNbinsY()+1)-1))); 
-	  }
-	  else{
-	    if (id1 == 1)
-	      sfwgt *= msftight_highpu->GetBinContent(msftight_highpu->FindBin(fabs(eta1),min(pt1,msftight_highpu->GetYaxis()->GetBinLowEdge(msftight_highpu->GetNbinsY()+1)-1))); 
-	    else
-	      sfwgt *= msfloose_highpu->GetBinContent(msfloose_highpu->FindBin(fabs(eta1),min(pt1,msfloose_highpu->GetYaxis()->GetBinLowEdge(msfloose_highpu->GetNbinsY()+1)-1))); 
-	  }
-	}
-	if (pt2 > 0.) {
-	  if(*nvtx <= numberOfVtxCorrection){
-	    if (id2 == 1)
-	      sfwgt *= msftight_lowpu->GetBinContent(msftight_lowpu->FindBin(fabs(eta2),min(pt2,msftight_lowpu->GetYaxis()->GetBinLowEdge(msftight_lowpu->GetNbinsY()+1)-1))); 
-	    else
-	      sfwgt *= msfloose_lowpu->GetBinContent(msfloose_lowpu->FindBin(fabs(eta2),min(pt2,msfloose_lowpu->GetYaxis()->GetBinLowEdge(msfloose_lowpu->GetNbinsY()+1)-1))); 
-	  }
-	  else{
-	    if (id2 == 1){
-	      sfwgt *= msftight_highpu->GetBinContent(msftight_highpu->FindBin(fabs(eta2),min(pt2,msftight_highpu->GetYaxis()->GetBinLowEdge(msftight_highpu->GetNbinsY()+1)-1))); 
-	    }
-	    else
-	      sfwgt *= msfloose_highpu->GetBinContent(msfloose_highpu->FindBin(fabs(eta2),min(pt2,msfloose_highpu->GetYaxis()->GetBinLowEdge(msfloose_highpu->GetNbinsY()+1)-1))); 
-	  }
-	}      
-      }
-      else{ // official POG scale factors
-
-	if (pt1 > 0.){
-	  float ptValue = pt1;
-	  if(ptValue < msftight_id->GetYaxis()->GetBinLowEdge(1)) ptValue =  msftight_id->GetYaxis()->GetBinLowEdge(1)+1;
-	  else if(ptValue > msftight_id->GetYaxis()->GetBinLowEdge(msftight_id->GetNbinsY()+1)) ptValue = msftight_id->GetYaxis()->GetBinLowEdge(msftight_id->GetNbinsY()+1)-1; 
-	  if(id1 == 1)
-	    sfwgt *= msftight_id->GetBinContent(msftight_id->FindBin(fabs(eta1),ptValue))*msftight_iso->GetBinContent(msftight_iso->FindBin(fabs(eta1),ptValue));
-	  else 
-	    sfwgt *= msfloose_id->GetBinContent(msfloose_id->FindBin(fabs(eta1),ptValue))*msfloose_iso->GetBinContent(msfloose_iso->FindBin(fabs(eta1),ptValue));
-	}
-	if(pt2 > 0.){
-	  float ptValue = pt2;
-	  if(ptValue < msftight_id->GetYaxis()->GetBinLowEdge(1)) ptValue =  msftight_id->GetYaxis()->GetBinLowEdge(1)+1;
-	  else if(ptValue > msftight_id->GetYaxis()->GetBinLowEdge(msftight_id->GetNbinsY()+1)) ptValue = msftight_id->GetYaxis()->GetBinLowEdge(msftight_id->GetNbinsY()+1)-1; 
-	  if(id2 == 1)
-	    sfwgt *= msftight_id->GetBinContent(msftight_id->FindBin(fabs(eta2),ptValue))*msftight_iso->GetBinContent(msftight_iso->FindBin(fabs(eta2),ptValue));
-	  else 
-	    sfwgt *= msfloose_id->GetBinContent(msfloose_id->FindBin(fabs(eta2),ptValue))*msfloose_iso->GetBinContent(msfloose_iso->FindBin(fabs(eta1),ptValue));
-	}
-      }
-    }
-
-    //////////////    
-    if (sample == Sample::zee || sample == Sample::wen || sample == Sample::topel) {      
-      if (pt1 > 0.) {
-	float ptVal = pt1;
-	if(pt1 < esftight->GetYaxis()->GetBinLowEdge(1)) ptVal = esftight->GetYaxis()->GetBinLowEdge(1)+1;
-	  else if(pt1 > esftight->GetYaxis()->GetBinLowEdge(esftight->GetNbinsY()+1)) ptVal = esftight->GetYaxis()->GetBinLowEdge(esftight->GetNbinsY()+1)-1;
-	if (id1 == 1) 
-	  sfwgt *= esftight->GetBinContent(esftight->FindBin(eta1,ptVal));
-	else  
-	  sfwgt *= esfveto->GetBinContent(esfveto->FindBin(eta1,ptVal));
-      }
-      if (pt2 > 0.) {
-	float ptVal = pt2;
-	if(pt2 < esftight->GetYaxis()->GetBinLowEdge(1)) ptVal = esftight->GetYaxis()->GetBinLowEdge(1)+1;
-	else if(pt2 > esftight->GetYaxis()->GetBinLowEdge(esftight->GetNbinsY()+1)) ptVal = esftight->GetYaxis()->GetBinLowEdge(esftight->GetNbinsY()+1)-1;
-	if (id1 == 1)
-	  sfwgt *= esftight->GetBinContent(esftight->FindBin(eta2,ptVal));
-	else
-	  sfwgt *= esfveto->GetBinContent(esfveto->FindBin(eta2,ptVal));
-      }
-    }
-    
-    // tight tau scale factor--> as suggested by tau pog https://twiki.cern.ch/twiki/bin/viewauth/CMS/TauIDRecommendation13TeV
-    if(isMC && sample == Sample::taun)
-      sfwgt *= 0.95;
-    
-    // trigger scale factor for electrons
-    float sf_trigger = 1.;
-    if (isMC && triggerelhist && triggerelhist_ht && (sample == Sample::zee || sample == Sample::topel || sample == Sample::wen)) {
-      float sf1 = 1.;
-      float sf2 = 1.;
-
-      if(category != Category::VBF and category != Category::VBFrelaxed){
-	sf1 = triggerelhist->GetBinContent(triggerelhist->FindBin(fabs(eta1),min(pt1,triggerelhist->GetYaxis()->GetBinLowEdge(triggerelhist->GetNbinsY()+1)-1)));
-	if(pt1 >= 200)
-	  sf1 = triggerelhist_ht->GetBinContent(triggerelhist_ht->FindBin(fabs(eta1),min(pt1,triggerelhist_ht->GetYaxis()->GetBinLowEdge(triggerelhist_ht->GetNbinsY()+1)-1)));
-	sf2 = triggerelhist->GetBinContent(triggerelhist->FindBin(fabs(eta2),min(pt2,triggerelhist->GetYaxis()->GetBinLowEdge(triggerelhist->GetNbinsY()+1)-1)));
-	if(pt2 >= 200)
-	  sf2 = triggerelhist_ht->GetBinContent(triggerelhist_ht->FindBin(fabs(eta2),min(pt2,triggerelhist_ht->GetYaxis()->GetBinLowEdge(triggerelhist_ht->GetNbinsY()+1)-1)));	  
-      }
-      else{
-
-	float ptVal = pt1;
-	if(pt1 > triggerelhist->GetYaxis()->GetBinLowEdge(triggerelhist->GetNbinsY()+1)) ptVal = triggerelhist->GetYaxis()->GetBinLowEdge(triggerelhist->GetNbinsY()+1)-1;	
-	sf1 = triggerelhist->GetBinContent(triggerelhist->FindBin(eta1,ptVal));
-	if(pt1 >= 200){
-	  ptVal = pt1;
-	  if(ptVal > triggerelhist_ht->GetYaxis()->GetBinLowEdge(triggerelhist_ht->GetNbinsY()+1)) ptVal = triggerelhist_ht->GetYaxis()->GetBinLowEdge(triggerelhist_ht->GetNbinsY()+1)-1;
-	  sf1 = triggerelhist_ht->GetBinContent(triggerelhist->FindBin(eta1,ptVal));
-	}
-
-	ptVal = pt2;
-	if(ptVal > triggerelhist->GetYaxis()->GetBinLowEdge(triggerelhist->GetNbinsY()+1)) ptVal = triggerelhist->GetYaxis()->GetBinLowEdge(triggerelhist->GetNbinsY()+1)-1;	
-	sf2 = triggerelhist->GetBinContent(triggerelhist->FindBin(eta2,ptVal));
-	if(pt2 >= 200){
-	  ptVal = pt2;
-	  if(ptVal > triggerelhist_ht->GetYaxis()->GetBinLowEdge(triggerelhist_ht->GetNbinsY()+1)) ptVal = triggerelhist_ht->GetYaxis()->GetBinLowEdge(triggerelhist_ht->GetNbinsY()+1)-1;
-	  sf2 = triggerelhist_ht->GetBinContent(triggerelhist->FindBin(eta2,ptVal));
-	}	
-
-      }
-
-      //////////////
-      if (pt1 > 40. && id1 == 1 and id2 == 1){
-	sfwgt *= min(1.,double(sf1+sf2-sf1*sf2));
-	sf_trigger *= min(1.,double(sf1+sf2-sf1*sf2));
-      }
-      else if(pt1 > 40 and id1 == 1 and id2 != 1){	
-	sfwgt *= sf1;
-	sf_trigger *= sf1;
-      }
-      else if(pt2 > 40 and id2 == 1 and id1 != 1){
-	sfwgt *= sf2;
-	sf_trigger *= sf2;
-      }
-    }
-    
-    
-    // photon id scale factor
-    if (isMC && psfmedium_lowpu && psfmedium_highpu && sample == Sample::gam) {
-      if (pt1 > 0. && id1 == 1) 
-	sfwgt *= psfmedium->GetBinContent(psfmedium_lowpu->FindBin(eta1,min(pt1,psfmedium_lowpu->GetYaxis()->GetBinLowEdge(psfmedium_lowpu->GetNbinsY()+1)-1)));
-    }
-
-    // photon purity
-    if (!isMC && sample == Sample::qcdgam) {
-      if(useMoriondSetup){
-	double xleft, yleft, xright, yright;
-	purgraph->GetPoint(0,xleft,yleft);
-	purgraph->GetPoint(purgraph->GetN()-1,xright,yright);	
-	if(pt1 >= xleft and pt1 <= xright) // check graph extremes
-	  sfwgt *= (1.0 - purgraph->Eval(pt1));
-	else if(pt1 < xleft)
-	  sfwgt *= (1.0 - purgraph->Eval(xleft));
-	else if(pt1 > xright)
-	  sfwgt *= (1.0 - purgraph->Eval(xright));
-      }      
-      else{
-	if(pt1 > purhist->GetXaxis()->GetBinLowEdge(1))
-	  sfwgt *= (1.0 - purhist->GetBinContent(purhist->FindBin(min(pt1,purhist->GetXaxis()->GetBinLowEdge(purhist->GetNbinsX()+1)-1), fabs(eta1))));
-	else
-	  sfwgt *= (1.0 - purhist->GetBinContent(purhist->FindBin(max(pt1,purhist->GetXaxis()->GetBinLowEdge(1)),fabs(eta1))));		  
-      }
-    }
-
-    // met trigger scale factor
-    if (isMC && (sample == Sample::sig || sample == Sample::wmn || sample == Sample::zmm || sample == Sample::topmu || sample == Sample::qcd || sample == Sample::taun)) {
-      // single trigger turn on to be applied
-      if(triggermet_graph and (sample == Sample::wmn ||  sample == Sample::topmu || sample == Sample::qcd || sample == Sample::taun || sample == Sample::sig))
-	sfwgt *= triggermet_graph->Eval(min(pfmet,triggermet_graph->GetXaxis()->GetXmax()));
-      // for Zmm
-      else if(triggermet_graph_zmm and sample == Sample::zmm)
-	sfwgt *= triggermet_graph_zmm->Eval(min(pfmet,triggermet_graph_zmm->GetXaxis()->GetXmax()));
-      else if(triggermet_graph and sample == Sample::zmm)
-	sfwgt *= triggermet_graph->Eval(min(pfmet,triggermet_graph->GetXaxis()->GetXmax()));      
-      // for VBF
-      else if(category == Category::VBF or category == Category::twojet or category == Category::VBFrelaxed){
-	if(centralJets.size()+forwardJets.size() >= 2){
-	  TLorentzVector jet1 ;
-	  TLorentzVector jet2 ;
-	  jet1.SetPtEtaPhiM(jetpt->at(0),jeteta->at(0),jetphi->at(0),jetm->at(0));
-	  jet2.SetPtEtaPhiM(jetpt->at(1),jeteta->at(1),jetphi->at(1),jetm->at(1));
-	  if(sample == Sample::zmm){
-	    if((jet1+jet2).M() < 800)
-	      sfwgt *= triggermet_func_binned_Zmm.at(0)->Eval(min(pfmet,triggermet_func_binned_Zmm.at(0)->GetXaxis()->GetXmax()));
-	    else if((jet1+jet2).M() >= 800 and (jet1+jet2).M() < 1200)
-	      sfwgt *= triggermet_func_binned_Zmm.at(1)->Eval(min(pfmet,triggermet_func_binned_Zmm.at(1)->GetXaxis()->GetXmax()));
-	    else if((jet1+jet2).M() >= 1200 and (jet1+jet2).M() < 1700)
-	      sfwgt *= triggermet_func_binned_Zmm.at(2)->Eval(min(pfmet,triggermet_func_binned_Zmm.at(2)->GetXaxis()->GetXmax()));
-	    else if((jet1+jet2).M() >= 1700)
-	      sfwgt *= triggermet_func_binned_Zmm.at(3)->Eval(min(pfmet,triggermet_func_binned_Zmm.at(3)->GetXaxis()->GetXmax()));	  
-	  }
-	  else{
-	    if((jet1+jet2).M() < 800)
-	      sfwgt *= triggermet_func_binned_Wmn.at(0)->Eval(min(pfmet,triggermet_func_binned_Wmn.at(0)->GetXaxis()->GetXmax()));
-	    else if((jet1+jet2).M() >= 800 and (jet1+jet2).M() < 1200)
-	      sfwgt *= triggermet_func_binned_Wmn.at(1)->Eval(min(pfmet,triggermet_func_binned_Wmn.at(1)->GetXaxis()->GetXmax()));
-	    else if((jet1+jet2).M() >= 1200 and (jet1+jet2).M() < 1700)
-	      sfwgt *= triggermet_func_binned_Wmn.at(2)->Eval(min(pfmet,triggermet_func_binned_Wmn.at(2)->GetXaxis()->GetXmax()));
-	    else if((jet1+jet2).M() >= 1700)
-	      sfwgt *= triggermet_func_binned_Wmn.at(3)->Eval(min(pfmet,triggermet_func_binned_Wmn.at(3)->GetXaxis()->GetXmax()));	  
-	  }
-	}
-      }
-    }
-    
-    // photon trigger scale factor
-    if(isMC && triggerphoton_graph && triggerphoton_graph_jetHT and sample == Sample::gam){ // linear interpolation between graph points            
-      if(*pmet < recoilThresholdTrigger)	
-	sfwgt *= triggerphoton_graph->Eval(min(double(*phpt),triggerphoton_graph->GetXaxis()->GetXmax()));
-      else
-	sfwgt *= triggerphoton_graph_jetHT->Eval(min(double(*phpt),triggerphoton_graph->GetXaxis()->GetXmax()));
-    }
-    
-    // B-tag weight to be adjusted
-    double btagw = 1;
-    if(isMC and (sample == Sample::topmu or sample == Sample::topel))
-      btagw = 0.920;
-    if(isMC and (sample == Sample::sig and category != Category::VBF and category != Category::VBFrelaxed))
-      btagw = 1.015;
-    if(isMC and (sample == Sample::zee and category != Category::VBF and category != Category::VBFrelaxed))
-      btagw = 0.980;
-    else
-      btagw = *wgtbtag;
-
-
-    /// loose lepton veto weight
-    double veto_wgt = 1;
-    if(applyLeptonVetoWeight and sample == Sample::sig and (fabs(*wzid) == 23 or fabs(*wzid) == 24)){ // only for SR events and for W+jets / Z+jets
-      if(fabs(*l1pid) == 11){ // gen lepton = electron
-	float ptVal = *l1pt;
-	if(ptVal > 10 and fabs(*l1eta) < 2.5){ // in acceptance
-	  if(ptVal > effeleveto_id->GetYaxis()->GetXmax()) ptVal = effeleveto_id->GetYaxis()->GetXmax()-1;
-	  if(ptVal < effeleveto_id->GetYaxis()->GetXmin()) ptVal = effeleveto_id->GetYaxis()->GetXmin()+1;
-	  float efficiency = effeleveto_id->GetBinContent(effeleveto_id->GetXaxis()->FindBin(*l1eta),effeleveto_id->GetYaxis()->FindBin(ptVal));
-	  float sf = esfveto->GetBinContent(esfveto->GetXaxis()->FindBin(*l1eta),esfveto->GetYaxis()->FindBin(ptVal));
-	  veto_wgt *= (1-efficiency*sf)/(1-efficiency);
-	}
-      }
-      else if(fabs(*l1pid) == 13){
-	float ptVal = *l1pt;
-	if(ptVal > 10 and fabs(*l1eta) < 2.4){
-	  if(ptVal > effmuloose_id->GetYaxis()->GetXmax()) ptVal = effmuloose_id->GetYaxis()->GetXmax()-1;
-	  if(ptVal < effmuloose_id->GetYaxis()->GetXmin()) ptVal = effmuloose_id->GetYaxis()->GetXmin()+1;
-	  float efficiency = effmuloose_id->GetBinContent(effmuloose_id->GetXaxis()->FindBin(fabs(*l1eta)),effmuloose_id->GetYaxis()->FindBin(ptVal))*
-	    effmuloose_iso->GetBinContent(effmuloose_iso->GetXaxis()->FindBin(fabs(*l1eta)),effmuloose_iso->GetYaxis()->FindBin(ptVal));
-	  float sf = msfloose_id->GetBinContent(msfloose_id->GetXaxis()->FindBin(fabs(*l1eta)),msfloose_id->GetYaxis()->FindBin(ptVal))*
-	    msfloose_iso->GetBinContent(msfloose_iso->GetXaxis()->FindBin(fabs(*l1eta)),msfloose_iso->GetYaxis()->FindBin(ptVal));
-	  veto_wgt *= (1-efficiency*sf)/(1-efficiency);	  
-	}		
-      }
-      else if(fabs(*l1pid) == 15){
-	float ptVal = *l1pt;
-	if(ptVal > 18 and fabs(*l1eta) < 2.3){
-	  if(ptVal > efftauloose_id->GetXaxis()->GetXmax()) ptVal = efftauloose_id->GetXaxis()->GetXmax()-1;
-	  if(ptVal < efftauloose_id->GetXaxis()->GetXmin()) ptVal = efftauloose_id->GetXaxis()->GetXmin()+1;
-	  float efficiency = efftauloose_id->GetBinContent(efftauloose_id->GetXaxis()->FindBin(ptVal),efftauloose_id->GetYaxis()->FindBin(fabs(*l1eta)));
-	  float sf = 0.99;
-	  veto_wgt *= (1-efficiency*sf)/(1-efficiency);
-	}
-      }
-
-      if(fabs(*l2pid) == 11){ // gen lepton = electron
-	float ptVal = *l2pt;
-	if(ptVal > 10 and fabs(*l2eta) < 2.5){ // in acceptance
-	  if(ptVal > effeleveto_id->GetYaxis()->GetXmax()) ptVal = effeleveto_id->GetYaxis()->GetXmax()-1;
-	  if(ptVal < effeleveto_id->GetYaxis()->GetXmin()) ptVal = effeleveto_id->GetYaxis()->GetXmin()+1;
-	  float efficiency = effeleveto_id->GetBinContent(effeleveto_id->GetXaxis()->FindBin(*l2eta),effeleveto_id->GetYaxis()->FindBin(ptVal));
-	  float sf = esfveto->GetBinContent(esfveto->GetXaxis()->FindBin(*l2eta),esfveto->GetYaxis()->FindBin(ptVal));
-	  veto_wgt *= (1-efficiency*sf)/(1-efficiency);
-	}
-      }
-      else if(fabs(*l2pid) == 13){
-	float ptVal = *l2pt;
-	if(ptVal > 10 and fabs(*l2eta) < 2.4){
-	  if(ptVal > effmuloose_id->GetYaxis()->GetXmax()) ptVal = effmuloose_id->GetYaxis()->GetXmax()-1;
-	  if(ptVal < effmuloose_id->GetYaxis()->GetXmin()) ptVal = effmuloose_id->GetYaxis()->GetXmin()+1;
-	  float efficiency = effmuloose_id->GetBinContent(effmuloose_id->GetXaxis()->FindBin(fabs(*l2eta)),effmuloose_id->GetYaxis()->FindBin(ptVal))*
-	    effmuloose_iso->GetBinContent(effmuloose_iso->GetXaxis()->FindBin(fabs(*l2eta)),effmuloose_iso->GetYaxis()->FindBin(ptVal));
-	  float sf = msfloose_id->GetBinContent(msfloose_id->GetXaxis()->FindBin(fabs(*l2eta)),msfloose_id->GetYaxis()->FindBin(ptVal))*
-	    msfloose_iso->GetBinContent(msfloose_iso->GetXaxis()->FindBin(fabs(*l2eta)),msfloose_iso->GetYaxis()->FindBin(ptVal));
-	  veto_wgt *= (1-efficiency*sf)/(1-efficiency);	  
-	}		
-      }
-      else if(fabs(*l2pid) == 15){
-	float ptVal = *l2pt;
-	if(ptVal > 18 and fabs(*l2eta) < 2.3){
-	  if(ptVal > efftauloose_id->GetXaxis()->GetXmax()) ptVal = efftauloose_id->GetXaxis()->GetXmax()-1;
-	  if(ptVal < efftauloose_id->GetXaxis()->GetXmin()) ptVal = efftauloose_id->GetXaxis()->GetXmin()+1;
-	  float efficiency = efftauloose_id->GetBinContent(efftauloose_id->GetXaxis()->FindBin(ptVal),efftauloose_id->GetYaxis()->FindBin(fabs(*l2eta)));
-	  float sf = 0.99;
-	  veto_wgt *= (1-efficiency*sf)/(1-efficiency);
-	}
-      }
-    }
-
-    //V-tagging scale factor --> only for mono-V
-    if(isMC && category == Category::monoV && isWJet)
-      sfwgt *= getVtaggingScaleFactor(tau2tau1,sysName);
-    
-    //Gen level info --> NLO re-weight    
-    Double_t kwgt = 1.0;    
-    double genpt = *wzpt;
-    float sf_ewk = 1.0;
-    float sf_qcd_mj  = 1.0;
-    float sf_qcd_vbf = 1.0;
-    for (size_t i = 0; i < khists.size(); i++) {
-      if (khists[i]) {
-	if(genpt <= khists[i]->GetXaxis()->GetBinLowEdge(1)) genpt = khists[i]->GetXaxis()->GetBinLowEdge(1) + 1;
-	if(genpt >= khists[i]->GetXaxis()->GetBinLowEdge(khists[i]->GetNbinsX()+1)) genpt = khists[i]->GetXaxis()->GetBinLowEdge(khists[i]->GetNbinsX()+1)-1;
-	kwgt *= khists[i]->GetBinContent(khists[i]->FindBin(genpt));
-
-	if(i == 1)
-	  sf_ewk = khists[i]->GetBinContent(khists[i]->FindBin(genpt));
-	else if(i == 0)
-	  sf_qcd_mj *= khists[i]->GetBinContent(khists[i]->FindBin(genpt));
-	else if(i == 2)
-	  sf_qcd_vbf *= khists[i]->GetBinContent(khists[i]->FindBin(genpt));
-      }
-    }
-
-    //Gen level info --> kfactor NLO for V-EWK processes
-    Double_t kewkgt = 1.0;
-    if((category == Category::VBF or category == Category::VBFrelaxed or category == Category::twojet) and isMC){
-      double genpt = *wzpt;
-      if(jetpt->size() >= 2) {
-	TLorentzVector jet1 ;
-	TLorentzVector jet2 ;
-	jet1.SetPtEtaPhiM(jetpt->at(0),jeteta->at(0),jetphi->at(0),jetm->at(0));
-	jet2.SetPtEtaPhiM(jetpt->at(1),jeteta->at(1),jetphi->at(1),jetm->at(1));
-	double mjj = (jet1+jet2).M();
-	for(size_t i = 0; i < kVEWKhists.size(); i++){
-	  if(kVEWKhists[i]){// good histogram
-	    if(genpt <= kVEWKhists[i]->GetXaxis()->GetBinLowEdge(1)) genpt = kVEWKhists[i]->GetXaxis()->GetBinLowEdge(1) + 1;
-	    if(genpt >= kVEWKhists[i]->GetXaxis()->GetBinLowEdge(kVEWKhists[i]->GetNbinsX()+1)) genpt = kVEWKhists[i]->GetXaxis()->GetBinLowEdge(kVEWKhists[i]->GetNbinsX()+1)-1;
-	    if(mjj <= kVEWKhists[i]->GetYaxis()->GetBinLowEdge(1)) mjj = kVEWKhists[i]->GetYaxis()->GetBinLowEdge(1) + 1;
-	    if(mjj >= kVEWKhists[i]->GetYaxis()->GetBinLowEdge(kVEWKhists[i]->GetNbinsY()+1)) mjj = kVEWKhists[i]->GetYaxis()->GetBinLowEdge(kVEWKhists[i]->GetNbinsY()+1)-1;
-	    kewkgt *= kVEWKhists[i]->GetBinContent(kVEWKhists[i]->FindBin(genpt,mjj));
-	  }
-	}
-      }
-    }
-
-    // Higgs pT uncertainty
-    Double_t hwgt = 1.0;
-    if(isHiggsInvisible and hhist and isMC){
-      if(*dmpt < hhist->GetBinLowEdge(1))
-	*dmpt = hhist->GetBinLowEdge(1)+1;
-      else if(*dmpt > hhist->GetBinLowEdge(hhist->GetNbinsX()+1))
-	*dmpt =hhist->GetBinLowEdge(hhist->GetNbinsX()+1)-1;
-      hwgt *= hhist->GetBinContent(hhist->FindBin(*dmpt));
-    }
-
-    // NNLO corrections to Higgs pT
-    Double_t hnnlowgt = 1.0;
-    if(isHiggsInvisible and higgsNNLO and isMC){
-      if(*dmpt < higgsNNLO->GetBinLowEdge(1))
-	*dmpt = higgsNNLO->GetBinLowEdge(1)+1;
-      else if(*dmpt > higgsNNLO->GetBinLowEdge(higgsNNLO->GetNbinsX()+1))
-	*dmpt = higgsNNLO->GetBinLowEdge(higgsNNLO->GetNbinsX()+1)-1;
-      hnnlowgt *= higgsNNLO->GetBinContent(higgsNNLO->FindBin(*dmpt));      
-    }
-
-    // post fit re-weight
-    Double_t pfwgt = 1.0;
-    if(postFitWeight){
-      double met = pfmet;
-      if(met < postFitWeight->GetBinLowEdge(1))
-	met = postFitWeight->GetBinLowEdge(1)+1;
-      else if(met > postFitWeight->GetBinLowEdge(postFitWeight->GetNbinsX()+1))
-	met = postFitWeight->GetBinLowEdge(postFitWeight->GetNbinsX()+1)-1;
-      pfwgt =  postFitWeight->GetBinContent(postFitWeight->FindBin(met));
-    }
-
-    // Top quark pt re-weight
-    Double_t topptwgt = 1.0;
-    if(reWeightTopPt)
-      topptwgt = reweightTopQuarkPt(*toppt,*atoppt);
-
-    // ggZH re-weight in case of a non null pointer                                                                                                                             
-    Double_t ggZHwgt = 1.0;
-    if(isHiggsInvisible and ggZHhist and isMC){
-      int binX = ggZHhist->GetXaxis()->FindBin(*dmpt);
-      int binY = 0;
-      if(*wzpt_h != 0)
-        binY = ggZHhist->GetYaxis()->FindBin(*wzpt_h);
-      else
-        binY = ggZHhist->GetYaxis()->FindBin(*wzpt);
-
-      if(binX == 0) binX = 1;
-      if(binY == 0) binY = 1;
-      if(binX == ggZHhist->GetNbinsX()+1) binX = ggZHhist->GetNbinsX();
-      if(binY == ggZHhist->GetNbinsY()+1) binY = ggZHhist->GetNbinsY();
-      ggZHwgt = ggZHhist->GetBinContent(binX,binY);
-      if(ggZHwgt == 0)
-        ggZHwgt = 1;
-    }
 
     /// Start specific analysis selections
     // boosted category and monojet
@@ -1621,7 +949,9 @@ void makehist4(TTree* tree,            /*input tree*/
 
       if(jeteta->at(0)*jeteta->at(1) > 0 ) continue;
       if(fabs(jeteta->at(0)-jeteta->at(1)) < detajj) continue;
-      //if(fabs(jeteta->at(0)) >= 3.0 and fabs(jeteta->at(0)) <= 3.2 and nhfrac->at(0) > 0.96) continue;
+
+      if(fabs(jeteta->at(0)) > 3 and fabs(jeteta->at(1)) > 3) continue;
+
       TLorentzVector jet1 ;
       TLorentzVector jet2 ;
       jet1.SetPtEtaPhiM(jetpt->at(0),jeteta->at(0),jetphi->at(0),jetm->at(0));
@@ -1645,7 +975,8 @@ void makehist4(TTree* tree,            /*input tree*/
       if(fabs(jeteta->at(0)) < 2.4 and nhfrac->at(0) > 0.8) continue;
       if(jeteta->at(0)*jeteta->at(1) > 0 ) continue;
       if(fabs(jeteta->at(0)-jeteta->at(1)) < detajjrelaxed) continue;
-      //if(fabs(jeteta->at(0)) >= 3.0 and fabs(jeteta->at(0)) <= 3.2 and nhfrac->at(0) > 0.96) continue;
+
+      if(fabs(jeteta->at(0)) > 3 and fabs(jeteta->at(1)) > 3) continue;
       TLorentzVector jet1 ;
       TLorentzVector jet2 ;
       jet1.SetPtEtaPhiM(jetpt->at(0),jeteta->at(0),jetphi->at(0),jetm->at(0));
@@ -1662,7 +993,7 @@ void makehist4(TTree* tree,            /*input tree*/
       if(jetpt->at(1) < trailingJetPtCutVBF) continue;
       if(fabs(jeteta->at(0)) < 2.4 and chfrac->at(0) < 0.1) continue;
       if(fabs(jeteta->at(0)) < 2.4 and nhfrac->at(0) > 0.8) continue;
-      //if(fabs(jeteta->at(0)) >= 3.0 and fabs(jeteta->at(0)) <= 3.2 and nhfrac->at(0) > 0.96) continue;
+      if(fabs(jeteta->at(0)) > 3 and fabs(jeteta->at(1)) > 3) continue;
       if (sample != Sample::qcd and jmdphi < 0.5) continue;
       else if(sample == Sample::qcd and jmdphi > 0.5) continue;	      
     }
@@ -1671,8 +1002,392 @@ void makehist4(TTree* tree,            /*input tree*/
     //////// Remove Category Overlaps    
     if(category == Category::monoV and goodMonoV == false) continue;
     if(category == Category::monojet and goodMonoJet == false) continue;
-    
 
+        
+    /// re-miniADO specific to adjust lumi
+    Double_t sfwgt = 1.0;
+    // apply tracking efficiency for electrons from POGs / private files
+    if(isMC && (sample == Sample::zee or sample == Sample::wen)){
+      if(pt1 > 0.){	  
+	float ptVal = pt1;
+	if(pt1 < trackingefficiency_electron->GetYaxis()->GetBinLowEdge(1)) 
+	  ptVal = trackingefficiency_electron->GetYaxis()->GetBinLowEdge(1)+1;
+	else if(pt1 > trackingefficiency_electron->GetYaxis()->GetBinLowEdge(trackingefficiency_electron->GetNbinsY()+1)) 
+	  ptVal = trackingefficiency_electron->GetYaxis()->GetBinLowEdge(trackingefficiency_electron->GetNbinsY()+1)-1;
+	sfwgt *= trackingefficiency_electron->GetBinContent(trackingefficiency_electron->FindBin(eta1,ptVal));
+      }
+      if(pt2 > 0.){
+	float ptVal = pt1;
+	if(pt2 < trackingefficiency_electron->GetYaxis()->GetBinLowEdge(1)) 
+	  ptVal =  trackingefficiency_electron->GetYaxis()->GetBinLowEdge(1)+1;
+	else if(pt2 > trackingefficiency_electron->GetYaxis()->GetBinLowEdge(trackingefficiency_electron->GetNbinsY()+1)) 
+	  ptVal = trackingefficiency_electron->GetYaxis()->GetBinLowEdge(trackingefficiency_electron->GetNbinsY()+1)-1;
+	sfwgt *= trackingefficiency_electron->GetBinContent(trackingefficiency_electron->FindBin(eta2,ptVal));
+      }
+    }
+
+    // reco-muon scale factor --> private scale factors aleady starting at 10 GeV
+    if(isMC && (sample == Sample::zmm or sample == Sample::wmn or sample == Sample::topmu)){
+      double trackwgt = 1;
+      if(pt1 > 0.)
+	trackwgt *= trackingefficiency_pog->Eval(*nvtx);
+      if(pt2 > 0.)
+	trackwgt *= trackingefficiency_pog->Eval(*nvtx);
+      sfwgt *= trackwgt;
+    }
+
+    // scale factor for leptons
+    TH2* sflhist_lowpu = NULL;
+    TH2* sfthist_lowpu = NULL;
+    TH2* sflhist_highpu = NULL;
+    TH2* sfthist_highpu = NULL;
+
+    if (sample == Sample::zmm || sample == Sample::wmn || sample == Sample::topmu) {
+      if (pt1 > 0.){
+	float ptValue = pt1;
+	if(ptValue < msftight_id->GetYaxis()->GetBinLowEdge(1)) ptValue =  msftight_id->GetYaxis()->GetBinLowEdge(1)+1;
+	else if(ptValue > msftight_id->GetYaxis()->GetBinLowEdge(msftight_id->GetNbinsY()+1)) ptValue = msftight_id->GetYaxis()->GetBinLowEdge(msftight_id->GetNbinsY()+1)-1; 
+	if(id1 == 1)
+	  sfwgt *= msftight_id->GetBinContent(msftight_id->FindBin(fabs(eta1),ptValue))*msftight_iso->GetBinContent(msftight_iso->FindBin(fabs(eta1),ptValue));
+	else 
+	  sfwgt *= msfloose_id->GetBinContent(msfloose_id->FindBin(fabs(eta1),ptValue))*msfloose_iso->GetBinContent(msfloose_iso->FindBin(fabs(eta1),ptValue));
+      }
+      if(pt2 > 0.){
+	float ptValue = pt2;
+	if(ptValue < msftight_id->GetYaxis()->GetBinLowEdge(1)) ptValue =  msftight_id->GetYaxis()->GetBinLowEdge(1)+1;
+	else if(ptValue > msftight_id->GetYaxis()->GetBinLowEdge(msftight_id->GetNbinsY()+1)) ptValue = msftight_id->GetYaxis()->GetBinLowEdge(msftight_id->GetNbinsY()+1)-1; 
+	if(id2 == 1)
+	  sfwgt *= msftight_id->GetBinContent(msftight_id->FindBin(fabs(eta2),ptValue))*msftight_iso->GetBinContent(msftight_iso->FindBin(fabs(eta2),ptValue));
+	else 
+	  sfwgt *= msfloose_id->GetBinContent(msfloose_id->FindBin(fabs(eta2),ptValue))*msfloose_iso->GetBinContent(msfloose_iso->FindBin(fabs(eta2),ptValue));
+      }
+    }
+
+    //////////////    
+    if (sample == Sample::zee || sample == Sample::wen || sample == Sample::topel) {      
+      if (pt1 > 0.) {
+	float ptVal = pt1;
+	if(pt1 < esftight->GetYaxis()->GetBinLowEdge(1)) ptVal = esftight->GetYaxis()->GetBinLowEdge(1)+1;
+	  else if(pt1 > esftight->GetYaxis()->GetBinLowEdge(esftight->GetNbinsY()+1)) ptVal = esftight->GetYaxis()->GetBinLowEdge(esftight->GetNbinsY()+1)-1;
+	if (id1 == 1) 
+	  sfwgt *= esftight->GetBinContent(esftight->FindBin(eta1,ptVal));
+	else  
+	  sfwgt *= esfveto->GetBinContent(esfveto->FindBin(eta1,ptVal));
+      }
+      if (pt2 > 0.) {
+	float ptVal = pt2;
+	if(pt2 < esftight->GetYaxis()->GetBinLowEdge(1)) ptVal = esftight->GetYaxis()->GetBinLowEdge(1)+1;
+	else if(pt2 > esftight->GetYaxis()->GetBinLowEdge(esftight->GetNbinsY()+1)) ptVal = esftight->GetYaxis()->GetBinLowEdge(esftight->GetNbinsY()+1)-1;
+	if (id1 == 1)
+	  sfwgt *= esftight->GetBinContent(esftight->FindBin(eta2,ptVal));
+	else
+	  sfwgt *= esfveto->GetBinContent(esfveto->FindBin(eta2,ptVal));
+      }
+    }
+    
+    // tight tau scale factor--> as suggested by tau pog https://twiki.cern.ch/twiki/bin/viewauth/CMS/TauIDRecommendation13TeV
+    if(isMC && sample == Sample::taun)
+      sfwgt *= 0.95;
+    
+    // trigger scale factor for electrons
+    if (isMC && triggerelhist && triggerelhist_ht && (sample == Sample::zee || sample == Sample::topel || sample == Sample::wen)) {
+      float sf1 = 1.;
+      float sf2 = 1.;
+
+      if(category != Category::VBF and category != Category::VBFrelaxed){
+	sf1 = triggerelhist->GetBinContent(triggerelhist->FindBin(fabs(eta1),min(pt1,triggerelhist->GetYaxis()->GetBinLowEdge(triggerelhist->GetNbinsY()+1)-1)));
+	if(pt1 >= 200)
+	  sf1 = triggerelhist_ht->GetBinContent(triggerelhist_ht->FindBin(fabs(eta1),min(pt1,triggerelhist_ht->GetYaxis()->GetBinLowEdge(triggerelhist_ht->GetNbinsY()+1)-1)));
+
+	sf2 = triggerelhist->GetBinContent(triggerelhist->FindBin(fabs(eta2),min(pt2,triggerelhist->GetYaxis()->GetBinLowEdge(triggerelhist->GetNbinsY()+1)-1)));
+	if(pt2 >= 200)
+	  sf2 = triggerelhist_ht->GetBinContent(triggerelhist_ht->FindBin(fabs(eta2),min(pt2,triggerelhist_ht->GetYaxis()->GetBinLowEdge(triggerelhist_ht->GetNbinsY()+1)-1)));	  
+      }
+      else{
+
+	float ptVal = pt1;
+	if(pt1 > triggerelhist->GetYaxis()->GetBinLowEdge(triggerelhist->GetNbinsY()+1)) ptVal = triggerelhist->GetYaxis()->GetBinLowEdge(triggerelhist->GetNbinsY()+1)-1;	
+	sf1 = triggerelhist->GetBinContent(triggerelhist->FindBin(eta1,ptVal));
+	if(pt1 >= 200){
+	  ptVal = pt1;
+	  if(ptVal > triggerelhist_ht->GetYaxis()->GetBinLowEdge(triggerelhist_ht->GetNbinsY()+1)) ptVal = triggerelhist_ht->GetYaxis()->GetBinLowEdge(triggerelhist_ht->GetNbinsY()+1)-1;
+	  sf1 = triggerelhist_ht->GetBinContent(triggerelhist->FindBin(eta1,ptVal));
+	}
+
+	ptVal = pt2;
+	if(ptVal > triggerelhist->GetYaxis()->GetBinLowEdge(triggerelhist->GetNbinsY()+1)) ptVal = triggerelhist->GetYaxis()->GetBinLowEdge(triggerelhist->GetNbinsY()+1)-1;	
+	sf2 = triggerelhist->GetBinContent(triggerelhist->FindBin(eta2,ptVal));
+	if(pt2 >= 200){
+	  ptVal = pt2;
+	  if(ptVal > triggerelhist_ht->GetYaxis()->GetBinLowEdge(triggerelhist_ht->GetNbinsY()+1)) ptVal = triggerelhist_ht->GetYaxis()->GetBinLowEdge(triggerelhist_ht->GetNbinsY()+1)-1;
+	  sf2 = triggerelhist_ht->GetBinContent(triggerelhist->FindBin(eta2,ptVal));
+	}	
+      }
+
+      //////////////
+      if (pt1 > 40. && id1 == 1 and id2 == 1)
+	sfwgt *= min(1.,double(sf1+sf2-sf1*sf2));
+      else if(pt1 > 40 and id1 == 1 and id2 != 1)
+	sfwgt *= sf1;
+      else if(pt2 > 40 and id2 == 1 and id1 != 1)
+	sfwgt *= sf2;
+    }
+    
+    
+    // photon id scale factor
+    if (isMC && psfmedium && sample == Sample::gam) {
+      if (pt1 > 0. && id1 == 1) 
+	sfwgt *= psfmedium->GetBinContent(psfmedium->FindBin(eta1,min(pt1,psfmedium->GetYaxis()->GetBinLowEdge(psfmedium->GetNbinsY()+1)-1)));
+    }
+
+    // photon purity
+    if (!isMC && sample == Sample::qcdgam) {
+      double xleft, yleft, xright, yright;
+      purgraph->GetPoint(0,xleft,yleft);
+      purgraph->GetPoint(purgraph->GetN()-1,xright,yright);	
+      if(pt1 >= xleft and pt1 <= xright) // check graph extremes
+	sfwgt *= (1.0 - purgraph->Eval(pt1));
+      else if(pt1 < xleft)
+	sfwgt *= (1.0 - purgraph->Eval(xleft));
+      else if(pt1 > xright)
+	sfwgt *= (1.0 - purgraph->Eval(xright));
+    }
+
+    // met trigger scale factor
+    if (isMC && (sample == Sample::sig || sample == Sample::wmn || sample == Sample::zmm || sample == Sample::topmu || sample == Sample::qcd || sample == Sample::taun)) {
+      // single trigger turn on to be applied
+      if(triggermet_graph and (sample == Sample::wmn ||  sample == Sample::topmu || sample == Sample::qcd || sample == Sample::taun || sample == Sample::sig))
+	sfwgt *= triggermet_graph->Eval(min(pfmet,triggermet_graph->GetXaxis()->GetXmax()));
+      // for Zmm
+      else if(triggermet_graph_zmm and sample == Sample::zmm)
+	sfwgt *= triggermet_graph_zmm->Eval(min(pfmet,triggermet_graph_zmm->GetXaxis()->GetXmax()));
+      else if(triggermet_graph and sample == Sample::zmm)
+	sfwgt *= triggermet_graph->Eval(min(pfmet,triggermet_graph->GetXaxis()->GetXmax()));      
+      // for VBF
+      else if(category == Category::VBF or category == Category::twojet or category == Category::VBFrelaxed){
+	if(centralJets.size()+forwardJets.size() >= 2){
+	  double sftrig = 1;
+	  double detajj = fabs(jeteta->at(0)-jeteta->at(1));
+	  if(sample == Sample::zmm){
+	    if(fabs(jeteta->at(0)) < 3 and fabs(jeteta->at(1)) < 3){ // central-central combination
+	      if(detajj > 1.0 && detajj < 2.0) sftrig *= triggermet_func_binned_Zmm_cc.at(0)->Eval(min(pfmet,triggermet_func_binned_Zmm_cc.at(0)->GetXaxis()->GetXmax()));
+	      else if(detajj > 2.0 && detajj < 3.0) sftrig *= triggermet_func_binned_Zmm_cc.at(1)->Eval(min(pfmet,triggermet_func_binned_Zmm_cc.at(1)->GetXaxis()->GetXmax()));
+	      else if(detajj > 3.0 && detajj < 4.0) sftrig *= triggermet_func_binned_Zmm_cc.at(2)->Eval(min(pfmet,triggermet_func_binned_Zmm_cc.at(2)->GetXaxis()->GetXmax()));
+	      else if(detajj > 4.0) sftrig *= triggermet_func_binned_Zmm_cc.at(3)->Eval(min(pfmet,triggermet_func_binned_Zmm_cc.at(3)->GetXaxis()->GetXmax()));
+	    }
+	    else if((fabs(jeteta->at(0)) < 3 and fabs(jeteta->at(1)) > 3) or (fabs(jeteta->at(0)) > 3 and fabs(jeteta->at(1)) < 3)){ // central-forward combination
+	      if(detajj > 3.0 && detajj < 4.0) sftrig *= triggermet_func_binned_Zmm_cf.at(0)->Eval(min(pfmet,triggermet_func_binned_Zmm_cf.at(0)->GetXaxis()->GetXmax()));
+	      else if(detajj > 4.0 && detajj < 5.0) sftrig *= triggermet_func_binned_Zmm_cf.at(1)->Eval(min(pfmet,triggermet_func_binned_Zmm_cf.at(1)->GetXaxis()->GetXmax()));
+	      else if(detajj > 5.0) sftrig *= triggermet_func_binned_Zmm_cf.at(2)->Eval(min(pfmet,triggermet_func_binned_Zmm_cf.at(2)->GetXaxis()->GetXmax()));
+	    }
+	  }
+	  else{
+	    if(fabs(jeteta->at(0)) < 3 and fabs(jeteta->at(1)) < 3){ // central-central combination
+	      if(detajj > 1.0 && detajj < 1.5) sftrig *= triggermet_func_binned_Wmn_cc.at(0)->Eval(min(pfmet,triggermet_func_binned_Wmn_cc.at(0)->GetXaxis()->GetXmax()));
+	      else if(detajj > 1.5 && detajj < 2.0) sftrig *= triggermet_func_binned_Wmn_cc.at(1)->Eval(min(pfmet,triggermet_func_binned_Wmn_cc.at(1)->GetXaxis()->GetXmax()));
+	      else if(detajj > 2.0 && detajj < 2.5) sftrig *= triggermet_func_binned_Wmn_cc.at(2)->Eval(min(pfmet,triggermet_func_binned_Wmn_cc.at(2)->GetXaxis()->GetXmax()));
+	      else if(detajj > 3.0 && detajj < 3.5) sftrig *= triggermet_func_binned_Wmn_cc.at(3)->Eval(min(pfmet,triggermet_func_binned_Wmn_cc.at(3)->GetXaxis()->GetXmax()));
+	      else if(detajj > 3.5 && detajj < 4.0) sftrig *= triggermet_func_binned_Wmn_cc.at(4)->Eval(min(pfmet,triggermet_func_binned_Wmn_cc.at(4)->GetXaxis()->GetXmax()));
+	      else if(detajj > 4.0 && detajj < 5.0) sftrig *= triggermet_func_binned_Wmn_cc.at(5)->Eval(min(pfmet,triggermet_func_binned_Wmn_cc.at(5)->GetXaxis()->GetXmax()));
+	      else if(detajj > 5.0) sftrig *= triggermet_func_binned_Wmn_cc.at(6)->Eval(min(pfmet,triggermet_func_binned_Wmn_cc.at(6)->GetXaxis()->GetXmax()));
+	    }
+	    else if((fabs(jeteta->at(0)) < 3 and fabs(jeteta->at(1)) > 3) or (fabs(jeteta->at(0)) > 3 and fabs(jeteta->at(1)) < 3)){ // central-forward combination
+	      if(detajj > 3.0 && detajj < 3.5) sftrig *= triggermet_func_binned_Wmn_cf.at(0)->Eval(min(pfmet,triggermet_func_binned_Wmn_cf.at(0)->GetXaxis()->GetXmax()));
+	      else if(detajj > 3.5 && detajj < 4.0) sftrig *= triggermet_func_binned_Wmn_cf.at(1)->Eval(min(pfmet,triggermet_func_binned_Wmn_cf.at(1)->GetXaxis()->GetXmax()));
+	      else if(detajj > 4.0 && detajj < 5.0) sftrig *= triggermet_func_binned_Wmn_cf.at(2)->Eval(min(pfmet,triggermet_func_binned_Wmn_cf.at(2)->GetXaxis()->GetXmax()));
+	      else if(detajj > 5.0 && detajj < 6.0) sftrig *= triggermet_func_binned_Wmn_cf.at(3)->Eval(min(pfmet,triggermet_func_binned_Wmn_cf.at(3)->GetXaxis()->GetXmax()));
+	      else if(detajj > 6.0) sftrig *= triggermet_func_binned_Wmn_cf.at(4)->Eval(min(pfmet,triggermet_func_binned_Wmn_cf.at(4)->GetXaxis()->GetXmax()));
+	    }
+	  }
+
+	  sfwgt *= sftrig;
+	}
+      }
+    }
+  
+    // photon trigger scale factor
+    if(isMC && triggerphoton_graph && triggerphoton_graph_jetHT and sample == Sample::gam){ // linear interpolation between graph points            
+      if(*pmet < recoilThresholdTrigger)	
+	sfwgt *= triggerphoton_graph->Eval(min(double(*phpt),triggerphoton_graph->GetXaxis()->GetXmax()));
+      else
+	sfwgt *= triggerphoton_graph_jetHT->Eval(min(double(*phpt),triggerphoton_graph->GetXaxis()->GetXmax()));
+    }
+    
+    // B-tag weight to be adjusted
+    double btagw = 1;
+    if(isMC and (sample == Sample::topmu or sample == Sample::topel))
+      btagw = 0.920;
+    if(isMC and (sample == Sample::sig and category != Category::VBF and category != Category::VBFrelaxed))
+      btagw = 1.015;
+    if(isMC and (sample == Sample::zee and category != Category::VBF and category != Category::VBFrelaxed))
+      btagw = 0.980;
+    else
+      btagw = *wgtbtag;
+
+    // in case of VBF re-scale zmm for trigger efficiency (PF-muon online ineffiency --> 1% downshift flat vs Mjj)
+    if((sample == Sample::zmm or sample == Sample::wmn) and (category == Category::VBFrelaxed or category == Category::VBF))
+      sfwgt *= 0.98;
+
+    /// loose lepton veto weight
+    double veto_wgt = 1;
+    if(applyLeptonVetoWeight and sample == Sample::sig and (fabs(*wzid) == 23 or fabs(*wzid) == 24)){ // only for SR events and for W+jets / Z+jets
+      if(fabs(*l1pid) == 11){ // gen lepton = electron
+	float ptVal = *l1pt;
+	if(ptVal > 10 and fabs(*l1eta) < 2.5){ // in acfeptance
+	  if(ptVal > effeleveto_id->GetYaxis()->GetXmax()) ptVal = effeleveto_id->GetYaxis()->GetXmax()-1;
+	  if(ptVal < effeleveto_id->GetYaxis()->GetXmin()) ptVal = effeleveto_id->GetYaxis()->GetXmin()+1;
+	  float efficiency = effeleveto_id->GetBinContent(effeleveto_id->GetXaxis()->FindBin(*l1eta),effeleveto_id->GetYaxis()->FindBin(ptVal));
+	  float sf = esfveto->GetBinContent(esfveto->GetXaxis()->FindBin(*l1eta),esfveto->GetYaxis()->FindBin(ptVal));
+	  veto_wgt *= (1-efficiency*sf)/(1-efficiency);
+	}
+      }
+      else if(fabs(*l1pid) == 13){
+	float ptVal = *l1pt;
+	if(ptVal > 10 and fabs(*l1eta) < 2.4){
+	  if(ptVal > effmuloose_id->GetYaxis()->GetXmax()) ptVal = effmuloose_id->GetYaxis()->GetXmax()-1;
+	  if(ptVal < effmuloose_id->GetYaxis()->GetXmin()) ptVal = effmuloose_id->GetYaxis()->GetXmin()+1;
+	  float efficiency = effmuloose_id->GetBinContent(effmuloose_id->GetXaxis()->FindBin(fabs(*l1eta)),effmuloose_id->GetYaxis()->FindBin(ptVal))*
+	    effmuloose_iso->GetBinContent(effmuloose_iso->GetXaxis()->FindBin(fabs(*l1eta)),effmuloose_iso->GetYaxis()->FindBin(ptVal));
+	  float sf = msfloose_id->GetBinContent(msfloose_id->GetXaxis()->FindBin(fabs(*l1eta)),msfloose_id->GetYaxis()->FindBin(ptVal))*
+	    msfloose_iso->GetBinContent(msfloose_iso->GetXaxis()->FindBin(fabs(*l1eta)),msfloose_iso->GetYaxis()->FindBin(ptVal));
+	  veto_wgt *= (1-efficiency*sf)/(1-efficiency);	  
+	}		
+      }
+      else if(fabs(*l1pid) == 15){
+	float ptVal = *l1pt;
+	if(ptVal > 18 and fabs(*l1eta) < 2.3){
+	  if(ptVal > efftauloose_id->GetXaxis()->GetXmax()) ptVal = efftauloose_id->GetXaxis()->GetXmax()-1;
+	  if(ptVal < efftauloose_id->GetXaxis()->GetXmin()) ptVal = efftauloose_id->GetXaxis()->GetXmin()+1;
+	  float efficiency = efftauloose_id->GetBinContent(efftauloose_id->GetXaxis()->FindBin(ptVal),efftauloose_id->GetYaxis()->FindBin(fabs(*l1eta)));
+	  float sf = 0.99;
+	  veto_wgt *= (1-efficiency*sf)/(1-efficiency);
+	}
+      }
+
+      if(fabs(*l2pid) == 11){ // gen lepton = electron
+	float ptVal = *l2pt;
+	if(ptVal > 10 and fabs(*l2eta) < 2.5){ // in acceptance
+	  if(ptVal > effeleveto_id->GetYaxis()->GetXmax()) ptVal = effeleveto_id->GetYaxis()->GetXmax()-1;
+	  if(ptVal < effeleveto_id->GetYaxis()->GetXmin()) ptVal = effeleveto_id->GetYaxis()->GetXmin()+1;
+	  float efficiency = effeleveto_id->GetBinContent(effeleveto_id->GetXaxis()->FindBin(*l2eta),effeleveto_id->GetYaxis()->FindBin(ptVal));
+	  float sf = esfveto->GetBinContent(esfveto->GetXaxis()->FindBin(*l2eta),esfveto->GetYaxis()->FindBin(ptVal));
+	  veto_wgt *= (1-efficiency*sf)/(1-efficiency);
+	}
+      }
+      else if(fabs(*l2pid) == 13){
+	float ptVal = *l2pt;
+	if(ptVal > 10 and fabs(*l2eta) < 2.4){
+	  if(ptVal > effmuloose_id->GetYaxis()->GetXmax()) ptVal = effmuloose_id->GetYaxis()->GetXmax()-1;
+	  if(ptVal < effmuloose_id->GetYaxis()->GetXmin()) ptVal = effmuloose_id->GetYaxis()->GetXmin()+1;
+	  float efficiency = effmuloose_id->GetBinContent(effmuloose_id->GetXaxis()->FindBin(fabs(*l2eta)),effmuloose_id->GetYaxis()->FindBin(ptVal))*
+	    effmuloose_iso->GetBinContent(effmuloose_iso->GetXaxis()->FindBin(fabs(*l2eta)),effmuloose_iso->GetYaxis()->FindBin(ptVal));
+	  float sf = msfloose_id->GetBinContent(msfloose_id->GetXaxis()->FindBin(fabs(*l2eta)),msfloose_id->GetYaxis()->FindBin(ptVal))*
+	    msfloose_iso->GetBinContent(msfloose_iso->GetXaxis()->FindBin(fabs(*l2eta)),msfloose_iso->GetYaxis()->FindBin(ptVal));
+	  veto_wgt *= (1-efficiency*sf)/(1-efficiency);	  
+	}		
+      }
+      else if(fabs(*l2pid) == 15){
+	float ptVal = *l2pt;
+	if(ptVal > 18 and fabs(*l2eta) < 2.3){
+	  if(ptVal > efftauloose_id->GetXaxis()->GetXmax()) ptVal = efftauloose_id->GetXaxis()->GetXmax()-1;
+	  if(ptVal < efftauloose_id->GetXaxis()->GetXmin()) ptVal = efftauloose_id->GetXaxis()->GetXmin()+1;
+	  float efficiency = efftauloose_id->GetBinContent(efftauloose_id->GetXaxis()->FindBin(ptVal),efftauloose_id->GetYaxis()->FindBin(fabs(*l2eta)));
+	  float sf = 0.99;
+	  veto_wgt *= (1-efficiency*sf)/(1-efficiency);
+	}
+      }
+    }
+
+    //V-tagging scale factor --> only for mono-V
+    if(isMC && category == Category::monoV && isWJet)
+      sfwgt *= getVtaggingScaleFactor(tau2tau1,sysName);
+    
+    //Gen level info --> NLO re-weight    
+    Double_t kwgt = 1.0;    
+    double genpt = *wzpt;
+    float sf_ewk = 1.0;
+    float sf_qcd_mj  = 1.0;
+    float sf_qcd_vbf = 1.0;
+    for (size_t i = 0; i < khists.size(); i++) {
+      if (khists[i]) {
+	if(genpt <= khists[i]->GetXaxis()->GetBinLowEdge(1)) genpt = khists[i]->GetXaxis()->GetBinLowEdge(1) + 1;
+	if(genpt >= khists[i]->GetXaxis()->GetBinLowEdge(khists[i]->GetNbinsX()+1)) genpt = khists[i]->GetXaxis()->GetBinLowEdge(khists[i]->GetNbinsX()+1)-1;
+	kwgt *= khists[i]->GetBinContent(khists[i]->FindBin(genpt));
+
+	if(i == 1)
+	  sf_ewk = khists[i]->GetBinContent(khists[i]->FindBin(genpt));
+	else if(i == 0)
+	  sf_qcd_mj *= khists[i]->GetBinContent(khists[i]->FindBin(genpt));
+	else if(i == 2)
+	  sf_qcd_vbf *= khists[i]->GetBinContent(khists[i]->FindBin(genpt));
+      }
+    }
+
+    //Gen level info --> kfactor NLO for V-EWK processes
+    Double_t kewkgt = 1.0;
+    if((category == Category::VBF or category == Category::VBFrelaxed or category == Category::twojet) and isMC){
+      double genpt = *wzpt;
+      if(jetpt->size() >= 2) {
+	TLorentzVector jet1 ;
+	TLorentzVector jet2 ;
+	jet1.SetPtEtaPhiM(jetpt->at(0),jeteta->at(0),jetphi->at(0),jetm->at(0));
+	jet2.SetPtEtaPhiM(jetpt->at(1),jeteta->at(1),jetphi->at(1),jetm->at(1));
+	double mjj = (jet1+jet2).M();
+	for(size_t i = 0; i < kVEWKhists.size(); i++){
+	  if(kVEWKhists[i]){// good histogram
+	    if(genpt <= kVEWKhists[i]->GetXaxis()->GetBinLowEdge(1)) genpt = kVEWKhists[i]->GetXaxis()->GetBinLowEdge(1) + 1;
+	    if(genpt >= kVEWKhists[i]->GetXaxis()->GetBinLowEdge(kVEWKhists[i]->GetNbinsX()+1)) genpt = kVEWKhists[i]->GetXaxis()->GetBinLowEdge(kVEWKhists[i]->GetNbinsX()+1)-1;
+	    if(mjj <= kVEWKhists[i]->GetYaxis()->GetBinLowEdge(1)) mjj = kVEWKhists[i]->GetYaxis()->GetBinLowEdge(1) + 1;
+	    if(mjj >= kVEWKhists[i]->GetYaxis()->GetBinLowEdge(kVEWKhists[i]->GetNbinsY()+1)) mjj = kVEWKhists[i]->GetYaxis()->GetBinLowEdge(kVEWKhists[i]->GetNbinsY()+1)-1;
+	    kewkgt *= kVEWKhists[i]->GetBinContent(kVEWKhists[i]->FindBin(genpt,mjj));
+	  }
+	}
+      }
+    }
+
+    // Higgs pT uncertainty
+    Double_t hwgt = 1.0;
+    if(isHiggsInvisible and hhist and isMC){
+      if(*dmpt < hhist->GetBinLowEdge(1))
+	*dmpt = hhist->GetBinLowEdge(1)+1;
+      else if(*dmpt > hhist->GetBinLowEdge(hhist->GetNbinsX()+1))
+	*dmpt =hhist->GetBinLowEdge(hhist->GetNbinsX()+1)-1;
+      hwgt *= hhist->GetBinContent(hhist->FindBin(*dmpt));
+    }
+
+    // NNLO corrections to Higgs pT
+    Double_t hnnlowgt = 1.0;
+    if(isHiggsInvisible and higgsNNLO and isMC){
+      if(*dmpt < higgsNNLO->GetBinLowEdge(1))
+	*dmpt = higgsNNLO->GetBinLowEdge(1)+1;
+      else if(*dmpt > higgsNNLO->GetBinLowEdge(higgsNNLO->GetNbinsX()+1))
+	*dmpt = higgsNNLO->GetBinLowEdge(higgsNNLO->GetNbinsX()+1)-1;
+      hnnlowgt *= higgsNNLO->GetBinContent(higgsNNLO->FindBin(*dmpt));      
+    }
+
+    // Top quark pt re-weight
+    Double_t topptwgt = 1.0;
+    if(reWeightTopPt)
+      topptwgt = reweightTopQuarkPt(*toppt,*atoppt);
+
+    // ggZH re-weight in case of a non null pointer                                                                                                                             
+    Double_t ggZHwgt = 1.0;
+    if(isHiggsInvisible and ggZHhist and isMC){
+      int binX = ggZHhist->GetXaxis()->FindBin(*dmpt);
+      int binY = 0;
+      if(*wzpt_h != 0)
+        binY = ggZHhist->GetYaxis()->FindBin(*wzpt_h);
+      else
+        binY = ggZHhist->GetYaxis()->FindBin(*wzpt);
+      if(binX == 0) binX = 1;
+      if(binY == 0) binY = 1;
+      if(binX == ggZHhist->GetNbinsX()+1) binX = ggZHhist->GetNbinsX();
+      if(binY == ggZHhist->GetNbinsY()+1) binY = ggZHhist->GetNbinsY();
+      ggZHwgt = ggZHhist->GetBinContent(binX,binY);
+      if(ggZHwgt == 0)
+        ggZHwgt = 1;
+    }
+    
     // fill 1D histogram
     // fill the histograms --> with the right observable
     for(auto hist : hist1D){
@@ -2103,9 +1818,9 @@ void makehist4(TTree* tree,            /*input tree*/
 	else puwgt = *wgtpu;
 
 	if(XSEC != -1)
-	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt*veto_wgt*topptwgt*ggZHwgt*kwgt*kewkgt*hwgt*hnnlowgt*pfwgt/(**wgtsum); 
+	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt*veto_wgt*topptwgt*ggZHwgt*kwgt*kewkgt*hwgt*hnnlowgt/(**wgtsum); 
 	else
-	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt*veto_wgt*topptwgt*ggZHwgt*kwgt*kewkgt*hwgt*hnnlowgt*pfwgt/(**wgtsum);
+	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt*veto_wgt*topptwgt*ggZHwgt*kwgt*kewkgt*hwgt*hnnlowgt/(**wgtsum);
       }
       else if (isMC and reweightNVTX){
 
@@ -2115,14 +1830,14 @@ void makehist4(TTree* tree,            /*input tree*/
 	else
 	  puwgt = 1;
 	if(XSEC != -1)
-	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*veto_wgt*kwgt*kewkgt*hwgt*ggZHwgt*hnnlowgt*pfwgt/(**wgtsum);
+	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*veto_wgt*kwgt*kewkgt*hwgt*ggZHwgt*hnnlowgt/(**wgtsum);
 	else
-	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*veto_wgt*kwgt*kewkgt*hwgt*ggZHwgt*hnnlowgt*pfwgt/(**wgtsum);
+	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*veto_wgt*kwgt*kewkgt*hwgt*ggZHwgt*hnnlowgt/(**wgtsum);
       }
       
       // for data-based events 
       if (!isMC && sample == Sample::qcdgam) 
-	evtwgt = sfwgt*pfwgt*hltw;
+	evtwgt = sfwgt*hltw;
       else if (!isMC)
 	evtwgt = hltw;      
       
@@ -2287,9 +2002,9 @@ void makehist4(TTree* tree,            /*input tree*/
 	else puwgt = *wgtpu;
 
 	if(XSEC != -1)
-          evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*veto_wgt*kwgt*kewkgt*hwgt*ggZHwgt*hnnlowgt*pfwgt/(**wgtsum);
+          evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*veto_wgt*kwgt*kewkgt*hwgt*ggZHwgt*hnnlowgt/(**wgtsum);
 	else
-	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*veto_wgt*kwgt*kewkgt*hwgt*ggZHwgt*hnnlowgt*pfwgt/(**wgtsum);
+	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*veto_wgt*kwgt*kewkgt*hwgt*ggZHwgt*hnnlowgt/(**wgtsum);
       }
       else if (isMC and reweightNVTX){
         // pu-weight                                                                                                                                                                                  
@@ -2333,8 +2048,8 @@ void makehist4(TTree* tree,            /*input tree*/
     triggerfile_SinglEle->Close();
   if(triggerfile_SinglEle_jetHT != NULL)
     triggerfile_SinglEle_jetHT->Close();
-  if(triggerfile_MET != NULL)
-    triggerfile_MET->Close();
+  if(triggerfile_MET_wmn != NULL)
+    triggerfile_MET_wmn->Close();
   if(triggerfile_MET_zmm != NULL)
     triggerfile_MET_zmm->Close();
   if(triggerfile_SinglePhoton != NULL)
@@ -2345,11 +2060,8 @@ void makehist4(TTree* tree,            /*input tree*/
     trackingefficiency_muon->Close();
   if(trackingefficiencyFile_electron != NULL)
     trackingefficiencyFile_electron->Close();
-  if(postFitFile != NULL)
-    postFitFile->Close();
-  for(auto file : triggerfile_MET_binned_Wmn)
-    file->Close();
-  for(auto file : triggerfile_MET_binned_Zmm)
-    file->Close();
 }
 #endif
+
+/*  LocalWords:  detajj
+ */

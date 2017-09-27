@@ -572,10 +572,9 @@ void sigdatamchist(TFile* outfile,
 
   if((category == Category::VBF or category == Category::VBFrelaxed) and not useTheoriestKFactors){ // apply further k-factors going to the VBF selections
 
-    /////////////
-    kfactzjet_vbf = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_zjets_v2.root");
-    kfactwjet_vbf = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_wjets_v2.root");
-    kfactgjet_vbf = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_gjets_v2.root");
+    kfactzjet_vbf = TFile::Open(kFactorVBF_zjet.c_str());
+    kfactwjet_vbf = TFile::Open(kFactorVBF_wjet.c_str());
+    kfactgjet_vbf = TFile::Open(kFactorVBF_gjet.c_str());
     
     ////////////
     TH1* zjet_nlo_vbf = (TH1*) kfactzjet_vbf->Get("bosonPt_NLO_vbf");
@@ -1439,8 +1438,8 @@ void gamdatamchist(TFile* outfile,
 
   if((category == Category::VBF or category == Category::VBFrelaxed)  and not useTheoriestKFactors){ // apply further k-factors going to the VBF selections                         
                                                                      
-    kfactwjet_vbf = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_wjets_v2.root");
-    kfactgjet_vbf = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_gjets_v2.root");
+    kfactwjet_vbf = TFile::Open(kFactorVBF_wjet.c_str());
+    kfactgjet_vbf = TFile::Open(kFactorVBF_gjet.c_str());
 
     TH1F* wjet_nlo_vbf = (TH1F*) kfactwjet_vbf->Get("bosonPt_NLO_vbf");
     if(category == Category::VBFrelaxed)
@@ -2185,9 +2184,9 @@ void lepdatamchist(TFile* outfile,
   TFile* kfactgjet_vbf = NULL;
 
   if((category == Category::VBF or category == Category::VBFrelaxed) and not useTheoriestKFactors){ // apply further k-factors going to the VBF selections                                                                                                                
-    kfactzjet_vbf = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_zjets_v2.root");
-    kfactwjet_vbf = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_wjets_v2.root");
-    kfactgjet_vbf = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_gjets_v2.root");
+    kfactzjet_vbf = TFile::Open(kFactorVBF_zjet.c_str());
+    kfactwjet_vbf = TFile::Open(kFactorVBF_wjet.c_str());
+    kfactgjet_vbf = TFile::Open(kFactorVBF_gjet.c_str());
 
     TH1F* zjet_nlo_vbf = (TH1F*) kfactzjet_vbf->Get("bosonPt_NLO_vbf");
     if(category == Category::VBFrelaxed)
@@ -3800,9 +3799,9 @@ void qcddatamchist(TFile* outfile,
   if(category == Category::VBF or category == Category::VBFrelaxed){ // apply further k-factors going to the VBF selections
 
     /////////////
-    kfactzjet_vbf = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_zjets_v2.root");
-    kfactwjet_vbf = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_wjets_v2.root");
-    kfactgjet_vbf = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_gjets_v2.root");
+    kfactzjet_vbf = TFile::Open(kFactorVBF_zjet.c_str());
+    kfactwjet_vbf = TFile::Open(kFactorVBF_wjet.c_str());
+    kfactgjet_vbf = TFile::Open(kFactorVBF_gjet.c_str());
     
     ////////////
     TH1* zjet_nlo_vbf = (TH1*) kfactzjet_vbf->Get("bosonPt_NLO_vbf");

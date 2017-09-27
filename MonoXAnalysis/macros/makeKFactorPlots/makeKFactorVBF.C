@@ -3,9 +3,9 @@
 vector<float> bosonPt   {150.,200.,250.,350,500.,700.,1000};
 vector<float> mjj_bin   {150.,200.,250.,350,500.,700.,1000};
 
-static float mjj            = 1300;
+static float mjj            = 1000;
 static float mjjrelaxed     = 200;
-static float detajj         = 4.0;
+static float detajj         = 3.0;
 static float detajjrelaxed  = 1.0;
 static float leadingJetVBF  = 80;
 static float trailingJetVBF = 40;
@@ -57,6 +57,17 @@ void makeKFactorVBF(string inputDIR_LO, string inputDIR_NLO, string outputDIR, S
   infileNLO.close();
 
   system("rm list.txt");
+
+  ///
+  string postfix;
+  if(sample == Sample::znn)       postfix = "znn";
+  else if(sample == Sample::zll)  postfix = "zll";
+  else if(sample == Sample::wjet) postfix = "wjet";
+  else if(sample == Sample::gam)  postfix = "gam";
+
+
+  TFile* output = new TFile((outputDIR+"/kfactor_"+postfix+".root").c_str(),"RECREATE");
+  output->cd();
 
   // calculate sumwgt
   vector<double> sumwgt_lo;
@@ -175,7 +186,6 @@ void makeKFactorVBF(string inputDIR_LO, string inputDIR_NLO, string outputDIR, S
       
       if(sample == Sample::wjet and (fabs(*l1id) == 15 or fabs(*l1id) == 16 or fabs(*l2id) == 15 or fabs(*l2id) == 16)) continue; // skip taus
 
-
       vector<TLorentzVector> jets;
       for(size_t ijet = 0; ijet < jetpt->size(); ijet++){
 	TLorentzVector jet4V; jet4V.SetPtEtaPhiM(jetpt->at(ijet),jeteta->at(ijet),jetphi->at(ijet),jetmass->at(ijet));
@@ -220,7 +230,7 @@ void makeKFactorVBF(string inputDIR_LO, string inputDIR_NLO, string outputDIR, S
 			 
 	if(fabs(jets.at(1).Eta()) > 3 and fabs(jets.at(0).Eta()) > 3) continue;
 	if((jets.at(0)+jets.at(1)).M() < mjjrelaxed) continue;
-	if(jets.at(0).Eta()*jets.at(1).Eta()  > 0) continue; 
+	if(jets.at(0).Eta()*jets.at(1).Eta() > 0) continue; 
 	if(fabs(jets.at(0).Eta()-jets.at(1).Eta()) < detajjrelaxed) continue;
 	float deltaPhi = fabs(jets.at(0).Phi()-jets.at(1).Phi());
 	if(deltaPhi > TMath::Pi()) deltaPhi = 2*TMath::Pi()-deltaPhi;
@@ -325,7 +335,7 @@ void makeKFactorVBF(string inputDIR_LO, string inputDIR_NLO, string outputDIR, S
 
 	if(fabs(jets.at(1).Eta()) > 3 and fabs(jets.at(0).Eta()) > 3) continue;
 	if((jets.at(0)+jets.at(1)).M() < mjjrelaxed) continue;
-	if(jets.at(0).Eta()*jets.at(1).Eta()  > 0) continue; 
+	if(jets.at(0).Eta()*jets.at(1).Eta() > 0) continue; 
 	if(fabs(jets.at(0).Eta()-jets.at(1).Eta()) < detajjrelaxed) continue;
 	float deltaPhi = fabs(jets.at(0).Phi()-jets.at(1).Phi());
 	if(deltaPhi > TMath::Pi()) deltaPhi = 2*TMath::Pi()-deltaPhi;
@@ -345,12 +355,6 @@ void makeKFactorVBF(string inputDIR_LO, string inputDIR_NLO, string outputDIR, S
     ifile++;
   }
   
-  string postfix;
-  if(sample == Sample::znn)       postfix = "znn";
-  else if(sample == Sample::zll)  postfix = "zll";
-  else if(sample == Sample::wjet) postfix = "wjet";
-  else if(sample == Sample::gam)  postfix = "gam";
-
 
   TCanvas* canvas = new TCanvas("canvas", "canvas", 600, 700);
   canvas->SetTickx(1);
@@ -530,8 +534,6 @@ void makeKFactorVBF(string inputDIR_LO, string inputDIR_NLO, string outputDIR, S
     canvas->SaveAs((outputDIR+"/kfactor_gam.pdf").c_str(),"pdf");
   }
 
-  TFile* output = new TFile((outputDIR+"/kfactor_"+postfix+".root").c_str(),"RECREATE");
-  output->cd();
   bosonPt_NLO_monojet->Write();
   bosonPt_NLO_twojet->Write();
   bosonPt_NLO_vbf_relaxed->Write();
