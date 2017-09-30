@@ -25,7 +25,7 @@ static float PFMHT_CUT   = 90;
 static float PFMET_CUT   = 90;
 static float PFMHTNoMu_CUT = 90;
 static float PFMETNoMu_CUT = 90;
-static bool  doJetStudy = false;
+static bool  doJetStudy  = false;
 
 // possible samples to be selected
 enum class Sample {sig,wmn,zmm};
@@ -423,7 +423,6 @@ void makeTriggerAnalysis(TChain* tree,
       if(fabs(jeteta->at(0)) < 2.4 and jetnhfrac->at(0) > 0.8) continue;
       if(jeteta->at(0)*jeteta->at(1) > 0) continue;
       if(fabs(jeteta->at(0)-jeteta->at(1)) < 1) continue;
-      
       jet1.SetPtEtaPhiM(jetpt->at(0),jeteta->at(0),jetphi->at(0),jetm->at(0));
       jet2.SetPtEtaPhiM(jetpt->at(1),jeteta->at(1),jetphi->at(1),jetm->at(1));
       

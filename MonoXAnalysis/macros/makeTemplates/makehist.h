@@ -560,9 +560,8 @@ void makehist4(TTree* tree,            /*input tree*/
       hlt = *hltm90+*hltm100+*hltm110+*hltm120+*hltmwm90+*hltmwm100+*hltmwm110+*hltmwm120+*hltmwm170+*hltmwm300;
     else if (sample == Sample::zee || sample == Sample::wen || sample == Sample::topel) // single and double electron
       hlt = *hlte+*hltenoiso;      
-    else if (sample == Sample::qcdgam || sample == Sample::gam){ // single photon
+    else if (sample == Sample::qcdgam || sample == Sample::gam) // single photon
       hlt  = *hltp165+*hltp175+*hltpPFHT800;
-    }
 
     // Trigger Selection
     if(hlt  == 0) continue; // trigger    
