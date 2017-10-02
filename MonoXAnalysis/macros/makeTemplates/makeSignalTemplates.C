@@ -23,8 +23,32 @@ void makeSignalTemplates(
 			 const bool & doShapeSystematics       = false, // run all the met, b-tag shape variations
 			 const int  & typeOfDMSignal           = 0,     // 0 means both mono-j and mono-V, 1 is mono-j, 2 is mono-V
 			 const bool & runHiggsInvisible        = false, // run Higgs invisible analysis
-			 const bool & applyNNLOKfactor         = false  // for ggH Hinv
-			 ) {
+			 const bool & applyNNLOKfactor         = false,  // for ggH Hinv
+			 const bool doVBFOptimization          = false, /// to change the VBF selection values from main function call                                                         
+			 float mjjVal = 0,
+			 float detajjVal = 0,
+			 float dphijjVal = 3.14) {
+
+  ///// ------                                                                                                                                                                                         
+  if(category != Category::VBFrelaxed and category != Category::VBF and doVBFOptimization){
+    cerr<<"In order to make the VBFOptimization the category must be VBF or VBFrelaxed --> continue"<<endl;
+    return;
+  }
+
+  ///// ------                                                                                                                                                                                        
+  if(doVBFOptimization){
+    if(category == Category::VBFrelaxed){
+      detajjrelaxed = detajjVal;
+      mjjrelaxed    = mjjVal;
+      dphijjrelaxed = dphijjVal;
+    }
+    else if(category == Category::VBF){
+      detajj = detajjVal;
+      mjj    = mjjVal;
+      dphijj = dphijjrelaxed;
+    }
+  }
+
 
   system(("mkdir -p "+outDir).c_str());
 

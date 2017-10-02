@@ -19,54 +19,54 @@
 using namespace std;
 
 // some basic cut values --> Monojet category
-const float leadingJetPtCut  = 100.;
-const float pfMetMonoJUpper  = 8000.;
-const float pfMetMonoJLower  = 250.;
-const float btagCSVLoose     = 0.460;
-const float btagCSVMedium    = 0.800;
-const float numberOfVtxCorrection = 17;
+static float leadingJetPtCut  = 100.;
+static float pfMetMonoJUpper  = 8000.;
+static float pfMetMonoJLower  = 250.;
+static float btagCSVLoose     = 0.460;
+static float btagCSVMedium    = 0.800;
+static float numberOfVtxCorrection = 17;
 // some basic cut values --> MonoV category
-const float tau2tau1        = 0.6;
-const float tau2tau1LP      = 0.75;
-const float prunedMassMin   = 65.;
-const float prunedMassMax   = 105.;
-const float ptJetMinAK8     = 250.;
-const float jetEtaAK8       = 2.4;
-const float pfMetMonoVLower = 250.;
-const float pfMetMonoVUpper = 8000.;
+static float tau2tau1        = 0.6;
+static float tau2tau1LP      = 0.75;
+static float prunedMassMin   = 65.;
+static float prunedMassMax   = 105.;
+static float ptJetMinAK8     = 250.;
+static float jetEtaAK8       = 2.4;
+static float pfMetMonoVLower = 250.;
+static float pfMetMonoVUpper = 8000.;
 // some basic cut values --> VBF category
-const float leadingJetPtCutVBF  = 80.;
-const float trailingJetPtCutVBF = 40.;
-const float detajj          = 4.0;
-const float detajjrelaxed   = 1.0;
-const float mjj             = 1300;
-const float mjjrelaxed      = 200.;
-const float jetmetdphiVBF   = 0.5;
-const float pfMetVBFLower   = 250.;
-const float pfMetVBFUpper   = 8000.;
-const float dphijj          = 1.5;
-const float dphijjrelaxed   = 1.3;
-const bool  removeVBF       = false;
+static float leadingJetPtCutVBF  = 80.;
+static float trailingJetPtCutVBF = 40.;
+static float detajj          = 4.0;
+static float detajjrelaxed   = 1.0;
+static float mjj             = 1300;
+static float mjjrelaxed      = 200.;
+static float jetmetdphiVBF   = 0.5;
+static float pfMetVBFLower   = 250.;
+static float pfMetVBFUpper   = 8000.;
+static float dphijj          = 1.5;
+static float dphijjrelaxed   = 1.3;
+static bool  removeVBF       = false;
 // Additional selections
-const float photonPt        = 175;
-const int   vBosonCharge    = 0;
-const int   nBjets          = 1; // for top-tagged region
-const int   njetsMin        = 1;
-const int   njetsMax        = 100;
+static float photonPt        = 175;
+static int   vBosonCharge    = 0;
+static int   nBjets          = 1; // for top-tagged region
+static int   njetsMin        = 1;
+static int   njetsMax        = 100;
 // Re-weight and smoothing
 static bool  reweightNVTX    = false;
 /// photon scale
-const bool  applyPhotonScale = true;
-const float photonScaleUnc   = -0.0125;
+static bool  applyPhotonScale = true;
+static float photonScaleUnc   = -0.0125;
 static bool doSmoothing      = false;
 // trigger and object corrections
-const float recoilThresholdTrigger = 350; // for photon trigger application
-const bool  useSingleMuon   = true;
-const bool  applyLeptonVetoWeight = true;
+static float recoilThresholdTrigger = 350; // for photon trigger application
+static bool  useSingleMuon   = true;
+static bool  applyLeptonVetoWeight = true;
 // other general options
-const bool  runOnlyData      = false;
+static bool  runOnlyData      = false;
 // k-factors
-const bool  applyEWKVKfactor = true;
+static bool  applyEWKVKfactor = true;
 
 // k-factors
 string kfactorFile       = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_24bins.root";

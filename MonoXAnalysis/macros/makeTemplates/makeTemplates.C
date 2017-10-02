@@ -29,28 +29,54 @@ static SamplesNLO nloSamples (false,false,false,false);
 static bool useTheoriestKFactors  = false;
 static bool useNewTheoryUncertainty = true;
 
-void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer factors and sys
-		   bool skipCorrectionHistograms = false,  // skip to open and dump transfer factors
+void makeTemplates(const bool & doCorrectionHistograms   = false,  // calculate transfer factors and sys
+		   const bool & skipCorrectionHistograms = false,  // skip to open and dump transfer factors
 		   Category category             = Category::monojet,  // 0 = inclusive mono-j, 1 = exclsuive mono-j, 2 V-tag HP ..
-		   double lumi                   = 36.9, // 
-		   string outDir                 = "", // output dir for template file
-		   string templateSuffix         = "",  // suffix for the output file
+		   const double & lumi           = 35.9, // 
+		   const string & outDir         = "", // output dir for template file
+		   const string & templateSuffix = "",  // suffix for the output file
 		   vector<string> observables    = {"met"}, // 1D histo
 		   vector<string> observables_2D = {},  // 2D histo
-		   bool doShapeSystematics    = false, // run all the met, b-tag shape variations
-		   bool runOnlySignal         = false, // produce a file with only signal templates
-		   bool runOnlyBackground     = false, // produce a file with only background templates
-		   bool applyPostFitWeights   = false,
-		   bool addHistoForCutAndCount= false) {
+		   const bool & doShapeSystematics = false, // run all the met, b-tag shape variations
+		   const bool & runOnlySignal      = false, // produce a file with only signal templates
+		   const bool & runOnlyBackground  = false, // produce a file with only background templates
+		   const bool & applyPostFitWeights = false,		   
+		   const bool & addHistoForCutAndCount = false,
+		   const bool & doVBFOptimization = false, /// to change the VBF selection values from main function call
+		   const float & mjjVal = 0,
+		   const float & detajjVal = 0,
+		   const float & dphijjVal = 3.14) {
 
 
+  ///// ------
   if(category == Category::VBF or category == Category::VBFrelaxed or category == Category::twojet){
     addZgamma = false;
     addWgamma = false;
   }
 
-  system(("mkdir -p "+outDir).c_str());
 
+  ///// ------
+  if(category != Category::VBFrelaxed and category != Category::VBF and doVBFOptimization){
+    cerr<<"In order to make the VBFOptimization the category must be VBF or VBFrelaxed --> continue"<<endl;
+    return;
+  }
+
+  ///// ------
+  if(doVBFOptimization){
+    if(category == Category::VBFrelaxed){
+      detajjrelaxed = detajjVal;
+      mjjrelaxed    = mjjVal;
+      dphijjrelaxed = dphijjVal;
+    }
+    else if(category == Category::VBF){
+      detajj = detajjVal;
+      mjj    = mjjVal;
+      dphijj = dphijjrelaxed;
+    }
+  }
+
+  ///// ------
+  system(("mkdir -p "+outDir).c_str());
   // to initialize the binning map
   initializeBinning();
 
@@ -95,7 +121,7 @@ void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer
     makezmmcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR +"/sigfilter/",
 		   baseInputTreePath+"/"+nloSamples.DYJetsDIR+"/zmmfilter/",
 		   category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors); 
-
+    
     // NLO QCD + NLO EWK
     cout<<"make correction histogram for Zee to Znn"<<endl;
     makezeecorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR +"/sigfilter/",
@@ -794,7 +820,7 @@ void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer
   }
   if(not skipDataAnalysis and not runOnlySignal){
     cout<<"start signal region data"<<endl;
-    //    sigdatamchist(&outfile,category,observables,observables_2D,lumi,nloSamples,doShapeSystematics,false,false,runHiggsInvisible,applyPostFitWeights,useTheoriestKFactors);
+    sigdatamchist(&outfile,category,observables,observables_2D,lumi,nloSamples,doShapeSystematics,false,false,runHiggsInvisible,applyPostFitWeights,useTheoriestKFactors);
     // gamma + jets
     cout<<"start gamma+jets region data"<<endl;
     if(category != Category::VBF and category != Category::VBFrelaxed)

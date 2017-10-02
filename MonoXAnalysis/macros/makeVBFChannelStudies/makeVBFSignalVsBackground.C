@@ -50,9 +50,9 @@ void createHistograms2D(vector<TH2F*> & histo, const string postfix){
   
   histo.push_back(new TH2F(Form("%s_mjj_detajj",postfix.c_str()),"",15,400,2500,10,2,8));
   histo.push_back(new TH2F(Form("%s_mjj_dphijj",postfix.c_str()),"",15,400,2500,10,0.,3.14));
-  histo.push_back(new TH2F(Form("%s_mjj_met",postfix.c_str()),"",15,400,2500,10,0.,3.14));
+  histo.push_back(new TH2F(Form("%s_mjj_met",postfix.c_str()),"",15,400,2500,10,250.,600));
   histo.push_back(new TH2F(Form("%s_detajj_dphijj",postfix.c_str()),"",10,2,8,10,0.,3.14));
-  histo.push_back(new TH2F(Form("%s_detajj_met",postfix.c_str()),"",10,2,8,10,0.,3.14));
+  histo.push_back(new TH2F(Form("%s_detajj_met",postfix.c_str()),"",10,2,8,10,250,600));
 
   for(auto hist: histo){
     hist->Sumw2();
@@ -105,6 +105,7 @@ void plotDistribution(TCanvas* canvas, TH1F* qqH, TH1F* ggH, TH1F* zjet, TH1F* w
 
   zjet->GetXaxis()->SetTitle(label.c_str());
   zjet->GetYaxis()->SetTitle("a.u");
+  zjet->GetYaxis()->SetTitleOffset(1.1);
 
   zjet->SetLineColor(kRed+1);
   zjet->SetLineWidth(3);
@@ -118,7 +119,7 @@ void plotDistribution(TCanvas* canvas, TH1F* qqH, TH1F* ggH, TH1F* zjet, TH1F* w
   ewkz->SetLineWidth(3);
   ewkz->Draw("hist same");
 
-  ewkw->SetLineColor(kAzure);
+  ewkw->SetLineColor(kAzure+1);
   ewkw->SetLineWidth(3);
   ewkw->Draw("hist same");
 
@@ -233,8 +234,8 @@ void plotDistribution2D(TCanvas* canvas, TH2F* histo, const string & outputDIR){
   profile->Draw("EPsame");
 
   CMS_lumi(canvas,"");
-  TLegend leg(0.55,0.7,0.8,0.9);
-  leg.SetFillStyle(0);
+  TLegend leg(0.55,0.7,0.75,0.8);
+  leg.SetFillStyle(1001);
   leg.SetFillColor(0);
   leg.SetBorderSize(0);
   leg.AddEntry((TObject*)0,Form("Correlation = %.2f",hist->GetCorrelationFactor()),"");
@@ -242,7 +243,6 @@ void plotDistribution2D(TCanvas* canvas, TH2F* histo, const string & outputDIR){
 
   canvas->SaveAs((outputDIR+"/correlation/"+string(histo->GetName())+".png").c_str(),"png");
   canvas->SaveAs((outputDIR+"/correlation/"+string(histo->GetName())+".pdf").c_str(),"pdf");
-  canvas->SetLogz();
 
 }
 
@@ -367,14 +367,14 @@ void makeAnalysis(TTree* tree, vector<TH1F*> hist_1D, vector<TH2F*> hist_2D, vec
       float variable = 0;
       if(name.Contains("mjj_detajj"))
 	fillHisto2D(hist,(jet1+jet2).M(),fabs(jet1.Eta()-jet2.Eta()),weight);
+      else if(name.Contains("mjj_met"))
+	fillHisto2D(hist,(jet1+jet2).M(),*mmet,weight);
       else if(name.Contains("mjj_dphijj"))
 	fillHisto2D(hist,(jet1+jet2).M(),fabs(jet1.DeltaPhi(jet2)),weight);
       else if(name.Contains("mjj_ptj1"))
 	fillHisto2D(hist,(jet1+jet2).M(),jet1.Pt(),weight);
       else if(name.Contains("mjj_ptj2"))
 	fillHisto2D(hist,(jet1+jet2).M(),jet2.Pt(),weight);
-      else if(name.Contains("mjj_met"))
-	fillHisto2D(hist,(jet1+jet2).M(),*mmet,weight);
       else if(name.Contains("detajj_dphijj"))
 	fillHisto2D(hist,fabs(jet1.Eta()-jet2.Eta()),fabs(jet1.DeltaPhi(jet2)),weight);
       else if(name.Contains("detajj_ptj1"))
