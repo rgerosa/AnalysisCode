@@ -383,13 +383,17 @@ void makeConnectedBinList(string procname,  // name to be used to fill the works
     formss << "(";
     formss << "@1";
     if(i != rhist->GetNbinsX()){
-      if(rhist->GetBinError(i)/rhist->GetBinContent(i) >= 0)
+      if(rhist->GetBinContent(i) == 0)
+	formss << "*(TMath::Max(0,1+1*@2))";
+      else if(rhist->GetBinError(i)/rhist->GetBinContent(i) >= 0)
 	formss << "*(TMath::Max(0,1+" << rhist->GetBinError(i)/rhist->GetBinContent(i) << "*@2))";
       else
 	formss << "*(TMath::Max(0,1-" << fabs(rhist->GetBinError(i)/rhist->GetBinContent(i)) << "*@2))";
     }
     else{
-      if(rhist->GetBinError(i)/rhist->GetBinContent(i) >= 0)
+      if(rhist->GetBinContent(i) == 0)
+        formss << "*(TMath::Max(0,1+1*@2))";	
+      else if(rhist->GetBinError(i)/rhist->GetBinContent(i) >= 0)
         formss << "*(TMath::Max(0,1+" << (rhist->GetBinError(i)/reductionFactorLastBin)/rhist->GetBinContent(i) << "*@2))";
       else
         formss << "*(TMath::Max(0,1-" << (fabs(rhist->GetBinError(i)/reductionFactorLastBin)/rhist->GetBinContent(i)) << "*@2))"; 

@@ -12,8 +12,8 @@ using namespace std;
 
 /// some basic options to be set manually
 
-
 static float scaleQCD      = 2;      // scale QCD prediction in the signal region in case a data driven template is not found
+static bool  useQCDDataDriven = true; // wether use MC or DD
 static bool  connectTop    = false;  // make top estimation from Top-CRs
 static bool  connectWZ     = true;   // apply a Z/W ratio
 static bool  correlateEWK  = true;   // to correlate EWK uncertainties across bins on the Z/gamma Z/W ratio
@@ -46,7 +46,7 @@ void createWorkspace(string   inputName,                        // input templat
 		     bool     RunOnlyBackground = false,  // run only on signal templates --> workspace with only background 
 		     bool     UseNewTheoryUncertainty = false,
 		     string   interaction   = "Vector", // DM interaction 
-		     string   mediatorMass  = "1000",   // Med mass
+		     string   mediatorMass  = "125",   // Med mass
 		     string   DMMass        = "50",     // DM mass
 		     bool     isCutAndCount = false,    // to produce a workspace for a cut and count analysis
 		     std::pair<float,float> xAxisSelection = {-10000,10000}, // define bins for cut and count
@@ -666,7 +666,7 @@ void createWorkspace(string   inputName,                        // input templat
         
     // look for DD qcd background,otherwise MC scaled by a factor 2
     TH1F* qcdhist = (TH1F*)templatesfile->FindObjectAny(("qbkghistDD_"+observable).c_str());
-    if(qcdhist){
+    if(qcdhist and useQCDDataDriven){
       addTemplate("QCD_SR_"+suffix,vars,wspace_SR,qcdhist,isCutAndCount);
       if(category == Category::monojet or category == Category::monoV){
 	addTemplate("QCD_SR_"+suffix+"_CMS_QCD_SRUp",vars,wspace_SR,(TH1F*)templatesfile->FindObjectAny(("qbkghistDD_shapeUp_"+observable).c_str()),isCutAndCount);
