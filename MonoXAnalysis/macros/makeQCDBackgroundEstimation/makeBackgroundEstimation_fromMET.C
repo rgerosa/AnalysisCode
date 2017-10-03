@@ -369,7 +369,7 @@ void makeBackgroundEstimation_fromMET(string inputTemplateFile, string jetHTfile
   ratio_bin_by_bin_dw->Draw("hist same");
 
   canvas->SaveAs((outputDIR+"/distribution_estimationSR_systematics.png").c_str(),"png");
-  canvas->SaveAs((outputDIR+"/distribution_estimationSR_systeamtics.pdf").c_str(),"pdf");
+  canvas->SaveAs((outputDIR+"/distribution_estimationSR_systematics.pdf").c_str(),"pdf");
 
   if(canvas) delete canvas;
 

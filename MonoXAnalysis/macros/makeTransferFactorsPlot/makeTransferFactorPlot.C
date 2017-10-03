@@ -40,7 +40,7 @@ void rzmm(string fileName, Category category, string observable, bool isEWK) {
 
     TH1F* ehist = (TH1F*)hist->Clone("ehist_");
     TH1* frame = canvas->DrawFrame(bins.front(), 4.0, bins.back(), 18., "");
-    if(category == Category::VBF){
+    if(category == Category::VBF or category == Category::VBFrelaxed){
       if(TString(observable).Contains("met") and not TString(observable).Contains("jetmetdphi")){
 	if(not isEWK and observable != "met_onebin")
 	  frame = canvas->DrawFrame(bins.front(), 4.0, bins.back(), 18., "");	
@@ -109,7 +109,7 @@ void rzmm(string fileName, Category category, string observable, bool isEWK) {
         err += pow(hist->GetBinContent(i)*musf*2, 2);
         err += pow(hist->GetBinContent(i)*mutrack*2, 2);	
         err += pow(hist->GetBinContent(i)*mettrig, 2);	
-	if(category == Category::VBF)
+	if(category == Category::VBF or category == Category::VBFrelaxed)
 	  err += pow(hist->GetBinContent(i)*max(jesZ_up,jesZ_dw), 2);	
         ehist->SetBinError(i, sqrt(err));
     }
@@ -167,7 +167,7 @@ void rzee(string fileName, Category category, string observable, bool isEWK) {
     TH1* frame = canvas->DrawFrame(bins.front(), 4.0, bins.back(), 25., "");
     frame->GetXaxis()->SetTitle("Recoil [GeV]");
 
-    if(category == Category::VBF){
+    if(category == Category::VBF or category == Category::VBFrelaxed){
       if(TString(observable).Contains("met") and not TString(observable).Contains("jetmetdphi")){
 	if(not isEWK and observable != "met_onebin")
 	  frame = canvas->DrawFrame(bins.front(), 4.0, bins.back(), 22., "");
@@ -233,7 +233,7 @@ void rzee(string fileName, Category category, string observable, bool isEWK) {
         err += pow(hist->GetBinContent(i)*elsf*2, 2);
         err += pow(hist->GetBinContent(i)*eltrack*2, 2);
         err += pow(hist->GetBinContent(i)*mettrig, 2);
-	if(category == Category::VBF)
+	if(category == Category::VBF or category == Category::VBFrelaxed)
           err += pow(hist->GetBinContent(i)*max(jesZ_up,jesZ_dw), 2);
         ehist->SetBinError(i, sqrt(err));
     }
@@ -289,7 +289,7 @@ void rwmn(string fileName, Category category, string observable, bool isEWK) {
     TH1* frame = canvas->DrawFrame(bins.front(), 0., bins.back(), 1.5, "");
     frame->GetXaxis()->SetTitle("Recoil [GeV]");
 
-    if(category == Category::VBF){
+    if(category == Category::VBF or category == Category::VBFrelaxed){
       if(TString(observable).Contains("met") and not TString(observable).Contains("jetmetdphi")){
 	if(not isEWK and observable != "met_onebin")
 	  frame = canvas->DrawFrame(bins.front(), 0., bins.back(), 1.5, "");
@@ -349,9 +349,9 @@ void rwmn(string fileName, Category category, string observable, bool isEWK) {
 	else
 	  err += pow(hist->GetBinContent(i)*lepveto_ewk, 2);
         err += pow(hist->GetBinContent(i)*mettrig, 2);	
-	if(category == Category::VBF and not isEWK)
+	if((category == Category::VBF or category == Category::VBFrelaxed) and not isEWK)
 	  err += pow(hist->GetBinContent(i)*max(jesW_up,jesW_dw), 2);	
-	else if(category == Category::VBF and isEWK)
+	else if((category == Category::VBF or category == Category::VBFrelaxed) and isEWK)
 	  err += pow(hist->GetBinContent(i)*max(jesW_ewk_up,jesW_ewk_dw), 2);	
         ehist->SetBinError(i, sqrt(err));
     }
@@ -407,7 +407,7 @@ void rwen(string fileName, Category category, string observable, bool isEWK) {
     TH1* frame = canvas->DrawFrame(bins.front(), 0., bins.back(), 2.5, "");
     frame->GetXaxis()->SetTitle("Recoil [GeV]");
 
-    if(category == Category::VBF){
+    if(category == Category::VBF or category == Category::VBFrelaxed){
       if(TString(observable).Contains("met") and not TString(observable).Contains("jetmetdphi")){
 	if(not isEWK and observable != "met_onebin")
 	  frame = canvas->DrawFrame(bins.front(), 0., bins.back(), 2.5, "");
@@ -470,9 +470,9 @@ void rwen(string fileName, Category category, string observable, bool isEWK) {
 	else
 	  err += pow(hist->GetBinContent(i)*lepveto_ewk, 2);
 
-	if(category == Category::VBF and not isEWK)
+	if((category == Category::VBF or category == Category::VBFrelaxed) and not isEWK)
           err += pow(hist->GetBinContent(i)*max(jesW_up,jesW_dw), 2);
-        else if(category == Category::VBF and isEWK)
+        else if((category == Category::VBF or category == Category::VBFrelaxed) and isEWK)
           err += pow(hist->GetBinContent(i)*max(jesW_ewk_up,jesW_ewk_dw), 2);
  
         ehist->SetBinError(i, sqrt(err));
@@ -572,7 +572,7 @@ void rgam(string fileName, Category category, string observable, bool isEWK, boo
     TH1* frame = canvas->DrawFrame(bins.front(), 0.2, bins.back(), 1.2, "");
     frame->GetXaxis()->SetTitle("Recoil [GeV]");
 
-    if(category == Category::VBF){
+    if(category == Category::VBF or category == Category::VBFrelaxed){
       if(TString(observable).Contains("met") and not TString(observable).Contains("jetmetdphi"))
         frame = canvas->DrawFrame(bins.front(), 0, bins.back(), 2.0, "");
       else if(TString(observable).Contains("mjj")){
@@ -763,7 +763,7 @@ void rzwj(string fileName, Category category, string observable, bool isEWK, boo
     TH1* frame = canvas->DrawFrame(bins.front(), 0., bins.back(), 12.0, "");
     frame->GetXaxis()->SetTitle("Recoil [GeV]");
 
-    if(category == Category::VBF){
+    if(category == Category::VBF or category == Category::VBFrelaxed){
       if(TString(observable).Contains("met") and not TString(observable).Contains("jetmetdphi")){
 	if(not isEWK and observable != "met_onebin")
 	  frame = canvas->DrawFrame(bins.front(), 0.3, bins.back(), 3.0, "");
@@ -968,7 +968,7 @@ void rwgam(string fileName, Category category, string observable, bool isEWK, bo
     TH1* frame = canvas->DrawFrame(bins.front(), 0., bins.back(), 1.0, "");
     frame->GetXaxis()->SetTitle("Recoil [GeV]");
 
-    if(category == Category::VBF){
+    if(category == Category::VBF or category == Category::VBFrelaxed){
       if(TString(observable).Contains("met") and TString(observable).Contains("jetmetdphi"))
         frame = canvas->DrawFrame(bins.front(), 0, bins.back(), 2.0, "");
       else if(TString(observable).Contains("mjj")){
@@ -1239,7 +1239,7 @@ void makeTransferFactorPlot(string fileName, Category category, string observabl
   rwen(fileName,category,observable,isEWK);
   rzwj(fileName,category,observable,isEWK,useNewTheoryUncertainty);
 
-  if(category != Category::VBF)
+  if(category != Category::VBF and category != Category::VBFrelaxed)
     rgam(fileName,category,observable,false,useNewTheoryUncertainty);
   
   if(addtop){
@@ -1247,7 +1247,7 @@ void makeTransferFactorPlot(string fileName, Category category, string observabl
     rtopel(fileName,category,observable);
   }
   
-  if(addwgamma and category != Category::VBF)
+  if(addwgamma and category != Category::VBF and category != Category::VBFrelaxed)
     rwgam(fileName,category,observable,false,useNewTheoryUncertainty);
 }
 

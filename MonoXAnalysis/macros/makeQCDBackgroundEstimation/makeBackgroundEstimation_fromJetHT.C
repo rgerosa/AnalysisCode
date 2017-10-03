@@ -132,13 +132,14 @@ void fillHistograms(TChain* chain, vector<TH1F*> & histoA, vector<TH1F*> & histo
       if(jeteta->at(0)*jeteta->at(1) > 0 ) continue;
       jet1.SetPtEtaPhiM(jetpt->at(0),jeteta->at(0),jetphi->at(0),jetm->at(0));
       jet2.SetPtEtaPhiM(jetpt->at(1),jeteta->at(1),jetphi->at(1),jetm->at(1));
+      if(fabs(jeteta->at(0)) > 3 and fabs(jeteta->at(1)) > 3) continue;
     }
         
     if(category == Category::VBFrelaxed){
       if(jetpt->at(0) < 80) continue;
       if(jetpt->at(1) < 40) continue;
       if(fabs(jeteta->at(0)-jeteta->at(1)) < 1.0) continue;
-      if(fabs(jet1.DeltaPhi(jet2)) > 1.3) continue;
+      if(fabs(jet1.DeltaPhi(jet2)) > 1.5) continue;
       if((jet1+jet2).M() < 200) continue;
     }
     else if(category == Category::VBF){

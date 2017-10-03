@@ -18,7 +18,7 @@ static bool makeResonantSelection = false; // split top in resonant and non reso
 static int  typeOfDMSignal        = 0;     // 0 means both mono-j and mono-V, 1 is mono-j, 2 is mono-V
 static bool runHiggsInvisible     = false; // run Higgs invisible analysis
 static bool addTop                = false;
-static bool addQCD                = false;
+static bool addQCD                = true;
 static bool addTauCR              = false;
 static bool addWgamma             = true; 
 static bool addZgamma             = true;
@@ -903,7 +903,7 @@ void makeTemplates(const bool & doCorrectionHistograms   = false,  // calculate 
     }
     else if(category == Category::VBFrelaxed){
 
-      TFile* qcdfile_data = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/QCD/VBFTemplates/templates_QCD_DD.root");
+      TFile* qcdfile_data = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/QCD/VBFTemplates/templates_QCD_DD_v2.root");
       cout<<"Take templates QCD from data"<<endl;      
       TH1F* qcd_nominal = (TH1F*) qcdfile_data->Get("template_QCD_SR_fromDD");
       // set the bin errors to reflect the bin-by-bin variations in the TFs
@@ -919,7 +919,7 @@ void makeTemplates(const bool & doCorrectionHistograms   = false,  // calculate 
       outfile.cd();      
     }
     else if(category == Category::VBF){
-      TFile* qcdfile_data = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/QCD/VBFTemplates/templates_QCD_DD.root");
+      TFile* qcdfile_data = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/QCD/VBFTemplates/templates_QCD_DD_v2.root");
       cout<<"Take templates QCD from data"<<endl;      
 
       vector<double> met_bins = selectBinning("met_onebin",category);

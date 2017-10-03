@@ -245,11 +245,12 @@ void makeTransferFactorPlotMC (string inputPath, string outputDIR, float lumi, C
       if(fabs(jeteta->at(0)) > 4.7) continue;
       if(fabs(jeteta->at(1)) > 4.7) continue;
       if(fabs(jeteta->at(0)-jeteta->at(1)) < 1.0) continue;
-      if(fabs(jet1.DeltaPhi(jet2)) > 1.3) continue;
+      if(fabs(jet1.DeltaPhi(jet2)) > 1.5) continue;
       if((jet1+jet2).M() < 200) continue;
       if(fabs(jeteta->at(0)) < 2.4 and chfrac->at(0) < 0.1) continue;
       if(fabs(jeteta->at(0)) < 2.4 and nhfrac->at(0) > 0.8) continue;
       if(jeteta->at(0)*jeteta->at(1) > 0 ) continue;
+      if(fabs(jeteta->at(0)) > 3 and fabs(jeteta->at(1)) > 3 ) continue;
    
     }
     else if(category == Category::VBF){
@@ -263,6 +264,7 @@ void makeTransferFactorPlotMC (string inputPath, string outputDIR, float lumi, C
       if(fabs(jeteta->at(0)) < 2.4 and chfrac->at(0) < 0.1) continue;
       if(fabs(jeteta->at(0)) < 2.4 and nhfrac->at(0) > 0.8) continue;
       if(jeteta->at(0)*jeteta->at(1) > 0 ) continue;
+      if(fabs(jeteta->at(0)) > 3 and fabs(jeteta->at(1)) > 3 ) continue;
     }
 
     float ht = 0;
@@ -279,12 +281,12 @@ void makeTransferFactorPlotMC (string inputPath, string outputDIR, float lumi, C
       }
       
       else if(*met > 250 and *jmmdphi < 0.5){
-	histoQCD_mjj_regionB->Fill((jet1+jet2).M(),*xsec*lumi*(*wgt)*(*wgtpileup)*(*wgtbtag)/(*wgtsum));
-	histoQCD_ht_regionB->Fill(ht,*xsec*lumi*(*wgt)*(*wgtpileup)*(*wgtbtag)/(*wgtsum));
-      }
-      else if(*met > 100 and *met < 160 and *jmmdphi > 0.5){
 	histoQCD_mjj_regionC->Fill((jet1+jet2).M(),*xsec*lumi*(*wgt)*(*wgtpileup)*(*wgtbtag)/(*wgtsum));
 	histoQCD_ht_regionC->Fill(ht,*xsec*lumi*(*wgt)*(*wgtpileup)*(*wgtbtag)/(*wgtsum));
+      }
+      else if(*met > 100 and *met < 160 and *jmmdphi > 0.5){
+	histoQCD_mjj_regionB->Fill((jet1+jet2).M(),*xsec*lumi*(*wgt)*(*wgtpileup)*(*wgtbtag)/(*wgtsum));
+	histoQCD_ht_regionB->Fill(ht,*xsec*lumi*(*wgt)*(*wgtpileup)*(*wgtbtag)/(*wgtsum));
       }
       else if(*met > 250 and *jmmdphi > 0.5){
 	histoQCD_mjj_regionD->Fill((jet1+jet2).M(),*xsec*lumi*(*wgt)*(*wgtpileup)*(*wgtbtag)/(*wgtsum));

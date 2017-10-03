@@ -45,7 +45,7 @@ static float jetmetdphiVBF   = 0.5;
 static float pfMetVBFLower   = 250.;
 static float pfMetVBFUpper   = 8000.;
 static float dphijj          = 1.5;
-static float dphijjrelaxed   = 1.3;
+static float dphijjrelaxed   = 1.5;
 static bool  removeVBF       = false;
 // Additional selections
 static float photonPt        = 175;

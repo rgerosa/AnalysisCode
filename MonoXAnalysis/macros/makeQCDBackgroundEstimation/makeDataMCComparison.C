@@ -131,13 +131,14 @@ void fillHistograms(TChain* chain, vector<TH1F*> & histoA, vector<TH1F*> & histo
       if(fabs(jeteta->at(0)) < 2.4 and chfrac->at(0) < 0.1) continue;
       if(fabs(jeteta->at(0)) < 2.4 and nhfrac->at(0) > 0.8) continue;
       if(jeteta->at(0)*jeteta->at(1) > 0 ) continue;
+      if(fabs(jeteta->at(0)) > 3 and fabs(jeteta->at(1)) > 3) continue;
     }
         
     if(category == Category::VBFrelaxed){
       if(jetpt->at(0) < 80) continue;
       if(jetpt->at(1) < 40) continue;
       if(fabs(jeteta->at(0)-jeteta->at(1)) < 1.0) continue;
-      if(fabs(jet1.DeltaPhi(jet2)) > 1.3) continue;
+      if(fabs(jet1.DeltaPhi(jet2)) > 1.5) continue;
       if((jet1+jet2).M() < 200) continue;
     }
     else if(category == Category::VBF){
@@ -206,7 +207,7 @@ void fillHistograms(TChain* chain, vector<TH1F*> & histoA, vector<TH1F*> & histo
 
     // fill histo B
     if(*jmmdphi < 0.5 and *met > 250){
-      for(auto hist : histoB){
+      for(auto hist : histoC){
 	TString name (hist->GetName());
 	if(name.Contains("mjj"))
 	  hist->Fill((jet1+jet2).M(),evtweight);
@@ -227,7 +228,7 @@ void fillHistograms(TChain* chain, vector<TH1F*> & histoA, vector<TH1F*> & histo
     
     // fill histo C
     if(*jmmdphi > 0.5 and *met > lowMetBound and *met < highMetBound){
-      for(auto hist : histoC){
+      for(auto hist : histoB){
 	TString name (hist->GetName());
 	if(name.Contains("mjj"))
 	  hist->Fill((jet1+jet2).M(),evtweight);
@@ -350,8 +351,8 @@ void plotDataMC(TH1* histoData, THStack* histoBkg, TCanvas* canvas, const string
   dhist_2->SetMarkerSize(0);
   dhist_2->SetFillColor(kGray);
 
-  for (int i = 1; i <= unhist->GetNbinsX(); i++) unhist->SetBinContent(i, 1);
-  for (int i = 1; i <= unhist->GetNbinsX(); i++) unhist->SetBinError(i, 0);
+  for (int i = 0; i <= unhist->GetNbinsX()+1; i++) unhist->SetBinContent(i, 1);
+  for (int i = 0; i <= unhist->GetNbinsX()+1; i++) unhist->SetBinError(i, 0);
   unhist->SetMarkerSize(0);
   unhist->SetLineColor(kBlack);
   unhist->SetLineStyle(2);
@@ -407,18 +408,18 @@ void bookHistogram(vector<TH1F*> & histoA, vector<TH1F*> & histoB, vector<TH1F*>
   vector<double> bins_met_A     = {100.,110.,120.,130.,140.,150.,160.};
 
   // variable binning in the different regions (Region B)
-  vector<double> bins_mjj_B     = selectBinning("mjj",category);
-  vector<double> bins_jeteta_B  = selectBinning("jeteta",category);
-  vector<double> bins_jeteta2_B = selectBinning("jeteta2",category);
-  vector<double> bins_ht_B      = {250.,350.,450.,600.,750,900,1050,1200,1400,1600,1800,2000,2500};
-  vector<double> bins_met_B     = {250.,300.,350.,450.,600.,800.,1000.};
-
-  // variable binning in the different regions (Region C)
-  vector<double> bins_mjj_C     = {200.,450.,700.,1000.,1300.,1600.,2000.,2750.,5000.};
+  vector<double> bins_mjj_C     = selectBinning("mjj",category);
   vector<double> bins_jeteta_C  = selectBinning("jeteta",category);
   vector<double> bins_jeteta2_C = selectBinning("jeteta2",category);
-  vector<double> bins_ht_C      = {250.,350.,400,450.,500,550.,600.,650.,700.,775.,850.,950.,1050.,1150,1250.};  
-  vector<double> bins_met_C     = {100.,110.,120.,130.,140.,150.,160.};
+  vector<double> bins_ht_C      = {250.,350.,450.,600.,750,900,1050,1200,1400,1600,1800,2000,2500};
+  vector<double> bins_met_C     = {250.,300.,350.,450.,600.,800.,1000.};
+
+  // variable binning in the different regions (Region C)
+  vector<double> bins_mjj_B     = {200.,450.,700.,1000.,1300.,1600.,2000.,2750.,5000.};
+  vector<double> bins_jeteta_B  = selectBinning("jeteta",category);
+  vector<double> bins_jeteta2_B = selectBinning("jeteta2",category);
+  vector<double> bins_ht_B      = {250.,350.,400,450.,500,550.,600.,650.,700.,775.,850.,950.,1050.,1150,1250.};  
+  vector<double> bins_met_B     = {100.,110.,120.,130.,140.,150.,160.};
   
   histoA.push_back(new TH1F(Form("histo_%s_mjj_regionA",postfix.c_str()),"",bins_mjj_A.size()-1,&bins_mjj_A[0]));
   histoB.push_back(new TH1F(Form("histo_%s_mjj_regionB",postfix.c_str()),"",bins_mjj_B.size()-1,&bins_mjj_B[0]));
