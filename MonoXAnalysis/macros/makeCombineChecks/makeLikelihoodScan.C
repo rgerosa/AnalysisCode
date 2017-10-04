@@ -19,7 +19,7 @@ public:
 
 };
 
-void makeLikelihoodScan(string inputDirectory, string nameToGrep, string outputPlots){
+void makeLikelihoodScan(string inputDirectory, string nameToGrep, string outputPlots, string postfix){
 
   gROOT->SetBatch(kTRUE);
   setTDRStyle();
@@ -130,8 +130,8 @@ void makeLikelihoodScan(string inputDirectory, string nameToGrep, string outputP
 
     cout<<"best mu "<<muref<<" 1sigma-up "<<fabs(muref-likelihoodScanAbove->Eval(1))<<" 1 sigma-dw "<<fabs(muref-likelihoodScanBelow->Eval(1))<<endl;
 
-    canvas->SaveAs((outputPlots+"/scan_"+to_string(mh)+"_"+nameToGrep+".png").c_str(),"png");
-    canvas->SaveAs((outputPlots+"/scan_"+to_string(mh)+"_"+nameToGrep+".pdf").c_str(),"pdf");
+    canvas->SaveAs((outputPlots+"/scan_"+to_string(mh)+"_"+nameToGrep+"_"+postfix+".png").c_str(),"png");
+    canvas->SaveAs((outputPlots+"/scan_"+to_string(mh)+"_"+nameToGrep+"_"+postfix+".pdf").c_str(),"pdf");
   }
   
 }
