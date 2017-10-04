@@ -3,7 +3,7 @@
 //// -----  3 digit for mjj, 3 digit for detajj and 3 digit for dphijj
 void extractInfoCC(const double & mh, float & mjj, float & detajj, float & dphijj){
 
-  int integer = int(mh);
+  long int integer = mh;
   string mh_str = to_string(integer);
   int ichar = 0;
   string mjj_str = "";
@@ -23,6 +23,7 @@ void extractInfoCC(const double & mh, float & mjj, float & detajj, float & dphij
   mjj = atof(mjj_str.c_str());
   detajj = atof(detajj_str.c_str())/100.;
   dphijj = atof(dphijj_str.c_str())/100.;
+
 }
 
 //// ----- 3 digit for xval, 3 digit for yval
@@ -144,12 +145,12 @@ void makeHiggsOptimizationResult(string inputFileName, string outputDIR, bool is
       shapeLimit.push_back(LimitCoordinate(xval,yval,*limit));
     }
     else{
-      //fix by hand
-      if(mjj == 1000 and detajj == 3 and dphijj == 0.5) *limit = 0.37;
-      if(mjj == 1000 and detajj == 3.5 and dphijj == 0.5) *limit = 0.36;
-      if(mjj == 1400 and detajj == 3 and dphijj == 0.5) *limit = 0.31;
-      if(mjj == 1500 and detajj == 3 and dphijj == 0.5) *limit = 0.32;
 
+      //fix by hand
+      //if(mjj == 1000 and detajj == 3 and dphijj == 0.5) *limit = 0.37;
+      //if(mjj == 1000 and detajj == 3.5 and dphijj == 0.5) *limit = 0.36;
+      //if(mjj == 1400 and detajj == 3 and dphijj == 0.5) *limit = 0.31;
+      //if(mjj == 1500 and detajj == 3 and dphijj == 0.5) *limit = 0.32;
       ccLimit[mjj].push_back(LimitCoordinate(detajj,dphijj,*limit));         
     }
   }
