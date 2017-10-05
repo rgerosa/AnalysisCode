@@ -1,6 +1,8 @@
 #include "../CMS_lumi.h"
 #include "../makeTemplates/histoUtils.h"
 
+static float totalUncFromTheory = 0.17;
+
 void makePlot(TH1* histoData, TH1* histoMC, const string & observable, const Category & category, const string & observableLatex, const string & postfix){
   
   TCanvas* canvas = new TCanvas(("canvas_"+postfix).c_str(), "", 600, 700);
@@ -45,6 +47,22 @@ void makePlot(TH1* histoData, TH1* histoMC, const string & observable, const Cat
     frame->GetYaxis()->SetTitle("Z #rightarrow ee / W #rightarrow e#nu");
   if(TString(postfix).Contains("ZW") and TString(postfix).Contains("ll"))
     frame->GetYaxis()->SetTitle("Z #rightarrow ll / W #rightarrow l#nu");
+
+  if(TString(postfix).Contains("ZW") and TString(postfix).Contains("me")){
+    frame->GetYaxis()->SetTitle("(Z#mu#mu+W#mu#nu) /(Zee+We#nu)");
+    frame->GetYaxis()->SetRangeUser(0,5);
+  }
+  if(TString(postfix).Contains("ZZ") and TString(postfix).Contains("me")){
+    frame->GetYaxis()->SetTitle("Z #rightarrow #mu#mu / Z #rightarrow ee");
+    frame->GetYaxis()->SetRangeUser(0,5);
+  }
+  if(TString(postfix).Contains("WW") and TString(postfix).Contains("me")){
+    frame->GetYaxis()->SetTitle("W #rightarrow #mu#nu / W #rightarrow e#nu");
+    frame->GetYaxis()->SetRangeUser(0,5);
+    // Need to subtract the theory uncertainties from the prefit
+    for(int iBin = 0; iBin < histoMC->GetNbinsX(); iBin++)
+      histoMC->SetBinError(iBin+1,sqrt(histoMC->GetBinError(iBin+1)*histoMC->GetBinError(iBin+1)-2*totalUncFromTheory*totalUncFromTheory));
+  }
 
   frame->GetYaxis()->CenterTitle();
   frame->GetYaxis()->SetTitleOffset(1.25);
@@ -141,9 +159,9 @@ void makePlot(TH1* histoData, TH1* histoMC, const string & observable, const Cat
   frame2->GetYaxis()->SetTitle("Data / Pred.");
   frame2->GetYaxis()->CenterTitle();
   frame2->GetYaxis()->SetTitleOffset(1.5);
-  frame2->GetYaxis()->SetLabelSize(0.04);
+  frame2->GetYaxis()->SetLabelSize(0.035);
   frame2->GetYaxis()->SetTitleSize(0.04);
-  frame2->GetXaxis()->SetLabelSize(0.04);
+  frame2->GetXaxis()->SetLabelSize(0.035);
   frame2->GetXaxis()->SetTitleSize(0.05);
   frame2->GetXaxis()->SetTitleOffset(1.1);
   if(category == Category::monojet)
@@ -422,7 +440,6 @@ void makeDataValidationPlotsMLFit(string inputFileName, Category category, strin
   ZWData_ll->Divide(ZWData_ll_den);
 
   if(doBackgroundSubtraction){
-
     TH1* ZWMC_mm = (TH1*) zjet_zmm->Clone("ZWMC_mm");
     ZWMC_mm->Divide(wjet_wmn);
     TH1* ZWMC_ee = (TH1*) zjet_zee->Clone("ZWMC_ee");
@@ -457,8 +474,58 @@ void makeDataValidationPlotsMLFit(string inputFileName, Category category, strin
     makePlot(ZWData_ll,ZWMC_ll,observable,category,observableLatex,"ZW_ll");
 
   }
-  if(useGammaJets){
 
+
+  // Make Zmm/Zee, Wmn / Wen , Zmm+Wmn / Zee+Wen
+  TH1* ZZData_me = (TH1*) data_zmm_hist->Clone("ZZData_me");
+  ZZData_me->Divide(data_zee_hist);
+  TH1* WWData_me = (TH1*) data_wmn_hist->Clone("WWData_me");
+  WWData_me->Divide(data_wen_hist);
+  TH1* ZWData_me = (TH1*) data_zmm_hist->Clone("ZWData_me");
+  ZWData_me->Add(data_wmn_hist);
+  TH1* ZWData_me_den = (TH1*) data_wen_hist->Clone("ZWData_me_den");
+  ZWData_me_den->Add(data_zee_hist);
+  ZWData_me->Divide(ZWData_me_den);
+
+  if(doBackgroundSubtraction){
+
+    TH1* ZZMC_me = (TH1*) zjet_zmm->Clone("ZZMC_me");
+    ZZMC_me->Divide(zjet_zee);
+    TH1* WWMC_me = (TH1*) wjet_wmn->Clone("WWMC_me");
+    WWMC_me->Divide(wjet_wen);
+    TH1* ZWMC_me = (TH1*) zjet_zmm->Clone("ZWMC_me");
+    ZWMC_me->Add(wjet_wmn);
+    TH1* ZWMC_me_den = (TH1*) zjet_zee->Clone("ZWMC_me_den");
+    ZWMC_me_den->Add(wjet_wen);
+    ZWMC_me->Divide(ZWMC_me_den);
+    
+    // make the plots 
+    makePlot(ZZData_me,ZZMC_me,observable,category,observableLatex,"ZZ_me");
+    makePlot(WWData_me,WWMC_me,observable,category,observableLatex,"WW_me");
+    makePlot(ZWData_me,ZWMC_me,observable,category,observableLatex,"ZW_me");
+    
+  }
+  else{
+
+    TH1* ZZMC_me = (TH1*) total_background_zmm->Clone("ZZMC_me");
+    ZZMC_me->Divide(total_background_zee);
+    TH1* WWMC_me = (TH1*) total_background_wmn->Clone("WWMC_me");
+    WWMC_me->Divide(total_background_wen);
+    TH1* ZWMC_me = (TH1*) total_background_wmn->Clone("ZWMC_me");
+    ZWMC_me->Add(total_background_zmm);
+    TH1* ZWMC_me_den = (TH1*) total_background_wen->Clone("ZWMC_me_den");
+    ZWMC_me_den->Add(total_background_zee);
+    ZWMC_me->Divide(ZWMC_me_den);
+    
+    // make the plots 
+    makePlot(ZZData_me,ZZMC_me,observable,category,observableLatex,"ZZ_me");
+    makePlot(WWData_me,WWMC_me,observable,category,observableLatex,"WW_me");
+    makePlot(ZWData_me,ZWMC_me,observable,category,observableLatex,"ZW_me");
+
+  }  
+
+  /// Make Z/Gamma ratios
+  if(useGammaJets){
     TH1* ZGData_mm = (TH1*) data_zmm_hist->Clone("ZGData_mm");
     ZGData_mm->Divide(data_gam_hist);
     TH1* ZGData_ee = (TH1*) data_zee_hist->Clone("ZGData_ee");
@@ -498,7 +565,7 @@ void makeDataValidationPlotsMLFit(string inputFileName, Category category, strin
 
     }
     
-
+    // Make WGamma ratios
     TH1* WGData_m = (TH1*) data_wmn_hist->Clone("WGData_m");
     WGData_m->Divide(data_gam_hist);
     TH1* WGData_e = (TH1*) data_wen_hist->Clone("WGData_e");
