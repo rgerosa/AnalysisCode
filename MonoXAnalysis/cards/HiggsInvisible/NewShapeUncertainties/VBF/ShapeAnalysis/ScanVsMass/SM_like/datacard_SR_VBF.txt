@@ -1,0 +1,69 @@
+imax * number of bins
+cmax * number of processes minus 1
+kmax * number of nuisance parameters
+--------------------------------------------------------------------------------------------------------------------------
+shapes data_obs    signal_VBF   workspace_VBF.root SR_VBF:data_obs_SR_VBF
+shapes Znunu       signal_VBF   workspace_VBF.root SR_VBF:Znunu_SR_VBF 
+shapes Znunu_EWK   signal_VBF   workspace_VBF.root SR_VBF:Znunu_EWK_SR_VBF 
+shapes WJets       signal_VBF   workspace_VBF.root SR_VBF:WJets_SR_VBF 
+shapes WJets_EWK   signal_VBF   workspace_VBF.root SR_VBF:WJets_EWK_SR_VBF 
+shapes ZJets       signal_VBF   workspace_VBF.root SR_VBF:ZJets_SR_VBF    SR_VBF:ZJets_SR_VBF_$SYSTEMATIC
+shapes Dibosons    signal_VBF   workspace_VBF.root SR_VBF:Dibosons_SR_VBF SR_VBF:Dibosons_SR_VBF_$SYSTEMATIC
+shapes Top         signal_VBF   workspace_VBF.root SR_VBF:Top_SR_VBF      SR_VBF:Top_SR_VBF_$SYSTEMATIC
+shapes QCD         signal_VBF   workspace_VBF.root SR_VBF:QCD_SR_VBF      SR_VBF:QCD_SR_VBF_$SYSTEMATIC
+shapes VGamma      signal_VBF   workspace_VBF.root SR_VBF:VGamma_SR_VBF   SR_VBF:VGamma_SR_VBF_$SYSTEMATIC
+shapes ggH_hinv    signal_VBF   workspace_VBF_signal.root SR_VBF:ggH_SR_VBF      SR_VBF:ggH_SR_VBF_$SYSTEMATIC
+shapes qqH_hinv    signal_VBF   workspace_VBF_signal.root SR_VBF:qqH_SR_VBF      SR_VBF:qqH_SR_VBF_$SYSTEMATIC
+-------------------------------------------------------------------------------------------------------------------------
+bin         signal_VBF
+observation -1
+----------------------------------------------------------------------------------------------------------------------------------------------------
+bin                             signal_VBF  signal_VBF signal_VBF  signal_VBF signal_VBF signal_VBF  signal_VBF signal_VBF  signal_VBF  signal_VBF   signal_VBF
+process                         ggH_hinv    qqH_hinv   Znunu       Znunu_EWK  WJets      WJets_EWK   ZJets      Dibosons    Top         QCD          VGamma
+process                         0           -1         1           2          3          4           5          6           7           8            9           
+rate                            -1          -1         1           1          1          1           -1        -1          -1          -1            -1
+----------------------------------------------------------------------------------------------------------------------------------------------------
+lumi_13TeV                lnN   1.025        1.025     -           -          -          -           1.025      1.025      1.025        -            1.025
+CMS_met_trig              lnN   1.020        1.020     -           -          -          -           1.020      1.020      1.020        -            1.020
+ZJets_Norm13TeV           lnN     -            -       -           -          -          -           1.200       -          -           -            -
+Dibosons_Norm13TeV        lnN     -            -       -           -          -          -           -          1.150       -           -            -
+VGamma_Norm13TeV          lnN     -            -       -           -          -          -           -          -           -           -            1.150
+Top_Norm13TeV             lnN     -            -       -           -          -          -           -          -          1.100        -            -
+Top_Reweight13TeV         lnN     -            -       -           -          -          -           -          -          1.100        -            -
+CMS_scale_j_13TeV         lnN   0.88/1.10  0.88/1.10   -           -          -          -         0.88/1.10  0.88/1.10   0.88/1.10   0.88/1.10      0.88/1.10  
+CMS_btag_13TeV            lnN   1.010        1.010     -           -          -          -           1.010      1.010      1.030       1.010         1.010
+CMS_QCD_SR                lnN     -            -       -           -          -          -            -          -          -           1.6          -
+CMS_eff_lepVeto_13TeV     lnN     -            -       -           -          -          -           1.030      1.030     1.030         -            1.030
+QCDScale_qqH              lnN     -        0.997/1.004 -           -          -          -            -          -          -           -            -
+QCDScale_qqbar_accept     lnN     -         1.020      -           -          -          -            -          -          -           -            -          
+pdf_Higgs_qqbar           lnN     -         1.020      -           -          -          -            -          -          -           -            - 
+pdf_Higgs_qqbar_accept    lnN     -         1.010      -           -          -          -            -          -          -           -            -
+QCDScale_ggH              lnN    0.933/1.046   -       -           - 	      -          -            -          -          -           -            -            
+pdf_Higgs_gg              lnN    1.031         -       -           -          -          -            -          -          -           -            -
+QCDscale_ggH2in           lnN    1.40          -       -           -          -          -            -          -          -           -            -
+ggH_UEPS                  lnN    1.168         -       -           -          -          -            -          -          -           -            -
+ggH_SR_VBF_CMS_bin1_stat  shape   1            -       -           -          -           -           -          -          -           -            - 
+qqH_SR_VBF_CMS_bin1_stat  shape   -            1       -           -          -           -           -          -          -           -            -
+ZJets_SR_VBF_CMS_bin1_stat shape  -            -       -           -          -           -           1          -          -           -            - 
+Top_SR_VBF_CMS_bin1_stat   shape  -   	       -       -           -	      -    	  -           -          -          1           -            - 
+Dibosons_SR_VBF_CMS_bin1_stat shape -          -       -           -          -           -           -          1          -           -            -
+VGamma_SR_VBF_CMS_bin1_stat shape -            -       -           -          -           -           -          -          -           -            1
+QCD_SR_VBF_CMS_bin1_stat shape    -            -       -           -          -           -           -          -          -           1            -
+##### Z/W QCD
+ZW_QCD_SR_RenScale1        param     0     1
+ZW_QCD_SR_FactScale1       param     0     1
+ZW_QCD_SR_RenScale2        param     0     1
+ZW_QCD_SR_FactScale2       param     0     1
+ZW_QCD_SR_PDF              param     0     1
+WJets_SR_VBF_bin1_Runc     param     0     1
+ZW_QCD_SR_VBF_EWK          param     0     1
+##### Z/W EWK
+ZW_EWK_SR_RenScale1        param     0     1
+ZW_EWK_SR_FactScale1       param     0     1
+ZW_EWK_SR_RenScale2        param     0     1
+ZW_EWK_SR_FactScale2       param     0     1
+ZW_EWK_SR_PDF              param     0     1
+WJets_EWK_SR_VBF_bin1_Runc param     0     1
+ZW_EWK_SR_VBF_EWK          param     0     1
+##### ZQCD/ZEWK
+Znunu_EWK_SR_VBF_bin1_Runc param     0     1
