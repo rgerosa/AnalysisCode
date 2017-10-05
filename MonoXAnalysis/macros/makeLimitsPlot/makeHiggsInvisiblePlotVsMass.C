@@ -6,6 +6,7 @@ void makeHiggsInvisiblePlotVsMass(string inputFileName, string outputDIR, bool m
   setTDRStyle();
   system(("mkdir -p "+outputDIR).c_str());
 
+  // for VBF production in case of XSEC limit vs Mass
   map<float,float> crossSectionMap;
   crossSectionMap[110] = 4.434E+00;
   crossSectionMap[125] = 3.925E+00;
@@ -16,6 +17,7 @@ void makeHiggsInvisiblePlotVsMass(string inputFileName, string outputDIR, bool m
   crossSectionMap[500] = 4.872E-01;
   crossSectionMap[600] = 3.274E-01;
   crossSectionMap[800] = 1.622E-01;
+  crossSectionMap[1000] = 8.732E-02;
   
   TFile* inputFile = TFile::Open(inputFileName.c_str(),"READ");
   TTree* tree = (TTree*) inputFile->Get("limit");
@@ -66,9 +68,9 @@ void makeHiggsInvisiblePlotVsMass(string inputFileName, string outputDIR, bool m
     }
     else if(*quantileExpected >= 0.9 and *quantileExpected <= 1){
       if(not makeXSecLimit)
-	graph_exp_2s_up->SetPoint(ipoint_exp_1s_up,*mh,*limit);
+	graph_exp_2s_up->SetPoint(ipoint_exp_2s_up,*mh,*limit);
       else
-	graph_exp_2s_up->SetPoint(ipoint_exp_1s_up,*mh,*limit*crossSectionMap[*mh]);
+	graph_exp_2s_up->SetPoint(ipoint_exp_2s_up,*mh,*limit*crossSectionMap[*mh]);
       ipoint_exp_2s_up++;
     }
     else if(*quantileExpected >= 0.14 and *quantileExpected <= 0.17){
@@ -80,9 +82,9 @@ void makeHiggsInvisiblePlotVsMass(string inputFileName, string outputDIR, bool m
     }
     else if(*quantileExpected >= 0 and *quantileExpected <= 0.09){
       if(not makeXSecLimit)
-	graph_exp_2s_dw->SetPoint(ipoint_exp_1s_dw,*mh,*limit);
+	graph_exp_2s_dw->SetPoint(ipoint_exp_2s_dw,*mh,*limit);
       else
-	graph_exp_2s_dw->SetPoint(ipoint_exp_1s_dw,*mh,*limit*crossSectionMap[*mh]);
+	graph_exp_2s_dw->SetPoint(ipoint_exp_2s_dw,*mh,*limit*crossSectionMap[*mh]);
       ipoint_exp_2s_dw++;
     }    
   }
@@ -117,20 +119,23 @@ void makeHiggsInvisiblePlotVsMass(string inputFileName, string outputDIR, bool m
     double x_dw,y_dw;
     graph_exp_1s_up->GetPoint(ipoint,x_up,y_up);
     graph_exp_1s_dw->GetPoint(ipoint,x_dw,y_dw);
-    double y_temp;
-    graph_exp_1s_up->GetPoint(ipoint+1,x_up,y_temp);    
-    graph_1s->SetPointError(ipoint,0.,x_up-x,fabs(y-y_dw),fabs(y-y_up));
-
+    double y_temp, x_temp;
+    graph_exp_1s_up->GetPoint(ipoint+1,x_temp,y_temp);    
+    graph_1s->SetPointError(ipoint,0.,x_temp-x,fabs(y-y_dw),fabs(y-y_up));
+    ///
     graph_exp_2s_up->GetPoint(ipoint,x_up,y_up);
     graph_exp_2s_dw->GetPoint(ipoint,x_dw,y_dw);
-    graph_2s->SetPointError(ipoint,0.,x_up-x,fabs(y-y_dw),fabs(y-y_up));
+    graph_2s->SetPointError(ipoint,0.,x_temp-x,fabs(y-y_dw),fabs(y-y_up));
   }
 
   // make the plot
   TCanvas* canvas = new TCanvas("canvas","",600,600);
   canvas->cd();
-  TH1* frame = canvas->DrawFrame(TMath::MinElement(graph_exp->GetN(),graph_exp->GetX()),TMath::MinElement(graph_exp->GetN(),graph_exp->GetY())*0.1,
-				 TMath::MaxElement(graph_exp->GetN(),graph_exp->GetX()),TMath::MaxElement(graph_exp->GetN(),graph_exp->GetY())*3);
+  TH1* frame = canvas->DrawFrame(TMath::MinElement(graph_exp->GetN(),graph_exp->GetX())-50,TMath::MinElement(graph_exp->GetN(),graph_exp->GetY())*0.1,
+				 TMath::MaxElement(graph_exp->GetN(),graph_exp->GetX())+50,TMath::MaxElement(graph_exp->GetN(),graph_exp->GetY())*100);
+
+  if(not makeXSecLimit)
+    frame->GetYaxis()->SetRangeUser(TMath::MinElement(graph_exp->GetN(),graph_exp->GetY())*0.5,TMath::MaxElement(graph_exp->GetN(),graph_exp->GetY())*1.5);
 
   frame->GetXaxis()->SetTitle("Higgs boson mass [GeV]");
   if(makeXSecLimit)
@@ -142,7 +147,7 @@ void makeHiggsInvisiblePlotVsMass(string inputFileName, string outputDIR, bool m
   frame->GetYaxis()->SetTitleSize(0.040);
   frame->GetXaxis()->SetTitleSize(0.040);
   frame->GetYaxis()->SetTitleOffset(1.25);
-  frame->GetXaxis()->SetTitleOffset(1.10);
+  frame->GetXaxis()->SetTitleOffset(1.15);
   frame->Draw();
   
   graph_1s->SetFillColor(kGreen+1);
@@ -176,7 +181,12 @@ void makeHiggsInvisiblePlotVsMass(string inputFileName, string outputDIR, bool m
   graph_obs->Draw("PE0Lsame");
 
 
-  TLegend* leg = new TLegend(0.5,0.66,0.9,0.9);
+  TLegend* leg = NULL;
+  if(makeXSecLimit)
+    leg = new TLegend(0.5,0.6,0.9,0.9);
+  else
+    leg = new TLegend(0.2,0.5,0.6,0.80);
+
   leg->SetBorderSize(0.);
   leg->SetFillColor(0);
   leg->SetFillStyle(0);
@@ -191,8 +201,11 @@ void makeHiggsInvisiblePlotVsMass(string inputFileName, string outputDIR, bool m
   leg->Draw("same");
 
   CMS_lumi(canvas,"35.9",false,true,false);
+  
   canvas->RedrawAxis("sameaxis");
   
+  if(makeXSecLimit)
+    canvas->SetLogy();
   canvas->SaveAs((outputDIR+"/limit_higgs_vs_mass.png").c_str(),"png");
   canvas->SaveAs((outputDIR+"/limit_higgs_vs_mass.pdf").c_str(),"pdf");
 

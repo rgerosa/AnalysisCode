@@ -146,11 +146,16 @@ void makeHiggsOptimizationResult(string inputFileName, string outputDIR, bool is
     }
     else{
 
-      //fix by hand
+      //fix by hand CC a priori
       //if(mjj == 1000 and detajj == 3 and dphijj == 0.5) *limit = 0.37;
       //if(mjj == 1000 and detajj == 3.5 and dphijj == 0.5) *limit = 0.36;
       //if(mjj == 1400 and detajj == 3 and dphijj == 0.5) *limit = 0.31;
       //if(mjj == 1500 and detajj == 3 and dphijj == 0.5) *limit = 0.32;
+
+      //fix by hand CC a posteriori CR only
+      if(mjj == 1400 and detajj == 3 and dphijj == 0.5) *limit = 0.278;
+      //if(mjj == 1500 and detajj == 3 and dphijj == 0.5) *limit = 0.32;
+
       ccLimit[mjj].push_back(LimitCoordinate(detajj,dphijj,*limit));         
     }
   }
