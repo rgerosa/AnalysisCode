@@ -101,6 +101,7 @@ void makeSignalTemplates(
     signalHiggshist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"500",{1.709E+03,4.872E+02,5.825E+00*0.6741,2.796E+00*0.6741,5.256E+00*0.6741,0.},typeOfDMSignal,applyNNLOKfactor);
     signalHiggshist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"600",{1.001E+03,3.274E+02,2.709E+00*0.6741,1.232E+00*0.6741,2.544E+00*0.6741,0.},typeOfDMSignal,applyNNLOKfactor);
     signalHiggshist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"800",{4.015E+02,1.622E+02,7.545E-01*0.6741,3.133E-01*0.6741,7.842E-01*0.6741,0.},typeOfDMSignal,applyNNLOKfactor);
+    signalHiggshist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"1000",{1.845E+02,8.732E+01,3.585E-01*0.6741,2.977E-01*0.6741,7.842E-01*0.6741,0.},typeOfDMSignal,applyNNLOKfactor);
   }
   
   outfile.Close();

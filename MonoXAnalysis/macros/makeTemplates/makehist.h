@@ -58,7 +58,7 @@ static bool  reweightNVTX    = false;
 /// photon scale
 static bool  applyPhotonScale = true;
 static float photonScaleUnc   = -0.0125;
-static bool doSmoothing      = false;
+static bool  doSmoothing      = false;
 // trigger and object corrections
 static float recoilThresholdTrigger = 350; // for photon trigger application
 static bool  useSingleMuon   = true;
@@ -84,6 +84,7 @@ string kFactorFile_wjetewk = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kF
 
 /// basic trees
 string baseInputTreePath = "/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_6_06_2017/";
+string baseInputTreePathHinv = "/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_4_10_2017_Hinv/";
 
 VectorSorter jetSorter;
 
