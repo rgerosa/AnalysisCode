@@ -284,6 +284,7 @@ void drawHistogram(TH1F* histogram_lo, TH1F* histogram_nlo, TH1F* histogram_rewe
   ratio_2->SetLineWidth(2);
   ratio_1->Draw("hist");
   ratio_2->Draw("hist same");
+  ratio_1->GetYaxis()->SetRangeUser(0.5,1.5);
 
   canvas->SaveAs((outputDIR+"/"+postfix+".png").c_str(),"png");
   canvas->SaveAs((outputDIR+"/"+postfix+".pdf").c_str(),"pdf");

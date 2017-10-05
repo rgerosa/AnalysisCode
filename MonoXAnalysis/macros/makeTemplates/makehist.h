@@ -1660,13 +1660,14 @@ void makehist4(TTree* tree,            /*input tree*/
 	if(jetpt->size() >= 2)
 	  fillvar = jetpt->at(1);
       }
+      else if(name.Contains("jeteta2jeteta1")){
+	if(jetpt->size() >= 2){
+	  fillvar = jeteta->at(1)*jeteta->at(0);
+	}
+      }
       else if(name.Contains("jeteta2")){
 	if(jetpt->size() >= 2)
 	  fillvar = jeteta->at(1);
-      }
-      else if(name.Contains("jeteta2jeteta1")){
-	if(jetpt->size() >= 2)
-	  fillvar = jeteta->at(1)*jeteta->at(0);
       }
       else if(name.Contains("jetpt")){
 	if(category == Category::VBF or category == Category::twojet or category == Category::VBFrelaxed)
