@@ -3,8 +3,8 @@
 
 void drawUpperPlot(TPad* pad1, TH1* histo_1, TH1* histo_2, string label1, string label2, bool logScale){
 
-  //  histo_1->Rebin(2);
-  //  histo_2->Rebin(2);
+  histo_1->Scale(1.,"width");
+  histo_2->Scale(1.,"width");
 
   pad1->cd();
   TH1* frame = (TH1*) histo_1->Clone("htemp");
@@ -16,7 +16,7 @@ void drawUpperPlot(TPad* pad1, TH1* histo_1, TH1* histo_2, string label1, string
   frame->GetYaxis()->SetLabelSize(0.035);
   frame->GetYaxis()->SetTitleSize(0.042);
   frame->GetYaxis()->SetTitleOffset(1.35);
-  frame->GetYaxis()->SetTitle("Events");
+  frame->GetYaxis()->SetTitle("Events / GeV");
   if(histo_1->GetMinimum() != 0 and logScale)
     frame->GetYaxis()->SetRangeUser(histo_1->GetMinimum()*0.1,histo_1->GetMaximum()*100);
   else if(logScale)
@@ -26,7 +26,7 @@ void drawUpperPlot(TPad* pad1, TH1* histo_1, TH1* histo_2, string label1, string
 
   frame ->Draw();  
 
-  CMS_lumi(pad1,"12.9");
+  CMS_lumi(pad1,"35.9");
   
   histo_1->SetLineColor(kBlack);
   histo_1->SetLineWidth(2);  
@@ -42,12 +42,11 @@ void drawUpperPlot(TPad* pad1, TH1* histo_1, TH1* histo_2, string label1, string
   histo_1->Draw("HIST SAME");
   histo_2->Draw("EP SAME");
 
-  TLegend* leg = new TLegend(0.6,0.65,0.9,0.85);
-  leg->SetBorderSize(0);
+  TLegend* leg = new TLegend(0.55,0.7,0.9,0.9);
   leg->SetFillColor(0);
   leg->SetFillStyle(0);
   leg->AddEntry(histo_1,label1.c_str(),"L");
-  leg->AddEntry(histo_2,label2.c_str(),"PE");
+  leg->AddEntry(histo_2,label2.c_str(),"PEL");
   leg->Draw("same");
   
   return ;
@@ -261,8 +260,8 @@ void makeTemplateComparison( string templateFile_1, // template file 1
   TH1* qqH_1 = NULL;
   TH1* qqH_2 = NULL;
   if(controlRegion == "SR" and isHiggsInvisible){
-    qqH_1 = (TH1*) template1->FindObjectAny(("vbfhist_125_"+observable).c_str());
-    qqH_2 = (TH1*) template2->FindObjectAny(("vbfhist_125_"+observable).c_str());
+    qqH_1 = (TH1*) template1->FindObjectAny(("vbfHhist_125_"+observable).c_str());
+    qqH_2 = (TH1*) template2->FindObjectAny(("vbfHhist_125_"+observable).c_str());
   }
 
   TH1* wH_1 = NULL;

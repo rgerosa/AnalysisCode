@@ -47,6 +47,7 @@ static float pfMetVBFUpper   = 8000.;
 static float dphijj          = 1.5;
 static float dphijjrelaxed   = 1.5;
 static bool  removeVBF       = false;
+static bool  useHTTriggerEfficiency = false;
 // Additional selections
 static float photonPt        = 175;
 static int   vBosonCharge    = 0;
@@ -251,7 +252,15 @@ void makehist4(TTree* tree,            /*input tree*/
   vector<TF1*> triggermet_func_binned_Wmn_cc;
   vector<TF1*> triggermet_func_binned_Zmm_cc;
   vector<TF1*> triggermet_func_binned_Wmn_cf;
+  vector<TF1*> triggermet_func_binned_Wmn_fc;
   vector<TF1*> triggermet_func_binned_Zmm_cf;
+
+  TEfficiency* eff_ht_cc = NULL;
+  TEfficiency* eff_ht_cf = NULL;
+  TEfficiency* eff_ht_fc = NULL;
+  TGraphAsymmErrors* eff_graph_ht_cc = NULL;
+  TGraphAsymmErrors* eff_graph_ht_cf = NULL;
+  TGraphAsymmErrors* eff_graph_ht_fc = NULL;
 
   if(category != Category::VBF and category != Category::twojet and category != Category::VBFrelaxed){ 
     // monojet
@@ -296,6 +305,15 @@ void makehist4(TTree* tree,            /*input tree*/
     triggermet_func_binned_Zmm_cf.push_back((TF1*) triggerfile_MET_zmm->Get("efficiency_cf/fitfunc_recoil_cf_vs_detajj_4.0_5.0"));
     triggermet_func_binned_Zmm_cf.push_back((TF1*) triggerfile_MET_zmm->Get("efficiency_cf/fitfunc_recoil_cf_vs_detajj_5.0_10.0"));
 
+    triggermet_func_binned_Wmn_fc.push_back((TF1*) triggerfile_MET_wmn->Get("efficiency_fc/fitfunc_recoil_fc_vs_detajj_3.0_10.0"));
+
+    eff_ht_cc = (TEfficiency*) triggerfile_MET_wmn->Get("efficiency_cc/eff_ht_cc");
+    eff_ht_cf = (TEfficiency*) triggerfile_MET_wmn->Get("efficiency_cf/eff_ht_cf");
+    eff_ht_fc = (TEfficiency*) triggerfile_MET_wmn->Get("efficiency_fc/eff_ht_cf");
+    eff_graph_ht_cc =  eff_ht_cc->CreateGraph();
+    eff_graph_ht_cf =  eff_ht_cf->CreateGraph();
+    eff_graph_ht_fc =  eff_ht_fc->CreateGraph();
+      
   }
   
 
@@ -1165,43 +1183,63 @@ void makehist4(TTree* tree,            /*input tree*/
 	sfwgt *= triggermet_graph->Eval(min(pfmet,triggermet_graph->GetXaxis()->GetXmax()));      
       // for VBF
       else if(category == Category::VBF or category == Category::twojet or category == Category::VBFrelaxed){
-	if(centralJets.size()+forwardJets.size() >= 2){
-	  double sftrig = 1;
-	  double detajj = fabs(jeteta->at(0)-jeteta->at(1));
-	  if(sample == Sample::zmm){
-	    if(fabs(jeteta->at(0)) < 3 and fabs(jeteta->at(1)) < 3){ // central-central combination
-	      if(detajj > 1.0 && detajj < 2.0) sftrig *= triggermet_func_binned_Zmm_cc.at(0)->Eval(min(pfmet,triggermet_func_binned_Zmm_cc.at(0)->GetXaxis()->GetXmax()));
-	      else if(detajj > 2.0 && detajj < 3.0) sftrig *= triggermet_func_binned_Zmm_cc.at(1)->Eval(min(pfmet,triggermet_func_binned_Zmm_cc.at(1)->GetXaxis()->GetXmax()));
-	      else if(detajj > 3.0 && detajj < 4.0) sftrig *= triggermet_func_binned_Zmm_cc.at(2)->Eval(min(pfmet,triggermet_func_binned_Zmm_cc.at(2)->GetXaxis()->GetXmax()));
-	      else if(detajj > 4.0) sftrig *= triggermet_func_binned_Zmm_cc.at(3)->Eval(min(pfmet,triggermet_func_binned_Zmm_cc.at(3)->GetXaxis()->GetXmax()));
+	double sftrig = 1;
+	if(not useHTTriggerEfficiency){
+	  if(centralJets.size()+forwardJets.size() >= 2){
+	    double detajj = fabs(jeteta->at(0)-jeteta->at(1));
+	    if(sample == Sample::zmm){
+	      if(fabs(jeteta->at(0)) < 3 and fabs(jeteta->at(1)) < 3){ // central-central combination
+		if(detajj > 1.0 && detajj < 2.0) sftrig *= triggermet_func_binned_Zmm_cc.at(0)->Eval(min(pfmet,triggermet_func_binned_Zmm_cc.at(0)->GetXaxis()->GetXmax()));
+		else if(detajj > 2.0 && detajj < 3.0) sftrig *= triggermet_func_binned_Zmm_cc.at(1)->Eval(min(pfmet,triggermet_func_binned_Zmm_cc.at(1)->GetXaxis()->GetXmax()));
+		else if(detajj > 3.0 && detajj < 4.0) sftrig *= triggermet_func_binned_Zmm_cc.at(2)->Eval(min(pfmet,triggermet_func_binned_Zmm_cc.at(2)->GetXaxis()->GetXmax()));
+		else if(detajj > 4.0) sftrig *= triggermet_func_binned_Zmm_cc.at(3)->Eval(min(pfmet,triggermet_func_binned_Zmm_cc.at(3)->GetXaxis()->GetXmax()));
+	      }
+	      else if((fabs(jeteta->at(0)) < 3 and fabs(jeteta->at(1)) > 3) or (fabs(jeteta->at(0)) > 3 and fabs(jeteta->at(1)) < 3)){ // central-forward combination
+		if(detajj > 3.0 && detajj < 4.0) sftrig *= triggermet_func_binned_Zmm_cf.at(0)->Eval(min(pfmet,triggermet_func_binned_Zmm_cf.at(0)->GetXaxis()->GetXmax()));
+		else if(detajj > 4.0 && detajj < 5.0) sftrig *= triggermet_func_binned_Zmm_cf.at(1)->Eval(min(pfmet,triggermet_func_binned_Zmm_cf.at(1)->GetXaxis()->GetXmax()));
+		else if(detajj > 5.0) sftrig *= triggermet_func_binned_Zmm_cf.at(2)->Eval(min(pfmet,triggermet_func_binned_Zmm_cf.at(2)->GetXaxis()->GetXmax()));
+	      }
 	    }
-	    else if((fabs(jeteta->at(0)) < 3 and fabs(jeteta->at(1)) > 3) or (fabs(jeteta->at(0)) > 3 and fabs(jeteta->at(1)) < 3)){ // central-forward combination
-	      if(detajj > 3.0 && detajj < 4.0) sftrig *= triggermet_func_binned_Zmm_cf.at(0)->Eval(min(pfmet,triggermet_func_binned_Zmm_cf.at(0)->GetXaxis()->GetXmax()));
-	      else if(detajj > 4.0 && detajj < 5.0) sftrig *= triggermet_func_binned_Zmm_cf.at(1)->Eval(min(pfmet,triggermet_func_binned_Zmm_cf.at(1)->GetXaxis()->GetXmax()));
-	      else if(detajj > 5.0) sftrig *= triggermet_func_binned_Zmm_cf.at(2)->Eval(min(pfmet,triggermet_func_binned_Zmm_cf.at(2)->GetXaxis()->GetXmax()));
+	    else{
+	      if(fabs(jeteta->at(0)) < 3 and fabs(jeteta->at(1)) < 3){ // central-central combination
+		if(detajj > 1.0 && detajj < 1.5) sftrig *= triggermet_func_binned_Wmn_cc.at(0)->Eval(min(pfmet,triggermet_func_binned_Wmn_cc.at(0)->GetXaxis()->GetXmax()));
+		else if(detajj > 1.5 && detajj < 2.0) sftrig *= triggermet_func_binned_Wmn_cc.at(1)->Eval(min(pfmet,triggermet_func_binned_Wmn_cc.at(1)->GetXaxis()->GetXmax()));
+		else if(detajj > 2.0 && detajj < 2.5) sftrig *= triggermet_func_binned_Wmn_cc.at(2)->Eval(min(pfmet,triggermet_func_binned_Wmn_cc.at(2)->GetXaxis()->GetXmax()));
+		else if(detajj > 3.0 && detajj < 3.5) sftrig *= triggermet_func_binned_Wmn_cc.at(3)->Eval(min(pfmet,triggermet_func_binned_Wmn_cc.at(3)->GetXaxis()->GetXmax()));
+		else if(detajj > 3.5 && detajj < 4.0) sftrig *= triggermet_func_binned_Wmn_cc.at(4)->Eval(min(pfmet,triggermet_func_binned_Wmn_cc.at(4)->GetXaxis()->GetXmax()));
+		else if(detajj > 4.0 && detajj < 5.0) sftrig *= triggermet_func_binned_Wmn_cc.at(5)->Eval(min(pfmet,triggermet_func_binned_Wmn_cc.at(5)->GetXaxis()->GetXmax()));
+		else if(detajj > 5.0) sftrig *= triggermet_func_binned_Wmn_cc.at(6)->Eval(min(pfmet,triggermet_func_binned_Wmn_cc.at(6)->GetXaxis()->GetXmax()));
+	      }
+	      else if(fabs(jeteta->at(0)) < 3 and fabs(jeteta->at(1)) > 3){
+		if(detajj > 3.0 && detajj < 3.5) sftrig *= triggermet_func_binned_Wmn_cf.at(0)->Eval(min(pfmet,triggermet_func_binned_Wmn_cf.at(0)->GetXaxis()->GetXmax()));
+		else if(detajj > 3.5 && detajj < 4.0) sftrig *= triggermet_func_binned_Wmn_cf.at(1)->Eval(min(pfmet,triggermet_func_binned_Wmn_cf.at(1)->GetXaxis()->GetXmax()));
+		else if(detajj > 4.0 && detajj < 5.0) sftrig *= triggermet_func_binned_Wmn_cf.at(2)->Eval(min(pfmet,triggermet_func_binned_Wmn_cf.at(2)->GetXaxis()->GetXmax()));
+		else if(detajj > 5.0 && detajj < 6.0) sftrig *= triggermet_func_binned_Wmn_cf.at(3)->Eval(min(pfmet,triggermet_func_binned_Wmn_cf.at(3)->GetXaxis()->GetXmax()));
+		else if(detajj > 6.0) sftrig *= triggermet_func_binned_Wmn_cf.at(4)->Eval(min(pfmet,triggermet_func_binned_Wmn_cf.at(4)->GetXaxis()->GetXmax()));
+	      }
+	      else if(fabs(jeteta->at(0)) > 3 and fabs(jeteta->at(1)) < 3){
+		sftrig *= triggermet_func_binned_Wmn_fc.at(0)->Eval(min(pfmet,triggermet_func_binned_Wmn_fc.at(0)->GetXaxis()->GetXmax()));
+	      }
 	    }
 	  }
-	  else{
-	    if(fabs(jeteta->at(0)) < 3 and fabs(jeteta->at(1)) < 3){ // central-central combination
-	      if(detajj > 1.0 && detajj < 1.5) sftrig *= triggermet_func_binned_Wmn_cc.at(0)->Eval(min(pfmet,triggermet_func_binned_Wmn_cc.at(0)->GetXaxis()->GetXmax()));
-	      else if(detajj > 1.5 && detajj < 2.0) sftrig *= triggermet_func_binned_Wmn_cc.at(1)->Eval(min(pfmet,triggermet_func_binned_Wmn_cc.at(1)->GetXaxis()->GetXmax()));
-	      else if(detajj > 2.0 && detajj < 2.5) sftrig *= triggermet_func_binned_Wmn_cc.at(2)->Eval(min(pfmet,triggermet_func_binned_Wmn_cc.at(2)->GetXaxis()->GetXmax()));
-	      else if(detajj > 3.0 && detajj < 3.5) sftrig *= triggermet_func_binned_Wmn_cc.at(3)->Eval(min(pfmet,triggermet_func_binned_Wmn_cc.at(3)->GetXaxis()->GetXmax()));
-	      else if(detajj > 3.5 && detajj < 4.0) sftrig *= triggermet_func_binned_Wmn_cc.at(4)->Eval(min(pfmet,triggermet_func_binned_Wmn_cc.at(4)->GetXaxis()->GetXmax()));
-	      else if(detajj > 4.0 && detajj < 5.0) sftrig *= triggermet_func_binned_Wmn_cc.at(5)->Eval(min(pfmet,triggermet_func_binned_Wmn_cc.at(5)->GetXaxis()->GetXmax()));
-	      else if(detajj > 5.0) sftrig *= triggermet_func_binned_Wmn_cc.at(6)->Eval(min(pfmet,triggermet_func_binned_Wmn_cc.at(6)->GetXaxis()->GetXmax()));
-	    }
-	    else if((fabs(jeteta->at(0)) < 3 and fabs(jeteta->at(1)) > 3) or (fabs(jeteta->at(0)) > 3 and fabs(jeteta->at(1)) < 3)){ // central-forward combination
-	      if(detajj > 3.0 && detajj < 3.5) sftrig *= triggermet_func_binned_Wmn_cf.at(0)->Eval(min(pfmet,triggermet_func_binned_Wmn_cf.at(0)->GetXaxis()->GetXmax()));
-	      else if(detajj > 3.5 && detajj < 4.0) sftrig *= triggermet_func_binned_Wmn_cf.at(1)->Eval(min(pfmet,triggermet_func_binned_Wmn_cf.at(1)->GetXaxis()->GetXmax()));
-	      else if(detajj > 4.0 && detajj < 5.0) sftrig *= triggermet_func_binned_Wmn_cf.at(2)->Eval(min(pfmet,triggermet_func_binned_Wmn_cf.at(2)->GetXaxis()->GetXmax()));
-	      else if(detajj > 5.0 && detajj < 6.0) sftrig *= triggermet_func_binned_Wmn_cf.at(3)->Eval(min(pfmet,triggermet_func_binned_Wmn_cf.at(3)->GetXaxis()->GetXmax()));
-	      else if(detajj > 6.0) sftrig *= triggermet_func_binned_Wmn_cf.at(4)->Eval(min(pfmet,triggermet_func_binned_Wmn_cf.at(4)->GetXaxis()->GetXmax()));
-	    }
+	}
+	else{ // use visible HT trigger efficiency
+
+	  double ht = 0;
+	  for(size_t ijet = 0; ijet < jetpt->size(); ijet++){
+	    if(jetpt->at(ijet) < 30) continue;
+	    if(fabs(jeteta->at(ijet)) > 3) continue;
+	    ht += jetpt->at(ijet);
 	  }
 
-	  sfwgt *= sftrig;
+	  if(fabs(jeteta->at(0)) < 3 and fabs(jeteta->at(1)) < 3)
+	    sftrig *= eff_graph_ht_cc->Eval(min(ht,eff_graph_ht_cc->GetXaxis()->GetXmax()));
+	  else if(fabs(jeteta->at(0)) < 3 and fabs(jeteta->at(1)) > 3)
+	    sftrig *= eff_graph_ht_cf->Eval(min(ht,eff_graph_ht_cf->GetXaxis()->GetXmax()));
+	  else if(fabs(jeteta->at(0)) > 3 and fabs(jeteta->at(1)) < 3)
+	    sftrig *= eff_graph_ht_fc->Eval(min(ht,eff_graph_ht_fc->GetXaxis()->GetXmax()));	  
 	}
+	sfwgt *= sftrig;
       }
     }
   
