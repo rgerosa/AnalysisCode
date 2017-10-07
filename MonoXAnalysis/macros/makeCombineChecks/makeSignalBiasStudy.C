@@ -35,7 +35,7 @@ void makeSignalBiasStudy(string inputDIR, string nameToGrep, string outputDIR, s
 
   }
 
-  TH1F* biasDistribution = new TH1F("biasDistribution","",int((max-min)/0.2),-4,4);
+  TH1F* biasDistribution = new TH1F("biasDistribution","",30,-4,4);
   biasDistribution->Sumw2();
 
   for(auto val : pullVal) biasDistribution->Fill(val);
@@ -48,28 +48,29 @@ void makeSignalBiasStudy(string inputDIR, string nameToGrep, string outputDIR, s
   biasDistribution->SetMarkerSize(1);
   biasDistribution->GetXaxis()->SetTitle("(#mu_{fit}-#mu_{inj})/#sigma_{#mu}");
   biasDistribution->GetYaxis()->SetTitle("N_{Toys}");
-  biasDistribution->Draw("hist");
-  TF1* gaus = new TF1("gaus","gaus(0)",min,max);
+  biasDistribution->Draw("EP");
+  TF1* gaus = new TF1("gaus","gaus(0)",-4,4);
   gaus->SetLineColor(kRed);
   gaus->SetLineWidth(2);
-  biasDistribution->Fit(gaus,"RSM");
+  TFitResultPtr result = biasDistribution->Fit(gaus,"RSM");
   gaus->Draw("L same");
   biasDistribution->GetYaxis()->SetRangeUser(0.,biasDistribution->GetMaximum()*1.7);
 
   CMS_lumi(canvas,"35.9");
 
-  TPaveText *pt = new TPaveText(0.55,0.62,.9,.9,"NDC");
-  pt->SetFillColor(0);
-  pt->SetFillStyle(0);
-  pt->SetBorderSize(1);
-  pt->SetTextAlign(11);
-  pt->SetTextFont(42);
-  pt->AddText(Form("Integral = %d",int(biasDistribution->Integral())));
-  pt->AddText(Form("Mean  = %.2f #pm %.2f",biasDistribution->GetMean(),biasDistribution->GetMeanError()));
-  pt->AddText(Form("Fit Mean = %.2f #pm %.2f",gaus->GetParameter(1),gaus->GetParError(1)));
-  pt->AddText(Form("RMS = %.2f #pm %.2f",biasDistribution->GetRMS(),biasDistribution->GetRMSError()));
-  pt->AddText(Form("Fit RMS = %.2f #pm %.2f",gaus->GetParameter(2),gaus->GetParError(2)));
-  pt->Draw();
+  TLegend *leg = new TLegend(0.55,0.60,.9,.9);
+  leg->SetFillColor(0);
+  leg->SetFillStyle(0);
+  leg->SetTextAlign(11);
+  leg->SetTextFont(42);
+  leg->SetBorderSize(0);
+  leg->AddEntry((TObject*)(0),Form("Integral = %d",int(biasDistribution->Integral())),"");
+  leg->AddEntry((TObject*)(0),Form("Mean  = %.2f #pm %.2f",biasDistribution->GetMean(),biasDistribution->GetMeanError()),"");
+  leg->AddEntry((TObject*)(0),Form("Fit Mean = %.2f #pm %.2f",gaus->GetParameter(1),gaus->GetParError(1)),"");
+  leg->AddEntry((TObject*)(0),Form("RMS = %.2f #pm %.2f",biasDistribution->GetRMS(),biasDistribution->GetRMSError()),"");
+  leg->AddEntry((TObject*)(0),Form("Fit RMS = %.2f #pm %.2f",gaus->GetParameter(2),gaus->GetParError(2)),"");
+  leg->AddEntry((TObject*)(0),Form("#chi^{2}/n.d.f = %.2f",result->Chi2()/result->Ndf()),"");
+  leg->Draw();
 
   canvas->SaveAs((outputDIR+"/biasSignalStrenght_"+postfix+".png").c_str(),"png");
   canvas->SaveAs((outputDIR+"/biasSignalStrenght_"+postfix+".pdf").c_str(),"pdf");
