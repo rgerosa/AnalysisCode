@@ -1,7 +1,8 @@
 #include "../CMS_lumi.h"
 #include "../makeTemplates/histoUtils.h"
 
-static float totalUncFromTheory = 0.17;
+// average uncertianty from theory
+static float totalUncFromTheory = 0.11;
 
 void makePlot(TH1* histoData, TH1* histoMC, const string & observable, const Category & category, const string & observableLatex, const string & postfix){
   
@@ -59,9 +60,6 @@ void makePlot(TH1* histoData, TH1* histoMC, const string & observable, const Cat
   if(TString(postfix).Contains("WW") and TString(postfix).Contains("me")){
     frame->GetYaxis()->SetTitle("W #rightarrow #mu#nu / W #rightarrow e#nu");
     frame->GetYaxis()->SetRangeUser(0,5);
-    // Need to subtract the theory uncertainties from the prefit
-    for(int iBin = 0; iBin < histoMC->GetNbinsX(); iBin++)
-      histoMC->SetBinError(iBin+1,sqrt(histoMC->GetBinError(iBin+1)*histoMC->GetBinError(iBin+1)-2*totalUncFromTheory*totalUncFromTheory));
   }
 
   frame->GetYaxis()->CenterTitle();
@@ -491,13 +489,23 @@ void makeDataValidationPlotsMLFit(string inputFileName, Category category, strin
 
     TH1* ZZMC_me = (TH1*) zjet_zmm->Clone("ZZMC_me");
     ZZMC_me->Divide(zjet_zee);
-    TH1* WWMC_me = (TH1*) wjet_wmn->Clone("WWMC_me");
-    WWMC_me->Divide(wjet_wen);
     TH1* ZWMC_me = (TH1*) zjet_zmm->Clone("ZWMC_me");
     ZWMC_me->Add(wjet_wmn);
     TH1* ZWMC_me_den = (TH1*) zjet_zee->Clone("ZWMC_me_den");
     ZWMC_me_den->Add(wjet_wen);
     ZWMC_me->Divide(ZWMC_me_den);
+
+    TH1* WWMC_me = (TH1*) wjet_wmn->Clone("WWMC_me");
+    // subtract theory unc
+    for(int iBin = 0; iBin < wjet_wmn->GetNbinsX()+1; iBin++)
+      WWMC_me->SetBinError(iBin+1,sqrt(WWMC_me->GetBinError(iBin+1)*WWMC_me->GetBinError(iBin+1)-totalUncFromTheory*totalUncFromTheory*WWMC_me->GetBinContent(iBin+1)*WWMC_me->GetBinContent(iBin+1)));
+    //
+    TH1* den_temp = (TH1*) wjet_wen->Clone("den_temp");
+    // subtract theory unc
+    for(int iBin = 0; iBin < wjet_wen->GetNbinsX()+1; iBin++)
+      den_temp->SetBinError(iBin+1,sqrt(den_temp->GetBinError(iBin+1)*den_temp->GetBinError(iBin+1)-totalUncFromTheory*totalUncFromTheory*den_temp->GetBinContent(iBin+1)*den_temp->GetBinContent(iBin+1)));
+    
+    WWMC_me->Divide(den_temp);
     
     // make the plots 
     makePlot(ZZData_me,ZZMC_me,observable,category,observableLatex,"ZZ_me");
@@ -509,13 +517,23 @@ void makeDataValidationPlotsMLFit(string inputFileName, Category category, strin
 
     TH1* ZZMC_me = (TH1*) total_background_zmm->Clone("ZZMC_me");
     ZZMC_me->Divide(total_background_zee);
-    TH1* WWMC_me = (TH1*) total_background_wmn->Clone("WWMC_me");
-    WWMC_me->Divide(total_background_wen);
     TH1* ZWMC_me = (TH1*) total_background_wmn->Clone("ZWMC_me");
     ZWMC_me->Add(total_background_zmm);
     TH1* ZWMC_me_den = (TH1*) total_background_wen->Clone("ZWMC_me_den");
     ZWMC_me_den->Add(total_background_zee);
     ZWMC_me->Divide(ZWMC_me_den);
+
+    TH1* WWMC_me = (TH1*) total_background_wmn->Clone("WWMC_me");
+    // subtract theory unc
+    for(int iBin = 0; iBin < total_background_wmn->GetNbinsX()+1; iBin++)
+      WWMC_me->SetBinError(iBin+1,sqrt(WWMC_me->GetBinError(iBin+1)*WWMC_me->GetBinError(iBin+1)-totalUncFromTheory*totalUncFromTheory*WWMC_me->GetBinContent(iBin+1)*WWMC_me->GetBinContent(iBin+1)));
+    //
+    TH1* den_temp = (TH1*) total_background_wen->Clone("den_temp");
+    // subtract theory unc
+    for(int iBin = 0; iBin < total_background_wen->GetNbinsX()+1; iBin++)
+      den_temp->SetBinError(iBin+1,sqrt(den_temp->GetBinError(iBin+1)*den_temp->GetBinError(iBin+1)-totalUncFromTheory*totalUncFromTheory*den_temp->GetBinContent(iBin+1)*den_temp->GetBinContent(iBin+1)));
+    
+    WWMC_me->Divide(den_temp);
     
     // make the plots 
     makePlot(ZZData_me,ZZMC_me,observable,category,observableLatex,"ZZ_me");

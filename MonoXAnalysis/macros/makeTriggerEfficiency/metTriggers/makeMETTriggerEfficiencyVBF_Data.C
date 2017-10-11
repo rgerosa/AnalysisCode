@@ -30,8 +30,8 @@ vector <float> bins_mjj_fc_wmn     = {200.,800.,1600.,2500.,4000};
 vector <float> bins_mjj_fc_zmm     = {200.,800.,1600.,2500.,4000};
 
 // Cuts
-vector <float> cuts_detajj_cc_wmn  = {1.0,1.5,2.0,2.5,3.0,3.5,4.0,5.0,10.};
-vector <float> cuts_detajj_cf_wmn  = {3.0,3.5,4.0,5.0,6.0,10.};
+vector <float> cuts_detajj_cc_wmn  = {1.0,2.0,3.0,4.0,5.0,10.};
+vector <float> cuts_detajj_cf_wmn  = {3.0,4.0,5.0,6.0,10.};
 vector <float> cuts_detajj_fc_wmn  = {3.0,10.};
 vector <float> cuts_detajj_cc_zmm  = {1.0,2.0,3.0,4.0,10.};
 vector <float> cuts_detajj_cf_zmm  = {3.0,4.0,5.0,10.};
