@@ -68,7 +68,7 @@ static bool  applyLeptonVetoWeight = true;
 static bool  runOnlyData      = false;
 // k-factors
 static bool  applyEWKVKfactor = true;
-
+static bool  useKFactorVsMjj  = true;
 // k-factors
 string kfactorFile       = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_24bins.root";
 string kfactorFileUnc    = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactors_uncertainties.root";
@@ -77,8 +77,9 @@ string kFactorTheoristFile_zvv = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/dat
 string kFactorTheoristFile_wln = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors_theorist/evj.root";
 string kFactorTheoristFile_zll = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors_theorist/eej.root";
 string kFactorTheoristFile_gam = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors_theorist/aj.root";
-string kFactorVBF_zjet = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_zjets_v2.root";
-string kFactorVBF_wjet = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_wjets_v2.root";
+string kFactorVBF_zjet = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_zjets_v3.root";
+string kFactorVBF_wjet = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_wjets_v3.root";
+string kFactorVBF_zll  = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_zll_v3.root";
 string kFactorVBF_gjet = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_gjets_v2.root";
 string kFactorFile_zjetewk = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kFactor_ZToNuNu_pT_Mjj.root";
 string kFactorFile_wjetewk = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kFactor_WToLNu_pT_Mjj.root";
@@ -1343,24 +1344,45 @@ void makehist4(TTree* tree,            /*input tree*/
     //Gen level info --> NLO re-weight    
     Double_t kwgt = 1.0;    
     double genpt = *wzpt;
-    float sf_ewk = 1.0;
-    float sf_qcd_mj  = 1.0;
-    float sf_qcd_vbf = 1.0;
-    for (size_t i = 0; i < khists.size(); i++) {
-      if (khists[i]) {
-	if(genpt <= khists[i]->GetXaxis()->GetBinLowEdge(1)) genpt = khists[i]->GetXaxis()->GetBinLowEdge(1) + 1;
-	if(genpt >= khists[i]->GetXaxis()->GetBinLowEdge(khists[i]->GetNbinsX()+1)) genpt = khists[i]->GetXaxis()->GetBinLowEdge(khists[i]->GetNbinsX()+1)-1;
-	kwgt *= khists[i]->GetBinContent(khists[i]->FindBin(genpt));
 
-	if(i == 1)
-	  sf_ewk = khists[i]->GetBinContent(khists[i]->FindBin(genpt));
-	else if(i == 0)
-	  sf_qcd_mj *= khists[i]->GetBinContent(khists[i]->FindBin(genpt));
-	else if(i == 2)
-	  sf_qcd_vbf *= khists[i]->GetBinContent(khists[i]->FindBin(genpt));
+    for (size_t i = 0; i < khists.size(); i++) {
+      
+      if (khists[i]) {// good histograms
+
+	TString name (khists[i]->GetName());
+	if((category == Category::VBFrelaxed or category == Category::VBF) and (name.Contains("mjj") or name.Contains("Mjj"))){ // standard weights vs boson pt 
+
+	  TLorentzVector jet1 ;
+	  TLorentzVector jet2 ;
+	  jet1.SetPtEtaPhiM(jetpt->at(0),jeteta->at(0),jetphi->at(0),jetm->at(0));
+	  jet2.SetPtEtaPhiM(jetpt->at(1),jeteta->at(1),jetphi->at(1),jetm->at(1));
+
+	  // measurement is binned in mjj
+	  std::stringstream name_tmp(khists[i]->GetName());
+	  std::string segment;
+	  std::vector<std::string> seglist;	 
+	  while(std::getline(name_tmp, segment, '_')){
+	    seglist.push_back(segment);
+	  }
+
+	  float mjj_max = atof(seglist.back().c_str());
+	  float mjj_min = atof(seglist.at(seglist.size()-2).c_str());
+
+	  if((jet1+jet2).M() > mjj_min and (jet1+jet2).M() <= mjj_max){
+	    if(genpt <= khists[i]->GetXaxis()->GetBinLowEdge(1)) genpt = khists[i]->GetXaxis()->GetBinLowEdge(1) + 1;
+	    if(genpt >= khists[i]->GetXaxis()->GetBinLowEdge(khists[i]->GetNbinsX()+1)) genpt = khists[i]->GetXaxis()->GetBinLowEdge(khists[i]->GetNbinsX()+1)-1;
+	    kwgt *= khists[i]->GetBinContent(khists[i]->FindBin(genpt));
+	  }	    
+	}
+	else{ // standard weights vs boson pt 
+
+	  if(genpt <= khists[i]->GetXaxis()->GetBinLowEdge(1)) genpt = khists[i]->GetXaxis()->GetBinLowEdge(1) + 1;
+	  if(genpt >= khists[i]->GetXaxis()->GetBinLowEdge(khists[i]->GetNbinsX()+1)) genpt = khists[i]->GetXaxis()->GetBinLowEdge(khists[i]->GetNbinsX()+1)-1;
+	  kwgt *= khists[i]->GetBinContent(khists[i]->FindBin(genpt));
+	}
       }
     }
-
+    
     //Gen level info --> kfactor NLO for V-EWK processes
     Double_t kewkgt = 1.0;
     if((category == Category::VBF or category == Category::VBFrelaxed or category == Category::twojet) and isMC){

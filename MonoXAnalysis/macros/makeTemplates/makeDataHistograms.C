@@ -448,19 +448,9 @@ void sigdatamchist(TFile* outfile,
     zlohist  = (TH1*) kffile->Get("ZJets_LO/inv_pt");
     zewkhist  = (TH1*) kffile->Get("EWKcorr/Z");
     
-    if(zewkhist)
-      zewkhist->Divide(znlohist);
-    if(znlohist)
-      znlohist->Divide(zlohist);
-
     wnlohist = (TH1*) kffile->Get("WJets_012j_NLO/nominal");
     wlohist  = (TH1*) kffile->Get("WJets_LO/inv_pt");
     wewkhist  = (TH1*) kffile->Get("EWKcorr/W");
-    
-    if(wewkhist)
-      wewkhist->Divide(wnlohist);
-    if(wnlohist)
-      wnlohist->Divide(wlohist);
     
     kffile_unlops = TFile::Open(kfactorFileUNLOPS.c_str());
     aunlopshist = (TH1*) kffile_unlops->Get("Func");
@@ -468,13 +458,22 @@ void sigdatamchist(TFile* outfile,
     alohist  = (TH1*) kffile->Get("GJets_LO/inv_pt_G");
     aewkhist  = (TH1*) kffile->Get("EWKcorr/photon");
     
+    if(zewkhist)
+      zewkhist->Divide(znlohist);
+    if(znlohist)
+      znlohist->Divide(zlohist);
+
+    if(wewkhist)
+      wewkhist->Divide(wnlohist);
+    if(wnlohist)
+      wnlohist->Divide(wlohist);
+    
     if(aewkhist)
       aewkhist->Divide(anlohist);
     if(anlohist)
       anlohist->Divide(alohist);
   }
   else{
-
 
     kffile = TFile::Open(kFactorTheoristFile_zvv.c_str());
     TH1* kfact_nloqcd_zvv = (TH1*) kffile->Get("vvj_pTV_K_NLO");
@@ -570,61 +569,123 @@ void sigdatamchist(TFile* outfile,
   TFile* kfactwjet_vbf = NULL;
   TFile* kfactgjet_vbf = NULL;
 
-  if((category == Category::VBF or category == Category::VBFrelaxed) and not useTheoriestKFactors){ // apply further k-factors going to the VBF selections
+  if((category == Category::VBF or category == Category::VBFrelaxed) and not useTheoriestKFactors and not useKFactorVsMjj){ // apply further k-factors going to the VBF selections
+
+    kfactzjet_vbf = TFile::Open(kFactorVBF_zjet.c_str());
+    kfactwjet_vbf = TFile::Open(kFactorVBF_wjet.c_str());
+    kfactgjet_vbf = TFile::Open(kFactorVBF_gjet.c_str());
+
+    if(category == Category::VBF){
+
+      TH1* zjet_nlo_vbf = (TH1*) kfactzjet_vbf->Get("bosonPt_NLO_vbf");
+      TH1* zjet_nlo_mj  = (TH1*) kfactzjet_vbf->Get("bosonPt_NLO_monojet");
+      zjet_nlo_vbf->Divide((TH1*) kfactzjet_vbf->Get("bosonPt_LO_vbf"));
+      zjet_nlo_mj->Divide((TH1*) kfactzjet_vbf->Get("bosonPt_LO_monojet"));
+      zjet_nlo_vbf->Divide(zjet_nlo_mj);
+
+      if(not nloSamples.useZJetsNLO)
+	zhists.push_back(zjet_nlo_vbf);
+      if(not nloSamples.useDYJetsNLO)
+	dyhists.push_back(zjet_nlo_vbf);
+
+      TH1* wjet_nlo_vbf = (TH1*) kfactwjet_vbf->Get("bosonPt_NLO_vbf");
+      TH1* wjet_nlo_mj  = (TH1*) kfactwjet_vbf->Get("bosonPt_NLO_monojet");
+      wjet_nlo_vbf->Divide((TH1*) kfactwjet_vbf->Get("bosonPt_LO_vbf"));
+      wjet_nlo_mj->Divide((TH1*) kfactwjet_vbf->Get("bosonPt_LO_monojet"));
+      wjet_nlo_vbf->Divide(wjet_nlo_mj);
+
+      if(not nloSamples.useWJetsNLO)
+	whists.push_back(wjet_nlo_vbf);
+
+      TH1* gjet_nlo_vbf = (TH1*) kfactgjet_vbf->Get("bosonPt_NLO_vbf");
+      TH1* gjet_nlo_mj  = (TH1*) kfactgjet_vbf->Get("bosonPt_NLO_monojet");
+      gjet_nlo_vbf->Divide((TH1*) kfactgjet_vbf->Get("bosonPt_LO_vbf"));
+      gjet_nlo_mj->Divide((TH1*) kfactgjet_vbf->Get("bosonPt_LO_monojet"));
+      gjet_nlo_vbf->Divide(gjet_nlo_mj);
+      
+      if(not nloSamples.usePhotonJetsNLO)
+	ahists.push_back(gjet_nlo_vbf);
+
+    }
+    else if(category == Category::VBFrelaxed){
+      TH1* zjet_nlo_vbf = (TH1*) kfactzjet_vbf->Get("bosonPt_NLO_vbf_relaxed");
+      TH1* zjet_nlo_mj  = (TH1*) kfactzjet_vbf->Get("bosonPt_NLO_monojet");
+      zjet_nlo_vbf->Divide((TH1*) kfactzjet_vbf->Get("bosonPt_LO_vbf_relaxed"));
+      zjet_nlo_mj->Divide((TH1*) kfactzjet_vbf->Get("bosonPt_LO_monojet"));
+      zjet_nlo_vbf->Divide(zjet_nlo_mj);
+
+      if(not nloSamples.useZJetsNLO)
+	zhists.push_back(zjet_nlo_vbf);
+      if(not nloSamples.useDYJetsNLO)
+	dyhists.push_back(zjet_nlo_vbf);
+
+      TH1* wjet_nlo_vbf = (TH1*) kfactwjet_vbf->Get("bosonPt_NLO_vbf_relaxed");
+      TH1* wjet_nlo_mj  = (TH1*) kfactwjet_vbf->Get("bosonPt_NLO_monojet");
+      wjet_nlo_vbf->Divide((TH1*) kfactwjet_vbf->Get("bosonPt_LO_vbf_relaxed"));
+      wjet_nlo_mj->Divide((TH1*) kfactwjet_vbf->Get("bosonPt_LO_monojet"));
+      wjet_nlo_vbf->Divide(wjet_nlo_mj);
+
+      if(not nloSamples.useWJetsNLO)
+	whists.push_back(wjet_nlo_vbf);
+
+      TH1* gjet_nlo_vbf = (TH1*) kfactgjet_vbf->Get("bosonPt_NLO_vbf_relaxed");
+      TH1* gjet_nlo_mj  = (TH1*) kfactgjet_vbf->Get("bosonPt_NLO_monojet");
+      gjet_nlo_vbf->Divide((TH1*) kfactgjet_vbf->Get("bosonPt_LO_vbf_relaxed"));
+      gjet_nlo_mj->Divide((TH1*) kfactgjet_vbf->Get("bosonPt_LO_monojet"));
+      gjet_nlo_vbf->Divide(gjet_nlo_mj);
+      
+      if(not nloSamples.usePhotonJetsNLO)
+	ahists.push_back(gjet_nlo_vbf);
+
+    }    
+  }
+
+  else if((category == Category::VBF or category == Category::VBFrelaxed) and not useTheoriestKFactors and useKFactorVsMjj){ // apply further k-factors going to the VBF selections
 
     kfactzjet_vbf = TFile::Open(kFactorVBF_zjet.c_str());
     kfactwjet_vbf = TFile::Open(kFactorVBF_wjet.c_str());
     kfactgjet_vbf = TFile::Open(kFactorVBF_gjet.c_str());
     
     ////////////
-    TH1* zjet_nlo_vbf = (TH1*) kfactzjet_vbf->Get("bosonPt_NLO_vbf");
-    if(category == Category::VBFrelaxed)
-      zjet_nlo_vbf = (TH1*) kfactzjet_vbf->Get("bosonPt_NLO_vbf_relaxed");
-    TH1* zjet_nlo_mj  = (TH1*) kfactzjet_vbf->Get("bosonPt_NLO_monojet");
-
-    if(category == Category::VBF)
-      zjet_nlo_vbf->Divide((TH1*) kfactzjet_vbf->Get("bosonPt_LO_vbf"));
-    else if(category == Category::VBFrelaxed)
-      zjet_nlo_vbf->Divide((TH1*) kfactzjet_vbf->Get("bosonPt_LO_vbf_relaxed"));
-    zjet_nlo_mj->Divide((TH1*) kfactzjet_vbf->Get("bosonPt_LO_monojet"));
-    zjet_nlo_vbf->Divide(zjet_nlo_mj);
-
-    if(not nloSamples.useZJetsNLO)
-      zhists.push_back(zjet_nlo_vbf);
-    if(not nloSamples.useDYJetsNLO)
-      dyhists.push_back(zjet_nlo_vbf);
+    zhists.clear();
+    zhists.push_back(zewkhist); // EW corrections
+    if(not nloSamples.useZJetsNLO){
+      zhists.push_back((TH1*) kfactzjet_vbf->Get("kfactor_vbf_mjj_200_600"));
+      zhists.push_back((TH1*) kfactzjet_vbf->Get("kfactor_vbf_mjj_600_1000"));
+      zhists.push_back((TH1*) kfactzjet_vbf->Get("kfactor_vbf_mjj_1000_1400"));
+      zhists.push_back((TH1*) kfactzjet_vbf->Get("kfactor_vbf_mjj_1400_2000"));
+      zhists.push_back((TH1*) kfactzjet_vbf->Get("kfactor_vbf_mjj_2000_5000"));
+    }
     
-    ///////////////////
-    TH1* wjet_nlo_vbf = (TH1*) kfactwjet_vbf->Get("bosonPt_NLO_vbf");
-    if(category == Category::VBFrelaxed)
-      wjet_nlo_vbf = (TH1*) kfactwjet_vbf->Get("bosonPt_NLO_vbf_relaxed");
-    TH1* wjet_nlo_mj  = (TH1*) kfactwjet_vbf->Get("bosonPt_NLO_monojet");
+    dyhists.clear();
+    dyhists.push_back(zewkhist); // EW corrections
+    if(not nloSamples.useDYJetsNLO){
+      dyhists.push_back((TH1*) kfactzjet_vbf->Get("kfactor_vbf_mjj_200_600"));
+      dyhists.push_back((TH1*) kfactzjet_vbf->Get("kfactor_vbf_mjj_600_1000"));
+      dyhists.push_back((TH1*) kfactzjet_vbf->Get("kfactor_vbf_mjj_1000_1400"));
+      dyhists.push_back((TH1*) kfactzjet_vbf->Get("kfactor_vbf_mjj_1400_2000"));
+      dyhists.push_back((TH1*) kfactzjet_vbf->Get("kfactor_vbf_mjj_2000_5000"));
+    }
 
-    if(category == Category::VBF)
-      wjet_nlo_vbf->Divide((TH1*) kfactwjet_vbf->Get("bosonPt_LO_vbf"));
-    else if(category == Category::VBFrelaxed)
-      wjet_nlo_vbf->Divide((TH1*) kfactwjet_vbf->Get("bosonPt_LO_vbf_relaxed"));
-    
-    wjet_nlo_mj->Divide((TH1*) kfactwjet_vbf->Get("bosonPt_LO_monojet"));
-    wjet_nlo_vbf->Divide(wjet_nlo_mj);
-    if(not nloSamples.useWJetsNLO)
-      whists.push_back(wjet_nlo_vbf);
+    whists.clear();
+    whists.push_back(wewkhist); // EW corrections
+    if(not nloSamples.useWJetsNLO){
+      whists.push_back((TH1*) kfactwjet_vbf->Get("kfactor_vbf_mjj_200_600"));
+      whists.push_back((TH1*) kfactwjet_vbf->Get("kfactor_vbf_mjj_600_1000"));
+      whists.push_back((TH1*) kfactwjet_vbf->Get("kfactor_vbf_mjj_1000_1400"));
+      whists.push_back((TH1*) kfactwjet_vbf->Get("kfactor_vbf_mjj_1400_2000"));
+      whists.push_back((TH1*) kfactwjet_vbf->Get("kfactor_vbf_mjj_2000_5000"));
+    }
 
-    TH1* gjet_nlo_vbf = (TH1*) kfactgjet_vbf->Get("bosonPt_NLO_vbf");
-    if(category == Category::VBFrelaxed)
-      gjet_nlo_vbf = (TH1*) kfactgjet_vbf->Get("bosonPt_NLO_vbf_relaxed");
-
-    TH1* gjet_nlo_mj  = (TH1*) kfactgjet_vbf->Get("bosonPt_NLO_monojet");
-    if(category == Category::VBF)
-      gjet_nlo_vbf->Divide((TH1*) kfactgjet_vbf->Get("bosonPt_LO_vbf"));
-    else if(category == Category::VBFrelaxed)
-      gjet_nlo_vbf->Divide((TH1*) kfactgjet_vbf->Get("bosonPt_LO_vbf_relaxed"));
-      
-    gjet_nlo_mj->Divide((TH1*) kfactgjet_vbf->Get("bosonPt_LO_monojet"));
-    gjet_nlo_vbf->Divide(gjet_nlo_mj);
-
-    if(not nloSamples.usePhotonJetsNLO)
-      ahists.push_back(gjet_nlo_vbf);
+    ahists.clear();
+    ahists.push_back(aewkhist); // EW corrections
+    if(not nloSamples.usePhotonJetsNLO){
+      ahists.push_back((TH1*) kfactgjet_vbf->Get("kfactor_vbf_mjj_200_600"));
+      ahists.push_back((TH1*) kfactgjet_vbf->Get("kfactor_vbf_mjj_600_1000"));
+      ahists.push_back((TH1*) kfactgjet_vbf->Get("kfactor_vbf_mjj_1000_1400"));
+      ahists.push_back((TH1*) kfactgjet_vbf->Get("kfactor_vbf_mjj_1400_2000"));
+      ahists.push_back((TH1*) kfactgjet_vbf->Get("kfactor_vbf_mjj_2000_5000"));
+    }
   }
 
   // for electroweak backgrounds
@@ -1436,43 +1497,81 @@ void gamdatamchist(TFile* outfile,
   TFile* kfactwjet_vbf = NULL;
   TFile* kfactgjet_vbf = NULL;
 
-  if((category == Category::VBF or category == Category::VBFrelaxed)  and not useTheoriestKFactors){ // apply further k-factors going to the VBF selections                         
+  if((category == Category::VBF or category == Category::VBFrelaxed)  and not useTheoriestKFactors and not useKFactorVsMjj){ // apply further k-factors going to the VBF selections           
                                                                      
     kfactwjet_vbf = TFile::Open(kFactorVBF_wjet.c_str());
     kfactgjet_vbf = TFile::Open(kFactorVBF_gjet.c_str());
 
-    TH1F* wjet_nlo_vbf = (TH1F*) kfactwjet_vbf->Get("bosonPt_NLO_vbf");
-    if(category == Category::VBFrelaxed)
-      wjet_nlo_vbf = (TH1F*) kfactwjet_vbf->Get("bosonPt_NLO_vbf_relaxed");
-    TH1F* wjet_nlo_mj  = (TH1F*) kfactwjet_vbf->Get("bosonPt_NLO_monojet");
+    if(category == Category::VBF){
 
-    if(category == Category::VBF)
+      TH1F* wjet_nlo_vbf = (TH1F*) kfactwjet_vbf->Get("bosonPt_NLO_vbf");
+      TH1F* wjet_nlo_mj  = (TH1F*) kfactwjet_vbf->Get("bosonPt_NLO_monojet");
       wjet_nlo_vbf->Divide((TH1F*) kfactwjet_vbf->Get("bosonPt_LO_vbf"));
-    else if(category == Category::VBFrelaxed)
-      wjet_nlo_vbf->Divide((TH1F*) kfactwjet_vbf->Get("bosonPt_LO_vbf_relaxed"));
-    
-    wjet_nlo_mj->Divide((TH1F*) kfactwjet_vbf->Get("bosonPt_LO_monojet"));
-    wjet_nlo_vbf->Divide(wjet_nlo_mj);
+      wjet_nlo_mj->Divide((TH1F*) kfactwjet_vbf->Get("bosonPt_LO_monojet"));
+      wjet_nlo_vbf->Divide(wjet_nlo_mj);
 
-    if(not nloSamples.useWJetsNLO)
-      whists.push_back(wjet_nlo_vbf);
+      if(not nloSamples.useWJetsNLO)
+	whists.push_back(wjet_nlo_vbf);
 
-    TH1F* gjet_nlo_vbf = (TH1F*) kfactgjet_vbf->Get("bosonPt_NLO_vbf");
-    if(category == Category::VBFrelaxed)
-      gjet_nlo_vbf = (TH1F*) kfactgjet_vbf->Get("bosonPt_NLO_vbf_relaxed");
-
-    TH1F* gjet_nlo_mj  = (TH1F*) kfactgjet_vbf->Get("bosonPt_NLO_monojet");
-    if(category == Category::VBF)
+      TH1F* gjet_nlo_vbf = (TH1F*) kfactgjet_vbf->Get("bosonPt_NLO_vbf");
+      TH1F* gjet_nlo_mj  = (TH1F*) kfactgjet_vbf->Get("bosonPt_NLO_monojet");
       gjet_nlo_vbf->Divide((TH1F*) kfactgjet_vbf->Get("bosonPt_LO_vbf"));
-    else if(category == Category::VBFrelaxed)
+      gjet_nlo_mj->Divide((TH1F*) kfactgjet_vbf->Get("bosonPt_LO_monojet"));
+      gjet_nlo_vbf->Divide(gjet_nlo_mj);
+      
+      if(not nloSamples.usePhotonJetsNLO)
+	ahists.push_back(gjet_nlo_vbf);
+    }
+    else if(category == Category::VBFrelaxed){
+
+      TH1F* wjet_nlo_vbf = (TH1F*) kfactwjet_vbf->Get("bosonPt_NLO_vbf_relaxed");
+      TH1F* wjet_nlo_mj  = (TH1F*) kfactwjet_vbf->Get("bosonPt_NLO_monojet");
+      wjet_nlo_vbf->Divide((TH1F*) kfactwjet_vbf->Get("bosonPt_LO_vbf_relaxed"));
+      wjet_nlo_mj->Divide((TH1F*) kfactwjet_vbf->Get("bosonPt_LO_monojet"));
+      wjet_nlo_vbf->Divide(wjet_nlo_mj);
+
+      if(not nloSamples.useWJetsNLO)
+	whists.push_back(wjet_nlo_vbf);
+
+      TH1F* gjet_nlo_vbf = (TH1F*) kfactgjet_vbf->Get("bosonPt_NLO_vbf_relaxed");
+      TH1F* gjet_nlo_mj  = (TH1F*) kfactgjet_vbf->Get("bosonPt_NLO_monojet");
       gjet_nlo_vbf->Divide((TH1F*) kfactgjet_vbf->Get("bosonPt_LO_vbf_relaxed"));
-    
-    gjet_nlo_mj->Divide((TH1F*) kfactgjet_vbf->Get("bosonPt_LO_monojet"));
-    gjet_nlo_vbf->Divide(gjet_nlo_mj);
-    if(not nloSamples.usePhotonJetsNLO)
-      ahists.push_back(gjet_nlo_vbf);
+      gjet_nlo_mj->Divide((TH1F*) kfactgjet_vbf->Get("bosonPt_LO_monojet"));
+      gjet_nlo_vbf->Divide(gjet_nlo_mj);
+      
+      if(not nloSamples.usePhotonJetsNLO)
+	ahists.push_back(gjet_nlo_vbf);
+
+    }
   }
-  
+
+
+  else if((category == Category::VBF or category == Category::VBFrelaxed) and not useTheoriestKFactors and useKFactorVsMjj){ // apply further k-factors going to the VBF selections
+
+    kfactwjet_vbf = TFile::Open(kFactorVBF_wjet.c_str());
+    kfactgjet_vbf = TFile::Open(kFactorVBF_gjet.c_str());
+    
+    whists.clear();
+    whists.push_back(wewkhist); // EW corrections
+    if(not nloSamples.useWJetsNLO){
+      whists.push_back((TH1*) kfactwjet_vbf->Get("kfactor_vbf_mjj_200_600"));
+      whists.push_back((TH1*) kfactwjet_vbf->Get("kfactor_vbf_mjj_600_1000"));
+      whists.push_back((TH1*) kfactwjet_vbf->Get("kfactor_vbf_mjj_1000_1400"));
+      whists.push_back((TH1*) kfactwjet_vbf->Get("kfactor_vbf_mjj_1400_2000"));
+      whists.push_back((TH1*) kfactwjet_vbf->Get("kfactor_vbf_mjj_2000_5000"));
+    }
+
+    ahists.clear();
+    ahists.push_back(aewkhist); // EW corrections
+    if(not nloSamples.usePhotonJetsNLO){
+      ahists.push_back((TH1*) kfactgjet_vbf->Get("kfactor_vbf_mjj_200_600"));
+      ahists.push_back((TH1*) kfactgjet_vbf->Get("kfactor_vbf_mjj_600_1000"));
+      ahists.push_back((TH1*) kfactgjet_vbf->Get("kfactor_vbf_mjj_1000_1400"));
+      ahists.push_back((TH1*) kfactgjet_vbf->Get("kfactor_vbf_mjj_1400_2000"));
+      ahists.push_back((TH1*) kfactgjet_vbf->Get("kfactor_vbf_mjj_2000_5000"));
+    }
+  }
+
   // NLO k-factor for Zgamma is a function of gamma pT
   cout<<"gamma+jets control region --> gamma+jets"<<endl;
   makehist4(gmtree,gmhist,gmhist_2D,true,Sample::gam,category,false,1.00,lumi,ahists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
@@ -2146,7 +2245,6 @@ void lepdatamchist(TFile* outfile,
       anlohist->Divide(alohist);
   }
 
-  // take open loop hitogram                                                                                                                                                    
   vector<TH1*> ehists;
   vector<TH1*> vlhists;
   vector<TH1*> ahists;
@@ -2183,56 +2281,108 @@ void lepdatamchist(TFile* outfile,
   TFile* kfactwjet_vbf = NULL;
   TFile* kfactgjet_vbf = NULL;
 
-  if((category == Category::VBF or category == Category::VBFrelaxed) and not useTheoriestKFactors){ // apply further k-factors going to the VBF selections                                                                                                                
+  if((category == Category::VBF or category == Category::VBFrelaxed) and not useTheoriestKFactors and not useKFactorVsMjj){ // apply further k-factors going to the VBF selections  
+                                                                 
     kfactzjet_vbf = TFile::Open(kFactorVBF_zjet.c_str());
     kfactwjet_vbf = TFile::Open(kFactorVBF_wjet.c_str());
     kfactgjet_vbf = TFile::Open(kFactorVBF_gjet.c_str());
 
-    TH1F* zjet_nlo_vbf = (TH1F*) kfactzjet_vbf->Get("bosonPt_NLO_vbf");
-    if(category == Category::VBFrelaxed)
-      zjet_nlo_vbf = (TH1F*) kfactzjet_vbf->Get("bosonPt_NLO_vbf_relaxed");
+    if(category == Category::VBF){
 
+    TH1F* zjet_nlo_vbf = (TH1F*) kfactzjet_vbf->Get("bosonPt_NLO_vbf");
     TH1F* zjet_nlo_mj  = (TH1F*) kfactzjet_vbf->Get("bosonPt_NLO_monojet");
-    if(category == Category::VBF)
-      zjet_nlo_vbf->Divide((TH1F*) kfactzjet_vbf->Get("bosonPt_LO_vbf"));
-    else if(category == Category::VBFrelaxed)
-      zjet_nlo_vbf->Divide((TH1F*) kfactzjet_vbf->Get("bosonPt_LO_vbf_relaxed"));
-    
+    zjet_nlo_vbf->Divide((TH1F*) kfactzjet_vbf->Get("bosonPt_LO_vbf"));
     zjet_nlo_mj->Divide((TH1F*) kfactzjet_vbf->Get("bosonPt_LO_monojet"));
     zjet_nlo_vbf->Divide(zjet_nlo_mj);
+
     if(not nloSamples.useDYJetsNLO)
       vllhists.push_back(zjet_nlo_vbf);
 
     
     TH1F* wjet_nlo_vbf = (TH1F*) kfactwjet_vbf->Get("bosonPt_NLO_vbf");
-    if(category == Category::VBFrelaxed)
-      wjet_nlo_vbf = (TH1F*) kfactwjet_vbf->Get("bosonPt_NLO_vbf_relaxed");
-
     TH1F* wjet_nlo_mj  = (TH1F*) kfactwjet_vbf->Get("bosonPt_NLO_monojet");
-    if(category == Category::VBF)
-      wjet_nlo_vbf->Divide((TH1F*) kfactwjet_vbf->Get("bosonPt_LO_vbf"));
-    else if(category == Category::VBFrelaxed)
-      wjet_nlo_vbf->Divide((TH1F*) kfactwjet_vbf->Get("bosonPt_LO_vbf_relaxed"));
-
+    wjet_nlo_vbf->Divide((TH1F*) kfactwjet_vbf->Get("bosonPt_LO_vbf"));
     wjet_nlo_mj->Divide((TH1F*) kfactwjet_vbf->Get("bosonPt_LO_monojet"));
     wjet_nlo_vbf->Divide(wjet_nlo_mj);
     if(not nloSamples.useWJetsNLO)
       vlhists.push_back(wjet_nlo_vbf);
-
-    TH1F* gjet_nlo_vbf = (TH1F*) kfactgjet_vbf->Get("bosonPt_NLO_vbf");
-    if(category == Category::VBFrelaxed)
-      gjet_nlo_vbf = (TH1F*) kfactgjet_vbf->Get("bosonPt_NLO_vbf_relaxed");
-
-    TH1F* gjet_nlo_mj  = (TH1F*) kfactgjet_vbf->Get("bosonPt_NLO_monojet");
-    if(category == Category::VBF)
-      gjet_nlo_vbf->Divide((TH1F*) kfactgjet_vbf->Get("bosonPt_LO_vbf"));
-    else if(category == Category::VBFrelaxed)
-      gjet_nlo_vbf->Divide((TH1F*) kfactgjet_vbf->Get("bosonPt_LO_vbf_relaxed"));
     
+    TH1F* gjet_nlo_vbf = (TH1F*) kfactgjet_vbf->Get("bosonPt_NLO_vbf");
+    TH1F* gjet_nlo_mj  = (TH1F*) kfactgjet_vbf->Get("bosonPt_NLO_monojet");
+    gjet_nlo_vbf->Divide((TH1F*) kfactgjet_vbf->Get("bosonPt_LO_vbf"));
     gjet_nlo_mj->Divide((TH1F*) kfactgjet_vbf->Get("bosonPt_LO_monojet"));
     gjet_nlo_vbf->Divide(gjet_nlo_mj);
+
     if(not nloSamples.usePhotonJetsNLO)
       ahists.push_back(gjet_nlo_vbf);
+
+    }
+    else if(category == Category::VBFrelaxed){
+
+      TH1F* zjet_nlo_vbf = (TH1F*) kfactzjet_vbf->Get("bosonPt_NLO_vbf_relaxed");
+      TH1F* zjet_nlo_mj  = (TH1F*) kfactzjet_vbf->Get("bosonPt_NLO_monojet");
+      zjet_nlo_vbf->Divide((TH1F*) kfactzjet_vbf->Get("bosonPt_LO_vbf_relaxed"));
+      zjet_nlo_mj->Divide((TH1F*) kfactzjet_vbf->Get("bosonPt_LO_monojet"));
+      zjet_nlo_vbf->Divide(zjet_nlo_mj);
+
+      if(not nloSamples.useDYJetsNLO)
+	vllhists.push_back(zjet_nlo_vbf);
+      
+      
+      TH1F* wjet_nlo_vbf = (TH1F*) kfactwjet_vbf->Get("bosonPt_NLO_vbf_relaxed");
+      TH1F* wjet_nlo_mj  = (TH1F*) kfactwjet_vbf->Get("bosonPt_NLO_monojet");
+      wjet_nlo_vbf->Divide((TH1F*) kfactwjet_vbf->Get("bosonPt_LO_vbf_relaxed"));
+      wjet_nlo_mj->Divide((TH1F*) kfactwjet_vbf->Get("bosonPt_LO_monojet"));
+      wjet_nlo_vbf->Divide(wjet_nlo_mj);
+      if(not nloSamples.useWJetsNLO)
+	vlhists.push_back(wjet_nlo_vbf);
+    
+      TH1F* gjet_nlo_vbf = (TH1F*) kfactgjet_vbf->Get("bosonPt_NLO_vbf_relaxed");
+      TH1F* gjet_nlo_mj  = (TH1F*) kfactgjet_vbf->Get("bosonPt_NLO_monojet");
+      gjet_nlo_vbf->Divide((TH1F*) kfactgjet_vbf->Get("bosonPt_LO_vbf_relaxed"));
+      gjet_nlo_mj->Divide((TH1F*) kfactgjet_vbf->Get("bosonPt_LO_monojet"));
+      gjet_nlo_vbf->Divide(gjet_nlo_mj);
+
+      if(not nloSamples.usePhotonJetsNLO)
+	ahists.push_back(gjet_nlo_vbf);      
+    }
+  }
+  else if((category == Category::VBF or category == Category::VBFrelaxed) and not useTheoriestKFactors and useKFactorVsMjj){ // apply further k-factors going to the VBF selections
+
+    kfactzjet_vbf = TFile::Open(kFactorVBF_zll.c_str());
+    kfactwjet_vbf = TFile::Open(kFactorVBF_wjet.c_str());
+    kfactgjet_vbf = TFile::Open(kFactorVBF_gjet.c_str());
+    
+    ////////////
+    vllhists.clear();
+    vllhists.push_back(zewkhist); // EW corrections
+    if(not nloSamples.useZJetsNLO){
+      vllhists.push_back((TH1*) kfactzjet_vbf->Get("kfactor_vbf_mjj_200_600"));
+      vllhists.push_back((TH1*) kfactzjet_vbf->Get("kfactor_vbf_mjj_600_1000"));
+      vllhists.push_back((TH1*) kfactzjet_vbf->Get("kfactor_vbf_mjj_1000_1400"));
+      vllhists.push_back((TH1*) kfactzjet_vbf->Get("kfactor_vbf_mjj_1400_2000"));
+      vllhists.push_back((TH1*) kfactzjet_vbf->Get("kfactor_vbf_mjj_2000_5000"));
+    }
+    
+    vlhists.clear();
+    vlhists.push_back(wewkhist); // EW corrections
+    if(not nloSamples.useWJetsNLO){
+      vlhists.push_back((TH1*) kfactwjet_vbf->Get("kfactor_vbf_mjj_200_600"));
+      vlhists.push_back((TH1*) kfactwjet_vbf->Get("kfactor_vbf_mjj_600_1000"));
+      vlhists.push_back((TH1*) kfactwjet_vbf->Get("kfactor_vbf_mjj_1000_1400"));
+      vlhists.push_back((TH1*) kfactwjet_vbf->Get("kfactor_vbf_mjj_1400_2000"));
+      vlhists.push_back((TH1*) kfactwjet_vbf->Get("kfactor_vbf_mjj_2000_5000"));
+    }
+
+    ahists.clear();
+    ahists.push_back(aewkhist); // EW corrections
+    if(not nloSamples.usePhotonJetsNLO){
+      ahists.push_back((TH1*) kfactgjet_vbf->Get("kfactor_vbf_mjj_200_600"));
+      ahists.push_back((TH1*) kfactgjet_vbf->Get("kfactor_vbf_mjj_600_1000"));
+      ahists.push_back((TH1*) kfactgjet_vbf->Get("kfactor_vbf_mjj_1000_1400"));
+      ahists.push_back((TH1*) kfactgjet_vbf->Get("kfactor_vbf_mjj_1400_2000"));
+      ahists.push_back((TH1*) kfactgjet_vbf->Get("kfactor_vbf_mjj_2000_5000"));
+    }
   }
   
   /// v-EWK k-factord

@@ -37,6 +37,12 @@ vector <float> cuts_detajj_cc_zmm  = {1.0,2.0,3.0,4.0,10.};
 vector <float> cuts_detajj_cf_zmm  = {3.0,4.0,5.0,10.};
 vector <float> cuts_detajj_fc_zmm  = {3.0,10.};
 
+// Cuts eta
+vector <float> cuts_etaj1_wmn  = {0.,1.5,2.5,3.0,4.7};
+vector <float> cuts_etaj1_zmm  = {0.,1.5,2.5,3.0,4.7};
+vector <float> cuts_etaj2_wmn  = {0.,1.5,2.5,3.0,4.7};
+vector <float> cuts_etaj2_zmm  = {0.,1.5,2.5,3.0,4.7};
+
 // eras
 vector<string> RunEra = {"Run2016B","Run2016C","Run2016D","Run2016E","Run2016F","Run2016G","Run2016H"};
 // sample
@@ -88,6 +94,8 @@ void makeMETTriggerEfficiencyVBF_Data(string inputDIR, string outputDIR, Sample 
   vector<float> cuts_detajj_cc;
   vector<float> cuts_detajj_cf;
   vector<float> cuts_detajj_fc;
+  vector<float> cuts_etaj1;
+  vector<float> cuts_etaj2;
 
 
   if(sample == Sample::wmn){
@@ -103,6 +111,9 @@ void makeMETTriggerEfficiencyVBF_Data(string inputDIR, string outputDIR, Sample 
     bins_ht_cc = bins_ht_cc_wmn;
     bins_ht_cf = bins_ht_cf_wmn;
     bins_ht_fc = bins_ht_fc_wmn;
+    cuts_etaj1 = cuts_etaj1_wmn;
+    cuts_etaj2 = cuts_etaj2_wmn;
+
   }
   else{
     bins_recoil_cc = bins_recoil_cc_zmm;
@@ -117,6 +128,9 @@ void makeMETTriggerEfficiencyVBF_Data(string inputDIR, string outputDIR, Sample 
     bins_ht_cc = bins_ht_cc_zmm;
     bins_ht_cf = bins_ht_cf_zmm;
     bins_ht_fc = bins_ht_fc_zmm;
+    cuts_etaj1 = cuts_etaj1_zmm;
+    cuts_etaj2 = cuts_etaj2_zmm;
+
   }
 
 

@@ -150,24 +150,60 @@ void makezmmcorhist( const string &   signalRegionFile,
 
   // special VBF case
   TFile* kfactzjet_vbf = NULL;
-  if((category == Category::VBF or category == Category::VBFrelaxed) and not useTheoristKfactors){ // apply further k-factors going to the VBF selections                                              
+  TFile* kfactzll_vbf = NULL;
+
+  if((category == Category::VBF or category == Category::VBFrelaxed) and not useTheoristKfactors and not useKFactorVsMjj){ // apply further k-factors going to the VBF selections             
 
     kfactzjet_vbf = TFile::Open(kFactorVBF_zjet.c_str());
-    TH1* zjet_nlo_vbf = (TH1*) kfactzjet_vbf->Get("bosonPt_NLO_vbf");
-    if(category == Category::VBFrelaxed)
-      zjet_nlo_vbf = (TH1*) kfactzjet_vbf->Get("bosonPt_NLO_vbf_relaxed");
-    TH1* zjet_nlo_mj  = (TH1*) kfactzjet_vbf->Get("bosonPt_NLO_monojet");
-    if(category == Category::VBF)
+    if(category == Category::VBF){
+      TH1* zjet_nlo_vbf = (TH1*) kfactzjet_vbf->Get("bosonPt_NLO_vbf");
+      TH1* zjet_nlo_mj  = (TH1*) kfactzjet_vbf->Get("bosonPt_NLO_monojet");
       zjet_nlo_vbf->Divide((TH1*) kfactzjet_vbf->Get("bosonPt_LO_vbf"));
-    else if(category == Category::VBFrelaxed)
-      zjet_nlo_vbf->Divide((TH1*) kfactzjet_vbf->Get("bosonPt_LO_vbf_relaxed"));    
-    zjet_nlo_mj->Divide((TH1*) kfactzjet_vbf->Get("bosonPt_LO_monojet"));
-    zjet_nlo_vbf->Divide(zjet_nlo_mj);
-    if(not nloSamples.useZJetsNLO)
-      zhists.push_back(zjet_nlo_vbf);
-    if(not nloSamples.useDYJetsNLO)
-      dyhists.push_back(zjet_nlo_vbf);    
+      zjet_nlo_mj->Divide((TH1*) kfactzjet_vbf->Get("bosonPt_LO_monojet"));
+      zjet_nlo_vbf->Divide(zjet_nlo_mj);
+      if(not nloSamples.useZJetsNLO)
+	zhists.push_back(zjet_nlo_vbf);
+      if(not nloSamples.useDYJetsNLO)
+	dyhists.push_back(zjet_nlo_vbf);    
+    }
+    else if(category == Category::VBFrelaxed){
+      TH1* zjet_nlo_vbf = (TH1*) kfactzjet_vbf->Get("bosonPt_NLO_vbf_relaxed");
+      TH1* zjet_nlo_mj  = (TH1*) kfactzjet_vbf->Get("bosonPt_NLO_monojet");
+      zjet_nlo_vbf->Divide((TH1*) kfactzjet_vbf->Get("bosonPt_LO_vbf_relaxed"));
+      zjet_nlo_mj->Divide((TH1*) kfactzjet_vbf->Get("bosonPt_LO_monojet"));
+      zjet_nlo_vbf->Divide(zjet_nlo_mj);
+      if(not nloSamples.useZJetsNLO)
+	zhists.push_back(zjet_nlo_vbf);
+      if(not nloSamples.useDYJetsNLO)
+	dyhists.push_back(zjet_nlo_vbf);    
+    }
   }
+  else if((category == Category::VBF or category == Category::VBFrelaxed) and not useTheoristKfactors and useKFactorVsMjj){ // apply further k-factors going to the VBF selections                  
+
+    kfactzjet_vbf = TFile::Open(kFactorVBF_zjet.c_str());
+    kfactzll_vbf = TFile::Open(kFactorVBF_zll.c_str());
+
+    zhists.clear();
+    zhists.push_back(zewkhist); // EW corrections                                                                                                                                                       
+    if(not nloSamples.useZJetsNLO){
+      zhists.push_back((TH1*) kfactzjet_vbf->Get("kfactor_vbf_mjj_200_600"));
+      zhists.push_back((TH1*) kfactzjet_vbf->Get("kfactor_vbf_mjj_600_1000"));
+      zhists.push_back((TH1*) kfactzjet_vbf->Get("kfactor_vbf_mjj_1000_1400"));
+      zhists.push_back((TH1*) kfactzjet_vbf->Get("kfactor_vbf_mjj_1400_2000"));
+      zhists.push_back((TH1*) kfactzjet_vbf->Get("kfactor_vbf_mjj_2000_5000"));
+    }
+    
+    dyhists.clear();
+    dyhists.push_back(zewkhist); // EW corrections                                                                                                                                                      
+    if(not nloSamples.useDYJetsNLO){
+      dyhists.push_back((TH1*) kfactzll_vbf->Get("kfactor_vbf_mjj_200_600"));
+      dyhists.push_back((TH1*) kfactzll_vbf->Get("kfactor_vbf_mjj_600_1000"));
+      dyhists.push_back((TH1*) kfactzll_vbf->Get("kfactor_vbf_mjj_1000_1400"));
+      dyhists.push_back((TH1*) kfactzll_vbf->Get("kfactor_vbf_mjj_1400_2000"));
+      dyhists.push_back((TH1*) kfactzll_vbf->Get("kfactor_vbf_mjj_2000_5000"));
+    }
+  }
+
 
   // EWK kfactor
   TFile* kffile_zewk = NULL;
@@ -453,24 +489,58 @@ void makezeecorhist( const string &   signalRegionFile,
   
   // Vjets QCD k-factors after VBF cuts
   TFile* kfactzjet_vbf = NULL;
-  if((category == Category::VBF or category == Category::VBFrelaxed) and not useTheoristKfactors){ // apply further k-factors going to the VBF selections                                
+  TFile* kfactzll_vbf = NULL;
+
+  if((category == Category::VBF or category == Category::VBFrelaxed) and not useTheoristKfactors and not useKFactorVsMjj){ // apply further k-factors going to the VBF selections               
                                   
     kfactzjet_vbf = TFile::Open(kFactorVBF_zjet.c_str());
-    TH1* zjet_nlo_vbf = (TH1*) kfactzjet_vbf->Get("bosonPt_NLO_vbf");
-    if(category == Category::VBFrelaxed)
-      zjet_nlo_vbf = (TH1*) kfactzjet_vbf->Get("bosonPt_NLO_vbf_relaxed");
-    TH1* zjet_nlo_mj  = (TH1*) kfactzjet_vbf->Get("bosonPt_NLO_monojet");
-    if(category == Category::VBF)
+    if(category == Category::VBF){
+      TH1* zjet_nlo_vbf = (TH1*) kfactzjet_vbf->Get("bosonPt_NLO_vbf");
+      TH1* zjet_nlo_mj  = (TH1*) kfactzjet_vbf->Get("bosonPt_NLO_monojet");
       zjet_nlo_vbf->Divide((TH1*) kfactzjet_vbf->Get("bosonPt_LO_vbf"));
-    else if(category == Category::VBFrelaxed)
+      zjet_nlo_mj->Divide((TH1*) kfactzjet_vbf->Get("bosonPt_LO_monojet"));
+      zjet_nlo_vbf->Divide(zjet_nlo_mj);
+      if(not nloSamples.useZJetsNLO)
+	zhists.push_back(zjet_nlo_vbf);
+      if(not nloSamples.useDYJetsNLO)
+	dyhists.push_back(zjet_nlo_vbf);
+    }
+    else if(category == Category::VBFrelaxed){
+      TH1* zjet_nlo_vbf = (TH1*) kfactzjet_vbf->Get("bosonPt_NLO_vbf_relaxed");
+      TH1* zjet_nlo_mj  = (TH1*) kfactzjet_vbf->Get("bosonPt_NLO_monojet");
       zjet_nlo_vbf->Divide((TH1*) kfactzjet_vbf->Get("bosonPt_LO_vbf_relaxed"));
+      zjet_nlo_mj->Divide((TH1*) kfactzjet_vbf->Get("bosonPt_LO_monojet"));
+      zjet_nlo_vbf->Divide(zjet_nlo_mj);
+      if(not nloSamples.useZJetsNLO)
+	zhists.push_back(zjet_nlo_vbf);
+      if(not nloSamples.useDYJetsNLO)
+	dyhists.push_back(zjet_nlo_vbf);
+    }
+  }
+  else if((category == Category::VBF or category == Category::VBFrelaxed) and not useTheoristKfactors and useKFactorVsMjj){ // apply further k-factors going to the VBF selections                  
 
-    zjet_nlo_mj->Divide((TH1*) kfactzjet_vbf->Get("bosonPt_LO_monojet"));
-    zjet_nlo_vbf->Divide(zjet_nlo_mj);
-    if(not nloSamples.useZJetsNLO)
-      zhists.push_back(zjet_nlo_vbf);
-    if(not nloSamples.useDYJetsNLO)
-      dyhists.push_back(zjet_nlo_vbf);
+    kfactzjet_vbf = TFile::Open(kFactorVBF_zjet.c_str());
+    kfactzll_vbf = TFile::Open(kFactorVBF_zll.c_str());
+
+    zhists.clear();
+    zhists.push_back(zewkhist); // EW corrections                                                                                                                                                      
+    if(not nloSamples.useZJetsNLO){
+      zhists.push_back((TH1*) kfactzjet_vbf->Get("kfactor_vbf_mjj_200_600"));
+      zhists.push_back((TH1*) kfactzjet_vbf->Get("kfactor_vbf_mjj_600_1000"));
+      zhists.push_back((TH1*) kfactzjet_vbf->Get("kfactor_vbf_mjj_1000_1400"));
+      zhists.push_back((TH1*) kfactzjet_vbf->Get("kfactor_vbf_mjj_1400_2000"));
+      zhists.push_back((TH1*) kfactzjet_vbf->Get("kfactor_vbf_mjj_2000_5000"));
+    }
+    
+    dyhists.clear();
+    dyhists.push_back(zewkhist); // EW corrections                                                                                                                                                     
+    if(not nloSamples.useDYJetsNLO){
+      dyhists.push_back((TH1*) kfactzll_vbf->Get("kfactor_vbf_mjj_200_600"));
+      dyhists.push_back((TH1*) kfactzll_vbf->Get("kfactor_vbf_mjj_600_1000"));
+      dyhists.push_back((TH1*) kfactzll_vbf->Get("kfactor_vbf_mjj_1000_1400"));
+      dyhists.push_back((TH1*) kfactzll_vbf->Get("kfactor_vbf_mjj_1400_2000"));
+      dyhists.push_back((TH1*) kfactzll_vbf->Get("kfactor_vbf_mjj_2000_5000"));
+    }
   }
 
   // EWK kfactor                                                                                                                                                                                      
@@ -731,20 +801,42 @@ void makewmncorhist( const string &  signalRegionFile,
   
   /////
   TFile* kfactwjet_vbf = NULL;
-  if((category == Category::VBF or category == Category::VBFrelaxed) and not useTheoristKfactors){ // apply further k-factors going to the VBF selections                                                                            
+
+  if((category == Category::VBF or category == Category::VBFrelaxed) and not useTheoristKfactors and not useKFactorVsMjj){ 
+    // apply further k-factors going to the VBF selections                                                                            
     kfactwjet_vbf = TFile::Open(kFactorVBF_wjet.c_str());
-    TH1* wjet_nlo_vbf = (TH1*) kfactwjet_vbf->Get("bosonPt_NLO_vbf");
-    if(category == Category::VBFrelaxed)
-       wjet_nlo_vbf = (TH1*) kfactwjet_vbf->Get("bosonPt_NLO_vbf_relaxed");
-    TH1* wjet_nlo_mj  = (TH1*) kfactwjet_vbf->Get("bosonPt_NLO_monojet");
-    if(category == Category::VBF)
+
+    if(category == Category::VBF){
+      TH1* wjet_nlo_vbf = (TH1*) kfactwjet_vbf->Get("bosonPt_NLO_vbf");
+      TH1* wjet_nlo_mj  = (TH1*) kfactwjet_vbf->Get("bosonPt_NLO_monojet");
       wjet_nlo_vbf->Divide((TH1*) kfactwjet_vbf->Get("bosonPt_LO_vbf"));
-    else if(category == Category::VBFrelaxed)
+      wjet_nlo_mj->Divide((TH1*) kfactwjet_vbf->Get("bosonPt_LO_monojet"));
+      wjet_nlo_vbf->Divide(wjet_nlo_mj);
+      if(not nloSamples.useWJetsNLO)
+	whists.push_back(wjet_nlo_vbf);
+    }
+    else if(category == Category::VBFrelaxed){
+      TH1* wjet_nlo_vbf = (TH1*) kfactwjet_vbf->Get("bosonPt_NLO_vbf_relaxed");
+      TH1* wjet_nlo_mj  = (TH1*) kfactwjet_vbf->Get("bosonPt_NLO_monojet");
       wjet_nlo_vbf->Divide((TH1*) kfactwjet_vbf->Get("bosonPt_LO_vbf_relaxed"));
-    wjet_nlo_mj->Divide((TH1*) kfactwjet_vbf->Get("bosonPt_LO_monojet"));
-    wjet_nlo_vbf->Divide(wjet_nlo_mj);
-    if(not nloSamples.useWJetsNLO)
-      whists.push_back(wjet_nlo_vbf);
+      wjet_nlo_mj->Divide((TH1*) kfactwjet_vbf->Get("bosonPt_LO_monojet"));
+      wjet_nlo_vbf->Divide(wjet_nlo_mj);
+      if(not nloSamples.useWJetsNLO)
+	whists.push_back(wjet_nlo_vbf);
+    }
+  }
+  else if((category == Category::VBF or category == Category::VBFrelaxed) and not useTheoristKfactors and useKFactorVsMjj){ // apply further k-factors going to the VBF selections            
+
+    kfactwjet_vbf = TFile::Open(kFactorVBF_wjet.c_str());
+    whists.clear();
+    whists.push_back(wewkhist); // EW corrections                                                                                                                                                      
+    if(not nloSamples.useWJetsNLO){
+      whists.push_back((TH1*) kfactwjet_vbf->Get("kfactor_vbf_mjj_200_600"));
+      whists.push_back((TH1*) kfactwjet_vbf->Get("kfactor_vbf_mjj_600_1000"));
+      whists.push_back((TH1*) kfactwjet_vbf->Get("kfactor_vbf_mjj_1000_1400"));
+      whists.push_back((TH1*) kfactwjet_vbf->Get("kfactor_vbf_mjj_1400_2000"));
+      whists.push_back((TH1*) kfactwjet_vbf->Get("kfactor_vbf_mjj_2000_5000"));
+    }
   }
 
   ////
@@ -994,22 +1086,44 @@ void makewencorhist( const string &  signalRegionFile,
 
   //////////////
   TFile* kfactwjet_vbf = NULL;
-  if((category == Category::VBF or category == Category::VBFrelaxed) and not useTheoristKfactors){ // apply further k-factors going to the VBF selections                                                                              
-    kfactwjet_vbf = TFile::Open(kFactorVBF_wjet.c_str());
-    TH1* wjet_nlo_vbf = (TH1*) kfactwjet_vbf->Get("bosonPt_NLO_vbf");
-    if(category == Category::VBFrelaxed)
-      wjet_nlo_vbf = (TH1*) kfactwjet_vbf->Get("bosonPt_NLO_vbf_relaxed");
+  if((category == Category::VBF or category == Category::VBFrelaxed) and not useTheoristKfactors and not useKFactorVsMjj){ // apply further k-factors going to the VBF selections              
 
-    TH1* wjet_nlo_mj  = (TH1*) kfactwjet_vbf->Get("bosonPt_NLO_monojet");
-    if(category == Category::VBF)
+    kfactwjet_vbf = TFile::Open(kFactorVBF_wjet.c_str());
+    if(category == Category::VBF){
+      TH1* wjet_nlo_vbf = (TH1*) kfactwjet_vbf->Get("bosonPt_NLO_vbf");
+      TH1* wjet_nlo_mj  = (TH1*) kfactwjet_vbf->Get("bosonPt_NLO_monojet");
       wjet_nlo_vbf->Divide((TH1*) kfactwjet_vbf->Get("bosonPt_LO_vbf"));
-    else if(category == Category::VBFrelaxed)
-      wjet_nlo_vbf->Divide((TH1*) kfactwjet_vbf->Get("bosonPt_LO_vbf_relaxed"));
-    wjet_nlo_mj->Divide((TH1*) kfactwjet_vbf->Get("bosonPt_LO_monojet"));
-    wjet_nlo_vbf->Divide(wjet_nlo_mj);
-    if(not nloSamples.useWJetsNLO)
-      whists.push_back(wjet_nlo_vbf);
+      wjet_nlo_mj->Divide((TH1*) kfactwjet_vbf->Get("bosonPt_LO_monojet"));
+      wjet_nlo_vbf->Divide(wjet_nlo_mj);
+      if(not nloSamples.useWJetsNLO)
+	whists.push_back(wjet_nlo_vbf);
+    }
+    else if(category == Category::VBFrelaxed){
+      TH1* wjet_nlo_vbf = (TH1*) kfactwjet_vbf->Get("bosonPt_NLO_vbf");
+      TH1* wjet_nlo_mj  = (TH1*) kfactwjet_vbf->Get("bosonPt_NLO_monojet");
+      wjet_nlo_vbf->Divide((TH1*) kfactwjet_vbf->Get("bosonPt_LO_vbf"));
+      wjet_nlo_mj->Divide((TH1*) kfactwjet_vbf->Get("bosonPt_LO_monojet"));
+      wjet_nlo_vbf->Divide(wjet_nlo_mj);
+      if(not nloSamples.useWJetsNLO)
+	whists.push_back(wjet_nlo_vbf);
+    }
   }
+  
+  else if((category == Category::VBF or category == Category::VBFrelaxed) and not useTheoristKfactors and useKFactorVsMjj){ // apply further k-factors going to the VBF selections                     
+
+    kfactwjet_vbf = TFile::Open(kFactorVBF_wjet.c_str());
+
+    whists.clear();
+    whists.push_back(wewkhist); // EW corrections                                                                                                                                                      
+    if(not nloSamples.useWJetsNLO){
+      whists.push_back((TH1*) kfactwjet_vbf->Get("kfactor_vbf_mjj_200_600"));
+      whists.push_back((TH1*) kfactwjet_vbf->Get("kfactor_vbf_mjj_600_1000"));
+      whists.push_back((TH1*) kfactwjet_vbf->Get("kfactor_vbf_mjj_1000_1400"));
+      whists.push_back((TH1*) kfactwjet_vbf->Get("kfactor_vbf_mjj_1400_2000"));
+      whists.push_back((TH1*) kfactwjet_vbf->Get("kfactor_vbf_mjj_2000_5000"));
+    }
+  }
+
 
   ////
   TFile* kffile_wewk = NULL;
@@ -1275,40 +1389,70 @@ void  makezwjcorhist(const string & znunuFile,
   vector<TH1*> ehists;
   TFile* kfactzjet_vbf = NULL;
   TFile* kfactwjet_vbf = NULL;
-  if((category == Category::VBF or category == Category::VBFrelaxed) and not useTheoristKfactors){ // apply further k-factors going to the VBF selections                                                                                                                
+  if((category == Category::VBF or category == Category::VBFrelaxed) and not useTheoristKfactors and not useKFactorVsMjj){ // apply further k-factors going to the VBF selections                                                                                                                
     kfactzjet_vbf = TFile::Open(kFactorVBF_zjet.c_str());
     kfactwjet_vbf = TFile::Open(kFactorVBF_wjet.c_str());
     
-    TH1* zjet_nlo_vbf = (TH1*) kfactzjet_vbf->Get("bosonPt_NLO_vbf");
-    if(category == Category::VBFrelaxed)
-      zjet_nlo_vbf = (TH1*) kfactzjet_vbf->Get("bosonPt_NLO_vbf_relaxed");
-    
-    TH1* zjet_nlo_mj  = (TH1*) kfactzjet_vbf->Get("bosonPt_NLO_monojet");
-    if(category == Category::VBF)
+    if(category == Category::VBF){
+      TH1* zjet_nlo_vbf = (TH1*) kfactzjet_vbf->Get("bosonPt_NLO_vbf");
+      TH1* zjet_nlo_mj  = (TH1*) kfactzjet_vbf->Get("bosonPt_NLO_monojet");
       zjet_nlo_vbf->Divide((TH1*) kfactzjet_vbf->Get("bosonPt_LO_vbf"));
-    else if(category == Category::VBFrelaxed)
-      zjet_nlo_vbf->Divide((TH1*) kfactzjet_vbf->Get("bosonPt_LO_vbf_relaxed"));
-    
-    zjet_nlo_mj->Divide((TH1*) kfactzjet_vbf->Get("bosonPt_LO_monojet"));
-    zjet_nlo_vbf->Divide(zjet_nlo_mj);
-    if(not nloSamples.useZJetsNLO)
-      zhists.push_back(zjet_nlo_vbf);      
-    
-    TH1* wjet_nlo_vbf = (TH1*) kfactwjet_vbf->Get("bosonPt_NLO_vbf");
-    if(category == Category::VBFrelaxed)
-      wjet_nlo_vbf = (TH1*) kfactwjet_vbf->Get("bosonPt_NLO_vbf_relaxed");
-
-    TH1* wjet_nlo_mj  = (TH1*) kfactwjet_vbf->Get("bosonPt_NLO_monojet");
-    if(category == Category::VBF)
+      zjet_nlo_mj->Divide((TH1*) kfactzjet_vbf->Get("bosonPt_LO_monojet"));
+      zjet_nlo_vbf->Divide(zjet_nlo_mj);
+      if(not nloSamples.useZJetsNLO)
+	zhists.push_back(zjet_nlo_vbf);      
+      
+      TH1* wjet_nlo_vbf = (TH1*) kfactwjet_vbf->Get("bosonPt_NLO_vbf");
+      TH1* wjet_nlo_mj  = (TH1*) kfactwjet_vbf->Get("bosonPt_NLO_monojet");
       wjet_nlo_vbf->Divide((TH1*) kfactwjet_vbf->Get("bosonPt_LO_vbf"));
-    else if(category == Category::VBFrelaxed)
+      wjet_nlo_mj->Divide((TH1*) kfactwjet_vbf->Get("bosonPt_LO_monojet"));
+      wjet_nlo_vbf->Divide(wjet_nlo_mj);
+      if(not nloSamples.useWJetsNLO)
+	whists.push_back(wjet_nlo_vbf);
+    }
+    else if(category == Category::VBFrelaxed){
+      TH1* zjet_nlo_vbf = (TH1*) kfactzjet_vbf->Get("bosonPt_NLO_vbf_relaxed");
+      TH1* zjet_nlo_mj  = (TH1*) kfactzjet_vbf->Get("bosonPt_NLO_monojet");
+      zjet_nlo_vbf->Divide((TH1*) kfactzjet_vbf->Get("bosonPt_LO_vbf_relaxed"));
+      zjet_nlo_mj->Divide((TH1*) kfactzjet_vbf->Get("bosonPt_LO_monojet"));
+      zjet_nlo_vbf->Divide(zjet_nlo_mj);
+      if(not nloSamples.useZJetsNLO)
+	zhists.push_back(zjet_nlo_vbf);      
+      
+      TH1* wjet_nlo_vbf = (TH1*) kfactwjet_vbf->Get("bosonPt_NLO_vbf_relaxed");
+      TH1* wjet_nlo_mj  = (TH1*) kfactwjet_vbf->Get("bosonPt_NLO_monojet");
       wjet_nlo_vbf->Divide((TH1*) kfactwjet_vbf->Get("bosonPt_LO_vbf_relaxed"));
-    
-    wjet_nlo_mj->Divide((TH1*) kfactwjet_vbf->Get("bosonPt_LO_monojet"));
-    wjet_nlo_vbf->Divide(wjet_nlo_mj);
-    if(not nloSamples.useWJetsNLO)
-      whists.push_back(wjet_nlo_vbf);
+      wjet_nlo_mj->Divide((TH1*) kfactwjet_vbf->Get("bosonPt_LO_monojet"));
+      wjet_nlo_vbf->Divide(wjet_nlo_mj);
+      if(not nloSamples.useWJetsNLO)
+	whists.push_back(wjet_nlo_vbf);
+    }
   }
+  else if((category == Category::VBF or category == Category::VBFrelaxed) and not useTheoristKfactors and useKFactorVsMjj){ // apply further k-factors going to the VBF selections                                                                                                                                                                                                                           
+    kfactwjet_vbf = TFile::Open(kFactorVBF_wjet.c_str());
+    kfactzjet_vbf = TFile::Open(kFactorVBF_zjet.c_str());
+
+    zhists.clear();
+    zhists.push_back(zewkhist); // EW corrections                                                                                                                                                      
+    if(not nloSamples.useZJetsNLO){
+      zhists.push_back((TH1*) kfactzjet_vbf->Get("kfactor_vbf_mjj_200_600"));
+      zhists.push_back((TH1*) kfactzjet_vbf->Get("kfactor_vbf_mjj_600_1000"));
+      zhists.push_back((TH1*) kfactzjet_vbf->Get("kfactor_vbf_mjj_1000_1400"));
+      zhists.push_back((TH1*) kfactzjet_vbf->Get("kfactor_vbf_mjj_1400_2000"));
+      zhists.push_back((TH1*) kfactzjet_vbf->Get("kfactor_vbf_mjj_2000_5000"));
+    }
+
+    whists.clear();
+    whists.push_back(wewkhist); // EW corrections                                                                                                                                                      
+    if(not nloSamples.useWJetsNLO){
+      whists.push_back((TH1*) kfactwjet_vbf->Get("kfactor_vbf_mjj_200_600"));
+      whists.push_back((TH1*) kfactwjet_vbf->Get("kfactor_vbf_mjj_600_1000"));
+      whists.push_back((TH1*) kfactwjet_vbf->Get("kfactor_vbf_mjj_1000_1400"));
+      whists.push_back((TH1*) kfactwjet_vbf->Get("kfactor_vbf_mjj_1400_2000"));
+      whists.push_back((TH1*) kfactwjet_vbf->Get("kfactor_vbf_mjj_2000_5000"));
+    }
+  }
+
 
   ////                                                                                                                                                                                                
   TFile* kffile_zewk = NULL;
@@ -3268,468 +3412,3 @@ void makewgamcorhist( const string & wlnuFile,
   cout << "Gamma+Jets->W+lnu transfer factor computed ..." << endl;
 }
 
-
-// correction for top
-void maketopmucorhist( const string & signalRegionFile,  
-		       const string & topFile,
-		       const Category & category, 
-		       vector<string> observables, 
-		       vector<string> observables_2D, 
-		       const double & lumi,
-		       const string & signalRegionFile_alt = "", 
-		       const string & topFile_alt = "", 
-		       const string & outDir  = "", 
-		       const string & sysName = "", 
-		       const bool &   isHiggsInvisible = false,
-		       const string & ext = ""){
-
-  // open files                                                                                                                                                                
-  TChain* ntree = new TChain("tree/tree");
-  TChain* dtree = new TChain("tree/tree");
-  ntree->Add((signalRegionFile+"/*root").c_str());
-  dtree->Add((topFile+"/*root").c_str());
-
-  TChain* ntree_alt = NULL;
-  TChain* dtree_alt = NULL;
-
-  if(signalRegionFile_alt != ""){
-    ntree_alt = new TChain("tree/tree");
-    dtree_alt->Add((signalRegionFile_alt+"/*root").c_str());
-  }
-  if(topFile_alt != ""){
-    dtree_alt = new TChain("tree/tree");
-    dtree_alt->Add((topFile_alt+"/*root").c_str());
-  }
-  
-  // create histograms                                                                                                                                                         
-  vector<TH1*> nhist;
-  vector<TH1*> dhist;
-  vector<TH1*> tfhist;
-  vector<TH1*> nhist_alt;
-  vector<TH1*> dhist_alt;
-  vector<TH1*> tfhist_alt;
-  vector<TH2*> nhist_2D;
-  vector<TH2*> dhist_2D;
-  vector<TH2*> tfhist_2D;
-  vector<TH2*> nhist_2D_alt;
-  vector<TH2*> dhist_2D_alt;
-  vector<TH2*> tfhist_2D_alt;
-  vector<TH1*> unrolled;
-
-  vector<double> bins;
-  for(auto obs : observables){
-    bins = selectBinning(obs,category);
-    if(bins.empty())
-      cout<<"No binning for this observable --> please define it"<<endl;
-      
-    if(ext == ""){
-      TH1F* nhist_temp = new TH1F(("nhist_topmu_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      TH1F* dhist_temp = new TH1F(("dhist_topmu_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      TH1F* nhist_alt_temp = new TH1F(("nhist_alt_topmu_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      TH1F* dhist_alt_temp = new TH1F(("dhist_alt_topmu_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
-      dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
-      nhist_alt.push_back(dynamic_cast<TH1*>(nhist_alt_temp));
-      dhist_alt.push_back(dynamic_cast<TH1*>(dhist_alt_temp));
-    }
-    else{
-      TH1F* nhist_temp = new TH1F(("nhist_topmu_"+ext+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      TH1F* dhist_temp = new TH1F(("dhist_topmu_"+ext+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      TH1F* nhist_alt_temp = new TH1F(("nhist_alt_topmu_"+ext+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      TH1F* dhist_alt_temp = new TH1F(("dhist_alt_topmu_"+ext+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
-      dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
-      nhist_alt.push_back(dynamic_cast<TH1*>(nhist_alt_temp));
-      dhist_alt.push_back(dynamic_cast<TH1*>(dhist_alt_temp));
-    }
-
-  }
-
-  for(auto obs : observables_2D){
-    bin2D bins = selectBinning2D(obs,category);
-    if(bins.binX.empty() or bins.binY.empty())
-      cout<<"No binning for this observable --> please define it"<<endl;
-
-    if(ext == ""){
-      TH2F* nhist_temp = new TH2F(("nhist_topmu_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
-      TH2F* dhist_temp = new TH2F(("dhist_topmu_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
-      TH2F* nhist_alt_temp = new TH2F(("nhist_alt_topmu_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
-      TH2F* dhist_alt_temp = new TH2F(("dhist_alt_topmu_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
-      nhist_2D.push_back(dynamic_cast<TH2*>(nhist_temp));
-      dhist_2D.push_back(dynamic_cast<TH2*>(dhist_temp));
-      nhist_2D_alt.push_back(dynamic_cast<TH2*>(nhist_alt_temp));
-      dhist_2D_alt.push_back(dynamic_cast<TH2*>(dhist_alt_temp));
-    }
-    else{
-      TH2F* nhist_temp = new TH2F(("nhist_topmu_"+ext+"_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
-      TH2F* dhist_temp = new TH2F(("dhist_topmu_"+ext+"_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
-      TH2F* nhist_alt_temp = new TH2F(("nhist_alt_topmu_"+ext+"_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
-      TH2F* dhist_alt_temp = new TH2F(("dhist_alt_topmu_"+ext+"_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
-      nhist_2D.push_back(dynamic_cast<TH2*>(nhist_temp));
-      dhist_2D.push_back(dynamic_cast<TH2*>(dhist_temp));
-      nhist_2D_alt.push_back(dynamic_cast<TH2*>(nhist_alt_temp));
-      dhist_2D_alt.push_back(dynamic_cast<TH2*>(dhist_alt_temp));      
-    }
-  }
-  vector<TH1*> ehists;
-  vector<TH1*> zhists;
-
-  // loop over ntree and dtree events isMC=true, sample 0 == signal region, sample 7 == b-tagged region, 
-  makehist4(ntree, nhist, nhist_2D,  true, Sample::sig, category, false, 1.00, lumi, zhists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
-  makehist4(dtree, dhist, dhist_2D,  true, Sample::topmu, category, false, 1.00, lumi, zhists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
-  makehist4(ntree_alt, nhist_alt, nhist_2D_alt,  true, Sample::sig, category, false, 1.00, lumi, zhists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
-  makehist4(dtree_alt, dhist_alt, dhist_2D_alt,  true, Sample::topmu, category, false, 1.00, lumi, zhists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
-
-  string name = string("topmucor")+ext;
-
-  // divide the two                                                                                                                                                          
-  for(size_t ihist = 0; ihist < nhist.size(); ihist++){
-    if(doSmoothing){
-      smoothEmptyBins(nhist.at(ihist),2);
-      smoothEmptyBins(dhist.at(ihist),2);
-    }
-    tfhist.push_back((TH1*) nhist.at(ihist)->Clone(Form("%s_temp",nhist.at(ihist)->GetName())));
-    tfhist.back()->Divide(dhist.at(ihist));
-    if(nhist_alt.size() >= ihist){
-      if(doSmoothing){
-	smoothEmptyBins(nhist_alt.at(ihist),2);
-	smoothEmptyBins(dhist_alt.at(ihist),2);
-      }
-      tfhist_alt.push_back((TH1*) nhist_alt.at(ihist)->Clone(Form("%s_temp",nhist_alt.at(ihist)->GetName())));
-      tfhist_alt.back()->Divide(dhist_alt.at(ihist));
-    }
-  }
-
-
-  for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++){
-    if(doSmoothing){
-      smoothEmptyBins(nhist_2D.at(ihist),2);
-      smoothEmptyBins(dhist_2D.at(ihist),2);
-    }
-    tfhist_2D.push_back((TH2*) nhist_2D.at(ihist)->Clone(Form("%s_temp",nhist_2D.at(ihist)->GetName())));
-    tfhist_2D.back()->Divide(dhist_2D.at(ihist));
-    if(nhist_2D_alt.size() >= ihist){
-      if(doSmoothing){
-	smoothEmptyBins(nhist_2D_alt.at(ihist),2);
-	smoothEmptyBins(dhist_2D_alt.at(ihist),2);
-      }
-      tfhist_2D_alt.push_back((TH2*) nhist_2D_alt.at(ihist)->Clone(Form("%s_temp",nhist_2D_alt.at(ihist)->GetName())));
-      tfhist_2D_alt.back()->Divide(dhist_2D_alt.at(ihist));
-    }
-  }
-
-
-  //check for empty bins and apply smoothing
-  if(doSmoothing){
-    for(size_t ihist = 0; ihist < tfhist.size(); ihist++)
-      smoothEmptyBins(tfhist.at(ihist),2);
-    for(size_t ihist = 0; ihist < tfhist_alt.size(); ihist++)
-      smoothEmptyBins(tfhist_alt.at(ihist),2);
-    for(size_t ihist = 0; ihist < tfhist_2D.size(); ihist++)
-      smoothEmptyBins(tfhist_2D.at(ihist),1);
-    for(size_t ihist = 0; ihist < tfhist_2D_alt.size(); ihist++)
-      smoothEmptyBins(tfhist_2D_alt.at(ihist),1);
-  }
-
-  // make average
-  for(size_t ihist = 0; ihist < tfhist.size(); ihist++)
-    makeAverage(tfhist.at(ihist),tfhist_alt.at(ihist));
-
-  for(size_t ihist = 0; ihist < tfhist_2D.size(); ihist++)
-    makeAverage(tfhist_2D.at(ihist),tfhist_2D_alt.at(ihist));
-
-  // create output file                                                                                                                                                        
-  TFile outfile((outDir+"/"+name+".root").c_str(), "RECREATE");
-
-  for(size_t ihist = 0; ihist < nhist.size(); ihist++)
-    nhist.at(ihist)->Write("",TObject::kOverwrite);
-
-  for(size_t ihist = 0; ihist < dhist.size(); ihist++)
-    dhist.at(ihist)->Write("",TObject::kOverwrite);
-
-  for(size_t ihist = 0; ihist < tfhist.size(); ihist++){
-    tfhist.at(ihist)->SetName((name+"hist_"+observables.at(ihist)).c_str());
-    tfhist.at(ihist)->Write("",TObject::kOverwrite);
-  }
-
-  for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++)
-    unroll2DHistograms(nhist_2D.at(ihist))->Write("",TObject::kOverwrite);
-
-  for(size_t ihist = 0; ihist < dhist_2D.size(); ihist++)
-    unroll2DHistograms(dhist_2D.at(ihist))->Write("",TObject::kOverwrite);
-
-  for(size_t ihist = 0; ihist < tfhist_2D.size(); ihist++){
-    tfhist_2D.at(ihist)->SetName((name+"hist_"+observables_2D.at(ihist)+"_2D").c_str());
-    unrolled.push_back(unroll2DHistograms(tfhist_2D.at(ihist)));
-    unrolled.back()->Write("",TObject::kOverwrite);
-  }
-
-  outfile.Close();
-
-  for(auto hist : nhist)
-    if(hist) delete hist;
-  nhist.clear();
-
-  for(auto hist : dhist)
-    if(hist) delete hist;
-  dhist.clear();
-
-  for(auto hist : tfhist)
-    if(hist) delete hist;
-  tfhist.clear();
-
-  for(auto hist : nhist_2D)
-    if(hist) delete hist;
-  nhist_2D.clear();
-
-  for(auto hist : dhist_2D)
-    if(hist) delete hist;
-  dhist_2D.clear();
-
-  for(auto hist : tfhist_2D)
-    if(hist) delete hist;
-  tfhist_2D.clear();
-
-  for(auto hist : unrolled)
-    if(hist) delete hist;
-  unrolled.clear();
-
-  if(ntree) delete ntree;
-  if(dtree) delete dtree;
-
-
-  cout << "Top(b-tag,mu)->Top(b-veto) transfer factor computed ..." << endl;
-}
-
-
-// correction for top
-void maketopelcorhist( const string & signalRegionFile,  
-		       const string & topFile,  
-		       const Category &    category, 
-		       vector<string> observables, 
-		       vector<string> observables_2D, 
-		       const double & lumi, 
-		       const string & signalRegionFile_alt = "", 
-		       const string & topFile_alt = "", 
-		       const string & outDir      = "", 
-		       const string & sysName = "", 
-		       const bool   & isHiggsInvisible = false,
-		       const string & ext = "") {
-  
-  // open files                                                                                                                                                                
-  TChain* ntree = new TChain("tree/tree");
-  TChain* dtree = new TChain("tree/tree");
-  ntree->Add((signalRegionFile+"/*root").c_str());
-  dtree->Add((topFile+"/*root").c_str());
-
-  TChain* ntree_alt = NULL;
-  TChain* dtree_alt = NULL;
-
-  if(signalRegionFile_alt != ""){
-    ntree_alt = new TChain("tree/tree");
-    dtree_alt->Add((signalRegionFile_alt+"/*root").c_str());
-  }
-  if(topFile_alt != ""){
-    dtree_alt = new TChain("tree/tree");
-    dtree_alt->Add((topFile_alt+"/*root").c_str());
-  }
-
-  // create histograms                                                                                                                                                         
-  vector<TH1*> nhist;
-  vector<TH1*> dhist;
-  vector<TH1*> tfhist;
-  vector<TH1*> nhist_alt;
-  vector<TH1*> dhist_alt;
-  vector<TH1*> tfhist_alt;
-  vector<TH2*> nhist_2D;
-  vector<TH2*> dhist_2D;
-  vector<TH2*> tfhist_2D;
-  vector<TH2*> nhist_2D_alt;
-  vector<TH2*> dhist_2D_alt;
-  vector<TH2*> tfhist_2D_alt;
-  vector<TH1*> unrolled;
-
-  vector<double> bins;
-  for(auto obs : observables){
-    bins = selectBinning(obs,category);
-    if(bins.empty())
-      cout<<"No binning for this observable --> please define it"<<endl;
-    if(ext == ""){
-      TH1F* nhist_temp = new TH1F(("nhist_topel_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      TH1F* dhist_temp = new TH1F(("dhist_topel_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      TH1F* nhist_alt_temp = new TH1F(("nhist_alt_topel_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      TH1F* dhist_alt_temp = new TH1F(("dhist_alt_topel_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
-      dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
-      nhist_alt.push_back(dynamic_cast<TH1*>(nhist_alt_temp));
-      dhist_alt.push_back(dynamic_cast<TH1*>(dhist_alt_temp));
-    }
-    else{
-      TH1F* nhist_temp = new TH1F(("nhist_topel_"+ext+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      TH1F* dhist_temp = new TH1F(("dhist_topel_"+ext+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      TH1F* nhist_alt_temp = new TH1F(("nhist_alt_topel_"+ext+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      TH1F* dhist_alt_temp = new TH1F(("dhist_alt_topel_"+ext+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
-      dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
-      nhist_alt.push_back(dynamic_cast<TH1*>(nhist_alt_temp));
-      dhist_alt.push_back(dynamic_cast<TH1*>(dhist_alt_temp));
-    }
-
-  }
-
-  for(auto obs : observables_2D){
-    bin2D bins = selectBinning2D(obs,category);
-    if(bins.binX.empty() or bins.binY.empty())
-      cout<<"No binning for this observable --> please define it"<<endl;
-
-    if(ext == ""){
-      TH2F* nhist_temp = new TH2F(("nhist_topel_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
-      TH2F* dhist_temp = new TH2F(("dhist_topel_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
-      TH2F* nhist_alt_temp = new TH2F(("nhist_alt_topel_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
-      TH2F* dhist_alt_temp = new TH2F(("dhist_alt_topel_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
-      nhist_2D.push_back(dynamic_cast<TH2*>(nhist_temp));
-      dhist_2D.push_back(dynamic_cast<TH2*>(dhist_temp));
-      nhist_2D_alt.push_back(dynamic_cast<TH2*>(nhist_alt_temp));
-      dhist_2D_alt.push_back(dynamic_cast<TH2*>(dhist_alt_temp));
-    }
-    else{
-      TH2F* nhist_temp = new TH2F(("nhist_topel_"+ext+"_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
-      TH2F* dhist_temp = new TH2F(("dhist_topel_"+ext+"_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
-      TH2F* nhist_alt_temp = new TH2F(("nhist_alt_topel_"+ext+"_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
-      TH2F* dhist_alt_temp = new TH2F(("dhist_alt_topel_"+ext+"_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
-      nhist_2D.push_back(dynamic_cast<TH2*>(nhist_temp));
-      dhist_2D.push_back(dynamic_cast<TH2*>(dhist_temp));
-      nhist_2D_alt.push_back(dynamic_cast<TH2*>(nhist_alt_temp));
-      dhist_2D_alt.push_back(dynamic_cast<TH2*>(dhist_alt_temp));
-    }
-  }
-
-  vector<TH1*> ehists;
-  vector<TH1*> zhists;
-
-  // loop over ntree and dtree events isMC=true, sample 0 == signal region, sample 7 == b-tagged region,
-  makehist4(ntree, nhist, nhist_2D,  true, Sample::sig, category, false, 1.00, lumi, zhists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
-  makehist4(dtree, dhist, dhist_2D,  true, Sample::topel, category, false, 1.00, lumi, zhists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
-  makehist4(ntree_alt, nhist_alt, nhist_2D_alt,  true, Sample::sig, category, false, 1.00, lumi, zhists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
-  makehist4(dtree_alt, dhist_alt, dhist_2D_alt,  true, Sample::topel, category, false, 1.00, lumi, zhists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
-
-  string name = string("topelcor")+ext;
-
-
-  // divide the two                                                                                                                                                          
-  for(size_t ihist = 0; ihist < nhist.size(); ihist++){
-    if(doSmoothing){
-      smoothEmptyBins(nhist.at(ihist),2);
-      smoothEmptyBins(dhist.at(ihist),2);
-    }
-    tfhist.push_back((TH1*) nhist.at(ihist)->Clone(Form("%s_temp",nhist.at(ihist)->GetName())));
-    tfhist.back()->Divide(dhist.at(ihist));
-    if(nhist_alt.size() >= ihist){
-      if(doSmoothing){
-	smoothEmptyBins(nhist_alt.at(ihist),2);
-	smoothEmptyBins(dhist_alt.at(ihist),2);
-      }
-      tfhist_alt.push_back((TH1*) nhist_alt.at(ihist)->Clone(Form("%s_temp",nhist_alt.at(ihist)->GetName())));
-      tfhist_alt.back()->Divide(dhist_alt.at(ihist));
-    }
-  }
-
-
-  for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++){
-    if(doSmoothing){
-      smoothEmptyBins(nhist_2D.at(ihist),2);
-      smoothEmptyBins(dhist_2D.at(ihist),2);
-    }
-    tfhist_2D.push_back((TH2*) nhist_2D.at(ihist)->Clone(Form("%s_temp",nhist_2D.at(ihist)->GetName())));
-    tfhist_2D.back()->Divide(dhist_2D.at(ihist));
-    if(nhist_2D_alt.size() >= ihist){
-      if(doSmoothing){
-	smoothEmptyBins(nhist_2D_alt.at(ihist),2);
-	smoothEmptyBins(dhist_2D_alt.at(ihist),2);
-      }
-      tfhist_2D_alt.push_back((TH2*) nhist_2D_alt.at(ihist)->Clone(Form("%s_temp",nhist_2D_alt.at(ihist)->GetName())));
-      tfhist_2D_alt.back()->Divide(dhist_2D_alt.at(ihist));
-    }
-  }
-
-
-  //check for empty bins and apply smoothing
-  if(doSmoothing){
-    for(size_t ihist = 0; ihist < tfhist.size(); ihist++)
-      smoothEmptyBins(tfhist.at(ihist),2);
-    for(size_t ihist = 0; ihist < tfhist_alt.size(); ihist++)
-      smoothEmptyBins(tfhist_alt.at(ihist),2);
-    for(size_t ihist = 0; ihist < tfhist_2D.size(); ihist++)
-      smoothEmptyBins(tfhist_2D.at(ihist),1);
-    for(size_t ihist = 0; ihist < tfhist_2D_alt.size(); ihist++)
-      smoothEmptyBins(tfhist_2D_alt.at(ihist),1);
-  }
-
-  // make average
-  for(size_t ihist = 0; ihist < tfhist.size(); ihist++)
-    makeAverage(tfhist.at(ihist),tfhist_alt.at(ihist));
-
-  for(size_t ihist = 0; ihist < tfhist_2D.size(); ihist++)
-    makeAverage(tfhist_2D.at(ihist),tfhist_2D_alt.at(ihist));
-
-  // create output file                                                                                                                                                        
-  TFile outfile((outDir+"/"+name+".root").c_str(), "RECREATE");
-
-  for(size_t ihist = 0; ihist < nhist.size(); ihist++)
-    nhist.at(ihist)->Write("",TObject::kOverwrite);
-
-  for(size_t ihist = 0; ihist < dhist.size(); ihist++)
-    dhist.at(ihist)->Write("",TObject::kOverwrite);
-
-  for(size_t ihist = 0; ihist < tfhist.size(); ihist++){
-    tfhist.at(ihist)->SetName((name+"hist_"+observables.at(ihist)).c_str());
-    tfhist.at(ihist)->Write("",TObject::kOverwrite);
-  }
-
-  for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++)
-    unroll2DHistograms(nhist_2D.at(ihist))->Write("",TObject::kOverwrite);
-
-  for(size_t ihist = 0; ihist < dhist_2D.size(); ihist++)
-    unroll2DHistograms(dhist_2D.at(ihist))->Write("",TObject::kOverwrite);
-
-  for(size_t ihist = 0; ihist < tfhist_2D.size(); ihist++){
-    tfhist_2D.at(ihist)->SetName((name+"hist_"+observables_2D.at(ihist)+"_2D").c_str());
-    unrolled.push_back(unroll2DHistograms(tfhist_2D.at(ihist)));
-    unrolled.back()->Write("",TObject::kOverwrite);
-  }
-
-  outfile.Close();
-
-  for(auto hist : nhist)
-    if(hist) delete hist;
-  nhist.clear();
-
-  for(auto hist : dhist)
-    if(hist) delete hist;
-  dhist.clear();
-
-  for(auto hist : tfhist)
-    if(hist) delete hist;
-  tfhist.clear();
-
-  for(auto hist : nhist_2D)
-    if(hist) delete hist;
-  nhist_2D.clear();
-
-  for(auto hist : dhist_2D)
-    if(hist) delete hist;
-  dhist_2D.clear();
-
-  for(auto hist : tfhist_2D)
-    if(hist) delete hist;
-  tfhist_2D.clear();
-
-  for(auto hist : unrolled)
-    if(hist) delete hist;
-  unrolled.clear();
-
-  if(ntree) delete ntree;
-  if(dtree) delete dtree;
-
-  cout << "Top(b-tag,el)->Top(b-veto) transfer factor computed ..." << endl;
-}

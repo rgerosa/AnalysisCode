@@ -702,59 +702,6 @@ void makeTemplates(const bool & doCorrectionHistograms   = false,  // calculate 
 	}
       }
     }  
-
-    if(addTop){
-      cout<<"make TOP+MU ratio"<<endl;
-      maketopmucorhist(baseInputTreePath+"/Top/sigfilter/",
-		       baseInputTreePath+"/Top/topfilter/",
-		       category,observables,observables_2D,lumi,
-		       baseInputTreePath+"/Top/sigfilter/",
-		       baseInputTreePath+"/Top/topfilter/",
-		       outDir,"",runHiggsInvisible);
-      
-      cout<<"systematics on TOP+MU ratio --> bUp"<<endl;
-      maketopmucorhist(baseInputTreePath+"/Top/sigfilter/",
-		       baseInputTreePath+"/Top/topfilter/",
-		       category,observables,observables_2D,lumi,
-		       baseInputTreePath+"/Top/sigfilter/",
-		       baseInputTreePath+"/Top/topfilter/",
-		       outDir,"btagUp",runHiggsInvisible,"bUp");
-      
-      
-      cout<<"systematics on TOP+MU ratio --> bDw"<<endl;
-      maketopmucorhist(baseInputTreePath+"/Top/sigfilter/",
-		       baseInputTreePath+"/Top/topfilter/",
-		       category,observables,observables_2D,lumi,
-		       baseInputTreePath+"/Top/sigfilter/",
-		       baseInputTreePath+"/Top/topfilter/",
-		       outDir,"btagDown",runHiggsInvisible,"bDown");
-      
-      cout<<"make TOP+EL ratio"<<endl;
-      maketopelcorhist(baseInputTreePath+"/Top/sigfilter/",
-		       baseInputTreePath+"/Top/topfilter/",
-		       category,observables,observables_2D,lumi,
-		       baseInputTreePath+"/Top/sigfilter/",
-		       baseInputTreePath+"/Top/topfilter/",
-		       outDir,"",runHiggsInvisible);
-      
-      
-      cout<<"systematics on TOP+EL ratio --> bUp"<<endl;
-      maketopelcorhist(baseInputTreePath+"/Top/sigfilter/",
-		       baseInputTreePath+"/Top/topfilter/",
-		       category,observables,observables_2D,lumi,
-		       baseInputTreePath+"/Top/sigfilter/",
-		       baseInputTreePath+"/Top/topfilter/",
-		       outDir,"btagUp",runHiggsInvisible,"bUp");
-      
-      cout<<"systematics on TOP+EL ratio --> bDw"<<endl;
-      maketopelcorhist(baseInputTreePath+"/Top/sigfilter/",
-		       baseInputTreePath+"/Top/topfilter/",
-		       category,observables,observables_2D,lumi,
-		       baseInputTreePath+"/Top/sigfilter/",
-		       baseInputTreePath+"/Top/topfilter/",
-		       outDir,"btagDown",runHiggsInvisible,"bDown");
-    }
-
     // need to add EWK V-jet TFs
     if(category == Category::VBF or category == Category::VBFrelaxed){
       
