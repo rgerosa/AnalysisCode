@@ -29,7 +29,6 @@ void fillAndSaveCorrQCDHistograms(const vector<string> & observables, // observa
 				  const bool & addZWratio,
 				  const bool & addZgamma,
 				  const bool & addWgamma, 
-				  const bool & addTop, 
 				  const string & ext,
 				  const bool & addHistoForCutAndCount = false,
 				  const bool & useNewTheoryUncertainty = false){
@@ -48,13 +47,6 @@ void fillAndSaveCorrQCDHistograms(const vector<string> & observables, // observa
     gamcorfile = TFile::Open((outDir+"/gamcor"+ext+".root").c_str());
     if(addWgamma)
       wgamcorfile = TFile::Open((outDir+"/wgamcor"+ext+".root").c_str());
-  }
-
-  TFile* topmucorfile = NULL;
-  TFile* topelcorfile = NULL;
-  if(addTop){
-    topmucorfile = TFile::Open((outDir+"/topmucor"+ext+".root").c_str());
-    topelcorfile = TFile::Open((outDir+"/topelcor"+ext+".root").c_str());
   }
 
   // QCD, EWK, factm re and footprint on Z/gamma                                                                                                                                                    
@@ -258,26 +250,13 @@ void fillAndSaveCorrQCDHistograms(const vector<string> & observables, // observa
       zwjcorpdffile   = TFile::Open((outDir+"/zwjcorpdf"+ext+".root").c_str());
     }
   }
-  // Top btag up and down                                                                                                                                                                             
-  TFile* topmucorbupfile   = NULL;
-  TFile* topmucorbdownfile = NULL;
-  TFile* topelcorbupfile   = NULL;
-  TFile* topelcorbdownfile = NULL;
-
-  if(addTop){
-    topmucorbupfile   = TFile::Open((outDir+"/topmucor"+ext+"bUp.root").c_str());
-    topmucorbdownfile = TFile::Open((outDir+"/topmucor"+ext+"bDown.root").c_str());
-    topelcorbupfile   = TFile::Open((outDir+"/topelcor"+ext+"bUp.root").c_str());
-    topelcorbdownfile = TFile::Open((outDir+"/topelcor"+ext+"bDown.root").c_str());
-  }
 
   // get histograms                                                                                                                                                                                   
-  vector<TH1*> zmmcorhist, zeecorhist, wmncorhist, wencorhist, zwjcorhist, gamcorhist, wgamcorhist, topmucorhist, topelcorhist;
+  vector<TH1*> zmmcorhist, zeecorhist, wmncorhist, wencorhist, zwjcorhist, gamcorhist, wgamcorhist;
 
   ////
   vector<TH1*> zmmcorhist_num, zeecorhist_num, wmncorhist_num, wencorhist_num, gamcorhist_num, wgamcorhist_num, zwjcorhist_num;
   vector<TH1*> zmmcorhist_den, zeecorhist_den, wmncorhist_den, wencorhist_den, gamcorhist_den, wgamcorhist_den, zwjcorhist_den;
-  vector<TH1*> topmucorhist_num, topelcorhist_num, topmucorhist_den, topelcorhist_den;
 
   /// Z/Gamma ratio
   vector<TH1*> gamcorewkhist, gamcorqcdhist, gamcorre1hist, gamcorfa1hist, gamcorre2hist, gamcorfa2hist, gamcorpdfhist, gamcorfpchist;
@@ -339,11 +318,6 @@ void fillAndSaveCorrQCDHistograms(const vector<string> & observables, // observa
   vector<TH1*> wgamcorsudakovuphist_1_den, wgamcorsudakovdwhist_1_den, wgamcorsudakovuphist_2_den,   wgamcorsudakovdwhist_2_den;
   vector<TH1*> wgamcormixuphist_den, wgamcormixdwhist_den;
 
-  ////
-  vector<TH1*> topmucorbuphist, topmucorbdownhist, topelcorbuphist, topelcorbdownhist;
-  vector<TH1*> topmucorbuphist_num, topmucorbdownhist_num, topelcorbuphist_num, topelcorbdownhist_num;
-  vector<TH1*> topmucorbuphist_den, topmucorbdownhist_den, topelcorbuphist_den, topelcorbdownhist_den;
-
   // output file                                                                                                                                                                                      
   for(auto obs : observables){
     
@@ -380,15 +354,6 @@ void fillAndSaveCorrQCDHistograms(const vector<string> & observables, // observa
       wgamcorhist_den.push_back( (TH1*) wgamcorfile->FindObjectAny(("dhist_wgam"+ext+"_"+obs).c_str()));
     }
 
-    if(addTop){
-      topmucorhist.push_back( (TH1*)topmucorfile->FindObjectAny(("topmucor"+ext+"hist_"+obs).c_str()));
-      topmucorhist_num.push_back( (TH1*)topmucorfile->FindObjectAny(("nhist_topmu"+ext+"_"+obs).c_str()));
-      topmucorhist_den.push_back( (TH1*)topmucorfile->FindObjectAny(("dhist_topmu"+ext+"_"+obs).c_str()));
-
-      topelcorhist.push_back( (TH1*)topelcorfile->FindObjectAny(("topelcor"+ext+"hist_"+obs).c_str()));
-      topelcorhist_num.push_back( (TH1*)topelcorfile->FindObjectAny(("nhist_topel"+ext+"_"+obs).c_str()));
-      topelcorhist_den.push_back( (TH1*)topelcorfile->FindObjectAny(("dhist_topel"+ext+"_"+obs).c_str()));
-    }
 
     // get histograms Z/gamma                 
     TH1* gamuncewkhist = NULL;
@@ -1245,52 +1210,6 @@ void fillAndSaveCorrQCDHistograms(const vector<string> & observables, // observa
       }
     }
 
-    // make b-tagging top                                                                                                                                                                             
-    TH1* topmucoruncbhist = NULL;
-    TH1* topelcoruncbhist = NULL;
-
-    if(addTop){
-      cout<<"Make top sys histograms"<<endl;
-      topmucorbuphist.push_back( (TH1*) topmucorbupfile->FindObjectAny(("topmucor"+ext+"bUphist_"+obs).c_str()));
-      topmucorbuphist_num.push_back( (TH1*) topmucorbupfile->FindObjectAny(("nhist_topmu_bup"+ext+"_"+obs).c_str()));
-      topmucorbuphist_den.push_back( (TH1*) topmucorbupfile->FindObjectAny(("dhist_topmu_bup"+ext+"_"+obs).c_str()));
-
-      topmucorbdownhist.push_back( (TH1*) topmucorbdownfile->FindObjectAny(("topmucor"+ext+"bDownhist_"+obs).c_str()));
-      topmucorbdownhist_num.push_back( (TH1*) topmucorbdownfile->FindObjectAny(("nhist_topmu_bdown"+ext+"_"+obs).c_str()));
-      topmucorbdownhist_den.push_back( (TH1*) topmucorbdownfile->FindObjectAny(("dhist_topmu_bdown"+ext+"_"+obs).c_str()));
-
-      topelcorbuphist.push_back( (TH1*) topelcorbupfile->FindObjectAny(("topelcor"+ext+"bUphist_"+obs).c_str()));
-      topelcorbuphist_num.push_back( (TH1*) topelcorbupfile->FindObjectAny(("nhist_topel_bup"+ext+"_"+obs).c_str()));
-      topelcorbuphist_den.push_back( (TH1*) topelcorbupfile->FindObjectAny(("dhist_topel_bup"+ext+"_"+obs).c_str()));
-
-      topelcorbdownhist.push_back( (TH1*) topelcorbdownfile->FindObjectAny(("topelcor"+ext+"bDownhist_"+obs).c_str()));
-      topelcorbdownhist_num.push_back( (TH1*) topelcorbdownfile->FindObjectAny(("nhist_topel_bdown"+ext+"_"+obs).c_str()));
-      topelcorbdownhist_den.push_back( (TH1*) topelcorbdownfile->FindObjectAny(("dhist_topel_bdown"+ext+"_"+obs).c_str()));
-
-      // make symmetrization                                                                                                                                                                          
-      TH1* topmucorbuphist_tmp = (TH1*) topmucorbuphist.back()->Clone(("topmucorbup_tmp"+ext+"hist_"+obs).c_str());
-      topmucorbuphist_tmp->Divide(topmucorhist.back());
-      TH1* topmucorbdownhist_tmp = (TH1*) topmucorbdownhist.back()->Clone(("topmucorbdown_tmp"+ext+"hist_"+obs).c_str());
-      topmucorbdownhist_tmp->Divide(topmucorhist.back());
-
-      topmucoruncbhist = (TH1*) topmucorhist.back()->Clone(("topmucoruncbhist"+ext+"hist_"+obs).c_str());
-      for (int i = 1; i <= topmucoruncbhist->GetNbinsX(); i++)
-        topmucoruncbhist->SetBinContent(i, fabs(fabs(topmucorbuphist_tmp->GetBinContent(i)+topmucorbdownhist_tmp->GetBinContent(i))/2-1.0));
-
-      topmucoruncbhist->SetName(("TOP_MU_B_"+obs).c_str());
-
-      // make symmetrization                                                                                                                                                                          
-      TH1* topelcorbuphist_tmp = (TH1*) topelcorbuphist.back()->Clone(("topelcorbup_tmp"+ext+"hist_"+obs).c_str());
-      topelcorbuphist_tmp->Divide(topelcorhist.back());
-      TH1* topelcorbdownhist_tmp = (TH1*) topelcorbdownhist.back()->Clone(("topelcorbdown_tmp"+ext+"hist_"+obs).c_str());
-      topelcorbdownhist_tmp->Divide(topelcorhist.back());
-
-      topelcoruncbhist = (TH1*) topelcorhist.back()->Clone(("topelcoruncbhist"+ext+"hist_"+obs).c_str());
-      for (int i = 1; i <= topelcoruncbhist->GetNbinsX(); i++)
-        topelcoruncbhist->SetBinContent(i, fabs(fabs(topelcorbuphist_tmp->GetBinContent(i)+topelcorbdownhist_tmp->GetBinContent(i))/2-1.0));
-
-      topelcoruncbhist->SetName(("TOP_EL_B_"+obs).c_str());
-    }
 
     outputFile.cd();
     cout<<"Save transfer factor"<<endl;
@@ -1689,43 +1608,10 @@ void fillAndSaveCorrQCDHistograms(const vector<string> & observables, // observa
 	wgamuncpdfhist->Write();
       }
     }
-
-    outputFile.cd();
-    if(addTop){
-      if(not outputFile.GetDirectory("TF_TM"))
-        outputFile.mkdir("TF_TM");
-      outputFile.cd("TF_TM");
-      topmucorhist.back()->Write();
-      topmucoruncbhist->Write();
-
-      if(addHistoForCutAndCount){
-        topmucorhist_num.back()->Write();
-        topmucorhist_den.back()->Write();
-        topmucorbuphist_num.back()->Write();
-        topmucorbuphist_den.back()->Write();
-        topmucorbdownhist_num.back()->Write();
-        topmucorbdownhist_num.back()->Write();
-      }
-
-      outputFile.cd();
-      if(not outputFile.GetDirectory("TF_TE"))
-        outputFile.mkdir("TF_TE");
-      outputFile.cd("TF_TE");
-      topelcorhist.back()->Write();
-      topelcoruncbhist->Write();
-
-      if(addHistoForCutAndCount){
-        topelcorhist_num.back()->Write();
-        topelcorhist_den.back()->Write();
-        topelcorbuphist_num.back()->Write();
-        topelcorbuphist_den.back()->Write();
-        topelcorbdownhist_num.back()->Write();
-        topelcorbdownhist_num.back()->Write();
-      }
-      
-      outputFile.cd();
-    }
   }
+
+  outputFile.cd();
+    
 
   /// closing files
   if(zmmcorfile) zmmcorfile->Close();
@@ -1734,8 +1620,6 @@ void fillAndSaveCorrQCDHistograms(const vector<string> & observables, // observa
   if(wencorfile) wencorfile->Close();
   if(gamcorfile) gamcorfile->Close();
   if(wgamcorfile) wgamcorfile->Close();
-  if(topmucorfile) topmucorfile->Close();
-  if(topelcorfile) topelcorfile->Close();
 
   if(gamcorqcdfile) gamcorqcdfile->Close();
   if(gamcorewkfile) gamcorewkfile->Close();
@@ -1809,11 +1693,6 @@ void fillAndSaveCorrQCDHistograms(const vector<string> & observables, // observa
   if(zwjcormixupfile) zwjcormixupfile->Close();
   if(zwjcormixdwfile) zwjcormixdwfile->Close();
 
-  if(topmucorbupfile) topmucorbupfile->Close();
-  if(topmucorbdownfile) topmucorbdownfile->Close();
-  if(topelcorbupfile) topelcorbupfile->Close();
-  if(topelcorbdownfile) topelcorbdownfile->Close();
-
   // clear vectors
   zmmcorhist.clear(); 
   zeecorhist.clear();
@@ -1822,12 +1701,6 @@ void fillAndSaveCorrQCDHistograms(const vector<string> & observables, // observa
   zwjcorhist.clear(); 
   wgamcorhist.clear(); 
   wgamcorhist.clear(); 
-  topmucorhist.clear(); 
-  topelcorhist.clear();
-  topmucorbuphist.clear(); 
-  topmucorbdownhist.clear(); 
-  topelcorbuphist.clear(); 
-  topelcorbdownhist.clear();
 
   gamcorewkhist.clear(); 
   gamcorqcdhist.clear(); 
@@ -1910,12 +1783,6 @@ void fillAndSaveCorrQCDHistograms(const vector<string> & observables, // observa
   zwjcorhist_num.clear(); 
   wgamcorhist_num.clear(); 
   wgamcorhist_num.clear(); 
-  topmucorhist_num.clear(); 
-  topelcorhist_num.clear();
-  topmucorbuphist_num.clear(); 
-  topmucorbdownhist_num.clear(); 
-  topelcorbuphist_num.clear(); 
-  topelcorbdownhist_num.clear();
   zmmcorhist_den.clear(); 
   zeecorhist_den.clear();
   wmncorhist_den.clear(); 
@@ -1923,12 +1790,6 @@ void fillAndSaveCorrQCDHistograms(const vector<string> & observables, // observa
   zwjcorhist_den.clear(); 
   wgamcorhist_den.clear(); 
   wgamcorhist_den.clear(); 
-  topmucorhist_den.clear(); 
-  topelcorhist_den.clear();
-  topmucorbuphist_den.clear(); 
-  topmucorbdownhist_den.clear(); 
-  topelcorbuphist_den.clear(); 
-  topelcorbdownhist_den.clear();
 
   gamcorewkhist_num.clear(); 
   gamcorqcdhist_num.clear(); 
@@ -2080,7 +1941,6 @@ void fillAndSaveCorrEWKHistograms(const vector<string> & observables, // observa
 				  const string & outDir,  // output directory
 				  const Category & category,
 				  const bool & addZWratio, 
-				  const bool & addTop, 
 				  const string & ext,
 				  const bool & addHistoForCutAndCount = false){
 

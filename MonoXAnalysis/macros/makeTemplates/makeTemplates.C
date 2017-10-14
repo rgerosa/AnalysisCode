@@ -736,13 +736,13 @@ void makeTemplates(const bool & doCorrectionHistograms   = false,  // calculate 
   TFile outfile ((outDir+"/templates_"+templateSuffix+".root").c_str(), "RECREATE");  
 
   if(not skipCorrectionHistograms){
-    fillAndSaveCorrQCDHistograms(observables,outfile,outDir,category,addZWratio,addZgamma,addWgamma,addTop,"",addHistoForCutAndCount,useNewTheoryUncertainty);
+    fillAndSaveCorrQCDHistograms(observables,outfile,outDir,category,addZWratio,addZgamma,addWgamma,"",addHistoForCutAndCount,useNewTheoryUncertainty);
     if(not observables_2D.empty())
-      fillAndSaveCorrQCDHistograms(observables_2D,outfile,outDir,category,addZWratio,addZgamma,addWgamma,addTop,"",addHistoForCutAndCount,useNewTheoryUncertainty);
+      fillAndSaveCorrQCDHistograms(observables_2D,outfile,outDir,category,addZWratio,addZgamma,addWgamma,"",addHistoForCutAndCount,useNewTheoryUncertainty);
     if(category == Category::VBF or category == Category::VBFrelaxed){
-      fillAndSaveCorrEWKHistograms(observables,outfile,outDir,category,addZWratio,addTop,"",addHistoForCutAndCount);
+      fillAndSaveCorrEWKHistograms(observables,outfile,outDir,category,addZWratio,"",addHistoForCutAndCount);
       if(not observables_2D.empty())
-	fillAndSaveCorrEWKHistograms(observables_2D,outfile,outDir,category,addZWratio,addTop,"",addHistoForCutAndCount);
+	fillAndSaveCorrEWKHistograms(observables_2D,outfile,outDir,category,addZWratio,"",addHistoForCutAndCount);
     }
   }
 

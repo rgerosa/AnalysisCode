@@ -77,19 +77,17 @@ void makeKFactorVBFPlots(string inputFileZjet, string inputFileWjet, string outp
   TFile* inputFile_wjets = TFile::Open(inputFileWjet.c_str());
 
   vector<TH1F*> zjets_kfactor;
-  zjets_kfactor.push_back((TH1F*) inputFile_zjets->Get("kfactor_vbf_mjj_200_600"));
-  zjets_kfactor.push_back((TH1F*) inputFile_zjets->Get("kfactor_vbf_mjj_600_1000"));
-  zjets_kfactor.push_back((TH1F*) inputFile_zjets->Get("kfactor_vbf_mjj_1000_1400"));
-  zjets_kfactor.push_back((TH1F*) inputFile_zjets->Get("kfactor_vbf_mjj_1400_2000"));
-  zjets_kfactor.push_back((TH1F*) inputFile_zjets->Get("kfactor_vbf_mjj_2000_5000"));
+  zjets_kfactor.push_back((TH1F*) inputFile_zjets->Get("kfactor_vbf_mjj_200_500"));
+  zjets_kfactor.push_back((TH1F*) inputFile_zjets->Get("kfactor_vbf_mjj_500_1000"));
+  zjets_kfactor.push_back((TH1F*) inputFile_zjets->Get("kfactor_vbf_mjj_1000_1500"));
+  zjets_kfactor.push_back((TH1F*) inputFile_zjets->Get("kfactor_vbf_mjj_1500_5000"));
 
   vector<TH1F*> wjets_kfactor;
-  wjets_kfactor.push_back((TH1F*) inputFile_wjets->Get("kfactor_vbf_mjj_200_600"));
-  wjets_kfactor.push_back((TH1F*) inputFile_wjets->Get("kfactor_vbf_mjj_600_1000"));
-  wjets_kfactor.push_back((TH1F*) inputFile_wjets->Get("kfactor_vbf_mjj_1000_1400"));
-  wjets_kfactor.push_back((TH1F*) inputFile_wjets->Get("kfactor_vbf_mjj_1400_2000"));
-  wjets_kfactor.push_back((TH1F*) inputFile_wjets->Get("kfactor_vbf_mjj_2000_5000"));
-
+  wjets_kfactor.push_back((TH1F*) inputFile_wjets->Get("kfactor_vbf_mjj_200_500"));
+  wjets_kfactor.push_back((TH1F*) inputFile_wjets->Get("kfactor_vbf_mjj_500_1000"));
+  wjets_kfactor.push_back((TH1F*) inputFile_wjets->Get("kfactor_vbf_mjj_1000_1500"));
+  wjets_kfactor.push_back((TH1F*) inputFile_wjets->Get("kfactor_vbf_mjj_1500_5000"));
+  
   vector<TH1F*> zw_ratios;
   for(size_t ihist = 0; ihist < zjets_kfactor.size(); ihist++){
     zw_ratios.push_back((TH1F*) zjets_kfactor.at(ihist)->Clone(Form("zwratio_%s",zjets_kfactor.at(ihist)->GetName())));
@@ -97,11 +95,10 @@ void makeKFactorVBFPlots(string inputFileZjet, string inputFileWjet, string outp
   }
 
   vector<string> label;
-  label.push_back("200 < M_{jj} < 600 GeV");
-  label.push_back("600 < M_{jj} < 1000 GeV");
-  label.push_back("1000 < M_{jj} < 1400 GeV");
-  label.push_back("1400 < M_{jj} < 2000 GeV");
-  label.push_back("2000 < M_{jj} < 5000 GeV");
+  label.push_back("200 < M_{jj} < 500 GeV");
+  label.push_back("500 < M_{jj} < 1000 GeV");
+  label.push_back("1000 < M_{jj} < 1500 GeV");
+  label.push_back("1500 < M_{jj} < 5000 GeV");
 
   TH1F* uncertaintiy_zw = new TH1F("uncertaintiy_zw","",zw_ratios.at(0)->GetNbinsX(),zw_ratios.at(0)->GetXaxis()->GetXbins()->GetArray());
   for(int iBin = 0; iBin <= uncertaintiy_zw->GetNbinsX()+1; iBin++){
