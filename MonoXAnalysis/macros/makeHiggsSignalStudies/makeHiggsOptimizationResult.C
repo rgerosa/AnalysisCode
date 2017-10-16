@@ -142,6 +142,8 @@ void makeHiggsOptimizationResult(string inputFileName, string outputDIR, bool is
 
     if(not isCutAndCount){
       if(xval == 1 and yval == 2.5) *limit = 0.224;
+      // a posteriori
+      if(xval == 2 and yval == 1.5) *limit = 0.176;
       shapeLimit.push_back(LimitCoordinate(xval,yval,*limit));
     }
     else{
@@ -151,12 +153,11 @@ void makeHiggsOptimizationResult(string inputFileName, string outputDIR, bool is
       //if(mjj == 1000 and detajj == 3.5 and dphijj == 0.5) *limit = 0.36;
       //if(mjj == 1400 and detajj == 3 and dphijj == 0.5) *limit = 0.31;
       //if(mjj == 1500 and detajj == 3 and dphijj == 0.5) *limit = 0.32;
-
+      
       //fix by hand CC a posteriori CR only
       if(mjj == 1400 and detajj == 3 and dphijj == 0.5) *limit = 0.278;
-      //if(mjj == 1500 and detajj == 3 and dphijj == 0.5) *limit = 0.32;
-
-      ccLimit[mjj].push_back(LimitCoordinate(detajj,dphijj,*limit));         
+ 
+     ccLimit[mjj].push_back(LimitCoordinate(detajj,dphijj,*limit));         
     }
   }
 
@@ -180,7 +181,7 @@ void makeHiggsOptimizationResult(string inputFileName, string outputDIR, bool is
     
     vector<float> xVecWidth;
     vector<float> yVecWidth;
-    
+
     xVecWidth.push_back(xVecCenter.at(1)-xVecCenter.at(0));
     for(size_t ibin = 0; ibin < xVecCenter.size()-1; ibin++)
       xVecWidth.push_back(xVecCenter.at(ibin+1)-xVecCenter.at(ibin));
@@ -202,7 +203,7 @@ void makeHiggsOptimizationResult(string inputFileName, string outputDIR, bool is
     for(size_t ibin = 0; ibin < yVecCenter.size(); ibin++)
       yVec.push_back(yVecCenter.at(ibin)-yVecWidth.at(ibin)/2);
     yVec.push_back(yVecCenter.back()+yVecWidth.back()/2);
-    
+
     TH2F* limitHisto_shape = new TH2F(Form("limitHisto_shape_%s",shapeAnalysisVar.c_str()),"",xVec.size()-1,&xVec[0],yVec.size()-1,&yVec[0]);
     limitHisto_shape->Sumw2();
     
@@ -215,7 +216,6 @@ void makeHiggsOptimizationResult(string inputFileName, string outputDIR, bool is
       plot2DHistogram(canvas,limitHisto_shape,outputDIR,"M_{jj}","#Delta#phi_{jj}");        
     else if(shapeAnalysisVar == "dphijj")
       plot2DHistogram(canvas,limitHisto_shape,outputDIR,"M_{jj}","#Delta#eta_{jj}");        
-
   }
   ///// ---
   else{
