@@ -67,7 +67,7 @@ void drawPlot(const vector<TH1F*> & histos,
     
 }
 
-void makeKFactorVBFPlots(string inputFileZjet, string inputFileWjet, string outputDIR){
+void makeKFactorVBFPlots(string inputFileZjet, string inputFileWjet, string outputDIR, bool useSmoothed = false){
   
   system(("mkdir -p "+outputDIR).c_str());
   setTDRStyle();
@@ -77,17 +77,32 @@ void makeKFactorVBFPlots(string inputFileZjet, string inputFileWjet, string outp
   TFile* inputFile_wjets = TFile::Open(inputFileWjet.c_str());
 
   vector<TH1F*> zjets_kfactor;
-  zjets_kfactor.push_back((TH1F*) inputFile_zjets->Get("kfactor_vbf_mjj_200_500"));
-  zjets_kfactor.push_back((TH1F*) inputFile_zjets->Get("kfactor_vbf_mjj_500_1000"));
-  zjets_kfactor.push_back((TH1F*) inputFile_zjets->Get("kfactor_vbf_mjj_1000_1500"));
-  zjets_kfactor.push_back((TH1F*) inputFile_zjets->Get("kfactor_vbf_mjj_1500_5000"));
-
+  if(not useSmoothed){
+    zjets_kfactor.push_back((TH1F*) inputFile_zjets->Get("kfactors_shape/kfactor_vbf_mjj_200_500"));
+    zjets_kfactor.push_back((TH1F*) inputFile_zjets->Get("kfactors_shape/kfactor_vbf_mjj_500_1000"));
+    zjets_kfactor.push_back((TH1F*) inputFile_zjets->Get("kfactors_shape/kfactor_vbf_mjj_1000_1500"));
+    zjets_kfactor.push_back((TH1F*) inputFile_zjets->Get("kfactors_shape/kfactor_vbf_mjj_1500_5000"));
+  }
+  else{
+    zjets_kfactor.push_back((TH1F*) inputFile_zjets->Get("kfactors_shape/kfactor_vbf_mjj_200_500_smoothed"));
+    zjets_kfactor.push_back((TH1F*) inputFile_zjets->Get("kfactors_shape/kfactor_vbf_mjj_500_1000_smoothed"));
+    zjets_kfactor.push_back((TH1F*) inputFile_zjets->Get("kfactors_shape/kfactor_vbf_mjj_1000_1500_smoothed"));
+    zjets_kfactor.push_back((TH1F*) inputFile_zjets->Get("kfactors_shape/kfactor_vbf_mjj_1500_5000_smoothed"));
+  }
   vector<TH1F*> wjets_kfactor;
-  wjets_kfactor.push_back((TH1F*) inputFile_wjets->Get("kfactor_vbf_mjj_200_500"));
-  wjets_kfactor.push_back((TH1F*) inputFile_wjets->Get("kfactor_vbf_mjj_500_1000"));
-  wjets_kfactor.push_back((TH1F*) inputFile_wjets->Get("kfactor_vbf_mjj_1000_1500"));
-  wjets_kfactor.push_back((TH1F*) inputFile_wjets->Get("kfactor_vbf_mjj_1500_5000"));
-  
+  if(not useSmoothed){
+    wjets_kfactor.push_back((TH1F*) inputFile_wjets->Get("kfactors_shape/kfactor_vbf_mjj_200_500"));
+    wjets_kfactor.push_back((TH1F*) inputFile_wjets->Get("kfactors_shape/kfactor_vbf_mjj_500_1000"));
+    wjets_kfactor.push_back((TH1F*) inputFile_wjets->Get("kfactors_shape/kfactor_vbf_mjj_1000_1500"));
+    wjets_kfactor.push_back((TH1F*) inputFile_wjets->Get("kfactors_shape/kfactor_vbf_mjj_1500_5000"));
+  }
+  else{
+    wjets_kfactor.push_back((TH1F*) inputFile_wjets->Get("kfactors_shape/kfactor_vbf_mjj_200_500_smoothed"));
+    wjets_kfactor.push_back((TH1F*) inputFile_wjets->Get("kfactors_shape/kfactor_vbf_mjj_500_1000_smoothed"));
+    wjets_kfactor.push_back((TH1F*) inputFile_wjets->Get("kfactors_shape/kfactor_vbf_mjj_1000_1500_smoothed"));
+    wjets_kfactor.push_back((TH1F*) inputFile_wjets->Get("kfactors_shape/kfactor_vbf_mjj_1500_5000_smoothed"));
+  }
+
   vector<TH1F*> zw_ratios;
   for(size_t ihist = 0; ihist < zjets_kfactor.size(); ihist++){
     zw_ratios.push_back((TH1F*) zjets_kfactor.at(ihist)->Clone(Form("zwratio_%s",zjets_kfactor.at(ihist)->GetName())));
@@ -114,7 +129,10 @@ void makeKFactorVBFPlots(string inputFileZjet, string inputFileWjet, string outp
     uncertaintiy_zw->SetBinError(iBin+1,uncertaintiy_zw->GetBinContent(iBin+1)*zw_ratios.at(0)->GetBinContent(iBin+1));    
     uncertaintiy_zw->SetBinContent(iBin+1,zw_ratios.at(0)->GetBinContent(iBin+1));
   }
-  
-  drawPlot(zw_ratios,"zw_ratio_comparison",outputDIR,"Z/W k-factor ratio",label,uncertaintiy_zw);
+
+  if(not useSmoothed)
+    drawPlot(zw_ratios,"zw_ratio_comparison",outputDIR,"Z/W k-factor ratio",label,uncertaintiy_zw);
+  else
+    drawPlot(zw_ratios,"zw_ratio_comparison_smooth",outputDIR,"Z/W k-factor ratio",label,uncertaintiy_zw);
 
 }

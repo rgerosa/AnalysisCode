@@ -10,7 +10,7 @@ vector <float> bins_recoil_cf_wmn  = {0.,30.,50.,70.,90.,100.,110.,120.,130.,140
 vector <float> bins_recoil_fc_wmn  = {80.,100.,120.,140.,160.,180.,200.,225.,250.,300.,400.,500.,1000.};
 
 vector <float> bins_recoil_cc_zmm  = {0.,30.,50.,70.,80.,90.,100.,110.,120.,130.,140.,150.,160.,170.,180.,200.,225.,250.,275.,300.,350.,400.,450.,500.,550.,650.,800.,1000};
-vector <float> bins_recoil_cf_zmm  = {0.,30.,50.,70.,90.,100.,110.,120.,130.,140.,150.,160.,180.,200.,225.,250.,275,300.,400.,550.,1000};
+vector <float> bins_recoil_cf_zmm  = {0.,30.,50.,70.,90.,100.,110.,120.,130.,140.,150.,160.,180.,200.,225.,250.,300.,450.,600.,1000};
 vector <float> bins_recoil_fc_zmm  = {80.,100.,120.,140.,160.,180.,200.,225.,250.,300.,400.,500.,1000.};
 
 // HT binning
@@ -60,19 +60,23 @@ static bool  drawUncertaintyBand   = false;
 static bool  useDoubleMuonTriggers = true;
 static bool  applyJetSelections    = true;
 
+vector<TGraphAsymmErrors*> graph;
+
 /// plotting result
 void plotTurnOn(TCanvas* canvas, 
-		vector<TEfficiency* > eff, 
-		vector<TF1*> fitfunc, 
+		const vector<TEfficiency* > & eff, 
+		const vector<TF1*>  & fitfunc, 
 		const string  & axisLabel, 
 		const string  & postfix, 
 		const string  & outputDIR,
 		const vector<float> & binning,
-                const string  & binningVar);
+                const string  & binningVar,
+		const int & ipos_start,
+		const int & ipos_end);
 
 void plotTurnOn(TCanvas* canvas, 
-		vector<TEfficiency* > eff, 
-		vector<TF1*> fitfunc, 
+		const vector<TEfficiency* >  & eff, 
+		const vector<TF1*>  & fitfunc, 
 		const string  & axisLabel, 
 		const string  & postfix, 
 		const string  & outputDIR,
@@ -324,7 +328,6 @@ void makeMETTriggerEfficiencyVBF_Data(string inputDIR, string outputDIR, Sample 
   /////
   vector<TH1F*> hnum_recoil_vs_jeteta;
   vector<TH1F*> hden_recoil_vs_jeteta;
-  vector<TF1*> fitfunc_recoil_vs_jeteta;
 
   for(size_t ibin = 0; ibin < cuts_etaj1.size()-1; ibin++){
 
@@ -332,16 +335,8 @@ void makeMETTriggerEfficiencyVBF_Data(string inputDIR, string outputDIR, Sample 
     if(fabs(cuts_etaj1.at(ibin)) >= 3){
       hnum_recoil_vs_jeteta.push_back(new TH1F(Form("hnum_recoil_vs_jeteta_%.1f_%.1f",cuts_etaj1.at(ibin),cuts_etaj1.at(ibin+1)),"",bins_recoil_fc.size()-1,&bins_recoil_fc[0]));
       hden_recoil_vs_jeteta.push_back(new TH1F(Form("hden_recoil_vs_jeteta_%.1f_%.1f",cuts_etaj1.at(ibin),cuts_etaj1.at(ibin+1)),"",bins_recoil_fc.size()-1,&bins_recoil_fc[0]));
-      fitfunc_recoil_vs_jeteta.push_back(new TF1(Form("fitfunc_recoil_vs_%.1f_%.1f",cuts_etaj1.at(ibin),cuts_etaj1.at(ibin+1)),"[0]*1./((1.+[1]*exp(-[2]*(x-[3])))^(1./[4]))"));
-	
       hnum_recoil_vs_jeteta.back()->Sumw2();
       hden_recoil_vs_jeteta.back()->Sumw2();
-      fitfunc_recoil_vs_jeteta.back()->SetParameters(1.,0.01,0.02,50,0.01);
-      fitfunc_recoil_vs_jeteta.back()->SetParLimits(0,0.,1.01);
-      fitfunc_recoil_vs_jeteta.back()->SetParLimits(1,-100.,100.);
-      fitfunc_recoil_vs_jeteta.back()->SetParLimits(3,-500.,500.);
-      fitfunc_recoil_vs_jeteta.back()->SetParLimits(4,0.,100);
-
     }
     else{// perform a real 2D binning
 
@@ -371,15 +366,8 @@ void makeMETTriggerEfficiencyVBF_Data(string inputDIR, string outputDIR, Sample 
 						   "",bins_recoil_fc.size()-1,&bins_recoil_fc[0]));
 	}
 	
-	fitfunc_recoil_vs_jeteta.push_back(new TF1(Form("fitfunc_recoil_vs_%.1f_%.1f_%.1f_%.1f",cuts_etaj1.at(ibin),cuts_etaj1.at(ibin+1),cuts_etaj2.at(jbin),cuts_etaj2.at(jbin+1)),"[0]*1./((1.+[1]*exp(-[2]*(x-[3])))^(1./[4]))"));
-	
 	hnum_recoil_vs_jeteta.back()->Sumw2();
 	hden_recoil_vs_jeteta.back()->Sumw2();
-	fitfunc_recoil_vs_jeteta.back()->SetParameters(1.,0.01,0.02,50,0.01);
-	fitfunc_recoil_vs_jeteta.back()->SetParLimits(0,0.,1.01);
-	fitfunc_recoil_vs_jeteta.back()->SetParLimits(1,-100.,100.);
-	fitfunc_recoil_vs_jeteta.back()->SetParLimits(3,-500.,500.);
-	fitfunc_recoil_vs_jeteta.back()->SetParLimits(4,0.,100);
       }
     }
   }
@@ -846,7 +834,7 @@ void makeMETTriggerEfficiencyVBF_Data(string inputDIR, string outputDIR, Sample 
     eff_recoil_cc_vs_detajj.back()->SetName(name.Data());
     icolor++;
   }
-  plotTurnOn(canvas,eff_recoil_cc_vs_detajj,fitfunc_recoil_cc_vs_detajj,"Recoil [GeV]","recoil_cc_vs_detajj",outputDIR,cuts_detajj_cc,"|#Delta#eta_{jj}|");
+  plotTurnOn(canvas,eff_recoil_cc_vs_detajj,fitfunc_recoil_cc_vs_detajj,"Recoil [GeV]","recoil_cc_vs_detajj",outputDIR,cuts_detajj_cc,"|#Delta#eta_{jj}|",0,eff_recoil_cc_vs_detajj.size());
 
   ///////---    
   vector<TEfficiency*> eff_recoil_cf_vs_detajj;
@@ -868,7 +856,7 @@ void makeMETTriggerEfficiencyVBF_Data(string inputDIR, string outputDIR, Sample 
     eff_recoil_cf_vs_detajj.back()->SetName(name.Data());
     icolor++;
   }
-  plotTurnOn(canvas,eff_recoil_cf_vs_detajj,fitfunc_recoil_cf_vs_detajj,"Recoil [GeV]","recoil_cf_vs_detajj",outputDIR,cuts_detajj_cf,"|#Delta#eta_{jj}|");
+  plotTurnOn(canvas,eff_recoil_cf_vs_detajj,fitfunc_recoil_cf_vs_detajj,"Recoil [GeV]","recoil_cf_vs_detajj",outputDIR,cuts_detajj_cf,"|#Delta#eta_{jj}|",0,eff_recoil_cf_vs_detajj.size());
 
   ///////---    
   vector<TEfficiency*> eff_recoil_fc_vs_detajj;
@@ -890,7 +878,7 @@ void makeMETTriggerEfficiencyVBF_Data(string inputDIR, string outputDIR, Sample 
     eff_recoil_fc_vs_detajj.back()->SetName(name.Data());
     icolor++;
   }
-  plotTurnOn(canvas,eff_recoil_fc_vs_detajj,fitfunc_recoil_fc_vs_detajj,"Recoil [GeV]","recoil_fc_vs_detajj",outputDIR,cuts_detajj_fc,"|#Delta#eta_{jj}|");
+  plotTurnOn(canvas,eff_recoil_fc_vs_detajj,fitfunc_recoil_fc_vs_detajj,"Recoil [GeV]","recoil_fc_vs_detajj",outputDIR,cuts_detajj_fc,"|#Delta#eta_{jj}|",0,eff_recoil_fc_vs_detajj.size());
 
   ////////
   TEfficiency* eff_ht_cc = new TEfficiency(*hnum_ht_cc,*hden_ht_cc);
@@ -991,63 +979,6 @@ void makeMETTriggerEfficiencyVBF_Data(string inputDIR, string outputDIR, Sample 
   else if(sample == Sample::zmm)
     plotTurnOn(canvas,eff_htmiss,fitfunc_htmiss,"H_{T}^{miss} [GeV]","htmiss",outputDIR,label);
 
-  ///////---    
-  vector<TEfficiency*> eff_recoil_vs_jeteta;
-  for(size_t ibin = 0; ibin < cuts_etaj1.size()-1; ibin++){
-    icolor = 1;
-    vector<TEfficiency*> eff_recoil_vs_jeteta_to_plot;    
-    vector<TF1*> fitfunc_recoil_vs_jeteta_to_plot;    
-
-    if(cuts_etaj1.at(ibin) < 3){
-      for(size_t jbin = 0; jbin < cuts_etaj2.size()-1; jbin++){
-	eff_recoil_vs_jeteta.push_back(new TEfficiency(*hnum_recoil_vs_jeteta.at(ibin*(cuts_etaj1.size()-1)+jbin),*hden_recoil_vs_jeteta.at((ibin*(cuts_etaj1.size()-1)+jbin))));          
-	if(icolor == 3) icolor++;
-	if(icolor == 5) icolor++;
-	if(icolor == 10) icolor++;
-	eff_recoil_vs_jeteta.back()->SetMarkerColor(icolor);
-	eff_recoil_vs_jeteta.back()->SetLineColor(icolor);
-	eff_recoil_vs_jeteta.back()->SetMarkerStyle(20);
-	eff_recoil_vs_jeteta.back()->SetMarkerSize(1);
-	fitfunc_recoil_vs_jeteta.at(ibin*(cuts_etaj1.size()-1)+jbin)->SetLineColor(icolor);
-	fitfunc_recoil_vs_jeteta.at(ibin*(cuts_etaj1.size()-1)+jbin)->SetLineWidth(2);
-	
-	name = TString(hnum_recoil_vs_jeteta.at(ibin*(cuts_etaj1.size()-1)+jbin)->GetName());
-	name.ReplaceAll("hnum","eff");
-	eff_recoil_vs_jeteta.back()->SetName(name.Data());
-	icolor++;
-	eff_recoil_vs_jeteta_to_plot.push_back(eff_recoil_vs_jeteta.back());
-	fitfunc_recoil_vs_jeteta_to_plot.push_back(fitfunc_recoil_vs_jeteta.at(ibin*(cuts_etaj1.size()-1)+jbin));
-      }
-      
-      string postfix = string(Form("recoil_vs_jeteta_%.1f_%.1f",cuts_etaj1.at(ibin),cuts_etaj1.at(ibin+1)));
-      plotTurnOn(canvas,eff_recoil_vs_jeteta_to_plot,fitfunc_recoil_vs_jeteta_to_plot,"Recoil [GeV]",postfix,outputDIR,cuts_etaj2,"|#eta^{j2}|");    
-    }
-    
-    else{
-      
-      eff_recoil_vs_jeteta.push_back(new TEfficiency(*hnum_recoil_vs_jeteta.at(ibin*(cuts_etaj1.size()-1)),*hden_recoil_vs_jeteta.at((ibin*(cuts_etaj1.size()-1)))));
-      eff_recoil_vs_jeteta.back()->SetMarkerColor(icolor);
-      eff_recoil_vs_jeteta.back()->SetLineColor(icolor);
-      eff_recoil_vs_jeteta.back()->SetMarkerStyle(20);
-      eff_recoil_vs_jeteta.back()->SetMarkerSize(1);
-      fitfunc_recoil_vs_jeteta.at(ibin*(cuts_etaj1.size()-1))->SetLineColor(icolor);
-      fitfunc_recoil_vs_jeteta.at(ibin*(cuts_etaj1.size()-1))->SetLineWidth(2);
-      
-      
-      name = TString(hnum_recoil_vs_jeteta.at(ibin*(cuts_etaj1.size()-1))->GetName());
-      name.ReplaceAll("hnum","eff");
-      eff_recoil_vs_jeteta.back()->SetName(name.Data());
-      icolor++;
-      eff_recoil_vs_jeteta_to_plot.push_back(eff_recoil_vs_jeteta.back());
-      fitfunc_recoil_vs_jeteta_to_plot.push_back(fitfunc_recoil_vs_jeteta.at(ibin*(cuts_etaj1.size()-1)));
-      string postfix = string(Form("recoil_vs_jeteta_%.1f_%.1f",cuts_etaj1.at(ibin),cuts_etaj1.at(ibin+1)));
-      vector<float> cuts_etaj2_plot;
-      cuts_etaj2_plot.push_back(cuts_etaj2.front());
-      cuts_etaj2_plot.push_back(cuts_etaj2.back());
-      plotTurnOn(canvas,eff_recoil_vs_jeteta_to_plot,fitfunc_recoil_vs_jeteta_to_plot,"Recoil [GeV]",postfix,outputDIR,cuts_etaj2_plot,"|#eta^{j2}|");
-    }
-  }
-  
   // fill output file
   outputFile->cd();
   outputFile->mkdir("efficiency_cc");
@@ -1083,22 +1014,110 @@ void makeMETTriggerEfficiencyVBF_Data(string inputDIR, string outputDIR, Sample 
   for(auto fit: fitfunc_recoil_fc_vs_detajj) fit->Write();
 
   outputFile->cd();
-  for(auto eff: eff_recoil_vs_jeteta) eff->Write();
-  for(auto fit: fitfunc_recoil_vs_jeteta) fit->Write();
   
+  ///////---    
+  vector<TEfficiency*> eff_recoil_vs_jeteta;
+  vector<TF1*> fitfunc_recoil_vs_jeteta;          
+
+  int ipos_start = 0;
+  int ipos_end   = 0;
+  
+  // loop
+  for(size_t ibin = 0; ibin < cuts_etaj1.size()-1; ibin++){
+  
+    // color
+    icolor = 1;
+
+    if(cuts_etaj1.at(ibin) < 3){
+
+      for(size_t jbin = 0; jbin < cuts_etaj2.size()-1; jbin++){
+
+	eff_recoil_vs_jeteta.push_back(new TEfficiency(*hnum_recoil_vs_jeteta.at(ibin*(cuts_etaj1.size()-1)+jbin),*hden_recoil_vs_jeteta.at((ibin*(cuts_etaj1.size()-1)+jbin))));          
+	fitfunc_recoil_vs_jeteta.push_back(new TF1(TString(Form("%s",hnum_recoil_vs_jeteta.at(ibin*(cuts_etaj1.size()-1)+jbin)->GetName())).ReplaceAll("hnum_recoil","fitfunc_recoil"),"[0]*1./((1.+[1]*exp(-[2]*(x-[3])))^(1./[4]))",hnum_recoil_vs_jeteta.at(ibin*(cuts_etaj1.size()-1))->GetXaxis()->GetXmin(), hnum_recoil_vs_jeteta.at(ibin*(cuts_etaj1.size()-1))->GetXaxis()->GetXmax()));	
+	fitfunc_recoil_vs_jeteta.back()->SetParameters(1.,0.01,0.02,50,0.01);
+	fitfunc_recoil_vs_jeteta.back()->SetParLimits(0,0.,1.01);
+	fitfunc_recoil_vs_jeteta.back()->SetParLimits(1,-100.,100.);
+	fitfunc_recoil_vs_jeteta.back()->SetParLimits(3,-500.,500.);
+	fitfunc_recoil_vs_jeteta.back()->SetParLimits(4,0.,100);
+
+	if(icolor == 3) icolor++;
+	if(icolor == 5) icolor++;
+	if(icolor == 10) icolor++;
+	eff_recoil_vs_jeteta.back()->SetMarkerColor(icolor);
+	eff_recoil_vs_jeteta.back()->SetLineColor(icolor);
+	eff_recoil_vs_jeteta.back()->SetMarkerStyle(20);
+	eff_recoil_vs_jeteta.back()->SetMarkerSize(1);
+	fitfunc_recoil_vs_jeteta.back()->SetLineColor(icolor);
+	fitfunc_recoil_vs_jeteta.back()->SetLineWidth(2);	
+	name = TString(hnum_recoil_vs_jeteta.at(ibin*(cuts_etaj1.size()-1)+jbin)->GetName());
+	name.ReplaceAll("hnum","eff");
+	eff_recoil_vs_jeteta.back()->SetName(name.Data());
+	icolor++;
+
+	ipos_start = ibin*(cuts_etaj1.size()-1);
+	ipos_end   = ibin*(cuts_etaj1.size()-1)+jbin;
+	
+      }
+     
+      string postfix = string(Form("recoil_vs_jeteta_%.1f_%.1f",cuts_etaj1.at(ibin),cuts_etaj1.at(ibin+1)));
+      plotTurnOn(canvas,eff_recoil_vs_jeteta,fitfunc_recoil_vs_jeteta,"Recoil [GeV]",postfix,outputDIR,cuts_etaj2,"|#eta^{j2}|",ipos_start,ipos_end+1);    
+      
+      for(auto eff: eff_recoil_vs_jeteta) eff->Write("",TObject::kOverwrite);
+      for(auto func: fitfunc_recoil_vs_jeteta) func->Write("",TObject::kOverwrite);
+    }
+    
+    else{
+
+      eff_recoil_vs_jeteta.push_back(new TEfficiency(*hnum_recoil_vs_jeteta.at(ibin*(cuts_etaj1.size()-1)),*hden_recoil_vs_jeteta.at((ibin*(cuts_etaj1.size()-1)))));
+      fitfunc_recoil_vs_jeteta.push_back(new TF1(TString(Form("%s",hnum_recoil_vs_jeteta.at(ibin*(cuts_etaj1.size()-1))->GetName())).ReplaceAll("hnum_recoil","fitfunc_recoil"),"[0]*1./((1.+[1]*exp(-[2]*(x-[3])))^(1./[4]))",hnum_recoil_vs_jeteta.at(ibin*(cuts_etaj1.size()-1))->GetXaxis()->GetXmin(), hnum_recoil_vs_jeteta.at(ibin*(cuts_etaj1.size()-1))->GetXaxis()->GetXmax()));	
+      fitfunc_recoil_vs_jeteta.back()->SetParameters(1.,0.01,0.02,50,0.01);
+      fitfunc_recoil_vs_jeteta.back()->SetParLimits(0,0.,1.01);
+      fitfunc_recoil_vs_jeteta.back()->SetParLimits(1,-100.,100.);
+      fitfunc_recoil_vs_jeteta.back()->SetParLimits(3,-500.,500.);
+      fitfunc_recoil_vs_jeteta.back()->SetParLimits(4,0.,100);
+      
+      eff_recoil_vs_jeteta.back()->SetMarkerColor(icolor);
+      eff_recoil_vs_jeteta.back()->SetLineColor(icolor);
+      eff_recoil_vs_jeteta.back()->SetMarkerStyle(20);
+      eff_recoil_vs_jeteta.back()->SetMarkerSize(1);
+      fitfunc_recoil_vs_jeteta.back()->SetLineColor(icolor);
+      fitfunc_recoil_vs_jeteta.back()->SetLineWidth(2);
+
+      ipos_start = ibin*(cuts_etaj1.size()-1);
+      ipos_end   = ibin*(cuts_etaj1.size()-1)+1;
+      
+      name = TString(hnum_recoil_vs_jeteta.at(ibin*(cuts_etaj1.size()-1))->GetName());
+      name.ReplaceAll("hnum","eff");
+      eff_recoil_vs_jeteta.back()->SetName(name.Data());
+      icolor++;
+      string postfix = string(Form("recoil_vs_jeteta_%.1f_%.1f",cuts_etaj1.at(ibin),cuts_etaj1.at(ibin+1)));
+      vector<float> cuts_etaj2_plot;
+      cuts_etaj2_plot.push_back(cuts_etaj2.front());
+      cuts_etaj2_plot.push_back(cuts_etaj2.back());
+
+      plotTurnOn(canvas,eff_recoil_vs_jeteta,fitfunc_recoil_vs_jeteta,"Recoil [GeV]",postfix,outputDIR,cuts_etaj2_plot,"|#eta^{j2}|",ipos_start,ipos_end);
+
+      for(auto eff: eff_recoil_vs_jeteta) eff->Write("",TObject::kOverwrite);
+      for(auto funz: fitfunc_recoil_vs_jeteta) funz->Write("",TObject::kOverwrite);
+      
+    }
+  }
+
   outputFile->Close();
   
 }
 
 ////// -------------
 void plotTurnOn(TCanvas* canvas,
-                vector<TEfficiency* > eff,
-                vector<TF1*> fitfunc,
+                const vector<TEfficiency* > & eff,
+                const vector<TF1*> & fitfunc,
                 const string  & axisLabel,
                 const string  & postfix,
                 const string  & outputDIR,
 		const vector<float> & binning,
-		const string  & binningVar){
+		const string  & binningVar,
+		const int & ipos_start,
+		const int & ipos_end){
 
   const TH1* histo_temp = eff.at(0)->GetPassedHistogram();
 
@@ -1113,15 +1132,14 @@ void plotTurnOn(TCanvas* canvas,
   frame->GetXaxis()->SetTitleOffset(1.1);
   frame->GetYaxis()->SetTitleOffset(1.15);
 
-  vector<TGraphAsymmErrors*> graph;
-  for(auto efficiency : eff)
-    graph.push_back(efficiency->CreateGraph());
+  graph.clear();
   
   // make the fit
   vector<TH1F*> error_band;
-  for(size_t iobj = 0; iobj < graph.size(); iobj++){
+  for(int iobj = ipos_start; iobj < ipos_end; iobj++){
+    graph.push_back(eff.at(iobj)->CreateGraph());
     if(fitfunc.size() != 0){
-      TFitResultPtr fitResult = graph.at(iobj)->Fit(fitfunc.at(iobj),"SM");
+      TFitResultPtr fitResult = graph.back()->Fit(fitfunc.at(iobj),"SMQR");
       int npoints       = 350;                                                                                                                                                                   
       error_band.push_back(new TH1F(Form("%s_error_band",fitfunc.at(iobj)->GetName()),"",npoints,fitfunc.at(iobj)->GetXaxis()->GetXmin(),fitfunc.at(iobj)->GetXaxis()->GetXmax()));
       if(drawUncertaintyBand)
@@ -1150,24 +1168,28 @@ void plotTurnOn(TCanvas* canvas,
   
   for(size_t iobj = 0; iobj < graph.size(); iobj++){
     graph.at(iobj)->Draw("E1PSAME");
+    leg.AddEntry(graph.at(iobj),Form("%.1f < %s < %.1f ",binning.at(iobj),binningVar.c_str(),binning.at(iobj+1)),"EP");
+  }
+  
+  for(int iobj = ipos_start; iobj < ipos_end; iobj++){
     if(fitfunc.size() != 0 and fitfunc.at(iobj) != NULL and fitfunc.at(iobj) != 0){
       fitfunc.at(iobj)->Draw("SAME");  
     }
-    leg.AddEntry(graph.at(iobj),Form("%.1f < %s < %.1f ",binning.at(iobj),binningVar.c_str(),binning.at(iobj+1)),"EP");
   }
+
   leg.Draw("same");
   
   canvas->RedrawAxis();
   CMS_lumi(canvas,"35.9",true);
-
+  
   canvas->SaveAs((outputDIR+"/"+postfix+".png").c_str(),"png");
   canvas->SaveAs((outputDIR+"/"+postfix+".pdf").c_str(),"pdf");
 }
 
 ////// -------------
 void plotTurnOn(TCanvas* canvas,
-                vector<TEfficiency* > eff,
-                vector<TF1*> fitfunc,
+                const vector<TEfficiency* > & eff,
+                const vector<TF1*>  & fitfunc,
                 const string  & axisLabel,
                 const string  & postfix,
                 const string  & outputDIR,
@@ -1185,15 +1207,15 @@ void plotTurnOn(TCanvas* canvas,
   frame->GetXaxis()->SetTitleOffset(1.1);
   frame->GetYaxis()->SetTitleOffset(1.15);
 
-  vector<TGraphAsymmErrors*> graph;
+  graph.clear();
   for(auto efficiency : eff)
     graph.push_back(efficiency->CreateGraph());
-  
+
   // make the fit
   vector<TH1F*> error_band;
   for(size_t iobj = 0; iobj < eff.size(); iobj++){
     if(fitfunc.size() != 0 and fitfunc.at(iobj) != 0 and fitfunc.at(iobj) != NULL){
-      TFitResultPtr fitResult = graph.at(iobj)->Fit(fitfunc.at(iobj),"SM");
+      TFitResultPtr fitResult = graph.at(iobj)->Fit(fitfunc.at(iobj),"SMQR");
       int npoints       = 350;                                                                                                                                                                   
       error_band.push_back(new TH1F(Form("%s_error_band",fitfunc.at(iobj)->GetName()),"",npoints,fitfunc.at(iobj)->GetXaxis()->GetXmin(),fitfunc.at(iobj)->GetXaxis()->GetXmax()));
       if(drawUncertaintyBand)
@@ -1235,7 +1257,6 @@ void plotTurnOn(TCanvas* canvas,
   canvas->SaveAs((outputDIR+"/"+postfix+".png").c_str(),"png");
   canvas->SaveAs((outputDIR+"/"+postfix+".pdf").c_str(),"pdf");
 
-  for(auto hist : error_band) delete hist;
 }
 
 

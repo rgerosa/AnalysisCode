@@ -647,19 +647,21 @@ void makeKFactorVBF(string inputDIR_LO, string inputDIR_NLO, string outputDIR, S
   }
   plotDistributions(sample,kfactor_vbf_vs_mjj_smoothed,outputDIR,label_vs_mjj,"boson p_{T} [GeV]","bosonpt_mjj_smooth",false);
 
-  bosonPt_NLO_monojet->Write();
-  bosonPt_NLO_vbf_tight->Write();
-  bosonPt_NLO_vbf->Write();
-
-  bosonPt_LO_monojet->Write();
-  bosonPt_LO_vbf_tight->Write();
-  bosonPt_LO_vbf->Write();
-
+  output->cd();
+  output->mkdir("kfactors_shape");
+  output->cd("kfactors_shape");
+      
   for(auto hist: kfactor_vbf_vs_mjj)
     hist->Write();
 
   for(auto hist: kfactor_vbf_vs_mjj_smoothed)
     hist->Write();
+
+  output->cd();
+  output->mkdir("kfactors_cc");
+  output->cd("kfactors_cc");
+
+  kfactor_vbf->Write();
 
   output->Close();
 }
