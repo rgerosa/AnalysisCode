@@ -329,6 +329,9 @@ void makeMETTriggerEfficiencyVBF_Data(string inputDIR, string outputDIR, Sample 
   vector<TH1F*> hnum_recoil_vs_jeteta;
   vector<TH1F*> hden_recoil_vs_jeteta;
 
+  vector<TH1F*> hnum_htmiss_vs_jeteta;
+  vector<TH1F*> hden_htmiss_vs_jeteta;
+
   for(size_t ibin = 0; ibin < cuts_etaj1.size()-1; ibin++){
 
     // when the leading jet is forward only one bin in jet-eta of the trailing jet
@@ -337,33 +340,62 @@ void makeMETTriggerEfficiencyVBF_Data(string inputDIR, string outputDIR, Sample 
       hden_recoil_vs_jeteta.push_back(new TH1F(Form("hden_recoil_vs_jeteta_%.1f_%.1f",cuts_etaj1.at(ibin),cuts_etaj1.at(ibin+1)),"",bins_recoil_fc.size()-1,&bins_recoil_fc[0]));
       hnum_recoil_vs_jeteta.back()->Sumw2();
       hden_recoil_vs_jeteta.back()->Sumw2();
+
+      hnum_htmiss_vs_jeteta.push_back(new TH1F(Form("hnum_htmiss_vs_jeteta_%.1f_%.1f",cuts_etaj1.at(ibin),cuts_etaj1.at(ibin+1)),"",bins_ht_fc.size()-1,&bins_ht_fc[0]));
+      hden_htmiss_vs_jeteta.push_back(new TH1F(Form("hden_htmiss_vs_jeteta_%.1f_%.1f",cuts_etaj1.at(ibin),cuts_etaj1.at(ibin+1)),"",bins_ht_fc.size()-1,&bins_ht_fc[0]));
+      hnum_htmiss_vs_jeteta.back()->Sumw2();
+      hden_htmiss_vs_jeteta.back()->Sumw2();
+
     }
     else{// perform a real 2D binning
 
       for(size_t jbin = 0; jbin < cuts_etaj2.size()-1; jbin++){	
+
 	if(fabs(cuts_etaj1.at(ibin)) <= 2.5 and fabs(cuts_etaj2.at(jbin)) <= 2.5){
+
 	  hnum_recoil_vs_jeteta.push_back(new TH1F(Form("hnum_recoil_vs_jeteta_%.1f_%.1f_%.1f_%.1f",cuts_etaj1.at(ibin),cuts_etaj1.at(ibin+1),cuts_etaj2.at(jbin),cuts_etaj2.at(jbin+1)),
 						   "",bins_recoil_cc.size()-1,&bins_recoil_cc[0]));
 	  hden_recoil_vs_jeteta.push_back(new TH1F(Form("hden_recoil_vs_jeteta_%.1f_%.1f_%.1f_%.1f",cuts_etaj1.at(ibin),cuts_etaj1.at(ibin+1),cuts_etaj2.at(jbin),cuts_etaj2.at(jbin+1)),
 						   "",bins_recoil_cc.size()-1,&bins_recoil_cc[0]));
+
+	  hnum_htmiss_vs_jeteta.push_back(new TH1F(Form("hnum_htmiss_vs_jeteta_%.1f_%.1f_%.1f_%.1f",cuts_etaj1.at(ibin),cuts_etaj1.at(ibin+1),cuts_etaj2.at(jbin),cuts_etaj2.at(jbin+1)),
+						   "",bins_ht_cc.size()-1,&bins_ht_cc[0]));
+	  hden_htmiss_vs_jeteta.push_back(new TH1F(Form("hden_htmiss_vs_jeteta_%.1f_%.1f_%.1f_%.1f",cuts_etaj1.at(ibin),cuts_etaj1.at(ibin+1),cuts_etaj2.at(jbin),cuts_etaj2.at(jbin+1)),
+						   "",bins_ht_cc.size()-1,&bins_ht_cc[0]));
+
 	}
 	if(fabs(cuts_etaj1.at(ibin)) > 2.5 and fabs(cuts_etaj2.at(jbin)) <= 2.5){
 	  hnum_recoil_vs_jeteta.push_back(new TH1F(Form("hnum_recoil_vs_jeteta_%.1f_%.1f_%.1f_%.1f",cuts_etaj1.at(ibin),cuts_etaj1.at(ibin+1),cuts_etaj2.at(jbin),cuts_etaj2.at(jbin+1)),
-						   "",bins_recoil_cf.size()-1,&bins_recoil_fc[0]));
+						   "",bins_recoil_fc.size()-1,&bins_recoil_fc[0]));
 	  hden_recoil_vs_jeteta.push_back(new TH1F(Form("hden_recoil_vs_jeteta_%.1f_%.1f_%.1f_%.1f",cuts_etaj1.at(ibin),cuts_etaj1.at(ibin+1),cuts_etaj2.at(jbin),cuts_etaj2.at(jbin+1)),
-						   "",bins_recoil_cf.size()-1,&bins_recoil_fc[0]));
+						   "",bins_recoil_fc.size()-1,&bins_recoil_fc[0]));
+
+	  hnum_htmiss_vs_jeteta.push_back(new TH1F(Form("hnum_htmiss_vs_jeteta_%.1f_%.1f_%.1f_%.1f",cuts_etaj1.at(ibin),cuts_etaj1.at(ibin+1),cuts_etaj2.at(jbin),cuts_etaj2.at(jbin+1)),
+						   "",bins_ht_fc.size()-1,&bins_ht_fc[0]));
+	  hden_htmiss_vs_jeteta.push_back(new TH1F(Form("hden_htmiss_vs_jeteta_%.1f_%.1f_%.1f_%.1f",cuts_etaj1.at(ibin),cuts_etaj1.at(ibin+1),cuts_etaj2.at(jbin),cuts_etaj2.at(jbin+1)),
+						   "",bins_ht_fc.size()-1,&bins_ht_fc[0]));
 	}
 	else if(fabs(cuts_etaj1.at(ibin)) < 2.5 and fabs(cuts_etaj2.at(jbin))  > 2.5){
 	  hnum_recoil_vs_jeteta.push_back(new TH1F(Form("hnum_recoil_vs_jeteta_%.1f_%.1f_%.1f_%.1f",cuts_etaj1.at(ibin),cuts_etaj1.at(ibin+1),cuts_etaj2.at(jbin),cuts_etaj2.at(jbin+1)),
 						   "",bins_recoil_cf.size()-1,&bins_recoil_cf[0]));
 	  hden_recoil_vs_jeteta.push_back(new TH1F(Form("hden_recoil_vs_jeteta_%.1f_%.1f_%.1f_%.1f",cuts_etaj1.at(ibin),cuts_etaj1.at(ibin+1),cuts_etaj2.at(jbin),cuts_etaj2.at(jbin+1)),
 						   "",bins_recoil_cf.size()-1,&bins_recoil_cf[0]));
+
+	  hnum_htmiss_vs_jeteta.push_back(new TH1F(Form("hnum_htmiss_vs_jeteta_%.1f_%.1f_%.1f_%.1f",cuts_etaj1.at(ibin),cuts_etaj1.at(ibin+1),cuts_etaj2.at(jbin),cuts_etaj2.at(jbin+1)),
+						   "",bins_ht_cf.size()-1,&bins_ht_cf[0]));
+	  hden_htmiss_vs_jeteta.push_back(new TH1F(Form("hden_htmiss_vs_jeteta_%.1f_%.1f_%.1f_%.1f",cuts_etaj1.at(ibin),cuts_etaj1.at(ibin+1),cuts_etaj2.at(jbin),cuts_etaj2.at(jbin+1)),
+						   "",bins_ht_cf.size()-1,&bins_ht_cf[0]));
 	}
 	else if(fabs(cuts_etaj1.at(ibin)) >= 2.5 and fabs(cuts_etaj2.at(jbin))  > 2.5){
 	  hnum_recoil_vs_jeteta.push_back(new TH1F(Form("hnum_recoil_vs_jeteta_%.1f_%.1f_%.1f_%.1f",cuts_etaj1.at(ibin),cuts_etaj1.at(ibin+1),cuts_etaj2.at(jbin),cuts_etaj2.at(jbin+1)),
 						   "",bins_recoil_fc.size()-1,&bins_recoil_fc[0]));
 	  hden_recoil_vs_jeteta.push_back(new TH1F(Form("hden_recoil_vs_jeteta_%.1f_%.1f_%.1f_%.1f",cuts_etaj1.at(ibin),cuts_etaj1.at(ibin+1),cuts_etaj2.at(jbin),cuts_etaj2.at(jbin+1)),
 						   "",bins_recoil_fc.size()-1,&bins_recoil_fc[0]));
+
+	  hnum_htmiss_vs_jeteta.push_back(new TH1F(Form("hnum_htmiss_vs_jeteta_%.1f_%.1f_%.1f_%.1f",cuts_etaj1.at(ibin),cuts_etaj1.at(ibin+1),cuts_etaj2.at(jbin),cuts_etaj2.at(jbin+1)),
+						   "",bins_ht_fc.size()-1,&bins_ht_fc[0]));
+	  hden_htmiss_vs_jeteta.push_back(new TH1F(Form("hden_htmiss_vs_jeteta_%.1f_%.1f_%.1f_%.1f",cuts_etaj1.at(ibin),cuts_etaj1.at(ibin+1),cuts_etaj2.at(jbin),cuts_etaj2.at(jbin+1)),
+						   "",bins_ht_fc.size()-1,&bins_ht_fc[0]));
 	}
 	
 	hnum_recoil_vs_jeteta.back()->Sumw2();
@@ -696,14 +728,21 @@ void makeMETTriggerEfficiencyVBF_Data(string inputDIR, string outputDIR, Sample 
     // pickup the right bin 
     if(cuts_etaj1.at(eta1_bin) < 3){
       hden_recoil_vs_jeteta.at(eta1_bin*(cuts_etaj1.size()-1)+eta2_bin)->Fill(metval);
-      if(*hltm90 or *hltm100 or *hltm110 or *hltm120 or *hltmwm120 or *hltmwm90 or *hltmwm100 or *hltmwm110 or *hltmwm170 or *hltmwm300 or *hltjm)
+      hden_htmiss_vs_jeteta.at(eta1_bin*(cuts_etaj1.size()-1)+eta2_bin)->Fill(htmiss);
+
+      if(*hltm90 or *hltm100 or *hltm110 or *hltm120 or *hltmwm120 or *hltmwm90 or *hltmwm100 or *hltmwm110 or *hltmwm170 or *hltmwm300 or *hltjm){
 	hnum_recoil_vs_jeteta.at(eta1_bin*(cuts_etaj1.size()-1)+eta2_bin)->Fill(metval);    
+	hnum_htmiss_vs_jeteta.at(eta1_bin*(cuts_etaj1.size()-1)+eta2_bin)->Fill(htmiss);    
+      }
     }
     // fill the bin without taking into account jet 2
     else{
       hden_recoil_vs_jeteta.at(eta1_bin*(cuts_etaj1.size()-1))->Fill(metval);
-      if(*hltm90 or *hltm100 or *hltm110 or *hltm120 or *hltmwm120 or *hltmwm90 or *hltmwm100 or *hltmwm110 or *hltmwm170 or *hltmwm300 or *hltjm)
-	hnum_recoil_vs_jeteta.at(eta1_bin*(cuts_etaj1.size()-1))->Fill(metval);    
+      hden_htmiss_vs_jeteta.at(eta1_bin*(cuts_etaj1.size()-1))->Fill(htmiss);
+      if(*hltm90 or *hltm100 or *hltm110 or *hltm120 or *hltmwm120 or *hltmwm90 or *hltmwm100 or *hltmwm110 or *hltmwm170 or *hltmwm300 or *hltjm){
+	hnum_recoil_vs_jeteta.at(eta1_bin*(cuts_etaj1.size()-1))->Fill(metval);          
+	hnum_htmiss_vs_jeteta.at(eta1_bin*(cuts_etaj1.size()-1))->Fill(htmiss);    
+      }
     }
   }
   
@@ -1018,6 +1057,8 @@ void makeMETTriggerEfficiencyVBF_Data(string inputDIR, string outputDIR, Sample 
   ///////---    
   vector<TEfficiency*> eff_recoil_vs_jeteta;
   vector<TF1*> fitfunc_recoil_vs_jeteta;          
+  vector<TEfficiency*> eff_htmiss_vs_jeteta;
+  vector<TF1*> fitfunc_htmiss_vs_jeteta;          
 
   int ipos_start = 0;
   int ipos_end   = 0;
@@ -1033,6 +1074,8 @@ void makeMETTriggerEfficiencyVBF_Data(string inputDIR, string outputDIR, Sample 
       for(size_t jbin = 0; jbin < cuts_etaj2.size()-1; jbin++){
 
 	eff_recoil_vs_jeteta.push_back(new TEfficiency(*hnum_recoil_vs_jeteta.at(ibin*(cuts_etaj1.size()-1)+jbin),*hden_recoil_vs_jeteta.at((ibin*(cuts_etaj1.size()-1)+jbin))));          
+	eff_htmiss_vs_jeteta.push_back(new TEfficiency(*hnum_htmiss_vs_jeteta.at(ibin*(cuts_etaj1.size()-1)+jbin),*hden_htmiss_vs_jeteta.at((ibin*(cuts_etaj1.size()-1)+jbin))));          
+
 	fitfunc_recoil_vs_jeteta.push_back(new TF1(TString(Form("%s",hnum_recoil_vs_jeteta.at(ibin*(cuts_etaj1.size()-1)+jbin)->GetName())).ReplaceAll("hnum_recoil","fitfunc_recoil"),"[0]*1./((1.+[1]*exp(-[2]*(x-[3])))^(1./[4]))",hnum_recoil_vs_jeteta.at(ibin*(cuts_etaj1.size()-1))->GetXaxis()->GetXmin(), hnum_recoil_vs_jeteta.at(ibin*(cuts_etaj1.size()-1))->GetXaxis()->GetXmax()));	
 	fitfunc_recoil_vs_jeteta.back()->SetParameters(1.,0.01,0.02,50,0.01);
 	fitfunc_recoil_vs_jeteta.back()->SetParLimits(0,0.,1.01);
@@ -1040,9 +1083,12 @@ void makeMETTriggerEfficiencyVBF_Data(string inputDIR, string outputDIR, Sample 
 	fitfunc_recoil_vs_jeteta.back()->SetParLimits(3,-500.,500.);
 	fitfunc_recoil_vs_jeteta.back()->SetParLimits(4,0.,100);
 
+	fitfunc_htmiss_vs_jeteta.push_back(NULL);
+
 	if(icolor == 3) icolor++;
 	if(icolor == 5) icolor++;
 	if(icolor == 10) icolor++;
+
 	eff_recoil_vs_jeteta.back()->SetMarkerColor(icolor);
 	eff_recoil_vs_jeteta.back()->SetLineColor(icolor);
 	eff_recoil_vs_jeteta.back()->SetMarkerStyle(20);
@@ -1052,6 +1098,15 @@ void makeMETTriggerEfficiencyVBF_Data(string inputDIR, string outputDIR, Sample 
 	name = TString(hnum_recoil_vs_jeteta.at(ibin*(cuts_etaj1.size()-1)+jbin)->GetName());
 	name.ReplaceAll("hnum","eff");
 	eff_recoil_vs_jeteta.back()->SetName(name.Data());
+
+	eff_htmiss_vs_jeteta.back()->SetMarkerColor(icolor);
+	eff_htmiss_vs_jeteta.back()->SetLineColor(icolor);
+	eff_htmiss_vs_jeteta.back()->SetMarkerStyle(20);
+	eff_htmiss_vs_jeteta.back()->SetMarkerSize(1);
+	name = TString(hnum_htmiss_vs_jeteta.at(ibin*(cuts_etaj1.size()-1)+jbin)->GetName());
+	name.ReplaceAll("hnum","eff");
+	eff_htmiss_vs_jeteta.back()->SetName(name.Data());
+
 	icolor++;
 
 	ipos_start = ibin*(cuts_etaj1.size()-1);
@@ -1060,22 +1115,29 @@ void makeMETTriggerEfficiencyVBF_Data(string inputDIR, string outputDIR, Sample 
       }
      
       string postfix = string(Form("recoil_vs_jeteta_%.1f_%.1f",cuts_etaj1.at(ibin),cuts_etaj1.at(ibin+1)));
-      plotTurnOn(canvas,eff_recoil_vs_jeteta,fitfunc_recoil_vs_jeteta,"Recoil [GeV]",postfix,outputDIR,cuts_etaj2,"|#eta^{j2}|",ipos_start,ipos_end+1);    
-      
+      plotTurnOn(canvas,eff_recoil_vs_jeteta,fitfunc_recoil_vs_jeteta,"Recoil [GeV]",postfix,outputDIR,cuts_etaj2,"|#eta^{j2}|",ipos_start,ipos_end+1);          
       for(auto eff: eff_recoil_vs_jeteta) eff->Write("",TObject::kOverwrite);
       for(auto func: fitfunc_recoil_vs_jeteta) func->Write("",TObject::kOverwrite);
+
+      postfix = string(Form("htmiss_vs_jeteta_%.1f_%.1f",cuts_etaj1.at(ibin),cuts_etaj1.at(ibin+1)));
+      plotTurnOn(canvas,eff_htmiss_vs_jeteta,fitfunc_htmiss_vs_jeteta,"H_{T}^{miss} [GeV]",postfix,outputDIR,cuts_etaj2,"|#eta^{j2}|",ipos_start,ipos_end+1);          
+      for(auto eff: eff_htmiss_vs_jeteta) eff->Write("",TObject::kOverwrite);
     }
     
     else{
 
       eff_recoil_vs_jeteta.push_back(new TEfficiency(*hnum_recoil_vs_jeteta.at(ibin*(cuts_etaj1.size()-1)),*hden_recoil_vs_jeteta.at((ibin*(cuts_etaj1.size()-1)))));
+      eff_htmiss_vs_jeteta.push_back(new TEfficiency(*hnum_htmiss_vs_jeteta.at(ibin*(cuts_etaj1.size()-1)),*hden_htmiss_vs_jeteta.at((ibin*(cuts_etaj1.size()-1)))));
+
       fitfunc_recoil_vs_jeteta.push_back(new TF1(TString(Form("%s",hnum_recoil_vs_jeteta.at(ibin*(cuts_etaj1.size()-1))->GetName())).ReplaceAll("hnum_recoil","fitfunc_recoil"),"[0]*1./((1.+[1]*exp(-[2]*(x-[3])))^(1./[4]))",hnum_recoil_vs_jeteta.at(ibin*(cuts_etaj1.size()-1))->GetXaxis()->GetXmin(), hnum_recoil_vs_jeteta.at(ibin*(cuts_etaj1.size()-1))->GetXaxis()->GetXmax()));	
       fitfunc_recoil_vs_jeteta.back()->SetParameters(1.,0.01,0.02,50,0.01);
       fitfunc_recoil_vs_jeteta.back()->SetParLimits(0,0.,1.01);
       fitfunc_recoil_vs_jeteta.back()->SetParLimits(1,-100.,100.);
       fitfunc_recoil_vs_jeteta.back()->SetParLimits(3,-500.,500.);
       fitfunc_recoil_vs_jeteta.back()->SetParLimits(4,0.,100);
-      
+
+      fitfunc_htmiss_vs_jeteta.push_back(NULL);
+
       eff_recoil_vs_jeteta.back()->SetMarkerColor(icolor);
       eff_recoil_vs_jeteta.back()->SetLineColor(icolor);
       eff_recoil_vs_jeteta.back()->SetMarkerStyle(20);
@@ -1083,22 +1145,36 @@ void makeMETTriggerEfficiencyVBF_Data(string inputDIR, string outputDIR, Sample 
       fitfunc_recoil_vs_jeteta.back()->SetLineColor(icolor);
       fitfunc_recoil_vs_jeteta.back()->SetLineWidth(2);
 
+      eff_htmiss_vs_jeteta.back()->SetMarkerColor(icolor);
+      eff_htmiss_vs_jeteta.back()->SetLineColor(icolor);
+      eff_htmiss_vs_jeteta.back()->SetMarkerStyle(20);
+      eff_htmiss_vs_jeteta.back()->SetMarkerSize(1);
+
       ipos_start = ibin*(cuts_etaj1.size()-1);
       ipos_end   = ibin*(cuts_etaj1.size()-1)+1;
       
       name = TString(hnum_recoil_vs_jeteta.at(ibin*(cuts_etaj1.size()-1))->GetName());
       name.ReplaceAll("hnum","eff");
       eff_recoil_vs_jeteta.back()->SetName(name.Data());
+
+      name = TString(hnum_htmiss_vs_jeteta.at(ibin*(cuts_etaj1.size()-1))->GetName());
+      name.ReplaceAll("hnum","eff");
+      eff_htmiss_vs_jeteta.back()->SetName(name.Data());
+
       icolor++;
-      string postfix = string(Form("recoil_vs_jeteta_%.1f_%.1f",cuts_etaj1.at(ibin),cuts_etaj1.at(ibin+1)));
+
       vector<float> cuts_etaj2_plot;
       cuts_etaj2_plot.push_back(cuts_etaj2.front());
       cuts_etaj2_plot.push_back(cuts_etaj2.back());
 
+      string postfix = string(Form("recoil_vs_jeteta_%.1f_%.1f",cuts_etaj1.at(ibin),cuts_etaj1.at(ibin+1)));
       plotTurnOn(canvas,eff_recoil_vs_jeteta,fitfunc_recoil_vs_jeteta,"Recoil [GeV]",postfix,outputDIR,cuts_etaj2_plot,"|#eta^{j2}|",ipos_start,ipos_end);
-
       for(auto eff: eff_recoil_vs_jeteta) eff->Write("",TObject::kOverwrite);
       for(auto funz: fitfunc_recoil_vs_jeteta) funz->Write("",TObject::kOverwrite);
+
+      postfix = string(Form("htmiss_vs_jeteta_%.1f_%.1f",cuts_etaj1.at(ibin),cuts_etaj1.at(ibin+1)));
+      plotTurnOn(canvas,eff_htmiss_vs_jeteta,fitfunc_htmiss_vs_jeteta,"H_{T}^{miss} [GeV]",postfix,outputDIR,cuts_etaj2_plot,"|#eta^{j2}|",ipos_start,ipos_end);
+      for(auto eff: eff_htmiss_vs_jeteta) eff->Write("",TObject::kOverwrite);
       
     }
   }
@@ -1138,7 +1214,7 @@ void plotTurnOn(TCanvas* canvas,
   vector<TH1F*> error_band;
   for(int iobj = ipos_start; iobj < ipos_end; iobj++){
     graph.push_back(eff.at(iobj)->CreateGraph());
-    if(fitfunc.size() != 0){
+    if(fitfunc.size() != 0 and fitfunc.at(iobj) != 0 and fitfunc.at(iobj) != NULL){
       TFitResultPtr fitResult = graph.back()->Fit(fitfunc.at(iobj),"SMQR");
       int npoints       = 350;                                                                                                                                                                   
       error_band.push_back(new TH1F(Form("%s_error_band",fitfunc.at(iobj)->GetName()),"",npoints,fitfunc.at(iobj)->GetXaxis()->GetXmin(),fitfunc.at(iobj)->GetXaxis()->GetXmax()));

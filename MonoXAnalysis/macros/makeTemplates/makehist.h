@@ -47,7 +47,7 @@ static float pfMetVBFUpper   = 8000.;
 static float dphijj          = 1.5;
 static float dphijjrelaxed   = 1.5;
 static bool  removeVBF       = false;
-static bool  useHTMissTriggerEfficiency = false;
+static bool  useHTMissTriggerEfficiency = true;
 // Additional selections
 static float photonPt        = 175;
 static int   vBosonCharge    = 0;
@@ -253,13 +253,6 @@ void makehist4(TTree* tree,            /*input tree*/
   vector<TF1*> triggermet_func_binned_Wmn;
   vector<TF1*> triggermet_func_binned_Zmm;
 
-  TEfficiency* eff_htmiss_cc = NULL;
-  TEfficiency* eff_htmiss_cf = NULL;
-  TEfficiency* eff_htmiss_fc = NULL;
-  TGraphAsymmErrors* eff_graph_htmiss_cc = NULL;
-  TGraphAsymmErrors* eff_graph_htmiss_cf = NULL;
-  TGraphAsymmErrors* eff_graph_htmiss_fc = NULL;
-
   if(category != Category::VBF and category != Category::twojet and category != Category::VBFrelaxed){ 
     // monojet
     triggerfile_MET_wmn = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/Monojet/metTriggerEfficiency_recoil_monojet.root");
@@ -276,45 +269,49 @@ void makehist4(TTree* tree,            /*input tree*/
     triggermet_graph_zmm = triggermet_zmm->CreateGraph();
   }
   else{
-    triggerfile_MET_wmn = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/VBF/metTriggerEfficiency_VBF_Wmn.root");
-    triggerfile_MET_zmm = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/VBF/metTriggerEfficiency_VBF_Zmm.root");    
 
-    triggermet_func_binned_Wmn.push_back((TF1*) triggerfile_MET_wmn->Get("fitfunc_recoil_vs_jeteta_0.0_1.5_0.0_1.5"));
-    triggermet_func_binned_Wmn.push_back((TF1*) triggerfile_MET_wmn->Get("fitfunc_recoil_vs_jeteta_0.0_1.5_1.5_2.5"));
-    triggermet_func_binned_Wmn.push_back((TF1*) triggerfile_MET_wmn->Get("fitfunc_recoil_vs_jeteta_0.0_1.5_2.5_3.0"));
-    triggermet_func_binned_Wmn.push_back((TF1*) triggerfile_MET_wmn->Get("fitfunc_recoil_vs_jeteta_0.0_1.5_3.0_4.7"));
-    triggermet_func_binned_Wmn.push_back((TF1*) triggerfile_MET_wmn->Get("fitfunc_recoil_vs_jeteta_1.5_2.5_0.0_1.5"));
-    triggermet_func_binned_Wmn.push_back((TF1*) triggerfile_MET_wmn->Get("fitfunc_recoil_vs_jeteta_1.5_2.5_1.5_2.5"));
-    triggermet_func_binned_Wmn.push_back((TF1*) triggerfile_MET_wmn->Get("fitfunc_recoil_vs_jeteta_1.5_2.5_2.5_3.0"));
-    triggermet_func_binned_Wmn.push_back((TF1*) triggerfile_MET_wmn->Get("fitfunc_recoil_vs_jeteta_1.5_2.5_3.0_4.7"));
-    triggermet_func_binned_Wmn.push_back((TF1*) triggerfile_MET_wmn->Get("fitfunc_recoil_vs_jeteta_2.5_3.0_0.0_1.5"));
-    triggermet_func_binned_Wmn.push_back((TF1*) triggerfile_MET_wmn->Get("fitfunc_recoil_vs_jeteta_2.5_3.0_1.5_2.5"));
-    triggermet_func_binned_Wmn.push_back((TF1*) triggerfile_MET_wmn->Get("fitfunc_recoil_vs_jeteta_2.5_3.0_2.5_3.0"));
-    triggermet_func_binned_Wmn.push_back((TF1*) triggerfile_MET_wmn->Get("fitfunc_recoil_vs_jeteta_2.5_3.0_3.0_4.7"));
-    triggermet_func_binned_Wmn.push_back((TF1*) triggerfile_MET_wmn->Get("fitfunc_recoil_vs_jeteta_3.0_4.7"));
-    
-    triggermet_func_binned_Zmm.push_back((TF1*) triggerfile_MET_zmm->Get("fitfunc_recoil_vs_jeteta_0.0_1.5_0.0_1.5"));
-    triggermet_func_binned_Zmm.push_back((TF1*) triggerfile_MET_zmm->Get("fitfunc_recoil_vs_jeteta_0.0_1.5_1.5_2.5"));
-    triggermet_func_binned_Zmm.push_back((TF1*) triggerfile_MET_zmm->Get("fitfunc_recoil_vs_jeteta_0.0_1.5_2.5_3.0"));
-    triggermet_func_binned_Zmm.push_back((TF1*) triggerfile_MET_zmm->Get("fitfunc_recoil_vs_jeteta_0.0_1.5_3.0_4.7"));
-    triggermet_func_binned_Zmm.push_back((TF1*) triggerfile_MET_zmm->Get("fitfunc_recoil_vs_jeteta_1.5_2.5_0.0_1.5"));
-    triggermet_func_binned_Zmm.push_back((TF1*) triggerfile_MET_zmm->Get("fitfunc_recoil_vs_jeteta_1.5_2.5_1.5_2.5"));
-    triggermet_func_binned_Zmm.push_back((TF1*) triggerfile_MET_zmm->Get("fitfunc_recoil_vs_jeteta_1.5_2.5_2.5_3.0"));
-    triggermet_func_binned_Zmm.push_back((TF1*) triggerfile_MET_zmm->Get("fitfunc_recoil_vs_jeteta_1.5_2.5_3.0_4.7"));
-    triggermet_func_binned_Zmm.push_back((TF1*) triggerfile_MET_zmm->Get("fitfunc_recoil_vs_jeteta_2.5_3.0_0.0_1.5"));
-    triggermet_func_binned_Zmm.push_back((TF1*) triggerfile_MET_zmm->Get("fitfunc_recoil_vs_jeteta_2.5_3.0_1.5_2.5"));
-    triggermet_func_binned_Zmm.push_back((TF1*) triggerfile_MET_zmm->Get("fitfunc_recoil_vs_jeteta_2.5_3.0_2.5_3.0"));
-    triggermet_func_binned_Zmm.push_back((TF1*) triggerfile_MET_zmm->Get("fitfunc_recoil_vs_jeteta_2.5_3.0_3.0_4.7"));
-    triggermet_func_binned_Zmm.push_back((TF1*) triggerfile_MET_zmm->Get("fitfunc_recoil_vs_jeteta_3.0_4.7"));
-    
+    if(not useHTMissTriggerEfficiency){
+      triggerfile_MET_wmn = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/VBF/metTriggerEfficiency_VBF_Wmn.root");
+      triggerfile_MET_zmm = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/VBF/metTriggerEfficiency_VBF_Zmm.root");    
+    }
+    else{
+      triggerfile_MET_wmn = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/VBF/metTriggerEfficiency_VBF_htmiss_Wmn.root");
+      triggerfile_MET_zmm = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/VBF/metTriggerEfficiency_VBF_htmiss_Zmm.root");    
+    }
 
-    eff_htmiss_cc = (TEfficiency*) triggerfile_MET_wmn->Get("efficiency_cc/eff_htmiss_cc");
-    eff_htmiss_cf = (TEfficiency*) triggerfile_MET_wmn->Get("efficiency_cf/eff_htmiss_cf");
-    eff_htmiss_fc = (TEfficiency*) triggerfile_MET_wmn->Get("efficiency_fc/eff_htmiss_cf");
-    eff_graph_htmiss_cc =  eff_htmiss_cc->CreateGraph();
-    eff_graph_htmiss_cf =  eff_htmiss_cf->CreateGraph();
-    eff_graph_htmiss_fc =  eff_htmiss_fc->CreateGraph();
+    if(not useHTMissTriggerEfficiency){
+      triggermet_func_binned_Wmn.push_back((TF1*) triggerfile_MET_wmn->Get("fitfunc_recoil_vs_jeteta_0.0_1.5_0.0_1.5"));
+      triggermet_func_binned_Wmn.push_back((TF1*) triggerfile_MET_wmn->Get("fitfunc_recoil_vs_jeteta_0.0_1.5_1.5_2.5"));
+      triggermet_func_binned_Wmn.push_back((TF1*) triggerfile_MET_wmn->Get("fitfunc_recoil_vs_jeteta_0.0_1.5_2.5_3.0"));
+      triggermet_func_binned_Wmn.push_back((TF1*) triggerfile_MET_wmn->Get("fitfunc_recoil_vs_jeteta_0.0_1.5_3.0_4.7"));
+      triggermet_func_binned_Wmn.push_back((TF1*) triggerfile_MET_wmn->Get("fitfunc_recoil_vs_jeteta_1.5_2.5_0.0_1.5"));
+      triggermet_func_binned_Wmn.push_back((TF1*) triggerfile_MET_wmn->Get("fitfunc_recoil_vs_jeteta_1.5_2.5_1.5_2.5"));
+      triggermet_func_binned_Wmn.push_back((TF1*) triggerfile_MET_wmn->Get("fitfunc_recoil_vs_jeteta_1.5_2.5_2.5_3.0"));
+      triggermet_func_binned_Wmn.push_back((TF1*) triggerfile_MET_wmn->Get("fitfunc_recoil_vs_jeteta_1.5_2.5_3.0_4.7"));
+      triggermet_func_binned_Wmn.push_back((TF1*) triggerfile_MET_wmn->Get("fitfunc_recoil_vs_jeteta_2.5_3.0_0.0_1.5"));
+      triggermet_func_binned_Wmn.push_back((TF1*) triggerfile_MET_wmn->Get("fitfunc_recoil_vs_jeteta_2.5_3.0_1.5_2.5"));
+      triggermet_func_binned_Wmn.push_back((TF1*) triggerfile_MET_wmn->Get("fitfunc_recoil_vs_jeteta_2.5_3.0_2.5_3.0"));
+      triggermet_func_binned_Wmn.push_back((TF1*) triggerfile_MET_wmn->Get("fitfunc_recoil_vs_jeteta_2.5_3.0_3.0_4.7"));
+      triggermet_func_binned_Wmn.push_back((TF1*) triggerfile_MET_wmn->Get("fitfunc_recoil_vs_jeteta_3.0_4.7"));
       
+      triggermet_func_binned_Zmm.push_back((TF1*) triggerfile_MET_zmm->Get("fitfunc_recoil_vs_jeteta_0.0_1.5_0.0_1.5"));
+      triggermet_func_binned_Zmm.push_back((TF1*) triggerfile_MET_zmm->Get("fitfunc_recoil_vs_jeteta_0.0_1.5_1.5_2.5"));
+      triggermet_func_binned_Zmm.push_back((TF1*) triggerfile_MET_zmm->Get("fitfunc_recoil_vs_jeteta_0.0_1.5_2.5_3.0"));
+      triggermet_func_binned_Zmm.push_back((TF1*) triggerfile_MET_zmm->Get("fitfunc_recoil_vs_jeteta_0.0_1.5_3.0_4.7"));
+      triggermet_func_binned_Zmm.push_back((TF1*) triggerfile_MET_zmm->Get("fitfunc_recoil_vs_jeteta_1.5_2.5_0.0_1.5"));
+      triggermet_func_binned_Zmm.push_back((TF1*) triggerfile_MET_zmm->Get("fitfunc_recoil_vs_jeteta_1.5_2.5_1.5_2.5"));
+      triggermet_func_binned_Zmm.push_back((TF1*) triggerfile_MET_zmm->Get("fitfunc_recoil_vs_jeteta_1.5_2.5_2.5_3.0"));
+      triggermet_func_binned_Zmm.push_back((TF1*) triggerfile_MET_zmm->Get("fitfunc_recoil_vs_jeteta_1.5_2.5_3.0_4.7"));
+      triggermet_func_binned_Zmm.push_back((TF1*) triggerfile_MET_zmm->Get("fitfunc_recoil_vs_jeteta_2.5_3.0_0.0_1.5"));
+      triggermet_func_binned_Zmm.push_back((TF1*) triggerfile_MET_zmm->Get("fitfunc_recoil_vs_jeteta_2.5_3.0_1.5_2.5"));
+      triggermet_func_binned_Zmm.push_back((TF1*) triggerfile_MET_zmm->Get("fitfunc_recoil_vs_jeteta_2.5_3.0_2.5_3.0"));
+      triggermet_func_binned_Zmm.push_back((TF1*) triggerfile_MET_zmm->Get("fitfunc_recoil_vs_jeteta_2.5_3.0_3.0_4.7"));
+      triggermet_func_binned_Zmm.push_back((TF1*) triggerfile_MET_zmm->Get("fitfunc_recoil_vs_jeteta_3.0_4.7"));
+    }
+    else{
+      triggermet_func_binned_Wmn.push_back((TF1*) triggerfile_MET_wmn->Get("f_eff"));
+      triggermet_func_binned_Zmm.push_back((TF1*) triggerfile_MET_zmm->Get("f_eff"));
+    }
   }
   
 
@@ -1187,7 +1184,12 @@ void makehist4(TTree* tree,            /*input tree*/
 	double sftrig = 1;
 	if(not useHTMissTriggerEfficiency){
 	  if(centralJets.size()+forwardJets.size() < 2) continue;
-	  for(auto func : triggermet_func_binned_Wmn){
+	  vector<TF1*> trigger_funz;
+	  if(sample == Sample::zmm)
+	    trigger_funz = triggermet_func_binned_Zmm;
+	  else
+	    trigger_funz = triggermet_func_binned_Wmn;	  
+	  for(auto func : trigger_funz){
 	    std::stringstream name_tmp(func->GetName());
 	    std::string segment;
 	    std::vector<std::string> seglist;
@@ -1227,12 +1229,10 @@ void makehist4(TTree* tree,            /*input tree*/
 	  }
 	  htmiss = jet4V_total.Pt();
 
-	  if(fabs(jeteta->at(0)) < 3 and fabs(jeteta->at(1)) < 3)
-	    sftrig *= eff_graph_htmiss_cc->Eval(min(htmiss,eff_graph_htmiss_cc->GetXaxis()->GetXmax()));
-	  else if(fabs(jeteta->at(0)) < 3 and fabs(jeteta->at(1)) > 3)
-	    sftrig *= eff_graph_htmiss_cf->Eval(min(htmiss,eff_graph_htmiss_cf->GetXaxis()->GetXmax()));
-	  else if(fabs(jeteta->at(0)) > 3 and fabs(jeteta->at(1)) < 3)
-	    sftrig *= eff_graph_htmiss_fc->Eval(min(htmiss,eff_graph_htmiss_fc->GetXaxis()->GetXmax()));	  
+	  if(sample == Sample::zmm)
+	    sftrig = triggermet_func_binned_Zmm.at(0)->Eval(htmiss);
+	  else
+	    sftrig = triggermet_func_binned_Wmn.at(0)->Eval(htmiss);
 	}
 	sfwgt *= sftrig;
       }
