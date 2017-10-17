@@ -1,9 +1,10 @@
 #include "../CMS_lumi.h"
 
-enum class Sample {zjet,wjet};
-enum class Category {monojet, VBFrelaxed, VBF};
+enum class Sample {znn,wjet,zll};
+enum class Category {VBFrelaxed, VBF};
 
 static float luminosity = 35.9;
+static bool  removeTaus = false;
 
 ////////////
 void calculateSumWg(TChain* chain, vector<double> & sumwgt_vec, Sample sample){
@@ -22,14 +23,16 @@ void calculateSumWg(TChain* chain, vector<double> & sumwgt_vec, Sample sample){
       sumwgt_vec.push_back(sumwgt);
       sumwgt = 0;
       currentFile = dynamic_cast<TChain*>(reader.GetTree())->GetFile()->GetName();
+      cout<<"Calculate the sum of weights for: "<<currentFile<<endl;
     }
     else if(currentFile == ""){
+      cout<<"Calculate the sum of weights for: "<<currentFile<<endl;
       currentFile = dynamic_cast<TChain*>(reader.GetTree())->GetFile()->GetName();
       sumwgt = 0;
     }
 
     // filter away bad events with no matching                                                                                                                                                        
-    if(sample == Sample::zjet and fabs(*wzid) != 23)
+    if((sample == Sample::znn or sample == Sample::zll) and fabs(*wzid) != 23)
       continue;
     else if(sample == Sample::wjet and fabs(*wzid) != 24)
       continue;
@@ -82,88 +85,149 @@ void fillHistograms(TChain* chain, vector<TH1F*> & histogram, vector<TH1*> & khi
       ifile = 0;
       cout<<currentFile<<" "<<ifile<<endl;
     }
-
+    
     // filter away bad events with no matching                                                                                                                                                        
-    if(sample == Sample::zjet and fabs(*wzid) != 23)
+    if((sample == Sample::znn or sample == Sample::zll) and fabs(*wzid) != 23)
       continue;
     else if(sample == Sample::wjet and fabs(*wzid) != 24)
       continue;
     
     //////////////////
     if(*wzpt < 250) continue; // --> V-boson cut
-    if(sample == Sample::wjet and (fabs(*l1id) == 15 or fabs(*l1id) == 16 or fabs(*l2id) == 15 or fabs(*l2id) == 16)) continue; // skip taus 
 
-    Double_t kwgt = 1.0;
-    double genpt  = *wzpt;
-    for (size_t i = 0; i < khists.size(); i++) {
-      if (khists[i]) {
-	if(genpt <= khists[i]->GetXaxis()->GetBinLowEdge(1)) genpt = khists[i]->GetXaxis()->GetBinLowEdge(1) + 1;
-	if(genpt >= khists[i]->GetXaxis()->GetBinLowEdge(khists[i]->GetNbinsX()+1)) genpt = khists[i]->GetXaxis()->GetBinLowEdge(khists[i]->GetNbinsX()+1)-1;
-	kwgt *= khists[i]->GetBinContent(khists[i]->FindBin(genpt));
+    // in case one wants to remove taus --> for Zvv never apply since does not make any difference                                                                                                     
+    if(removeTaus and sample != Sample::znn){
+      if(fabs(*l1id) == 15 or fabs(*l2id) == 15) continue;
+      if(fabs(*l1id) == 16 or fabs(*l2id) == 16) continue;
+    }
+
+    ///// lepton acceptance                                                                                                                                                                            
+    if((sample == Sample::zll or sample == Sample::wjet) and fabs(*l1id) == 11 and fabs(*l1eta) > 2.5) continue;
+    else if((sample == Sample::zll or sample == Sample::wjet) and fabs(*l1eta) > 2.4) continue;
+    if(sample == Sample::zll and fabs(*l2id) == 11 and fabs(*l2eta) > 2.5) continue;
+    else if(sample == Sample::zll and fabs(*l2eta) > 2.4) continue;
+
+    /// Pt cut for both Zll and W+jets                                                                                                                                                                 
+    if((sample == Sample::zll or sample == Sample::wjet) and *l1pt < 20) continue;
+    if(sample == Sample::zll and *l2pt < 10) continue;
+
+    /// Invariant mass cut for Zll case                                                                                                                                                                
+    if(sample == Sample::zll){
+      TLorentzVector lepton1, lepton2;
+      lepton1.SetPtEtaPhiM(*l1pt,*l1eta,*l1phi,0.);
+      lepton2.SetPtEtaPhiM(*l2pt,*l2eta,*l2phi,0.);
+      if((lepton1+lepton2).M() > 120) continue;
+    }
+    
+    // Jet-lepton-neutrino cleaning
+    vector<TLorentzVector> jets;
+    for(size_t ijet = 0; ijet < jetpt->size(); ijet++){
+      TLorentzVector jet4V; jet4V.SetPtEtaPhiM(jetpt->at(ijet),jeteta->at(ijet),jetphi->at(ijet),jetmass->at(ijet));
+      if(sample == Sample::wjet or sample == Sample::znn or sample == Sample::zll){
+        float dphi1 = fabs(jetphi->at(ijet)-*l1phi);
+        float dphi2 = fabs(jetphi->at(ijet)-*l2phi);
+        if(dphi1 > TMath::Pi())
+          dphi1 = 2*TMath::Pi()-dphi1;
+        if(dphi2 > TMath::Pi())
+          dphi2 = 2*TMath::Pi()-dphi2;
+        if(sqrt(dphi1*dphi1+fabs(jeteta->at(ijet)-*l1eta)*fabs(jeteta->at(ijet)-*l1eta)) > 0.4 and
+           sqrt(dphi2*dphi2+fabs(jeteta->at(ijet)-*l2eta)*fabs(jeteta->at(ijet)-*l2eta)) > 0.4
+           ){ // check cleaning                                                                                                                                                                     
+          if(jet4V.Pt() > 30 and fabs(jet4V.Eta()) < 4.7)
+            jets.push_back(jet4V);
+        }
       }
     }
-
-    float mindphi = 100;
-    for(size_t ijet = 0; ijet < jetphi->size(); ijet++){
-      if(ijet > 3) break; // limiting min dphi to first 4 leading jets                                                                                                                                
-      float dphi = fabs(*wzphi-jetphi->at(ijet));
+    
+    
+    // calculate min-dphi at gen level where met is boson 4V                                                                                                                                    
+    float mindphi   = 100;
+    for(size_t ijet = 0; ijet < jets.size(); ijet++){
+      if(ijet > 3) break; // limiting min dphi to first 4 leading jets                                                                                                                              
+      float dphi = fabs(*wzphi-jets.at(ijet).Phi());
       if(dphi > TMath::Pi())
-	dphi = 2*TMath::Pi()-dphi;
+        dphi = 2*TMath::Pi()-dphi;
       if(dphi < mindphi)
-	mindphi = dphi;
+        mindphi = dphi;
     }
+    if(mindphi < 0.5) continue;
 
-    TLorentzVector jet1, jet2;
     ///////////////
     if(category == Category::VBFrelaxed){
-      if(*njetsinc < 2) continue;
-      if(jetpt->size() < 2) continue;
-      if(fabs(jeteta->at(0)) > 4.7) continue;
-      if(fabs(jeteta->at(1)) > 4.7) continue;
-      if(fabs(jetpt->at(0)) < 80) continue;
-      if(fabs(jetpt->at(1)) < 40) continue;
-      if(fabs(jeteta->at(0)-jeteta->at(1)) < 1.0) continue;
-      if(jeteta->at(0)*jeteta->at(1) > 0) continue;
-      if(fabs(mindphi) < 0.5) continue;
-      jet1.SetPtEtaPhiM(jetpt->at(0),jeteta->at(0),jetphi->at(0),jetmass->at(0));
-      jet2.SetPtEtaPhiM(jetpt->at(1),jeteta->at(1),jetphi->at(1),jetmass->at(1));          
-      if((jet1+jet2).M() < 200) continue;
-      if(fabs(jet1.Eta()) > 3 and fabs(jet2.Eta()) > 3) continue;
+      if(jets.size() < 2) continue;
+      if(fabs(jets.at(0).Eta()) > 4.7) continue;
+      if(fabs(jets.at(1).Eta()) > 4.7) continue;
+      if(fabs(jets.at(0).Pt()) < 80) continue;
+      if(fabs(jets.at(1).Pt()) < 40) continue;
+      if(fabs(jets.at(0).Eta()-jets.at(1).Eta()) < 1.0) continue;
+      if(jets.at(0).Eta()*jets.at(1).Eta() > 0) continue;
+      if((jets.at(0)+jets.at(1)).M() < 200) continue;
+      if(fabs(jets.at(0).Eta()) > 3 and fabs(jets.at(1).Eta()) > 3) continue;
     }
     else if(category == Category::VBF){
-      if(*njetsinc < 2) continue;
-      if(jetpt->size() < 2) continue;
-      if(fabs(jeteta->at(0)) > 4.7) continue;
-      if(fabs(jeteta->at(1)) > 4.7) continue;
-      if(fabs(jetpt->at(0)) < 80) continue;
-      if(fabs(jetpt->at(1)) < 40) continue;
-      if(fabs(jeteta->at(0)-jeteta->at(1)) < 4.0) continue;
-      if(jeteta->at(0)*jeteta->at(1)) continue;
-      if(fabs(mindphi) < 0.5) continue;
-      jet1.SetPtEtaPhiM(jetpt->at(0),jeteta->at(0),jetphi->at(0),jetmass->at(0));
-      jet2.SetPtEtaPhiM(jetpt->at(1),jeteta->at(1),jetphi->at(1),jetmass->at(1));          
-      if((jet1+jet2).M() < 1300) continue;
-      if(fabs(jet1.Eta()) > 3 and fabs(jet2.Eta()) > 3) continue;
+      if(jets.size() < 2) continue;
+      if(fabs(jets.at(0).Eta()) > 4.7) continue;
+      if(fabs(jets.at(1).Eta()) > 4.7) continue;
+      if(fabs(jets.at(0).Pt()) < 80) continue;
+      if(fabs(jets.at(1).Pt()) < 40) continue;
+      if(fabs(jets.at(0).Eta()-jets.at(1).Eta()) < 4.0) continue;
+      if(jets.at(0).Eta()*jets.at(1).Eta() > 0) continue;
+      if((jets.at(0)+jets.at(1)).M() < 1300) continue;
+      if(fabs(jets.at(0).Eta()) > 3 and fabs(jets.at(1).Eta()) > 3) continue;
     }
+    
+    /// NLO k-factor
+    Double_t kwgt = 1.0;
+    double genpt = *wzpt;
+    
+    for (size_t i = 0; i < khists.size(); i++) {
+      if (khists[i]) {// good histograms                                                                                                                                                              
+	TString name (khists[i]->GetName());
+        if((category == Category::VBFrelaxed or category == Category::VBF) and (name.Contains("mjj") or name.Contains("Mjj"))){ // standard weights vs boson pt                                 
 
+          // measurement is binned in mjj                                                                                                                                                         
+	  std::stringstream name_tmp(khists[i]->GetName());
+	  std::string segment;
+	  std::vector<std::string> seglist;
+          while(std::getline(name_tmp, segment, '_')){
+            seglist.push_back(segment);
+          }
+	  float mjj_max = atof(seglist.back().c_str());
+          float mjj_min = atof(seglist.at(seglist.size()-2).c_str());
+
+          if((jets.at(0)+jets.at(1)).M() > mjj_min and (jets.at(0)+jets.at(1)).M() <= mjj_max){
+            if(genpt <= khists[i]->GetXaxis()->GetBinLowEdge(1)) genpt = khists[i]->GetXaxis()->GetBinLowEdge(1) + 1;
+            if(genpt >= khists[i]->GetXaxis()->GetBinLowEdge(khists[i]->GetNbinsX()+1)) genpt = khists[i]->GetXaxis()->GetBinLowEdge(khists[i]->GetNbinsX()+1)-1;
+            kwgt *= khists[i]->GetBinContent(khists[i]->FindBin(genpt));
+          }
+        }
+        else{ // standard weights vs boson pt                                                                                                                                                          
+          if(genpt <= khists[i]->GetXaxis()->GetBinLowEdge(1)) genpt = khists[i]->GetXaxis()->GetBinLowEdge(1) + 1;
+          if(genpt >= khists[i]->GetXaxis()->GetBinLowEdge(khists[i]->GetNbinsX()+1)) genpt = khists[i]->GetXaxis()->GetBinLowEdge(khists[i]->GetNbinsX()+1)-1;
+          kwgt *= khists[i]->GetBinContent(khists[i]->FindBin(genpt));
+        }
+      }
+    }
+    
+    // filling histograms
     for(auto histo : histogram){
       double fillvar = 0.;
       TString name (histo->GetName());
       if(name.Contains("bosonpt"))
 	fillvar = *wzpt;
       else if(name.Contains("jetpt1"))
-	fillvar = jetpt->at(0);
+	fillvar = jets.at(0).Pt();
       else if(name.Contains("jetpt2"))
-	fillvar = jetpt->at(1);
+	fillvar = jets.at(1).Pt();
       else if(name.Contains("detajj"))
-	fillvar = fabs(jeteta->at(0)-jeteta->at(1));
+	fillvar = fabs(jets.at(0).Eta()-jets.at(1).Eta());
       else if(name.Contains("mjj"))
-	fillvar = (jet1+jet2).M();
+	fillvar = (jets.at(0)+jets.at(1)).M();
       else if(name.Contains("dphijj"))
-	fillvar = fabs(jet1.DeltaPhi(jet2));      	
-
+	fillvar = fabs(jets.at(0).DeltaPhi(jets.at(1)));      	
+      
       histo->Fill(fillvar,*xsec*luminosity*(*wgt)*kwgt/(sumwgt.at(ifile)));
-
+      
     }
   }              
 }
@@ -251,17 +315,23 @@ void drawHistogram(TH1F* histogram_lo, TH1F* histogram_nlo, TH1F* histogram_rewe
   leg->SetFillStyle(0);
   leg->SetBorderSize(0);
 
-  if(sample == Sample::zjet){
-    postfix += "_zjet";
-    leg->AddEntry(histogram_lo,"Z+jets LO","L");
-    leg->AddEntry(histogram_nlo,"Z+jets NLO","L");
-    leg->AddEntry(histogram_reweight,"Z+jets Re-weight","L");
+  if(sample == Sample::znn){
+    postfix += "_znn";
+    leg->AddEntry(histogram_lo,"Z#nu#nu LO","L");
+    leg->AddEntry(histogram_nlo,"Z#nu#nu NLO","L");
+    leg->AddEntry(histogram_reweight,"Z#nu#nu Re-weight","L");
   }      
   else if(sample == Sample::wjet){
     postfix += "_wjet";
     leg->AddEntry(histogram_lo,"W+jets LO","L");
     leg->AddEntry(histogram_nlo,"W+jets NLO","L");
     leg->AddEntry(histogram_reweight,"W+jets Re-weight","L");
+  }
+  else if(sample == Sample::zll){
+    postfix += "_zll";
+    leg->AddEntry(histogram_lo,"DY+jets LO","L");
+    leg->AddEntry(histogram_nlo,"DY+jets NLO","L");
+    leg->AddEntry(histogram_reweight,"DY+jets Re-weight","L");
   }
   leg->Draw("same");
 
@@ -300,71 +370,34 @@ void makeVJetsShapeComparisons(string inputDIR_LO, string inputDIR_NLO, Sample s
   setTDRStyle();
   gROOT->SetBatch(kTRUE);
 
-  TFile* kffile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_24bins.root");
-  TFile* kfile_vbf     = NULL;
-  TH1* hist_nloqcd    = NULL;
-  TH1* hist_loqcd     = NULL;
-
-  if(sample == Sample::zjet){
-    hist_nloqcd    = (TH1*) kffile->Get("ZJets_012j_NLO/nominal");
-    hist_loqcd     = (TH1*) kffile->Get("ZJets_LO/inv_pt");
-  }
-  else if(sample == Sample::wjet){
-    hist_nloqcd    = (TH1*) kffile->Get("WJets_012j_NLO/nominal");
-    hist_loqcd     = (TH1*) kffile->Get("WJets_LO/inv_pt");
-  }
- 
-  hist_nloqcd->Divide(hist_loqcd);
-
+  // parse k-factor file and histograms
+  TFile* kffile = NULL;
+  if(sample == Sample::znn)
+    kffile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_zjets_v3.root");
+  else if(sample == Sample::wjet)
+    kffile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_wjets_v3.root");
+  else if(sample == Sample::zll)
+    kffile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_zll_v3.root");
+  
   vector<TH1*> khists; 
-  khists.push_back(hist_nloqcd);
   vector<TH1*> ehists;
 
-  if(category == Category::VBF or category == Category::VBFrelaxed){ // VBF k-factors
-    if(sample == Sample::zjet)
-      kfile_vbf  = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_zjets_v2.root");
-    else if(sample == Sample::wjet)
-      kfile_vbf  = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_wjets_v2.root");
-
-    if(sample == Sample::zjet){
-      TH1* zjet_nlo_vbf = (TH1*) kfile_vbf->Get("bosonPt_NLO_vbf");
-      if(category == Category::VBFrelaxed)
-	zjet_nlo_vbf = (TH1*) kfile_vbf->Get("bosonPt_NLO_vbf_relaxed");
-      TH1* zjet_nlo_mj  = (TH1*) kfile_vbf->Get("bosonPt_NLO_monojet");
-      
-      if(category == Category::VBF)
-	zjet_nlo_vbf->Divide((TH1*) kfile_vbf->Get("bosonPt_LO_vbf"));
-      else if(category == Category::VBFrelaxed)
-	zjet_nlo_vbf->Divide((TH1*) kfile_vbf->Get("bosonPt_LO_vbf_relaxed"));
-      zjet_nlo_mj->Divide((TH1*) kfile_vbf->Get("bosonPt_LO_monojet"));
-      zjet_nlo_vbf->Divide(zjet_nlo_mj);
-
-      khists.push_back(zjet_nlo_vbf);
-    }
-    else if(sample == Sample::wjet){
-      ///////////////////
-      TH1* wjet_nlo_vbf = (TH1*) kfile_vbf->Get("bosonPt_NLO_vbf");
-      if(category == Category::VBFrelaxed)
-	wjet_nlo_vbf = (TH1*) kfile_vbf->Get("bosonPt_NLO_vbf_relaxed");
-      TH1* wjet_nlo_mj  = (TH1*) kfile_vbf->Get("bosonPt_NLO_monojet");
-      
-      if(category == Category::VBF)
-	wjet_nlo_vbf->Divide((TH1*) kfile_vbf->Get("bosonPt_LO_vbf"));
-      else if(category == Category::VBFrelaxed)
-	wjet_nlo_vbf->Divide((TH1*) kfile_vbf->Get("bosonPt_LO_vbf_relaxed"));
-      
-      wjet_nlo_mj->Divide((TH1*) kfile_vbf->Get("bosonPt_LO_monojet"));
-      wjet_nlo_vbf->Divide(wjet_nlo_mj);
-      khists.push_back(wjet_nlo_vbf);            
-    }
+  if(category == Category::VBF)
+    khists.push_back((TH1*) kffile->Get("kfactors_cc/kfactor_vbf"));
+  else if(category == Category::VBFrelaxed){
+    khists.push_back((TH1*) kffile->Get("kfactors_shape/kfactor_vbf_mjj_200_500"));
+    khists.push_back((TH1*) kffile->Get("kfactors_shape/kfactor_vbf_mjj_500_1000"));
+    khists.push_back((TH1*) kffile->Get("kfactors_shape/kfactor_vbf_mjj_1000_1500"));
+    khists.push_back((TH1*) kffile->Get("kfactors_shape/kfactor_vbf_mjj_1500_5000"));    
   }
-
-  TChain* chain_lo = new TChain("gentree/tree");
-  TChain* chain_nlo = new TChain("gentree/tree");
   
+  // build the chains
+  TChain* chain_lo = new TChain("gentree/tree");
+  TChain* chain_nlo = new TChain("gentree/tree");  
   chain_lo->Add((inputDIR_LO+"/*root").c_str());
   chain_nlo->Add((inputDIR_NLO+"/*root").c_str());
 
+  // histograms to be filled
   vector<TH1F*> histogram_lo;
   vector<TH1F*> histogram_nlo;
   vector<TH1F*> histogram_reweight;
@@ -399,6 +432,7 @@ void makeVJetsShapeComparisons(string inputDIR_LO, string inputDIR_NLO, Sample s
   for(auto hist : histogram_reweight)
     hist->Sumw2();
 
+  // calculate the sum of weights
   vector<double> sumwgt_lo;
   vector<double> sumwgt_nlo;
   cout<<"Calculate sumwgt for LO samples "<<endl;
@@ -406,18 +440,22 @@ void makeVJetsShapeComparisons(string inputDIR_LO, string inputDIR_NLO, Sample s
   cout<<"Calculate sumwgt for NLO samples "<<endl;
   calculateSumWg(chain_nlo,sumwgt_nlo,sample);
   
+  // fill the histograms
   fillHistograms(chain_lo, histogram_lo, ehists, sample, category, sumwgt_lo);
   fillHistograms(chain_nlo, histogram_nlo, ehists, sample, category, sumwgt_nlo);
   fillHistograms(chain_lo, histogram_reweight, khists, sample, category, sumwgt_lo);
 
+  // Draw the histograms
   for(size_t ihist = 0; ihist < histogram_lo.size(); ihist++)
     drawHistogram(histogram_lo.at(ihist),histogram_nlo.at(ihist),histogram_reweight.at(ihist),sample,outputDIR);
 
   string postfix;
-  if(sample == Sample::zjet)
-    postfix = "_zjet";
+  if(sample == Sample::znn)
+    postfix = "_znn";
   else if(sample == Sample::wjet)
     postfix = "_wjet";
+  else if(sample == Sample::zll)
+    postfix = "_zll";
     
 
   TFile* outputFile = new TFile((outputDIR+"/outputFile_"+postfix+".root").c_str(),"RECREATE");

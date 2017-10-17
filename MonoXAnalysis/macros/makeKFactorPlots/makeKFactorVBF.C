@@ -349,8 +349,8 @@ void makeKFactorVBF(string inputDIR_LO, string inputDIR_NLO, string outputDIR, S
     ///// lepton acceptance
     if((sample == Sample::zll or sample == Sample::wjet) and fabs(*l1id) == 11 and fabs(*l1eta) > 2.5) continue;
     else if((sample == Sample::zll or sample == Sample::wjet) and fabs(*l1eta) > 2.4) continue;
-    if(sample == Sample::zll and fabs(*l2id) == 11 and fabs(*l1eta) > 2.5) continue;
-    else if(sample == Sample::zll and fabs(*l1eta) > 2.4) continue;
+    if(sample == Sample::zll and fabs(*l2id) == 11 and fabs(*l2eta) > 2.5) continue;
+    else if(sample == Sample::zll and fabs(*l2eta) > 2.4) continue;
         
     /// Pt cut for both Zll and W+jets
     if((sample == Sample::zll or sample == Sample::wjet) and *l1pt < 20) continue;

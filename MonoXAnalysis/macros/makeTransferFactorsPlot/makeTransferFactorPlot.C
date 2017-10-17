@@ -18,8 +18,8 @@ float jesZ_up = 0.01;
 float jesZ_dw = 0.015;
 float jesW_up = 0.02;
 float jesW_dw = 0.03;
-float jesW_ewk_up = 0.01;
-float jesW_ewk_dw = 0.15;
+float jesW_ewk_up = 0.02;
+float jesW_ewk_dw = 0.03;
 
 /////////////////////////////
 void rzmm(string fileName, Category category, string observable, bool isEWK) {
