@@ -2,36 +2,51 @@
 
 // for re-cast of the limit --> not valid off-shell
 static float minDM = 1;
-static float maxDM = 62.5;
+static float maxDM = 62.49;
 // for plotting
 static float minX = 1;
 static float maxX = 1000;
 static double minY_dd = 1e-48;
-static double maxY_dd = 1e-38;
+static double maxY_dd = 1e-37;
 // step in DM mass for making the plot
-static float stepDM = 0.1; // 100 MeV
+static float stepDM = 0.2; // 100 MeV
+double const CV = 1e-36;
 
 // calculate the associated dm-nucleon cross section
-double dmNucleonXSECScalar(float dmMass, float width){
+double dmNucleonXSECScalar(float dmMass, float width, int scale = 0){
 
   float mN = 0.939;
   float fN = 0.326;
+
+  if(scale == -1)     fN = 0.629;
+  else if(scale == 1) fN = -0.260;
+  
   float mH = 125;
   float vev = 246;
   float beta = sqrt(1-4*dmMass*dmMass/(mH*mH));
-  return 6.9e-41*1e12*(4*width*pow(mN,4)*pow(fN,2))/(pow(mH,3)*pow(vev,2)*beta*pow(dmMass+mN,2));
+  float numerator = 4*width*pow(mN,4)*pow(fN,2);
+  float denominator = pow(mH,3)*pow(vev,2)*beta*pow(dmMass+mN,2);
+
+  return CV*0.3894*1.0e+9*numerator/denominator;
   
 }
 
 // calculate the associated dm-nucleon cross section
-double dmNucleonXSECFermion(float dmMass, float width){
+double dmNucleonXSECFermion(float dmMass, float width, int scale = 0){
 
   float mN = 0.939;
   float fN = 0.326;
+
+  if(scale == -1)     fN = 0.629;
+  else if(scale == 1) fN = -0.260;
+
   float mH = 125;
   float vev = 246;
   float beta = sqrt(1-4*dmMass*dmMass/(mH*mH));
-  return 6.9e-41*1e12*(8*width*pow(dmMass,2)*pow(mN,4)*pow(fN,2))/(pow(mH,5)*pow(vev,2)*pow(beta,3)*pow(dmMass+mN,2));
+  float numerator = (8*width*pow(dmMass,2)*pow(mN,4)*pow(fN,2));
+  float denominator = pow(mH,5)*pow(vev,2)*pow(beta,3)*pow(dmMass+mN,2);
+
+  return CV*0.3894*1.0e+9*numerator/denominator;
   
 }
 
@@ -47,6 +62,7 @@ void makeHiggsPortalPlot(string inputFileName, string outputDIR){
   gROOT->SetBatch(kTRUE);
   setTDRStyle();
   system(("mkdir -p "+outputDIR).c_str());
+
   /*
   TFile* inputFile = TFile::Open(inputFileName.c_str(),"READ");
   TTree* limitTree = (TTree*) inputFile->Get("limit");
@@ -63,25 +79,35 @@ void makeHiggsPortalPlot(string inputFileName, string outputDIR){
   }
   */
   
-  TCanvas* canvas = new TCanvas("canvas","",600,600);
+  TCanvas* canvas = new TCanvas("canvas","",800,700);
   canvas->cd();
+  
 
   // from BRinv =  GammaInv/(GammaInv+GammaSM)
   float observedGammaInv = observedBR*0.00407/(1-observedBR);
 
   TGraph* observedBound_scalar = new TGraph();
+  TGraph* observedBound_scalar_min = new TGraph();
+  TGraph* observedBound_scalar_max = new TGraph();
+
   TGraph* observedBound_fermion = new TGraph();
+  TGraph* observedBound_fermion_min = new TGraph();
+  TGraph* observedBound_fermion_max = new TGraph();
 
   // loop on DM mass values
   int ipoint_fermion = 0;
   int ipoint_scalar = 0;
-  for(float dmMass = minDM; dmMass < maxDM; dmMass = dmMass+stepDM){
+  for(float dmMass = minDM; dmMass <= maxDM; dmMass = dmMass+stepDM){
+
     observedBound_fermion->SetPoint(ipoint_fermion,dmMass,dmNucleonXSECFermion(dmMass,observedGammaInv));
+    observedBound_fermion_min->SetPoint(ipoint_fermion,dmMass,dmNucleonXSECFermion(dmMass,observedGammaInv,-1));
+    observedBound_fermion_max->SetPoint(ipoint_fermion,dmMass,dmNucleonXSECFermion(dmMass,observedGammaInv,1));
     ipoint_fermion++;
-    if(dmMass < 62) {
-      observedBound_scalar->SetPoint(ipoint_scalar,dmMass,dmNucleonXSECScalar(dmMass,observedGammaInv));
-      ipoint_scalar++;
-    }
+
+    observedBound_scalar->SetPoint(ipoint_scalar,dmMass,dmNucleonXSECScalar(dmMass,observedGammaInv));
+    observedBound_scalar_min->SetPoint(ipoint_scalar,dmMass,dmNucleonXSECScalar(dmMass,observedGammaInv,-1));
+    observedBound_scalar_max->SetPoint(ipoint_scalar,dmMass,dmNucleonXSECScalar(dmMass,observedGammaInv,1));
+    ipoint_scalar++;
   }
   
   
@@ -104,10 +130,28 @@ void makeHiggsPortalPlot(string inputFileName, string outputDIR){
 
   observedBound_fermion->SetLineColor(kRed);
   observedBound_fermion->SetLineWidth(3);
+  observedBound_fermion_min->SetLineColor(kRed);
+  observedBound_fermion_min->SetLineWidth(2);
+  observedBound_fermion_min->SetLineStyle(9);
+  observedBound_fermion_max->SetLineColor(kRed);
+  observedBound_fermion_max->SetLineWidth(2);
+  observedBound_fermion_max->SetLineStyle(9);
   observedBound_scalar->SetLineColor(kGreen+2);
   observedBound_scalar->SetLineWidth(3);
+  observedBound_scalar_min->SetLineColor(kGreen+2);
+  observedBound_scalar_min->SetLineWidth(2);
+  observedBound_scalar_min->SetLineStyle(9);
+  observedBound_scalar_max->SetLineColor(kGreen+2);
+  observedBound_scalar_max->SetLineWidth(2);
+  observedBound_scalar_max->SetLineStyle(9);
+
   observedBound_fermion->Draw("L SAME");
+  observedBound_fermion_min->Draw("L SAME");
+  observedBound_fermion_max->Draw("L SAME");
+
   observedBound_scalar->Draw("L SAME");
+  observedBound_scalar_min->Draw("L SAME");
+  observedBound_scalar_max->Draw("L SAME");
 
   TGraph *lM0 = lux();
   TGraph *lM1 = cdmslite();
@@ -124,7 +168,19 @@ void makeHiggsPortalPlot(string inputFileName, string outputDIR){
   lM2->Draw("L SAME");
   lM3->Draw("L SAME");
 
-  TLegend *leg = new TLegend(0.67,0.58,0.90,0.90,NULL,"brNDC");
+  observedBound_fermion->Draw("L SAME");
+  observedBound_scalar->Draw("L SAME");
+
+  TLatex* tex = new TLatex();
+  tex->SetNDC();
+  tex->SetTextFont(42);
+  tex->SetLineWidth(2);
+  tex->SetTextSize(0.04);
+  tex->SetTextAlign(31);
+  tex->DrawLatex(0.9,0.86,"90% CL Limits");
+  tex->DrawLatex(0.9,0.80,Form("B(H#rightarrow inv) < %.2f",observedBR));
+
+  TLegend *leg = new TLegend(0.67,0.45,0.90,0.75,NULL,"brNDC");
   leg->SetFillStyle(0);
   leg->SetBorderSize(0);
   leg->SetFillColor(0);
@@ -138,10 +194,9 @@ void makeHiggsPortalPlot(string inputFileName, string outputDIR){
 
   CMS_lumi(canvas,"35.9");
   canvas->RedrawAxis("samesaxis");
-  
-  canvas->SaveAs((outputDIR+"/higgsPortalDM.pdf").c_str(),"pdf");
+   
   canvas->SaveAs((outputDIR+"/higgsPortalDM.png").c_str(),"png");
-  
+  canvas->SaveAs((outputDIR+"/higgsPortalDM.pdf").c_str(),"pdf");  
 }
 
 
@@ -294,9 +349,9 @@ TGraph *cdmslite(){
   int i0 = -1;
   double *lX = new double[1000];
   double *lY = new double[1000];
-  i0++; lX[i0] =1.429 ; lY[i0]= 9.880e-38;
-  i0++; lX[i0] =1.473 ; lY[i0]= 3.162e-38;
-  i0++; lX[i0] =1.574 ; lY[i0]= 1.075e-38;
+  //i0++; lX[i0] =1.429 ; lY[i0]= 9.880e-38;
+  //i0++; lX[i0] =1.473 ; lY[i0]= 3.162e-38;
+  //i0++; lX[i0] =1.574 ; lY[i0]= 1.075e-38;
   i0++; lX[i0] =1.654 ; lY[i0]= 4.334e-39;
   i0++; lX[i0] =1.731 ; lY[i0]= 1.924e-39;
   i0++; lX[i0] =1.838 ; lY[i0]= 8.338e-40;
