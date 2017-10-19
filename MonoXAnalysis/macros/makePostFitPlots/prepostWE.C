@@ -236,6 +236,7 @@ void prepostWE(string fitFilename, string observable, Category category, bool is
 
   if(category == Category::VBF or category == Category::VBFrelaxed){
     wlhist->Add(ewkzhist);
+    ewkwhist->Add(wlhist);
     ewkwhist->SetFillColor(kCyan+1);
     ewkwhist->SetLineColor(kBlack);
   }
@@ -312,7 +313,7 @@ void prepostWE(string fitFilename, string observable, Category category, bool is
   leg->AddEntry(pohist, "Post-fit W(e#nu)+jets","L");
   leg->AddEntry(prhist, "Pre-fit W(e#nu)+jets","L");
   if(category == Category::VBF or category == Category::VBFrelaxed)
-    leg->AddEntry(ewkwhist, "W-EWK","F");
+    leg->AddEntry(ewkwhist, "Post-fit EW W(e#nu)","F");
   leg->AddEntry(wlhist, "Other backgrounds", "F");
   leg->Draw("SAME");
   
@@ -332,9 +333,11 @@ void prepostWE(string fitFilename, string observable, Category category, bool is
     frame2->GetYaxis()->SetRangeUser(0.80,1.20);
   else if(category == Category::monoV)
     frame2->GetYaxis()->SetRangeUser(0.70,1.30);
-  else
+  else if(category == Category::VBF)
     frame2->GetYaxis()->SetRangeUser(0.60,1.40);
-
+  else
+    frame2->GetYaxis()->SetRangeUser(0.50,1.50);
+  
   if(category == Category::monojet)
     frame2->GetXaxis()->SetNdivisions(510);
   else if(category == Category::VBFrelaxed)

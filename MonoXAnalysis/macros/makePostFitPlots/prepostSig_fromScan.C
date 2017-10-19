@@ -438,10 +438,10 @@ void prepostSig_fromScan(string   fitFilename,
   stack->Add(tthist);
   stack->Add(dihist);  
   if(ewkwhist)
-    stack->Add(ewkwhist);
+    stack->Add(ewkwhist); 
+  stack->Add(wlhist);
   if(ewkzhist)
     stack->Add(ewkzhist);
-  stack->Add(wlhist);
   stack->Add(znhist);
 
   TH1* frame = (TH1*) tohist->Clone("frame");
@@ -512,10 +512,10 @@ void prepostSig_fromScan(string   fitFilename,
   leg->AddEntry(dthist, "Data", "PEL");
   if(sighist && plotSBFit)
     leg->AddEntry(sighist, "Fitted signal", "L");
-  leg->AddEntry(znhist,  "Z(#nu#nu)+jets", "F");
-  leg->AddEntry(wlhist,  "W(l#nu)+jets", "F");
-  if(ewkzhist)  leg->AddEntry(ewkzhist,"Z(#nu#nu)+jets EWK", "F");
-  if(ewkwhist)  leg->AddEntry(ewkwhist,"W(l#nu)+jets EWK", "F");
+  leg->AddEntry(znhist,  "QCD Z(#nu#nu)+jets", "F");
+  leg->AddEntry(wlhist,  "QCD W(l#nu)+jets", "F");
+  if(ewkzhist)  leg->AddEntry(ewkzhist,"EW Z(#nu#nu)+jets", "F");
+  if(ewkwhist)  leg->AddEntry(ewkwhist,"EW W(l#nu)+jets", "F");
   if(not vghist)
     leg->AddEntry(dihist,  "WW/WZ/ZZ", "F");
   else
@@ -546,8 +546,10 @@ void prepostSig_fromScan(string   fitFilename,
 
   if(category == Category::monojet)
     frame2->GetYaxis()->SetRangeUser(0.80,1.20);
+  else if(category == Category::VBF)
+    frame2->GetYaxis()->SetRangeUser(0.60,1.40);
   else
-    frame2->GetYaxis()->SetRangeUser(0.70,1.30);
+    frame2->GetYaxis()->SetRangeUser(0.50,1.50);
 
   if(category == Category::monojet)
     frame2->GetXaxis()->SetNdivisions(510);

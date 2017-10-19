@@ -239,6 +239,7 @@ void prepostZE(string fitFilename, string observable, Category category, bool is
 
   if(category == Category::VBF or category == Category::VBFrelaxed){
     wlhist->Add(ewkwhist);
+    ewkzhist->Add(wlhist);
     ewkzhist->SetFillColor(kCyan+1);
     ewkzhist->SetLineColor(kBlack);
   }
@@ -313,7 +314,7 @@ void prepostZE(string fitFilename, string observable, Category category, bool is
   leg->AddEntry(pohist, "Post-fit Z(ee)+jets","L");
   leg->AddEntry(prhist, "Pre-fit Z(ee)+jets","L");
   if(category == Category::VBF or category == Category::VBFrelaxed)
-    leg->AddEntry(ewkzhist, "Z-EWK","F");
+    leg->AddEntry(ewkzhist, "Post-fit EW Z(ee)","F");
   leg->AddEntry(wlhist, "Other backgrounds", "F");
   leg->Draw("SAME");
   
@@ -333,8 +334,10 @@ void prepostZE(string fitFilename, string observable, Category category, bool is
     frame2->GetYaxis()->SetRangeUser(0.80,1.20);
   else if(category == Category::monoV)
     frame2->GetYaxis()->SetRangeUser(0.70,1.30);
-  else
+  else if(category == Category::VBF)
     frame2->GetYaxis()->SetRangeUser(0.60,1.40);
+  else
+    frame2->GetYaxis()->SetRangeUser(0.50,1.50);
 
   if(category == Category::monojet)
     frame2->GetXaxis()->SetNdivisions(510);

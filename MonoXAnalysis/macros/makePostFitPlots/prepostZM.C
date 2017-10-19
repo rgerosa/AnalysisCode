@@ -226,7 +226,6 @@ void prepostZM(string fitFilename, string observable, Category category, bool is
   prhist->SetMarkerColor(kRed);
   pohist->SetMarkerColor(TColor::GetColor("#0066ff"));
   
-  //  wlhist->SetFillColor(kOrange+1);
   wlhist->SetFillColor(33);
   wlhist->SetLineColor(kBlack);
   wlhist->Add(tthist);
@@ -236,6 +235,7 @@ void prepostZM(string fitFilename, string observable, Category category, bool is
 
   if(category == Category::VBF or category == Category::VBFrelaxed){
     wlhist->Add(ewkwhist);
+    ewkzhist->Add(wlhist);
     ewkzhist->SetFillColor(kCyan+1);
     ewkzhist->SetLineColor(kBlack);
   }
@@ -310,7 +310,7 @@ void prepostZM(string fitFilename, string observable, Category category, bool is
   leg->AddEntry(pohist, "Post-fit Z(#mu#mu)+jets","L");
   leg->AddEntry(prhist, "Pre-fit Z(#mu#mu)+jets","L");
   if(category == Category::VBF or category == Category::VBFrelaxed)
-    leg->AddEntry(ewkzhist, "Z-EWK","F");
+    leg->AddEntry(ewkzhist, "Post-fit EW Z(#mu#mu)","F");
   leg->AddEntry(wlhist, "Other backgrounds", "F");
   leg->Draw("SAME");
   
@@ -330,8 +330,10 @@ void prepostZM(string fitFilename, string observable, Category category, bool is
     frame2->GetYaxis()->SetRangeUser(0.80,1.20);
   else if(category == Category::monoV)
     frame2->GetYaxis()->SetRangeUser(0.20,1.40);
-  else
+  else if(category == Category::VBF)
     frame2->GetYaxis()->SetRangeUser(0.60,1.40);
+  else
+    frame2->GetYaxis()->SetRangeUser(0.50,1.50);
 
   if(category == Category::monojet)
     frame2->GetXaxis()->SetNdivisions(510);

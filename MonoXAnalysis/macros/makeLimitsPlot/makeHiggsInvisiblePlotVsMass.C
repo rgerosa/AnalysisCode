@@ -1,6 +1,6 @@
 #include "../CMS_lumi.h"
 
-void makeHiggsInvisiblePlotVsMass(string inputFileName, string outputDIR, bool makeXSecLimit = true){
+void makeHiggsInvisiblePlotVsMass(string inputFileName, string outputDIR, bool makeXSecLimit = true, bool isBlind = true){
 
   gROOT->SetBatch(kTRUE);
   setTDRStyle();
@@ -42,7 +42,7 @@ void makeHiggsInvisiblePlotVsMass(string inputFileName, string outputDIR, bool m
 
   while(reader.Next()){
 
-    if(*quantileExpected == -1){
+    if(*quantileExpected == -1 and not isBlind){
       if(not makeXSecLimit)
 	graph_obs->SetPoint(ipoint_obs,*mh,*limit);
       else
@@ -50,12 +50,20 @@ void makeHiggsInvisiblePlotVsMass(string inputFileName, string outputDIR, bool m
 
       ipoint_obs++;
     }
+
     else if(*quantileExpected == 0.5){
-      if(not makeXSecLimit)
+      if(not makeXSecLimit){
 	graph_exp->SetPoint(ipoint_exp,*mh,*limit);
+      }
       else
 	graph_exp->SetPoint(ipoint_exp,*mh,*limit*crossSectionMap[*mh]);
 
+      if(isBlind){
+	if(not makeXSecLimit)
+	  graph_obs->SetPoint(ipoint_exp,*mh,*limit);
+	else
+	  graph_obs->SetPoint(ipoint_obs,*mh,*limit*crossSectionMap[*mh]);
+      }      
       ipoint_exp++;
     }
     else if(*quantileExpected >= 0.83 and *quantileExpected <= 0.85){

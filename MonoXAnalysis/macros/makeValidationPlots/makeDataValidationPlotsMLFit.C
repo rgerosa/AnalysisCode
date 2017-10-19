@@ -2,7 +2,7 @@
 #include "../makeTemplates/histoUtils.h"
 
 // average uncertianty from theory
-static float totalUncFromTheory = 0.11;
+static float totalUncFromTheory = 0.10;
 
 void makePlot(TH1* histoData, TH1* histoMC, const string & observable, const Category & category, const string & observableLatex, const string & postfix){
   

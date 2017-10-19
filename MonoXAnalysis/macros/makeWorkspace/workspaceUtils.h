@@ -112,9 +112,9 @@ void generateStatTemplate(string procname,
     for( size_t iHisto =0; iHisto < histStatUp.size(); iHisto++){
       histStatUp.at(iHisto)->SetBinContent(iHisto+1,histo->GetBinContent(iHisto+1)+histo->GetBinError(iHisto+1)*scaleUncertainty);
       if(histo->GetBinContent(iHisto+1)-histo->GetBinError(iHisto+1)*scaleUncertainty >= 0.)
-      histStatDw.at(iHisto)->SetBinContent(iHisto+1,histo->GetBinContent(iHisto+1)-histo->GetBinError(iHisto+1)*scaleUncertainty);
+	histStatDw.at(iHisto)->SetBinContent(iHisto+1,histo->GetBinContent(iHisto+1)-histo->GetBinError(iHisto+1)*scaleUncertainty);
       else
-	histStatDw.at(iHisto)->SetBinContent(iHisto+1,0.);
+	histStatDw.at(iHisto)->SetBinContent(iHisto+1,histo->GetBinContent(iHisto+1)/10.);
     }
   }
   else{ // for cut and count stat uncertainty

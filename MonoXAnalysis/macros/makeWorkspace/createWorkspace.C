@@ -13,7 +13,7 @@ using namespace std;
 /// some basic options to be set manually
 
 static float scaleQCD      = 2;      // scale QCD prediction in the signal region in case a data driven template is not found
-static bool  useQCDDataDriven = true; // wether use MC or DD
+static bool  useQCDDataDriven = false; // wether use MC or DD
 static bool  connectTop    = false;  // make top estimation from Top-CRs
 static bool  connectWZ     = true;   // apply a Z/W ratio
 static bool  correlateEWK  = true;   // to correlate EWK uncertainties across bins on the Z/gamma Z/W ratio
@@ -777,7 +777,7 @@ void createWorkspace(string   inputName,                        // input templat
 	if(category != Category::VBFrelaxed)
 	  makeConnectedBinList("Znunu_ZM_"+suffix,*met,*wspace_ZM,(TH1F*)templatesfile->FindObjectAny(("zmmcorhist_"+observable).c_str()),znn_ZM_syst,znn_SR_bins,NULL,observable);
 	else
-	  makeConnectedBinList("Znunu_ZM_"+suffix,*met,*wspace_ZM,(TH1F*)templatesfile->FindObjectAny(("zmmcorhist_"+observable).c_str()),znn_ZM_syst,znn_SR_bins,NULL,observable,true,1.5);
+	  makeConnectedBinList("Znunu_ZM_"+suffix,*met,*wspace_ZM,(TH1F*)templatesfile->FindObjectAny(("zmmcorhist_"+observable).c_str()),znn_ZM_syst,znn_SR_bins,NULL,observable,true,1.75);
 
 	if(category == Category::VBF or category == Category::VBFrelaxed){
 	  if(category == Category::VBFrelaxed)
@@ -856,7 +856,7 @@ void createWorkspace(string   inputName,                        // input templat
 	if(category != Category::VBFrelaxed)
 	  makeConnectedBinList("Znunu_ZE_"+suffix,*met,*wspace_ZE,(TH1F*)templatesfile->FindObjectAny(("zeecorhist_"+observable).c_str()),znn_ZE_syst,znn_SR_bins,NULL,observable);
 	else
-	  makeConnectedBinList("Znunu_ZE_"+suffix,*met,*wspace_ZE,(TH1F*)templatesfile->FindObjectAny(("zeecorhist_"+observable).c_str()),znn_ZE_syst,znn_SR_bins,NULL,observable,true,1.5);
+	  makeConnectedBinList("Znunu_ZE_"+suffix,*met,*wspace_ZE,(TH1F*)templatesfile->FindObjectAny(("zeecorhist_"+observable).c_str()),znn_ZE_syst,znn_SR_bins,NULL,observable,true,1.75);
 
 	if(category == Category::VBF or category == Category::VBFrelaxed){
 	  if(category == Category::VBFrelaxed)

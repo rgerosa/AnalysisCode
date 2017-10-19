@@ -563,11 +563,11 @@ void prepostSig(string   fitFilename,
     
   leg->AddEntry(dthist, "Data", "PEL");
 
-  leg->AddEntry(znhist,    "Z(#nu#nu)+jets", "F");
-  leg->AddEntry(wlhist,    "W(l#nu)+jets", "F");
+  leg->AddEntry(znhist,    "QCD Z(#nu#nu)", "F");
+  leg->AddEntry(wlhist,    "QCD W(l#nu)", "F");
   if(category == Category::VBF or category == Category::VBFrelaxed){
-    leg->AddEntry(ewkzhist,"Z(#nu#nu)+jets EWK", "F");
-    leg->AddEntry(ewkwhist,"W(l#nu)+jets EWK", "F");
+    leg->AddEntry(ewkzhist,"EW Z(#nu#nu)", "F");
+    leg->AddEntry(ewkwhist,"EW W(l#nu)", "F");
   }
   if(not vghist)
     leg->AddEntry(dihist,  "WW/WZ/ZZ", "F");

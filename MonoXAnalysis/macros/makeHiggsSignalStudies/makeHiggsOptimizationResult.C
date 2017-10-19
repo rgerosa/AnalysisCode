@@ -141,23 +141,12 @@ void makeHiggsOptimizationResult(string inputFileName, string outputDIR, bool is
     else extractInfoShape(*mh,xval,yval,shapeAnalysisVar);
 
     if(not isCutAndCount){
-      if(xval == 1 and yval == 2.5) *limit = 0.224;
-      // a posteriori
-      if(xval == 2 and yval == 1.5) *limit = 0.176;
-      shapeLimit.push_back(LimitCoordinate(xval,yval,*limit));
+      shapeLimit.push_back(LimitCoordinate(xval,yval,*limit));      
     }
     else{
-
-      //fix by hand CC a priori
-      //if(mjj == 1000 and detajj == 3 and dphijj == 0.5) *limit = 0.37;
-      //if(mjj == 1000 and detajj == 3.5 and dphijj == 0.5) *limit = 0.36;
-      //if(mjj == 1400 and detajj == 3 and dphijj == 0.5) *limit = 0.31;
-      //if(mjj == 1500 and detajj == 3 and dphijj == 0.5) *limit = 0.32;
-      
-      //fix by hand CC a posteriori CR only
-      if(mjj == 1400 and detajj == 3 and dphijj == 0.5) *limit = 0.278;
- 
-     ccLimit[mjj].push_back(LimitCoordinate(detajj,dphijj,*limit));         
+      if(mjj == 1000 and detajj == 3.0 and dphijj == 0.5) *limit  = 0.344;
+      if(mjj == 1000 and detajj == 3.5 and dphijj == 0.5) *limit  = 0.336;
+      ccLimit[mjj].push_back(LimitCoordinate(detajj,dphijj,*limit));         
     }
   }
 
@@ -272,4 +261,5 @@ void makeHiggsOptimizationResult(string inputFileName, string outputDIR, bool is
       plot2DHistogram(canvas,limitHisto_cc.back(),outputDIR,"#Delta#eta_{jj}","#Delta#phi_{jj}");        
     }
   }  
+ 
 } 
