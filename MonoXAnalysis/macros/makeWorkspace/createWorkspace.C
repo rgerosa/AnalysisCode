@@ -13,7 +13,7 @@ using namespace std;
 /// some basic options to be set manually
 
 static float scaleQCD      = 2;      // scale QCD prediction in the signal region in case a data driven template is not found
-static bool  useQCDDataDriven = false; // wether use MC or DD
+static bool  useQCDDataDriven = true; // wether use MC or DD
 static bool  connectTop    = false;  // make top estimation from Top-CRs
 static bool  connectWZ     = true;   // apply a Z/W ratio
 static bool  correlateEWK  = true;   // to correlate EWK uncertainties across bins on the Z/gamma Z/W ratio
@@ -30,7 +30,7 @@ static bool  addFlatWZUncertainty     = false; // use a flat nuisance for the Z/
 static bool  addFlatZgammaUncertainty = false; // use a flat nuisance for the Z/gamma ratio uncertainty : aka HIG-16-016
 static float flatWZUncertainty     = 0.15;
 static float flatZgammaUncertainty = 0.15;
-static bool  freezeZQCDOverZEWKNuisances = false; // set to constant the Z-QCD / Z-EWK constraint in VBF
+static bool  freezeZQCDOverZEWKNuisances = true; // set to constant the Z-QCD / Z-EWK constraint in VBF
 static bool  addBinByBinMCUncertainty = true;
 static bool  useNewTheoryUncertainty  = true;
 static bool  addNewShapeSysUncertainties = true;

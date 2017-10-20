@@ -57,32 +57,16 @@ TGraph* xenon();
 TGraph* cresst();
 
 
-void makeHiggsPortalPlot(string inputFileName, string outputDIR){
+void makeHiggsPortalPlot(float observedBR, string outputDIR){
 
   gROOT->SetBatch(kTRUE);
   setTDRStyle();
   system(("mkdir -p "+outputDIR).c_str());
 
-  /*
-  TFile* inputFile = TFile::Open(inputFileName.c_str(),"READ");
-  TTree* limitTree = (TTree*) inputFile->Get("limit");
-
-  TTreeReader reader(limitTree);
-  TTreeReaderValue<float> limit (reader,"limit");
-  TTreeReaderValue<float> quantile (reader,"quantileExpected");
-  */
-  float observedBR = 0.22;
-
-  /*
-  while(reader.Next()){
-  if(*quantile == -1) observedBR = *limit;
-  }
-  */
   
   TCanvas* canvas = new TCanvas("canvas","",800,700);
   canvas->cd();
   
-
   // from BRinv =  GammaInv/(GammaInv+GammaSM)
   float observedGammaInv = observedBR*0.00407/(1-observedBR);
 

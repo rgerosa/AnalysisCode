@@ -1,6 +1,6 @@
 #include "../makeTemplates/histoUtils.h"
 
-void makeYieldTableFromMLFit(string inputFileName, Category category, bool isZeynep, bool printPrefit = false){
+void makeYieldTableFromMLFit(string inputFileName, Category category, bool isZeynep, bool printPrefit = false, bool mergeEWQCD = false){
 
   TFile* inputFile = TFile::Open(inputFileName.c_str());
 
@@ -93,6 +93,11 @@ void makeYieldTableFromMLFit(string inputFileName, Category category, bool isZey
     ewkwhist = (TH1*)inputFile->Get((dir+"/ch1/WJets_EWK").c_str()); 
   }
 
+  if(mergeEWQCD){
+    zvvhist->Add(ewkzhist);
+    wjethist->Add(ewkwhist);
+  }
+
 
   TH1* other = (TH1*) qcdhist->Clone("other");
   if(gammahist)
@@ -113,7 +118,7 @@ void makeYieldTableFromMLFit(string inputFileName, Category category, bool isZey
     postfix = "VBF";
   
   outputfile.open(Form("yield_%s.txt",postfix.c_str()));
-  if(category == Category::monojet or category == Category::monoV){
+  if(category == Category::monojet or category == Category::monoV or (category == Category::VBF and mergeEWQCD) or (category == Category::VBFrelaxed and mergeEWQCD)){
     outputfile<<"$E_{T}^{miss}$ (GeV) & Observed & $Z \\rightarrow \\nu\\nu$+jets & $W \\rightarrow \\ell\\nu$+jets & Top & Dibosons & Other & Total Bkg. \\\\"<<endl; 
     for(int ibin = 0; ibin < totalhist->GetNbinsX(); ibin++){
       double x,y;
@@ -130,7 +135,7 @@ void makeYieldTableFromMLFit(string inputFileName, Category category, bool isZey
       outputfile<<"\n";
     }
   }
-  else if(category == Category::VBF or category == Category::VBFrelaxed){
+  else if((category == Category::VBF or category == Category::VBFrelaxed) and not mergeEWQCD){
     outputfile<<"$m_{jj} (GeV) & Observed & Znunu-QCD & Znunu-EWK & W+jets QCD & W+jets EWK & Top & VV+Vgamma & Other & Total Bkg. \\\\ "<<endl;
     for(int ibin = 0; ibin < totalhist->GetNbinsX(); ibin++){
       double x,y;
