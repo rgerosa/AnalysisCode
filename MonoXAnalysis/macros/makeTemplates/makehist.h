@@ -855,16 +855,24 @@ void makehist4(TTree* tree,            /*input tree*/
       
     
       // VBF selection
-      if(goodMonoJet and centralJets.size()+forwardJets.size() > 2 and fabs(jeteta->at(0)) < 4.7 and fabs(jeteta->at(1)) < 4.7 and 
-	 jetpt->at(0) > leadingJetPtCutVBF and jetpt->at(1) > trailingJetPtCutVBF and
-	 jmdphi > jetmetdphiVBF and jeteta->at(0)*jeteta->at(1) < 0 and
-	 fabs(jeteta->at(0)-jeteta->at(1)) > detajj){
+      if(goodMonoJet and 
+	 centralJets.size()+forwardJets.size() > 2 and 
+	 fabs(jeteta->at(0)) < 4.7 and 
+	 fabs(jeteta->at(1)) < 4.7 and 
+	 jetpt->at(0) > leadingJetPtCutVBF and 
+	 jetpt->at(1) > trailingJetPtCutVBF and
+	 jmdphi > jetmetdphiVBF and 
+	 jeteta->at(0)*jeteta->at(1) < 0 and
+	 fabs(jeteta->at(0)-jeteta->at(1)) > detajjrelaxed and
+	 fabs(jeteta->at(0)) < 3 and 
+	 fabs(jeteta->at(1)) < 3){
 	
 	TLorentzVector jet1 ;
 	TLorentzVector jet2 ;
 	jet1.SetPtEtaPhiM(jetpt->at(0),jeteta->at(0),jetphi->at(0),jetm->at(0));
 	jet2.SetPtEtaPhiM(jetpt->at(1),jeteta->at(1),jetphi->at(1),jetm->at(1));
-	if((jet1+jet2).M() > mjj and fabs(deltaPhi(jetphi->at(0),jetphi->at(1))) < dphijj){
+	if((jet1+jet2).M() > mjjrelaxed and 
+	   fabs(deltaPhi(jetphi->at(0),jetphi->at(1))) < dphijjrelaxed){
 	  if(removeVBF) goodMonoJet = false;
 	}
       }
@@ -935,16 +943,24 @@ void makehist4(TTree* tree,            /*input tree*/
 
 
       // remove VBF overlap
-      if(goodMonoV and category == Category::monoV and centralJets.size()+forwardJets.size() > 2 and fabs(jeteta->at(0)) < 4.7 and fabs(jeteta->at(1)) < 4.7 and
-         jetpt->at(0) > leadingJetPtCutVBF and jetpt->at(1) > trailingJetPtCutVBF and
-         (sample != Sample::taun and jmdphi > jetmetdphiVBF) and jeteta->at(0)*jeteta->at(1) < 0 and
-         fabs(jeteta->at(0)-jeteta->at(1)) > detajj){
+      if(goodMonoV and category == Category::monoV and 
+	 centralJets.size()+forwardJets.size() > 2 and 
+	 fabs(jeteta->at(0)) < 4.7 and fabs(jeteta->at(1)) < 4.7 and
+         jetpt->at(0) > leadingJetPtCutVBF and 
+	 jetpt->at(1) > trailingJetPtCutVBF and
+         (sample != Sample::taun and jmdphi > jetmetdphiVBF) and 
+	 jeteta->at(0)*jeteta->at(1) < 0 and
+         fabs(jeteta->at(0)-jeteta->at(1)) > detajjrelaxed and
+	 fabs(jeteta->at(0)) < 3 and
+	 fabs(jeteta->at(1)) < 3
+	 ){
 	
         TLorentzVector jet1 ;
         TLorentzVector jet2 ;
         jet1.SetPtEtaPhiM(jetpt->at(0),jeteta->at(0),jetphi->at(0),jetm->at(0));
         jet2.SetPtEtaPhiM(jetpt->at(1),jeteta->at(1),jetphi->at(1),jetm->at(1));
-        if((jet1+jet2).M() > mjj and fabs(deltaPhi(jetphi->at(0),jetphi->at(1))) < dphijj){
+        if((jet1+jet2).M() > mjjrelaxed and 
+	   fabs(deltaPhi(jetphi->at(0),jetphi->at(1))) < dphijjrelaxed){
           if(removeVBF) goodMonoV = false;
 	}
       }             
