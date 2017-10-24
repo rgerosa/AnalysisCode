@@ -618,7 +618,7 @@ void prepostSig(string   fitFilename,
   else if(category == Category::monoV)
     frame2->GetYaxis()->SetRangeUser(0.4,1.6);
   else
-    frame2->GetYaxis()->SetRangeUser(0.6,1.4);
+    frame2->GetYaxis()->SetRangeUser(0.5,1.5);
 
   if(category == Category::monojet)
     frame2->GetXaxis()->SetNdivisions(510);
