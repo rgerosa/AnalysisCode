@@ -91,13 +91,15 @@ void makeYieldTableFromMLFit(string inputFileName, Category category, bool isZey
     totalhist = (TH1*)inputFile->Get((dir+"/ch1/total_background").c_str());
     ewkzhist = (TH1*)inputFile->Get((dir+"/ch1/Znunu_EWK").c_str()); 
     ewkwhist = (TH1*)inputFile->Get((dir+"/ch1/WJets_EWK").c_str()); 
+    
   }
 
   if(mergeEWQCD){
-    zvvhist->Add(ewkzhist);
-    wjethist->Add(ewkwhist);
+    if(ewkzhist)
+      zvvhist->Add(ewkzhist);
+    if(ewkwhist)
+      wjethist->Add(ewkwhist);
   }
-
 
   TH1* other = (TH1*) qcdhist->Clone("other");
   if(gammahist)
@@ -123,7 +125,6 @@ void makeYieldTableFromMLFit(string inputFileName, Category category, bool isZey
     for(int ibin = 0; ibin < totalhist->GetNbinsX(); ibin++){
       double x,y;
       datahist->GetPoint(ibin,x,y);
-      
       outputfile<<Form("%d-%d",int(totalhist->GetXaxis()->GetBinLowEdge(ibin+1)),int(totalhist->GetXaxis()->GetBinLowEdge(ibin+2)))<<" & ";
       outputfile<<Form("%d",int(y*(int(totalhist->GetXaxis()->GetBinLowEdge(ibin+2))-int(totalhist->GetXaxis()->GetBinLowEdge(ibin+1)))))<<" & ";
       outputfile<<Form("%.3f $\\pm$ %.3f",zvvhist->GetBinContent(ibin+1)*zvvhist->GetBinWidth(ibin+1),zvvhist->GetBinError(ibin+1)*zvvhist->GetBinWidth(ibin+1))<<" & ";
