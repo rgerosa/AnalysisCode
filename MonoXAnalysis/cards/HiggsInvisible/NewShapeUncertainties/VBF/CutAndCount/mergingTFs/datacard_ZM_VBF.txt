@@ -1,0 +1,40 @@
+imax * number of bins
+jmax * number of processes minus 1
+kmax * number of nuisance parameters
+
+----------------------------------------------------------------------------------------------------------------
+shapes data_obs      dimuon_VBF   workspace_VBF.root ZM_VBF:data_obs_ZM_VBF
+shapes Znunu         dimuon_VBF   workspace_VBF.root ZM_VBF:Znunu_ZM_VBF
+shapes WJets_ZM      dimuon_VBF   workspace_VBF.root ZM_VBF:WJets_ZM_VBF     ZM_VBF:WJets_ZM_VBF_$SYSTEMATIC
+shapes WJets_EWK_ZM  dimuon_VBF   workspace_VBF.root ZM_VBF:WJets_EWK_ZM_VBF ZM_VBF:WJets_EWK_ZM_VBF_$SYSTEMATIC
+shapes Dibosons      dimuon_VBF   workspace_VBF.root ZM_VBF:Dibosons_ZM_VBF  ZM_VBF:Dibosons_ZM_VBF_$SYSTEMATIC
+shapes Top           dimuon_VBF   workspace_VBF.root ZM_VBF:Top_ZM_VBF       ZM_VBF:Top_ZM_VBF_$SYSTEMATIC
+shapes VGamma        dimuon_VBF   workspace_VBF.root ZM_VBF:VGamma_ZM_VBF    ZM_VBF:VGamma_ZM_VBF_$SYSTEMATIC
+----------------------------------------------------------------------------------------------------------------
+bin         dimuon_VBF
+observation -1
+---------------------------------------------------------------------------------------------------------------
+bin                                 dimuon_VBF  dimuon_VBF  dimuon_VBF    dimuon_VBF  dimuon_VBF     dimuon_VBF 
+process                             Znunu       WJets_ZM    Dibosons      Top         WJets_EWK_ZM   VGamma
+process                             1           10          6             7           11             9
+rate                                1           -1          -1            -1           -1             -1
+---------------------------------------------------------------------------------------------------------------    
+lumi_13TeV                lnN       -           1.025       1.025         1.025      1.025           1.025
+CMS_eff_m                 lnN       1.020       1.020       1.020         1.020      1.020           1.020
+CMS_reco_m                lnN       1.020       1.020       1.020         1.020      1.020           1.020
+CMS_met_trig              lnN       1.020       1.020       1.020         1.020      1.020           1.020
+WJets_ZM_Norm13TeV        lnN       -           1.200       -               -          -             -
+WJets_EWK_ZM_Norm13TeV    lnN       -           -           -               -        1.200           - 
+Dibosons_Norm13TeV        lnN       -           -           1.150           -          -             -
+VGamma_Norm13TeV          lnN       -           -           -               -          -             1.150
+Top_Norm13TeV             lnN       -           -           -             1.100        -             -
+Top_Reweight13TeV         lnN       -           -           -             1.100        -             -
+CMS_scale_j_13TeV         lnN       0.985/1.01  0.88/1.10  0.88/1.10      0.88/1.10  0.88/1.10      0.88/1.10 
+CMS_btag_13TeV            lnN       -           1.010       1.010          1.030      1.010         1.010
+WJets_ZM_VBF_CMS_bin1_stat shape    -           1           -               -          -             -
+Dibosons_ZM_VBF_CMS_bin1_stat shape -           -           1               -          -             -
+Top_ZM_VBF_CMS_bin1_stat shape      -           -           -               1          -             -
+WJets_EWK_ZM_VBF_CMS_bin1_stat shape -          -           -               -          1             -
+VGamma_ZM_VBF_CMS_bin1_stat shape   -           -           -               -          -             1
+Znunu_ZM_VBF_bin1_Runc     param    0     1
+--------------------------------------------------------------------------------------------------------------
