@@ -1,6 +1,6 @@
 #include "../makeTemplates/histoUtils.h"
 
-void scaleSignalTemplate(string workspaceFile, Category category, string outputName, float lumiScale = 13.2){
+void makeScaleSignalTemplate(string workspaceFile, Category category, string outputName, float lumiScale = 13.2){
   
   RooMsgService::instance().setSilentMode(kTRUE);
   RooMsgService::instance().setGlobalKillBelow(RooFit::WARNING) ;

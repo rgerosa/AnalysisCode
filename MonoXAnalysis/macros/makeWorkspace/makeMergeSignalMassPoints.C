@@ -2,7 +2,7 @@
 
 //inputFileName1 : file to be filled with elements from 2
 //inputFileName2 : file to be used to full 1
-void mergeSignalMassPoints(string inputFileName1, string inputFileName2, string outputFileName, float scaleHistograms = 1){
+void makeMergeSignalMassPoints(string inputFileName1, string inputFileName2, string outputFileName, float scaleHistograms = 1){
 
   gROOT->SetBatch(kTRUE);
   setTDRStyle();

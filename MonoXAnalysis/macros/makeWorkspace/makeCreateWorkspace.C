@@ -36,22 +36,22 @@ static bool  useNewTheoryUncertainty  = true;
 static bool  addNewShapeSysUncertainties = true;
 
 // function to create workspace, to be run from a release which has the combine package
-void createWorkspace(string   inputName,                        // input template file
-		     Category category,                         // analysis category
-		     string   outputName    = "workspace.root", // output workspace name
-		     string   observable    = "met",            // observable 1D or 2D
-		     bool     isHiggsInvisible    = false,      // Higgs invisible or DM analsysis
-		     bool     addShapeSystematics = false,      // add shapeN2 for experimental uncertatinties on minor backgrounds
-		     bool     RunOnlySignal     = false,  // run only on signal templates --> workspace with only signals 
-		     bool     RunOnlyBackground = false,  // run only on signal templates --> workspace with only background 
-		     bool     UseNewTheoryUncertainty = false,
-		     string   interaction   = "Vector", // DM interaction 
-		     string   mediatorMass  = "125",   // Med mass
-		     string   DMMass        = "50",     // DM mass
-		     bool     isCutAndCount = false,    // to produce a workspace for a cut and count analysis
-		     std::pair<float,float> xAxisSelection = {-10000,10000}, // define bins for cut and count
-		     std::pair<float,float> yAxisSelection = {-10000,10000}  // define bins for cut and count --> only when 2D templates are considered
-		     ){
+void makeCreateWorkspace(string   inputName,                        // input template file
+			 Category category,                         // analysis category
+			 string   outputName    = "workspace.root", // output workspace name
+			 string   observable    = "met",            // observable 1D or 2D
+			 bool     isHiggsInvisible    = false,      // Higgs invisible or DM analsysis
+			 bool     addShapeSystematics = false,      // add shapeN2 for experimental uncertatinties on minor backgrounds
+			 bool     RunOnlySignal     = false,  // run only on signal templates --> workspace with only signals 
+			 bool     RunOnlyBackground = false,  // run only on signal templates --> workspace with only background 
+			 bool     UseNewTheoryUncertainty = false,
+			 string   interaction   = "Vector", // DM interaction 
+			 string   mediatorMass  = "125",   // Med mass
+			 string   DMMass        = "50",     // DM mass
+			 bool     isCutAndCount = false,    // to produce a workspace for a cut and count analysis
+			 std::pair<float,float> xAxisSelection = {-10000,10000}, // define bins for cut and count
+			 std::pair<float,float> yAxisSelection = {-10000,10000}  // define bins for cut and count --> only when 2D templates are considered
+			 ){
 
   // parsing
   runOnlySignal     = RunOnlySignal;

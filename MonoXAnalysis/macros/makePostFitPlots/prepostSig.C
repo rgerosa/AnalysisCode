@@ -238,14 +238,17 @@ void prepostSig(string   fitFilename,
     }
   
     if(category == Category::VBF or category == Category::VBFrelaxed){
-      for(int iBin = 0; iBin < ewkwhist->GetNbinsX(); iBin++){
-	EWKWRate << "   ";
-	EWKWRate << ewkwhist->GetBinContent(iBin+1);
+      if(ewkwhist){
+	for(int iBin = 0; iBin < ewkwhist->GetNbinsX(); iBin++){
+	  EWKWRate << "   ";
+	  EWKWRate << ewkwhist->GetBinContent(iBin+1);
+	}
       }
-      
-      for(int iBin = 0; iBin < ewkzhist->GetNbinsX(); iBin++){
-	EWKZRate << "   ";
-	EWKZRate << ewkzhist->GetBinContent(iBin+1);
+      if(ewkzhist){
+	for(int iBin = 0; iBin < ewkzhist->GetNbinsX(); iBin++){
+	  EWKZRate << "   ";
+	  EWKZRate << ewkzhist->GetBinContent(iBin+1);
+	}
       }
     }
 
@@ -429,10 +432,14 @@ void prepostSig(string   fitFilename,
   tthist->SetLineColor(kBlack);
 
   if(category == Category::VBF or category == Category::VBFrelaxed){
-    ewkzhist->SetFillColor(kCyan+1);
-    ewkzhist->SetLineColor(kBlack);
-    ewkwhist->SetFillColor(kAzure+1);
-    ewkwhist->SetLineColor(kBlack);
+    if(ewkzhist){
+      ewkzhist->SetFillColor(kCyan+1);
+      ewkzhist->SetLineColor(kBlack);
+    }
+    if(ewkwhist){
+      ewkwhist->SetFillColor(kAzure+1);
+      ewkwhist->SetLineColor(kBlack);
+    }
   }
   
   if(sighist){
@@ -566,8 +573,10 @@ void prepostSig(string   fitFilename,
   leg->AddEntry(znhist,    "QCD Z(#nu#nu)", "F");
   leg->AddEntry(wlhist,    "QCD W(l#nu)", "F");
   if(category == Category::VBF or category == Category::VBFrelaxed){
-    leg->AddEntry(ewkzhist,"EW Z(#nu#nu)", "F");
-    leg->AddEntry(ewkwhist,"EW W(l#nu)", "F");
+    if(ewkzhist)
+      leg->AddEntry(ewkzhist,"EW Z(#nu#nu)", "F");
+    if(ewkwhist)
+      leg->AddEntry(ewkwhist,"EW W(l#nu)", "F");
   }
   if(not vghist)
     leg->AddEntry(dihist,  "WW/WZ/ZZ", "F");

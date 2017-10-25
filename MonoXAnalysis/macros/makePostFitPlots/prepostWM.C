@@ -158,14 +158,17 @@ void prepostWM(string fitFilename, string observable, Category category, bool is
     }
     
     if(category == Category::VBF or category == Category::VBFrelaxed){
-      for(int iBin = 0; iBin < ewkwhist->GetNbinsX(); iBin++){
-	EWKWRate << "   ";
-	EWKWRate << ewkwhist->GetBinContent(iBin);
+      if(ewkwhist){
+	for(int iBin = 0; iBin < ewkwhist->GetNbinsX(); iBin++){
+	  EWKWRate << "   ";
+	  EWKWRate << ewkwhist->GetBinContent(iBin);
+	}
       }
-      
-      for(int iBin = 0; iBin < ewkzhist->GetNbinsX(); iBin++){
-	EWKZRate << "   ";
-	EWKZRate << ewkzhist->GetBinContent(iBin);
+      if(ewkzhist){
+	for(int iBin = 0; iBin < ewkzhist->GetNbinsX(); iBin++){
+	  EWKZRate << "   ";
+	  EWKZRate << ewkzhist->GetBinContent(iBin);
+	}
       }
     }
     
@@ -234,9 +237,11 @@ void prepostWM(string fitFilename, string observable, Category category, bool is
     wlhist->Add(vghist);
   if(category == Category::VBF or category == Category::VBFrelaxed){
     wlhist->Add(ewkzhist);
-    ewkwhist->Add(wlhist);
-    ewkwhist->SetFillColor(kCyan+1);
-    ewkwhist->SetLineColor(kBlack);
+    if(ewkwhist){
+      ewkwhist->Add(wlhist);
+      ewkwhist->SetFillColor(kCyan+1);
+      ewkwhist->SetLineColor(kBlack);
+    }
   }
   else{
     if(ewkwhist) wlhist->Add(ewkwhist);
@@ -294,8 +299,10 @@ void prepostWM(string fitFilename, string observable, Category category, bool is
 
   prhist->Draw("HIST SAME");
   pohist->Draw("HIST SAME");
-  if(category == Category::VBF or category == Category::VBFrelaxed)
-    ewkwhist->Draw("HIST same");
+  if(category == Category::VBF or category == Category::VBFrelaxed){
+    if(ewkwhist)
+      ewkwhist->Draw("HIST same");
+  }
   wlhist->Draw("HIST SAME");
   
   dthist->SetMarkerSize(1.2);
@@ -310,8 +317,10 @@ void prepostWM(string fitFilename, string observable, Category category, bool is
   leg->AddEntry(dthist, "Data","PEL");
   leg->AddEntry(pohist, "Post-fit W(#mu#nu)+jets","L");
   leg->AddEntry(prhist, "Pre-fit W(#mu#nu)+jets","L");
-  if(category == Category::VBF or category == Category::VBFrelaxed)
-    leg->AddEntry(ewkwhist, "Post-fit EW W(#mu#nu)","F");
+  if(category == Category::VBF or category == Category::VBFrelaxed){
+    if(ewkwhist)
+      leg->AddEntry(ewkwhist, "Post-fit EW W(#mu#nu)","F");
+  }
   leg->AddEntry(wlhist, "Other backgrounds", "F");
   leg->Draw("SAME");
   

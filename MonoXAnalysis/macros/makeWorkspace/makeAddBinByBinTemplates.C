@@ -105,7 +105,7 @@ void generateStatTemplate(string procname,
 
 
 /// main function
-void addBinByBinTemplates(string inputFileName, Category category, string signalName){
+void makeAddBinByBinTemplates(string inputFileName, Category category, string signalName){
 
   RooMsgService::instance().setSilentMode(kTRUE);
   RooMsgService::instance().setGlobalKillBelow(RooFit::WARNING) ;

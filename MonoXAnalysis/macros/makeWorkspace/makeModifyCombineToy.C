@@ -4,7 +4,7 @@
 static float shift = 0.97;
 static bool  applyFirstBinOnly = true;
 
-void modifyCombineToy(string inputCombineFileName, string outputFileName, bool isHiggsInvisible, string channelToModify){
+void makeModifyCombineToy(string inputCombineFileName, string outputFileName, bool isHiggsInvisible, string channelToModify){
 
   TFile* inputFile = TFile::Open(inputCombineFileName.c_str());
   RooDataSet* data_obs = (RooDataSet*) inputFile->Get("toys/toy_asimov");

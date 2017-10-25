@@ -1,6 +1,6 @@
 #include "../makeTemplates/histoUtils.h"
 
-void applyGGHiggsNNLO(string workspaceFile, Category category, string outputName){
+void makeApplyGGHiggsNNLO(string workspaceFile, Category category, string outputName){
   
   RooMsgService::instance().setSilentMode(kTRUE);
   RooMsgService::instance().setGlobalKillBelow(RooFit::WARNING) ;
