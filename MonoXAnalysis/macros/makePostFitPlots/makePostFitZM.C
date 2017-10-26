@@ -6,7 +6,7 @@ static bool dumpInfo     = false;
 static bool addStatUncPull = true;
 static bool addPreliminary = false;
 
-void prepostZE(string fitFilename, string observable, Category category, bool isCombinedFit = false, bool plotSBFit = false, bool addPullPlot = false,  bool dumpHisto = false) {
+void makePostFitZM(string fitFilename, string observable, Category category, bool isCombinedFit = false, bool plotSBFit = false, bool addPullPlot = false,  bool dumpHisto = false) {
 
   gROOT->SetBatch(kTRUE);   
   setTDRStyle();
@@ -71,9 +71,9 @@ void prepostZE(string fitFilename, string observable, Category category, bool is
   TH1* wlhist = NULL;
   TH1* tthist = NULL;
   TH1* dihist = NULL;
-  TH1* vghist = NULL;
   TH1* ewkwhist = NULL;
   TH1* ewkzhist = NULL;
+  TH1* vghist = NULL;
   TH1* pohist = NULL;
   TH1* prhist = NULL;
 
@@ -85,16 +85,16 @@ void prepostZE(string fitFilename, string observable, Category category, bool is
   string dir;
   if(isCombinedFit){
     if(category == Category::monojet)
-      dir = "ch1_ch5";
+      dir = "ch1_ch2";
     else if(category == Category::monoV)
-      dir = "ch2_ch5";
+      dir = "ch2_ch2";
     else if(category == Category::VBF or category == Category::VBFrelaxed)
-      dir = "ch3_ch4";
+      dir = "ch3_ch2";
   }
   else if( category != Category::VBF and category != Category::VBFrelaxed)
-    dir = "ch5";
+    dir = "ch2";
   else
-    dir = "ch4";
+    dir = "ch2";
 
 
   string postfix = "_MJ";
@@ -105,12 +105,11 @@ void prepostZE(string fitFilename, string observable, Category category, bool is
 
 
   dthist = (TGraphAsymmErrors*)pfile->Get((fit_dir+"/"+dir+"/data").c_str());
-  wlhist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/WJets_ZE").c_str());
+  wlhist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/WJets_ZM").c_str());
   tthist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/Top").c_str());
   dihist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/Dibosons").c_str());
-  if(vghist)
-    vghist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/VGamma").c_str());
-  ewkwhist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/WJets_EWK_ZE").c_str());
+  vghist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/VGamma").c_str());
+  ewkwhist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/WJets_EWK_ZM").c_str());
   ewkzhist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/Znunu_EWK").c_str());
   pohist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/total_background").c_str());
   prhist = (TH1*)pfile->Get(("shapes_prefit/"+dir+"/total_background").c_str());
@@ -121,7 +120,7 @@ void prepostZE(string fitFilename, string observable, Category category, bool is
   if(saveTextFile){
 
     ofstream  outputfile;
-    outputfile.open("prepostZE.txt");
+    outputfile.open("prepostZM.txt");
     stringstream TopRate;
     TopRate << "Process: Top";
     stringstream VVRate;
@@ -129,7 +128,6 @@ void prepostZE(string fitFilename, string observable, Category category, bool is
     stringstream VGammaRate;
     if(vghist)
       VGammaRate << "Process: VGamma";
-
     stringstream EWKWRate;
     EWKWRate << "Process: EWKW";
     stringstream EWKZRate;
@@ -206,7 +204,6 @@ void prepostZE(string fitFilename, string observable, Category category, bool is
       outputfile<<VGammaRate.str()<<endl;
       outputfile<<"######################"<<endl;
     }
-
     if(category == Category::VBF or category == Category::VBFrelaxed){
       outputfile<<EWKWRate.str()<<endl;
       outputfile<<"######################"<<endl;
@@ -232,13 +229,12 @@ void prepostZE(string fitFilename, string observable, Category category, bool is
   prhist->SetMarkerColor(kRed);
   pohist->SetMarkerColor(TColor::GetColor("#0066ff"));
   
-  //  wlhist->SetFillColor(kOrange+1);
   wlhist->SetFillColor(33);
   wlhist->SetLineColor(kBlack);
   wlhist->Add(tthist);
   wlhist->Add(dihist);
   if(vghist)
-    wlhist->Add(vghist);
+    vghist->Add(vghist);
 
   if(category == Category::VBF or category == Category::VBFrelaxed){
     wlhist->Add(ewkwhist);
@@ -263,7 +259,7 @@ void prepostZE(string fitFilename, string observable, Category category, bool is
   else if(category == Category::monoV)
     frame->GetYaxis()->SetRangeUser(0.0007,prhist->GetMaximum()*500);
   else if(category == Category::VBF)
-    frame->GetYaxis()->SetRangeUser(0.003,prhist->GetMaximum()*1000);
+    frame->GetYaxis()->SetRangeUser(0.005,prhist->GetMaximum()*1000);
   else if(category == Category::VBFrelaxed)
     frame->GetYaxis()->SetRangeUser(0.0002,prhist->GetMaximum()*500);
 
@@ -313,16 +309,16 @@ void prepostZE(string fitFilename, string observable, Category category, bool is
   dthist->SetLineColor(kBlack);
   dthist->Draw("EP SAME");
   
- 
+
   TLegend* leg = new TLegend(0.50, 0.62, 0.95, 0.90);
   leg->SetBorderSize(0);
   leg->SetFillColor(0);
   leg->AddEntry(dthist, "Data","PEL");
-  leg->AddEntry(pohist, "Post-fit Z(ee)+jets","L");
-  leg->AddEntry(prhist, "Pre-fit Z(ee)+jets","L");
+  leg->AddEntry(pohist, "Post-fit Z(#mu#mu)+jets","L");
+  leg->AddEntry(prhist, "Pre-fit Z(#mu#mu)+jets","L");
   if(category == Category::VBF or category == Category::VBFrelaxed){
     if(ewkzhist)
-      leg->AddEntry(ewkzhist, "Post-fit EW Z(ee)","F");
+      leg->AddEntry(ewkzhist, "Post-fit EW Z(#mu#mu)","F");
   }
   leg->AddEntry(wlhist, "Other backgrounds", "F");
   leg->Draw("SAME");
@@ -342,7 +338,7 @@ void prepostZE(string fitFilename, string observable, Category category, bool is
   if(category == Category::monojet)
     frame2->GetYaxis()->SetRangeUser(0.80,1.20);
   else if(category == Category::monoV)
-    frame2->GetYaxis()->SetRangeUser(0.70,1.30);
+    frame2->GetYaxis()->SetRangeUser(0.20,1.40);
   else if(category == Category::VBF)
     frame2->GetYaxis()->SetRangeUser(0.60,1.40);
   else
@@ -352,8 +348,9 @@ void prepostZE(string fitFilename, string observable, Category category, bool is
     frame2->GetXaxis()->SetNdivisions(510);
   else if(category == Category::VBFrelaxed)
     frame2->GetXaxis()->SetNdivisions(505);
-  else
+   else
     frame2->GetXaxis()->SetNdivisions(210);
+
   frame2->GetYaxis()->SetNdivisions(5);
 
   if(not addPullPlot){
@@ -371,8 +368,8 @@ void prepostZE(string fitFilename, string observable, Category category, bool is
   }
   else{
     frame2->GetYaxis()->SetTitleOffset(1.9);
-    frame2->GetXaxis()->SetTitleOffset(1.1);
     frame2->GetYaxis()->SetLabelSize(0.03);
+    frame2->GetXaxis()->SetTitleOffset(1.1);
     frame2->GetXaxis()->SetLabelSize(0);
     frame2->GetYaxis()->SetTitleSize(0.03);
     frame2->GetYaxis()->SetTitle("Data / Pred.");
@@ -437,7 +434,7 @@ void prepostZE(string fitFilename, string observable, Category category, bool is
   d1hist->GetYaxis()->SetTitleSize(0.15);
   d1hist->GetYaxis()->SetTitle("Data/Pred.");
   
-  //  if(not addPullPlot)
+  //if(not addPullPlot)
   d1hist->Draw("PE1 SAME");    
   d2hist->Draw("PE1 SAME");
   erhist->Draw("E2 SAME");
@@ -464,12 +461,14 @@ void prepostZE(string fitFilename, string observable, Category category, bool is
   leg2->SetBorderSize(0);
   leg2->SetNColumns(2);
   leg2->AddEntry(d2hist,"Post-fit","PLE");
+
   leg2->AddEntry(d1hist,"Pre-fit","PLE");
   if(not addPullPlot)
     leg2->Draw("same");
 
 
   if(addPullPlot){
+
     pad3->Draw();
     pad3->cd();
 
@@ -482,18 +481,18 @@ void prepostZE(string fitFilename, string observable, Category category, bool is
       frame3->GetXaxis()->SetNdivisions(510);
     else if(category == Category::VBFrelaxed)
       frame3->GetXaxis()->SetNdivisions(505);
-    else
+     else
       frame3->GetXaxis()->SetNdivisions(210);
 
     frame3->GetXaxis()->SetTitle("Hadronic recoil p_{T} [GeV]");
     if((category == Category::VBF or category == Category::VBFrelaxed) and TString(observable).Contains("mjj"))
       frame3->GetXaxis()->SetTitle("M_{jj} [GeV]");
-
+ 
     if(addStatUncPull)
       frame3->GetYaxis()->SetTitle("#frac{(Data-Pred.)}{#sigma}");
     else
       frame3->GetYaxis()->SetTitle("#frac{(Data-Pred.)}{#sigma_{pred}}");
-    
+
     frame3->GetYaxis()->CenterTitle();
     frame3->GetYaxis()->SetTitleOffset(1.5);
     frame3->GetYaxis()->SetLabelSize(0.03);
@@ -503,28 +502,29 @@ void prepostZE(string fitFilename, string observable, Category category, bool is
     frame3->GetYaxis()->SetNdivisions(504);
     frame3->Draw("AXIS");
     frame3->Draw("AXIG same");
-
+    
     TH1F* data_pull_post = (TH1F*) pohist->Clone("data_pull_post");
     data_pull_post->Reset();
     for(int iPoint = 0; iPoint < dthist->GetN(); iPoint++){
       double x,y;
       dthist->GetPoint(iPoint,x,y);
       data_pull_post->SetBinContent(iPoint+1,y);
+      data_pull_post->SetBinError(iPoint+1,(dthist->GetErrorYlow(iPoint+1)+dthist->GetErrorYhigh(iPoint+1))/2);
     }
-    
     data_pull_post->Add(pohist,-1);
     data_pull_post->SetMarkerColor(TColor::GetColor("#0066ff"));
     data_pull_post->SetLineColor(TColor::GetColor("#0066ff"));
     data_pull_post->SetFillColor(TColor::GetColor("#0066ff"));
     data_pull_post->SetLineWidth(1);
-
     for(int iBin = 0; iBin < data_pull_post->GetNbinsX()+1; iBin++){
       if(addStatUncPull)
         data_pull_post->SetBinContent(iBin+1,data_pull_post->GetBinContent(iBin+1)/sqrt(pow(pohist->GetBinError(iBin+1),2)+pow((dthist->GetErrorYlow(iBin)+dthist->GetErrorYhigh(iBin))/2,2)));
       else
         data_pull_post->SetBinContent(iBin+1,data_pull_post->GetBinContent(iBin+1)/pohist->GetBinError(iBin+1));
-      data_pull_post->SetBinError(iBin+1,+1); // divide by sigma data 
+ 
+      data_pull_post->SetBinError(iBin+1,+1); // divide by sigma data                                                                                                                                 
     }
+
     // line at 1                                                                                                                                                                                      
     TH1* unhist2 = (TH1*) pohist->Clone("unhist");
     unhist2->Reset();
@@ -537,22 +537,24 @@ void prepostZE(string fitFilename, string observable, Category category, bool is
     unhist2->SetFillColor(0);
     unhist2->Draw("SAME");
     data_pull_post->Draw("hist same");
+
     pad3->RedrawAxis("G sameaxis");
-    pad3->Modified();    
+    pad3->Modified();
+    
   }
 
   if(not addPullPlot){
-    canvas->SaveAs(("prepostfit_zee"+postfix+".pdf").c_str());
-    canvas->SaveAs(("prepostfit_zee"+postfix+".png").c_str());
+    canvas->SaveAs(("prepostfit_zmm"+postfix+".pdf").c_str());
+    canvas->SaveAs(("prepostfit_zmm"+postfix+".png").c_str());
   }
   else{
-    canvas->SaveAs(("prepostfit_zee"+postfix+"_pull.pdf").c_str());
-    canvas->SaveAs(("prepostfit_zee"+postfix+"_pull.png").c_str());
+    canvas->SaveAs(("prepostfit_zmm"+postfix+"_pull.pdf").c_str());
+    canvas->SaveAs(("prepostfit_zmm"+postfix+"_pull.png").c_str());
   }
 
   if(dumpHisto){
 
-    TFile* outFile = new TFile(("postfit_weights_ZE"+postfix+".root").c_str(),"RECREATE");
+    TFile* outFile = new TFile(("postfit_weights_ZM"+postfix+".root").c_str(),"RECREATE");
     outFile->cd();
 
     dthist->Write("data");
@@ -560,10 +562,10 @@ void prepostZE(string fitFilename, string observable, Category category, bool is
     tthist->Write("top_post_fit");
     dihist->Write("diboson_post_fit");
 
-    TH1* wlhist_prefit = (TH1*) pfile->Get(("shapes_prefit/"+dir+"/WJets_ZE").c_str());
+    TH1* wlhist_prefit = (TH1*) pfile->Get(("shapes_prefit/"+dir+"/WJets_ZM").c_str());
     TH1* tthist_prefit = (TH1*) pfile->Get(("shapes_prefit/"+dir+"/Top").c_str());
     TH1* dihist_prefit = (TH1*) pfile->Get(("shapes_prefit/"+dir+"/Dibosons").c_str());
-    
+
     wlhist_prefit->Write("zjets_pre_fit");
     tthist_prefit->Write("top_pre_fit");
     dihist_prefit->Write("diboson_pre_fit");

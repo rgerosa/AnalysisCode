@@ -6,7 +6,7 @@ static bool dumpInfo     = false;
 static bool addStatUncPull = true;
 static bool addPreliminary = false;
 
-void prepostWE(string fitFilename, string observable, Category category, bool isCombinedFit = false, bool plotSBFit = false, bool addPullPlot = false,  bool dumpHisto = false) {
+void makePostFitWE(string fitFilename, string observable, Category category, bool isCombinedFit = false, bool plotSBFit = false, bool addPullPlot = false,  bool dumpHisto = false) {
 
   gROOT->SetBatch(kTRUE);   
   setTDRStyle();

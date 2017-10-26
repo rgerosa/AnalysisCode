@@ -24,15 +24,15 @@ static float scaleWZUncertainty     = 1.0; // scale up/down the size of theory u
 static float scaleWZEWKUncertainty  = 1.0; // scale up/down the size of theory uncertanty on the Z/W-EWK ratio;                                                                                         
 
 // function to create workspace, to be run from a release which has the combine package
-void makeCreateWorkspace(string   inputName,                        // input template file
-			 Category category,
-			 string   outputName    = "workspace.root", // output workspace name
-			 string   observable    = "met",            // observable 1D or 2D
-			 bool     splitEWKQCD   = true, // split in two independent set of TFs
-			 bool     RunOnlySignal     = false,  // run only on signal templates --> workspace with only signals 
-			 bool     RunOnlyBackground = false,  // run only on signal templates --> workspace with only background 
-			 string   mediatorMass  = "125"   // Med mass
-			 ){
+void makeCreateWorkspaceVBF(string   inputName,                        // input template file
+			    Category category,
+			    string   outputName    = "workspace.root", // output workspace name
+			    string   observable    = "met",            // observable 1D or 2D
+			    bool     splitEWKQCD   = true, // split in two independent set of TFs
+			    bool     RunOnlySignal     = false,  // run only on signal templates --> workspace with only signals 
+			    bool     RunOnlyBackground = false,  // run only on signal templates --> workspace with only background 
+			    string   mediatorMass  = "125"   // Med mass
+			    ){
 
   // parsing
   runOnlySignal     = RunOnlySignal;
@@ -213,7 +213,7 @@ void makeCreateWorkspace(string   inputName,                        // input tem
 	uncertaintyPartial->Multiply(wln_ewk_SR_hist);
 	uncertaintyPartial->Divide(wln_SR_total_hist);
 	wln_SR_syst.push_back(pair<RooRealVar*,TH1*>(wln_ewk_SR_re1,uncertaintyPartial));
-	
+
 	uncertaintyPartial = cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZW_FactScale1_"+observable).c_str()),scaleWZEWKUncertainty,"ZW_ewk_FactScale1_"+observable);
 	uncertaintyPartial->Multiply(wln_ewk_SR_hist);
 	uncertaintyPartial->Divide(wln_SR_total_hist);
@@ -278,7 +278,6 @@ void makeCreateWorkspace(string   inputName,                        // input tem
 	  wln_SR_syst.push_back(pair<RooRealVar*,TH1*>(NULL,uncertaintyPartial));
 	else
 	  wln_SR_syst.push_back(pair<RooRealVar*,TH1*>(wln_SR_ewk,uncertaintyPartial));
-	
 
 	TH1F* zw_ratio_total = (TH1F*) znn_SR_total_hist->Clone("zw_ratio_total");
 	zw_ratio_total->Divide(wln_SR_total_hist);
