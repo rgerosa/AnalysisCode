@@ -68,7 +68,6 @@ static bool  applyLeptonVetoWeight = true;
 static bool  runOnlyData      = false;
 // k-factors
 static bool  applyEWKVKfactor = true;
-static bool  useKFactorVsMjj  = true;
 // k-factors
 string kfactorFile       = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_24bins.root";
 string kfactorFileUnc    = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactors_uncertainties.root";
