@@ -21,7 +21,8 @@ static bool  runOnlyBackground = true;    // run only on signal templates --> wo
 static bool  freezeZQCDOverZEWKNuisances = true; // set to constant the Z-QCD / Z-EWK constraint in VBF
 static bool  addBinByBinMCUncertainty = true;
 static float scaleWZUncertainty     = 1.0; // scale up/down the size of theory uncertanty on the Z/W-QCD ratio;                                                                                      
-static float scaleWZEWKUncertainty  = 1.0; // scale up/down the size of theory uncertanty on the Z/W-EWK ratio;                                                                                         
+static float scaleWZEWKUncertainty  = 1.0; // scale up/down the size of theory uncertanty on the Z/W-EWK ratio;                                                                                       
+static float scaleSignal = 1;
 
 // function to create workspace, to be run from a release which has the combine package
 void makeCreateWorkspaceVBF(string   inputName,                        // input template file
@@ -109,7 +110,13 @@ void makeCreateWorkspaceVBF(string   inputName,                        // input 
     TH1F* wH    = (TH1F*)templatesfile->FindObjectAny(("wHhist_"+mediatorMass+"_"+observable).c_str());
     TH1F* zH    = (TH1F*)templatesfile->FindObjectAny(("zHhist_"+mediatorMass+"_"+observable).c_str());
     TH1F* ggZH  = (TH1F*)templatesfile->FindObjectAny(("ggZHhist_"+mediatorMass+"_"+observable).c_str());
-    
+
+    ggH->Scale(scaleSignal);
+    qqH->Scale(scaleSignal);
+    wH->Scale(scaleSignal);
+    zH->Scale(scaleSignal);
+    ggZH->Scale(scaleSignal);
+
     addTemplate("ggH_SR_"+suffix,vars,wspace_SR,ggH);
     addTemplate("qqH_SR_"+suffix,vars,wspace_SR,qqH);
     addTemplate("WH_SR_"+suffix, vars,wspace_SR,wH);
