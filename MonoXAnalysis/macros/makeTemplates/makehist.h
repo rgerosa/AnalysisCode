@@ -68,6 +68,7 @@ static bool  applyLeptonVetoWeight = true;
 static bool  runOnlyData      = false;
 // k-factors
 static bool  applyEWKVKfactor = true;
+
 // k-factors
 string kfactorFile       = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_24bins.root";
 string kfactorFileUnc    = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactors_uncertainties.root";
@@ -862,9 +863,7 @@ void makehist4(TTree* tree,            /*input tree*/
 	 jetpt->at(1) > trailingJetPtCutVBF and
 	 jmdphi > jetmetdphiVBF and 
 	 jeteta->at(0)*jeteta->at(1) < 0 and
-	 fabs(jeteta->at(0)-jeteta->at(1)) > detajjrelaxed and
-	 fabs(jeteta->at(0)) < 3 and 
-	 fabs(jeteta->at(1)) < 3){
+	 fabs(jeteta->at(0)-jeteta->at(1)) > detajjrelaxed){ // leading jet already central so no need to check that the two jets are not forward
 	
 	TLorentzVector jet1 ;
 	TLorentzVector jet2 ;
@@ -949,10 +948,8 @@ void makehist4(TTree* tree,            /*input tree*/
 	 jetpt->at(1) > trailingJetPtCutVBF and
          (sample != Sample::taun and jmdphi > jetmetdphiVBF) and 
 	 jeteta->at(0)*jeteta->at(1) < 0 and
-         fabs(jeteta->at(0)-jeteta->at(1)) > detajjrelaxed and
-	 fabs(jeteta->at(0)) < 3 and
-	 fabs(jeteta->at(1)) < 3
-	 ){
+         fabs(jeteta->at(0)-jeteta->at(1)) > detajjrelaxed 
+	 ){ // leading jet already central so no need to check that the two jets are not forward 
 	
         TLorentzVector jet1 ;
         TLorentzVector jet2 ;
@@ -1048,7 +1045,7 @@ void makehist4(TTree* tree,            /*input tree*/
 	sfwgt *= trackingefficiency_electron->GetBinContent(trackingefficiency_electron->FindBin(eta1,ptVal));
       }
       if(pt2 > 0.){
-	float ptVal = pt1;
+	float ptVal = pt2;
 	if(pt2 < trackingefficiency_electron->GetYaxis()->GetBinLowEdge(1)) 
 	  ptVal =  trackingefficiency_electron->GetYaxis()->GetBinLowEdge(1)+1;
 	else if(pt2 > trackingefficiency_electron->GetYaxis()->GetBinLowEdge(trackingefficiency_electron->GetNbinsY()+1)) 
@@ -1073,11 +1070,13 @@ void makehist4(TTree* tree,            /*input tree*/
     TH2* sflhist_highpu = NULL;
     TH2* sfthist_highpu = NULL;
 
-    if (sample == Sample::zmm || sample == Sample::wmn || sample == Sample::topmu) {
+    if (isMC and (sample == Sample::zmm || sample == Sample::wmn || sample == Sample::topmu)) {
       if (pt1 > 0.){
 	float ptValue = pt1;
-	if(ptValue < msftight_id->GetYaxis()->GetBinLowEdge(1)) ptValue =  msftight_id->GetYaxis()->GetBinLowEdge(1)+1;
-	else if(ptValue > msftight_id->GetYaxis()->GetBinLowEdge(msftight_id->GetNbinsY()+1)) ptValue = msftight_id->GetYaxis()->GetBinLowEdge(msftight_id->GetNbinsY()+1)-1; 
+	if(ptValue < msftight_id->GetYaxis()->GetBinLowEdge(1)) 
+	  ptValue =  msftight_id->GetYaxis()->GetBinLowEdge(1)+1;
+	else if(ptValue > msftight_id->GetYaxis()->GetBinLowEdge(msftight_id->GetNbinsY()+1)) 
+	  ptValue = msftight_id->GetYaxis()->GetBinLowEdge(msftight_id->GetNbinsY()+1)-1; 
 	if(id1 == 1)
 	  sfwgt *= msftight_id->GetBinContent(msftight_id->FindBin(fabs(eta1),ptValue))*msftight_iso->GetBinContent(msftight_iso->FindBin(fabs(eta1),ptValue));
 	else 
@@ -1085,8 +1084,10 @@ void makehist4(TTree* tree,            /*input tree*/
       }
       if(pt2 > 0.){
 	float ptValue = pt2;
-	if(ptValue < msftight_id->GetYaxis()->GetBinLowEdge(1)) ptValue =  msftight_id->GetYaxis()->GetBinLowEdge(1)+1;
-	else if(ptValue > msftight_id->GetYaxis()->GetBinLowEdge(msftight_id->GetNbinsY()+1)) ptValue = msftight_id->GetYaxis()->GetBinLowEdge(msftight_id->GetNbinsY()+1)-1; 
+	if(ptValue < msftight_id->GetYaxis()->GetBinLowEdge(1)) 
+	  ptValue =  msftight_id->GetYaxis()->GetBinLowEdge(1)+1;
+	else if(ptValue > msftight_id->GetYaxis()->GetBinLowEdge(msftight_id->GetNbinsY()+1)) 
+	  ptValue = msftight_id->GetYaxis()->GetBinLowEdge(msftight_id->GetNbinsY()+1)-1; 
 	if(id2 == 1)
 	  sfwgt *= msftight_id->GetBinContent(msftight_id->FindBin(fabs(eta2),ptValue))*msftight_iso->GetBinContent(msftight_iso->FindBin(fabs(eta2),ptValue));
 	else 
@@ -1098,8 +1099,10 @@ void makehist4(TTree* tree,            /*input tree*/
     if (sample == Sample::zee || sample == Sample::wen || sample == Sample::topel) {      
       if (pt1 > 0.) {
 	float ptVal = pt1;
-	if(pt1 < esftight->GetYaxis()->GetBinLowEdge(1)) ptVal = esftight->GetYaxis()->GetBinLowEdge(1)+1;
-	  else if(pt1 > esftight->GetYaxis()->GetBinLowEdge(esftight->GetNbinsY()+1)) ptVal = esftight->GetYaxis()->GetBinLowEdge(esftight->GetNbinsY()+1)-1;
+	if(pt1 < esftight->GetYaxis()->GetBinLowEdge(1)) 
+	  ptVal = esftight->GetYaxis()->GetBinLowEdge(1)+1;
+	  else if(pt1 > esftight->GetYaxis()->GetBinLowEdge(esftight->GetNbinsY()+1)) 
+	    ptVal = esftight->GetYaxis()->GetBinLowEdge(esftight->GetNbinsY()+1)-1;
 	if (id1 == 1) 
 	  sfwgt *= esftight->GetBinContent(esftight->FindBin(eta1,ptVal));
 	else  
@@ -1107,8 +1110,10 @@ void makehist4(TTree* tree,            /*input tree*/
       }
       if (pt2 > 0.) {
 	float ptVal = pt2;
-	if(pt2 < esftight->GetYaxis()->GetBinLowEdge(1)) ptVal = esftight->GetYaxis()->GetBinLowEdge(1)+1;
-	else if(pt2 > esftight->GetYaxis()->GetBinLowEdge(esftight->GetNbinsY()+1)) ptVal = esftight->GetYaxis()->GetBinLowEdge(esftight->GetNbinsY()+1)-1;
+	if(pt2 < esftight->GetYaxis()->GetBinLowEdge(1)) 
+	  ptVal = esftight->GetYaxis()->GetBinLowEdge(1)+1;
+	else if(pt2 > esftight->GetYaxis()->GetBinLowEdge(esftight->GetNbinsY()+1)) 
+	  ptVal = esftight->GetYaxis()->GetBinLowEdge(esftight->GetNbinsY()+1)-1;
 	if (id1 == 1)
 	  sfwgt *= esftight->GetBinContent(esftight->FindBin(eta2,ptVal));
 	else
@@ -1144,7 +1149,7 @@ void makehist4(TTree* tree,            /*input tree*/
 	  if(ptVal > triggerelhist_ht->GetYaxis()->GetBinLowEdge(triggerelhist_ht->GetNbinsY()+1)) ptVal = triggerelhist_ht->GetYaxis()->GetBinLowEdge(triggerelhist_ht->GetNbinsY()+1)-1;
 	  sf1 = triggerelhist_ht->GetBinContent(triggerelhist->FindBin(eta1,ptVal));
 	}
-
+	
 	ptVal = pt2;
 	if(ptVal > triggerelhist->GetYaxis()->GetBinLowEdge(triggerelhist->GetNbinsY()+1)) ptVal = triggerelhist->GetYaxis()->GetBinLowEdge(triggerelhist->GetNbinsY()+1)-1;	
 	sf2 = triggerelhist->GetBinContent(triggerelhist->FindBin(eta2,ptVal));
@@ -1262,16 +1267,7 @@ void makehist4(TTree* tree,            /*input tree*/
     }
     
     // B-tag weight to be adjusted
-    double btagw = 1;
-    if(isMC and (sample == Sample::topmu or sample == Sample::topel))
-      btagw = 0.920;
-    if(isMC and (sample == Sample::sig and category != Category::VBF and category != Category::VBFrelaxed))
-      btagw = 1.015;
-    if(isMC and (sample == Sample::zee and category != Category::VBF and category != Category::VBFrelaxed))
-      btagw = 0.980;
-    else
-      btagw = *wgtbtag;
-
+    double btagw = *wgtbtag;
     // in case of VBF re-scale zmm for trigger efficiency (PF-muon online ineffiency --> 1% downshift flat vs Mjj)
     if((sample == Sample::zmm or sample == Sample::wmn) and (category == Category::VBFrelaxed or category == Category::VBF))
       sfwgt *= 0.98;

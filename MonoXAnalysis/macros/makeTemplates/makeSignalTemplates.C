@@ -93,15 +93,17 @@ void makeSignalTemplates(
     signalHiggshist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"125",{4.858E+04,3.782E+03,8.400E+02*0.6741,5.328E+02*0.6741,8.839E+02*0.6991,1.227E+02*0.6991},typeOfDMSignal,applyNNLOKfactor);
 
     // BSM xsec from https://twiki.cern.ch/twiki/bin/view/LHCPhysics/CERNYellowReportPageBSMAt13TeV
-    signalHiggshist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"110",{5.790E+04,4.434E+03,1.335E+03*0.6741,8.587E+02*0.6741,1.309E+03*0.6741,0.},typeOfDMSignal,applyNNLOKfactor);
-    signalHiggshist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"150",{3.129E+04,3.239E+03,5.037E+02*0.6741,3.117E+02*0.6741,5.279E+02*0.6741,0.},typeOfDMSignal,applyNNLOKfactor);
-    signalHiggshist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"200",{1.694E+04,2.282E+03,1.899E+02*0.6741,1.124E+02*0.6741,2.054E+02*0.6741,0.},typeOfDMSignal,applyNNLOKfactor);
-    signalHiggshist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"300",{6.590E+03,1.256E+03,4.348E+01*0.6741,2.376E+01*0.6741,4.132E+01*0.6741,0.},typeOfDMSignal,applyNNLOKfactor);
-    signalHiggshist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"400",{3.160E+03,7.580E+02,1.432E+01*0.6741,7.309E+00*0.6741,1.273E+01*0.6741,0.},typeOfDMSignal,applyNNLOKfactor);
-    signalHiggshist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"500",{1.709E+03,4.872E+02,5.825E+00*0.6741,2.796E+00*0.6741,5.256E+00*0.6741,0.},typeOfDMSignal,applyNNLOKfactor);
-    signalHiggshist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"600",{1.001E+03,3.274E+02,2.709E+00*0.6741,1.232E+00*0.6741,2.544E+00*0.6741,0.},typeOfDMSignal,applyNNLOKfactor);
-    signalHiggshist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"800",{4.015E+02,1.622E+02,7.545E-01*0.6741,3.133E-01*0.6741,7.842E-01*0.6741,0.},typeOfDMSignal,applyNNLOKfactor);
-    signalHiggshist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"1000",{1.845E+02,8.732E+01,3.585E-01*0.6741,2.977E-01*0.6741,7.842E-01*0.6741,0.},typeOfDMSignal,applyNNLOKfactor);
+    if(category == Category::VBF or category == Category::VBFrelaxed){ // interpretation performed in the VBF analysis
+      signalHiggshist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"110",{5.790E+04,4.434E+03,1.335E+03*0.6741,8.587E+02*0.6741,1.309E+03*0.6741,0.},typeOfDMSignal,applyNNLOKfactor);
+      signalHiggshist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"150",{3.129E+04,3.239E+03,5.037E+02*0.6741,3.117E+02*0.6741,5.279E+02*0.6741,0.},typeOfDMSignal,applyNNLOKfactor);
+      signalHiggshist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"200",{1.694E+04,2.282E+03,1.899E+02*0.6741,1.124E+02*0.6741,2.054E+02*0.6741,0.},typeOfDMSignal,applyNNLOKfactor);
+      signalHiggshist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"300",{6.590E+03,1.256E+03,4.348E+01*0.6741,2.376E+01*0.6741,4.132E+01*0.6741,0.},typeOfDMSignal,applyNNLOKfactor);
+      signalHiggshist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"400",{3.160E+03,7.580E+02,1.432E+01*0.6741,7.309E+00*0.6741,1.273E+01*0.6741,0.},typeOfDMSignal,applyNNLOKfactor);
+      signalHiggshist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"500",{1.709E+03,4.872E+02,5.825E+00*0.6741,2.796E+00*0.6741,5.256E+00*0.6741,0.},typeOfDMSignal,applyNNLOKfactor);
+      signalHiggshist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"600",{1.001E+03,3.274E+02,2.709E+00*0.6741,1.232E+00*0.6741,2.544E+00*0.6741,0.},typeOfDMSignal,applyNNLOKfactor);
+      signalHiggshist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"800",{4.015E+02,1.622E+02,7.545E-01*0.6741,3.133E-01*0.6741,7.842E-01*0.6741,0.},typeOfDMSignal,applyNNLOKfactor);
+      signalHiggshist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"1000",{1.845E+02,8.732E+01,3.585E-01*0.6741,2.977E-01*0.6741,7.842E-01*0.6741,0.},typeOfDMSignal,applyNNLOKfactor);
+    }
   }
   
   outfile.Close();

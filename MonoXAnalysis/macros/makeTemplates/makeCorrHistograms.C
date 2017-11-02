@@ -87,77 +87,87 @@ void makezmmcorhist( const string &   signalRegionFile,
   // multiplicative approach from theorist
   TH1*   reweight_zll = NULL;
   TH1*   reweight_zvv = NULL;
-
-  if(not useTheoristKfactors){
-    kffile = TFile::Open(kfactorFile.c_str());
-    znlohist = (TH1*) kffile->Get("ZJets_012j_NLO/nominal");
-    zlohist  = (TH1*) kffile->Get("ZJets_LO/inv_pt");
-    zewkhist = (TH1*) kffile->Get("EWKcorr/Z");    
-    if(zewkhist)
-      zewkhist->Divide(znlohist);
-    if(znlohist)
-      znlohist->Divide(zlohist);
-  }
-  else{
-    kffile = TFile::Open(kFactorTheoristFile_zvv.c_str());
-    TH1* kfact_nloqcd_zvv = (TH1*) kffile->Get("vvj_pTV_K_NLO");
-    TH1* kfact_nloewk_zvv = (TH1*) kffile->Get("vvj_pTV_kappa_EW");
-    reweight_zvv = (TH1*) kfact_nloqcd_zvv->Clone("reweight_zvv");
-    reweight_zvv->Reset("ICES");
-
-    for(int iBin = 1; iBin <= reweight_zvv->GetNbinsX(); iBin++) 
-      reweight_zvv->SetBinContent(iBin,kfact_nloqcd_zvv->GetBinContent(iBin)*(1+kfact_nloewk_zvv->GetBinContent(iBin)));
-
-    kffile_alt = TFile::Open(kFactorTheoristFile_zll.c_str());
-    TH1* kfact_nloqcd_zll = (TH1*) kffile_alt->Get("eej_pTV_K_NLO");
-    TH1* kfact_nloewk_zll = (TH1*) kffile_alt->Get("eej_pTV_kappa_EW");
-    reweight_zll = (TH1*) kfact_nloqcd_zll->Clone("reweight_zll");
-    reweight_zll->Reset("ICES");
-
-    for(int iBin = 1; iBin < reweight_zll->GetNbinsX(); iBin++) 
-      reweight_zll->SetBinContent(iBin,kfact_nloqcd_zll->GetBinContent(iBin)*(1+kfact_nloewk_zll->GetBinContent(iBin)));
-  }
-
-  vector<TH1*> ehists;
-  vector<TH1*> zhists;
-  vector<TH1*> dyhists;
-  
-  // Zvv --> numerator
-  if(nloSamples.useZJetsNLO)
-    zhists.push_back(zewkhist);
-  else{
-    if(not useTheoristKfactors){
-      zhists.push_back(zewkhist);
-      zhists.push_back(znlohist);
-    }
-    else
-      zhists.push_back(reweight_zvv);
-  }
-
-  // DYmm --> denominator
-  if(nloSamples.useDYJetsNLO){
-    dyhists.push_back(zewkhist);
-  }
-  else{
-    if(not useTheoristKfactors){
-      dyhists.push_back(zewkhist);
-      dyhists.push_back(znlohist);
-    }
-    else
-      dyhists.push_back(reweight_zll);    
-  }
-
   // special VBF case
   TFile* kfactzjet_vbf = NULL;
   TFile* kfactzll_vbf = NULL;
 
-  if((category == Category::VBF or category == Category::VBFrelaxed) and not useTheoristKfactors){ // apply further k-factors going to the VBF selections             
+  vector<TH1*> ehists;
+  vector<TH1*> zhists;
+  vector<TH1*> dyhists;
+
+  if(category == Category::monojet and category != Category::monoV){ // Inclusive k-factors
+    
+    if(not useTheoristKfactors){
+
+      kffile = TFile::Open(kfactorFile.c_str());
+      znlohist = (TH1*) kffile->Get("ZJets_012j_NLO/nominal");
+      zlohist  = (TH1*) kffile->Get("ZJets_LO/inv_pt");
+      zewkhist = (TH1*) kffile->Get("EWKcorr/Z");    
+      if(zewkhist)
+	zewkhist->Divide(znlohist);
+      if(znlohist)
+	znlohist->Divide(zlohist);      
+    }
+    else{
+
+      kffile = TFile::Open(kFactorTheoristFile_zvv.c_str());
+      TH1* kfact_nloqcd_zvv = (TH1*) kffile->Get("vvj_pTV_K_NLO");
+      TH1* kfact_nloewk_zvv = (TH1*) kffile->Get("vvj_pTV_kappa_EW");
+      reweight_zvv = (TH1*) kfact_nloqcd_zvv->Clone("reweight_zvv");
+      reweight_zvv->Reset("ICES");
+      
+      for(int iBin = 1; iBin <= reweight_zvv->GetNbinsX(); iBin++) 
+      reweight_zvv->SetBinContent(iBin,kfact_nloqcd_zvv->GetBinContent(iBin)*(1+kfact_nloewk_zvv->GetBinContent(iBin)));
+      
+      kffile_alt = TFile::Open(kFactorTheoristFile_zll.c_str());
+      TH1* kfact_nloqcd_zll = (TH1*) kffile_alt->Get("eej_pTV_K_NLO");
+      TH1* kfact_nloewk_zll = (TH1*) kffile_alt->Get("eej_pTV_kappa_EW");
+      reweight_zll = (TH1*) kfact_nloqcd_zll->Clone("reweight_zll");
+      reweight_zll->Reset("ICES");
+      
+      for(int iBin = 1; iBin < reweight_zll->GetNbinsX(); iBin++) 
+	reweight_zll->SetBinContent(iBin,kfact_nloqcd_zll->GetBinContent(iBin)*(1+kfact_nloewk_zll->GetBinContent(iBin)));
+    }
+    
+    // Zvv --> numerator
+    if(nloSamples.useZJetsNLO)
+      zhists.push_back(zewkhist);
+    else{
+      if(not useTheoristKfactors){
+	zhists.push_back(zewkhist);
+	zhists.push_back(znlohist);
+      }
+      else
+	zhists.push_back(reweight_zvv);
+    }
+
+    // DYmm --> denominator
+    if(nloSamples.useDYJetsNLO){
+      dyhists.push_back(zewkhist);
+    }
+    else{
+      if(not useTheoristKfactors){
+	dyhists.push_back(zewkhist);
+	dyhists.push_back(znlohist);
+      }
+      else
+	dyhists.push_back(reweight_zll);    
+    }
+  }  
+  else if(category == Category::VBF or category == Category::VBFrelaxed){ // apply further k-factors going to the VBF selections             
     
     kfactzjet_vbf = TFile::Open(kFactorVBF_zjet.c_str());
-    kfactzll_vbf = TFile::Open(kFactorVBF_zll.c_str());
-
+    kfactzll_vbf  = TFile::Open(kFactorVBF_zll.c_str());
+    
     zhists.clear();
+
+    kffile = TFile::Open(kfactorFile.c_str());
+    znlohist = (TH1*) kffile->Get("ZJets_012j_NLO/nominal");
+    zewkhist = (TH1*) kffile->Get("EWKcorr/Z");    
+    if(zewkhist)
+      zewkhist->Divide(znlohist);
     zhists.push_back(zewkhist); // EW corrections                                                                                                                                                 
+
     if(category == Category::VBFrelaxed){
       if(not nloSamples.useZJetsNLO){
 	zhists.push_back((TH1*) kfactzjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_200_500"));
@@ -409,9 +419,76 @@ void makezeecorhist( const string &   signalRegionFile,
   TH1*   zlohist  = NULL;
   TH1*   zewkhist  = NULL;
   TH1*   reweight_zll = NULL;
-  TH1*   reweight_zvv = NULL;
+  TH1*   reweight_zvv = NULL;  
+  // Vjets QCD k-factors after VBF cuts
+  TFile* kfactzjet_vbf = NULL;
+  TFile* kfactzll_vbf = NULL;
 
-  if(not useTheoristKfactors){
+
+
+  vector<TH1*> ehists;
+  vector<TH1*> zhists;
+  vector<TH1*> dyhists;
+
+  if(category == Category::monojet or category == Category::monoV){ // Inclusive k-factors
+    
+    if(not useTheoristKfactors){
+
+      kffile = TFile::Open(kfactorFile.c_str());
+      znlohist = (TH1*) kffile->Get("ZJets_012j_NLO/nominal");
+      zlohist  = (TH1*) kffile->Get("ZJets_LO/inv_pt");
+      zewkhist = (TH1*) kffile->Get("EWKcorr/Z");    
+      if(zewkhist)
+	zewkhist->Divide(znlohist);
+      if(znlohist)
+	znlohist->Divide(zlohist);      
+    }
+    else{
+      kffile = TFile::Open(kFactorTheoristFile_zvv.c_str());
+      TH1* kfact_nloqcd_zvv = (TH1*) kffile->Get("vvj_pTV_K_NLO");
+      TH1* kfact_nloewk_zvv = (TH1*) kffile->Get("vvj_pTV_kappa_EW");
+      reweight_zvv = (TH1*) kfact_nloqcd_zvv->Clone("reweight_zvv");
+      reweight_zvv->Reset("ICES");
+      
+      for(int iBin = 1; iBin <= reweight_zvv->GetNbinsX(); iBin++)
+	reweight_zvv->SetBinContent(iBin,kfact_nloqcd_zvv->GetBinContent(iBin)*(1+kfact_nloewk_zvv->GetBinContent(iBin)));
+      
+      kffile_alt = TFile::Open(kFactorTheoristFile_zll.c_str());
+      TH1* kfact_nloqcd_zll = (TH1*) kffile_alt->Get("eej_pTV_K_NLO");
+      TH1* kfact_nloewk_zll = (TH1*) kffile_alt->Get("eej_pTV_kappa_EW");
+      reweight_zll = (TH1*) kfact_nloqcd_zll->Clone("reweight_zll");
+      reweight_zll->Reset("ICES");
+      
+      for(int iBin = 1; iBin <= reweight_zll->GetNbinsX(); iBin++)
+	reweight_zll->SetBinContent(iBin,kfact_nloqcd_zll->GetBinContent(iBin)*(1+kfact_nloewk_zll->GetBinContent(iBin)));
+    }
+
+    // Zvv --> numerator                                                                                                                                                                             
+    if(nloSamples.useZJetsNLO)
+      zhists.push_back(zewkhist);
+    else{
+      if(not useTheoristKfactors){
+	zhists.push_back(zewkhist);
+	zhists.push_back(znlohist);
+      }
+      else
+	zhists.push_back(reweight_zvv);
+    }
+    
+    // DYmm --> denominator                                                                                                                                                                           
+    if(nloSamples.useDYJetsNLO)
+      dyhists.push_back(zewkhist);
+    else{
+      if(not useTheoristKfactors){
+	dyhists.push_back(zewkhist);
+	dyhists.push_back(znlohist);
+      }
+      else
+	dyhists.push_back(reweight_zll);
+    }
+  }  
+  else if(category == Category::VBF or category == Category::VBFrelaxed){ // apply further k-factors going to the VBF selections               
+
     kffile = TFile::Open(kfactorFile.c_str());
     znlohist = (TH1*) kffile->Get("ZJets_012j_NLO/nominal");
     zlohist  = (TH1*) kffile->Get("ZJets_LO/inv_pt");
@@ -420,67 +497,13 @@ void makezeecorhist( const string &   signalRegionFile,
       zewkhist->Divide(znlohist);
     if(znlohist)
       znlohist->Divide(zlohist);
-  }
-  else{
-    kffile = TFile::Open(kFactorTheoristFile_zvv.c_str());
-    TH1* kfact_nloqcd_zvv = (TH1*) kffile->Get("vvj_pTV_K_NLO");
-    TH1* kfact_nloewk_zvv = (TH1*) kffile->Get("vvj_pTV_kappa_EW");
-    reweight_zvv = (TH1*) kfact_nloqcd_zvv->Clone("reweight_zvv");
-    reweight_zvv->Reset("ICES");
-
-    for(int iBin = 1; iBin <= reweight_zvv->GetNbinsX(); iBin++)
-      reweight_zvv->SetBinContent(iBin,kfact_nloqcd_zvv->GetBinContent(iBin)*(1+kfact_nloewk_zvv->GetBinContent(iBin)));
-
-    kffile_alt = TFile::Open(kFactorTheoristFile_zll.c_str());
-    TH1* kfact_nloqcd_zll = (TH1*) kffile_alt->Get("eej_pTV_K_NLO");
-    TH1* kfact_nloewk_zll = (TH1*) kffile_alt->Get("eej_pTV_kappa_EW");
-    reweight_zll = (TH1*) kfact_nloqcd_zll->Clone("reweight_zll");
-    reweight_zll->Reset("ICES");
-
-    for(int iBin = 1; iBin <= reweight_zll->GetNbinsX(); iBin++)
-      reweight_zll->SetBinContent(iBin,kfact_nloqcd_zll->GetBinContent(iBin)*(1+kfact_nloewk_zll->GetBinContent(iBin)));
-  }
-
-  vector<TH1*> ehists;
-  vector<TH1*> zhists;
-  vector<TH1*> dyhists;
-
-  // Zvv --> numerator                                                                                                                                                                             
-  if(nloSamples.useZJetsNLO)
-    zhists.push_back(zewkhist);
-  else{
-    if(not useTheoristKfactors){
-      zhists.push_back(zewkhist);
-      zhists.push_back(znlohist);
-    }
-    else
-      zhists.push_back(reweight_zvv);
-  }
-
-  // DYmm --> denominator                                                                                                                                                                           
-  if(nloSamples.useDYJetsNLO)
-    dyhists.push_back(zewkhist);
-  else{
-    if(not useTheoristKfactors){
-      dyhists.push_back(zewkhist);
-      dyhists.push_back(znlohist);
-    }
-    else
-      dyhists.push_back(reweight_zll);
-  }
-  
-  
-  // Vjets QCD k-factors after VBF cuts
-  TFile* kfactzjet_vbf = NULL;
-  TFile* kfactzll_vbf = NULL;
-
-  if((category == Category::VBF or category == Category::VBFrelaxed) and not useTheoristKfactors){ // apply further k-factors going to the VBF selections               
     
+    zhists.clear();
+    zhists.push_back(zewkhist); // EW corrections                                                                                                                                                 
+
     kfactzjet_vbf = TFile::Open(kFactorVBF_zjet.c_str());
     kfactzll_vbf = TFile::Open(kFactorVBF_zll.c_str());
 
-    zhists.clear();
-    zhists.push_back(zewkhist); // EW corrections                                                                                                                                                 
     if(category == Category::VBFrelaxed){
       if(not nloSamples.useZJetsNLO){
 	zhists.push_back((TH1*) kfactzjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_200_500"));
@@ -730,49 +753,61 @@ void makewmncorhist( const string &  signalRegionFile,
   TH1*   wlohist  = NULL;
   TH1*   wewkhist = NULL;
   TH1*   reweight_wln = NULL;
-
-  if(not useTheoristKfactors){
-    kffile = TFile::Open(kfactorFile.c_str());
-    wnlohist =  (TH1*) kffile->Get("WJets_012j_NLO/nominal");
-    wlohist = (TH1*) kffile->Get("WJets_LO/inv_pt");
-    wewkhist =  (TH1*) kffile->Get("EWKcorr/W");
-
-  if(wewkhist)
-    wewkhist->Divide(wnlohist);
-  if(wnlohist)
-    wnlohist->Divide(wlohist);
-  }
-  else{
-
-    kffile = TFile::Open(kFactorTheoristFile_wln.c_str());
-    TH1* kfact_nloqcd_wln = (TH1*) kffile->Get("evj_pTV_K_NLO");    
-    TH1* kfact_nloewk_wln = (TH1*) kffile->Get("evj_pTV_kappa_EW");
-
-    reweight_wln = (TH1*) kfact_nloqcd_wln->Clone("reweight_wln");
-    reweight_wln->Reset("ICES");
-    for(int iBin = 1; iBin <= reweight_wln->GetNbinsX(); iBin++)
-      reweight_wln->SetBinContent(iBin,kfact_nloqcd_wln->GetBinContent(iBin)*(1+kfact_nloewk_wln->GetBinContent(iBin)));
-  }
+  /////
+  TFile* kfactwjet_vbf = NULL;
 
   vector<TH1*> ehists;
   vector<TH1*> whists;
-
-  if(nloSamples.useWJetsNLO)
-    whists.push_back(wewkhist);
-  else{
-    if(not useTheoristKfactors){
-      whists.push_back(wnlohist);
-      whists.push_back(wewkhist);
-    }
-    else
-      whists.push_back(reweight_wln);
-  }
   
-  /////
-  TFile* kfactwjet_vbf = NULL;
-  if((category == Category::VBF or category == Category::VBFrelaxed) and not useTheoristKfactors){ 
+  if(category != Category::VBF and category != Category::VBFrelaxed){ // Inclusive k-factors
+
+    if(not useTheoristKfactors){
+
+      kffile = TFile::Open(kfactorFile.c_str());
+      wnlohist =  (TH1*) kffile->Get("WJets_012j_NLO/nominal");
+      wlohist = (TH1*) kffile->Get("WJets_LO/inv_pt");
+      wewkhist =  (TH1*) kffile->Get("EWKcorr/W");
+      
+      if(wewkhist)
+	wewkhist->Divide(wnlohist);
+      if(wnlohist)
+	wnlohist->Divide(wlohist);
+    }
+    else{
+      
+      kffile = TFile::Open(kFactorTheoristFile_wln.c_str());
+      TH1* kfact_nloqcd_wln = (TH1*) kffile->Get("evj_pTV_K_NLO");    
+      TH1* kfact_nloewk_wln = (TH1*) kffile->Get("evj_pTV_kappa_EW");
+      
+      reweight_wln = (TH1*) kfact_nloqcd_wln->Clone("reweight_wln");
+      reweight_wln->Reset("ICES");
+      for(int iBin = 1; iBin <= reweight_wln->GetNbinsX(); iBin++)
+	reweight_wln->SetBinContent(iBin,kfact_nloqcd_wln->GetBinContent(iBin)*(1+kfact_nloewk_wln->GetBinContent(iBin)));
+    }
+    
+
+    if(nloSamples.useWJetsNLO)
+      whists.push_back(wewkhist);
+    else{
+      if(not useTheoristKfactors){
+	whists.push_back(wnlohist);
+	whists.push_back(wewkhist);
+      }
+      else
+	whists.push_back(reweight_wln);
+    }    
+  }
+  else if(category == Category::VBF or category == Category::VBFrelaxed){ 
 
     kfactwjet_vbf = TFile::Open(kFactorVBF_wjet.c_str());
+
+    kffile = TFile::Open(kfactorFile.c_str());
+    wnlohist =  (TH1*) kffile->Get("WJets_012j_NLO/nominal");
+    wewkhist =  (TH1*) kffile->Get("EWKcorr/W");
+      
+    if(wewkhist)
+      wewkhist->Divide(wnlohist);
+
     whists.clear();
     whists.push_back(wewkhist); // EW corrections                                                                                                                                                      
     if(category == Category::VBFrelaxed){
@@ -997,50 +1032,62 @@ void makewencorhist( const string &  signalRegionFile,
   TH1*  wlohist  = NULL;
   TH1* wewkhist  = NULL;
   TH1* reweight_wln = NULL;
-
-  if(not useTheoristKfactors){
-    kffile = TFile::Open(kfactorFile.c_str());
-    wnlohist =  (TH1*) kffile->Get("WJets_012j_NLO/nominal");
-    wlohist = (TH1*) kffile->Get("WJets_LO/inv_pt");
-    wewkhist =  (TH1*) kffile->Get("EWKcorr/W");
-
-    if(wewkhist)
-      wewkhist->Divide(wnlohist);
-    if(wnlohist)
-      wnlohist->Divide(wlohist);
-  }
-  else{
-
-    kffile = TFile::Open(kFactorTheoristFile_wln.c_str());
-    TH1* kfact_nloqcd_wln = (TH1*) kffile->Get("evj_pTV_K_NLO");    
-    TH1* kfact_nloewk_wln = (TH1*) kffile->Get("ecj_pTV_kappa_EW");
-
-    reweight_wln = (TH1*) kfact_nloqcd_wln->Clone("reweight_wln");
-    reweight_wln->Reset("ICES");
-    for(int iBin = 1; iBin <= reweight_wln->GetNbinsX(); iBin++)
-      reweight_wln->SetBinContent(iBin,kfact_nloqcd_wln->GetBinContent(iBin)*(1+kfact_nloewk_wln->GetBinContent(iBin)));
-  }
+  //////////////
+  TFile* kfactwjet_vbf = NULL;
 
   vector<TH1*> ehists;
   vector<TH1*> whists;
 
-  if(nloSamples.useWJetsNLO)
-    whists.push_back(wewkhist);
-  else{
+
+  if(category != Category::VBF and category != Category::VBFrelaxed){ // Inclusive k-factors
+
     if(not useTheoristKfactors){
-      whists.push_back(wnlohist);
-      whists.push_back(wewkhist);
+
+      kffile = TFile::Open(kfactorFile.c_str());
+      wnlohist =  (TH1*) kffile->Get("WJets_012j_NLO/nominal");
+      wlohist = (TH1*) kffile->Get("WJets_LO/inv_pt");
+      wewkhist =  (TH1*) kffile->Get("EWKcorr/W");
+      
+      if(wewkhist)
+	wewkhist->Divide(wnlohist);
+      if(wnlohist)
+	wnlohist->Divide(wlohist);
     }
-    else
-      whists.push_back(reweight_wln);
+    else{
+      
+      kffile = TFile::Open(kFactorTheoristFile_wln.c_str());
+      TH1* kfact_nloqcd_wln = (TH1*) kffile->Get("evj_pTV_K_NLO");    
+      TH1* kfact_nloewk_wln = (TH1*) kffile->Get("ecj_pTV_kappa_EW");
+      
+      reweight_wln = (TH1*) kfact_nloqcd_wln->Clone("reweight_wln");
+      reweight_wln->Reset("ICES");
+      for(int iBin = 1; iBin <= reweight_wln->GetNbinsX(); iBin++)
+	reweight_wln->SetBinContent(iBin,kfact_nloqcd_wln->GetBinContent(iBin)*(1+kfact_nloewk_wln->GetBinContent(iBin)));
+    }
+
+    if(nloSamples.useWJetsNLO)
+      whists.push_back(wewkhist);
+    else{
+      if(not useTheoristKfactors){
+	whists.push_back(wnlohist);
+	whists.push_back(wewkhist);
+      }
+      else
+	whists.push_back(reweight_wln);
+    }
   }
-
-  //////////////
-  TFile* kfactwjet_vbf = NULL;
-  if((category == Category::VBF or category == Category::VBFrelaxed) and not useTheoristKfactors){ // apply further k-factors going to the VBF selections              
-
+  else if(category == Category::VBF or category == Category::VBFrelaxed){
+    
     kfactwjet_vbf = TFile::Open(kFactorVBF_wjet.c_str());
-
+    kffile = TFile::Open(kfactorFile.c_str());
+    wnlohist =  (TH1*) kffile->Get("WJets_012j_NLO/nominal");
+    wewkhist =  (TH1*) kffile->Get("EWKcorr/W");
+    
+    if(wewkhist)
+      wewkhist->Divide(wnlohist);
+    if(wnlohist)
+      wnlohist->Divide(wlohist);
+    
     whists.clear();
     whists.push_back(wewkhist); // EW corrections                                                                                                                                                      
     if(category == Category::VBFrelaxed){
@@ -1057,8 +1104,7 @@ void makewencorhist( const string &  signalRegionFile,
       }
     }
   }
-
-
+  
   ////
   TFile* kffile_wewk = NULL;
   vector<TH2*> wewkhists;
@@ -1284,6 +1330,7 @@ void  makezwjcorhist(const string & znunuFile,
   vector<TH1*> ehists;
 
   if(category != Category::VBF and category != Category::VBFrelaxed){ // Monojet / Mono-V case
+
     if(not useTheoristKfactors){
       
       kffile = TFile::Open(kfactorFile.c_str());
@@ -1397,7 +1444,7 @@ void  makezwjcorhist(const string & znunuFile,
     if(kfact == 0) whists.clear();
     if(kfact == 2) whists.push_back(wewkhist); // EW corrections                                                                                                                               
   }
-
+  
   ////                                                                                                                                                                                                
   TFile* kffile_zewk = NULL;
   TFile* kffile_wewk = NULL;
@@ -2036,82 +2083,49 @@ void makegamcorhist( const string & znunuFile,
   vector<TH1*> ahists;
   vector<TH1*> ehists;
 
-  if(not useTheoristKfactors){
-    kffile  = TFile::Open(kfactorFile.c_str()); 
-    kffile_unlops = TFile::Open(kfactorFileUNLOPS.c_str());
-    znlohist = (TH1*) kffile->Get("ZJets_012j_NLO/nominal");
-    zlohist  = (TH1*) kffile->Get("ZJets_LO/inv_pt");
-    anlohist  = (TH1*) kffile->Get("GJets_1j_NLO/nominal_G");
-    alohist  = (TH1*) kffile->Get("GJets_LO/inv_pt_G");
-    zewkhist  = (TH1*) kffile->Get("EWKcorr/Z");
-    aewkhist  = (TH1*) kffile->Get("EWKcorr/photon");
-    aunlopshist = (TH1*) kffile_unlops->Get("Func");
+  if(category != Category::VBF and category != Category::VBFrelaxed){
 
-    if(zewkhist)
-      zewkhist->Divide(znlohist);
-    if(znlohist)
-      znlohist->Divide(zlohist);
-    if(aewkhist)
-      aewkhist->Divide(anlohist);
-    if(anlohist)
-      anlohist->Divide(alohist);
-  }
-  else{
-    kffile = TFile::Open(kFactorTheoristFile_zvv.c_str());
-    TH1* kfact_nloqcd_zvv = (TH1*) kffile->Get("vvj_pTV_K_NLO");
-    TH1* kfact_nloewk_zvv = (TH1*) kffile->Get("vvj_pTV_kappa_EW");
-    reweight_zvv = (TH1*) kfact_nloqcd_zvv->Clone("reweight_zvv");
-    reweight_zvv->Reset("ICES");
-    for(int iBin = 1; iBin <= reweight_zvv->GetNbinsX(); iBin++)
-      reweight_zvv->SetBinContent(iBin,kfact_nloqcd_zvv->GetBinContent(iBin)*(1+kfact_nloewk_zvv->GetBinContent(iBin)));
-    
-    kffile_alt = TFile::Open(kFactorTheoristFile_gam.c_str());
-    TH1* kfact_nloqcd_gam = (TH1*) kffile_alt->Get("aj_pTV_K_NLO");
-    TH1* kfact_nloewk_gam = (TH1*) kffile_alt->Get("aj_pTV_kappa_EW");
-    
-    reweight_gam = (TH1*) kfact_nloqcd_gam->Clone("reweight_gam");
-    reweight_gam->Reset("ICES");
-    for(int iBin = 1; iBin <= reweight_gam->GetNbinsX(); iBin++)
-      reweight_gam->SetBinContent(iBin,kfact_nloqcd_gam->GetBinContent(iBin)*(1+kfact_nloewk_gam->GetBinContent(iBin)));
-  }
-
-  TFile* kfactzjet_vbf = NULL;
-  TFile* kfactgjet_vbf = NULL;
-
-  if(category == Category::VBF or category == Category::VBFrelaxed){ // apply further k-factors going to the VBF selections                                                                                                           
-  
-    kfactzjet_vbf = TFile::Open(kFactorVBF_zjet.c_str());
-    kfactgjet_vbf = TFile::Open(kFactorVBF_gjet.c_str());
-
-    TH1* zjet_nlo_vbf = (TH1*) kfactzjet_vbf->Get("bosonPt_NLO_vbf");
-    if(category == Category::VBFrelaxed)
-      zjet_nlo_vbf = (TH1*) kfactzjet_vbf->Get("bosonPt_NLO_vbf_relaxed");
-
-    TH1* zjet_nlo_mj  = (TH1*) kfactzjet_vbf->Get("bosonPt_NLO_monojet");
-    if(category == Category::VBF)
-      zjet_nlo_vbf->Divide((TH1*) kfactzjet_vbf->Get("bosonPt_LO_vbf"));
-    else if(category == Category::VBFrelaxed)
-      zjet_nlo_vbf->Divide((TH1*) kfactzjet_vbf->Get("bosonPt_LO_vbf_relaxed"));
-    zjet_nlo_mj->Divide((TH1*) kfactzjet_vbf->Get("bosonPt_LO_monojet"));
-    zjet_nlo_vbf->Divide(zjet_nlo_mj);
-    if(not nloSamples.useZJetsNLO)
-      zhists.push_back(zjet_nlo_vbf);
-    
-    TH1* gjet_nlo_vbf = (TH1*) kfactgjet_vbf->Get("bosonPt_NLO_vbf");
-    if(category == Category::VBFrelaxed)
-      gjet_nlo_vbf = (TH1*) kfactgjet_vbf->Get("bosonPt_NLO_vbf_relaxed");
-    TH1* gjet_nlo_mj  = (TH1*) kfactgjet_vbf->Get("bosonPt_NLO_monojet");
-    if(category == Category::VBF)
-      gjet_nlo_vbf->Divide((TH1*) kfactgjet_vbf->Get("bosonPt_LO_vbf"));
-    else if(category == Category::VBFrelaxed)
-      gjet_nlo_vbf->Divide((TH1*) kfactgjet_vbf->Get("bosonPt_LO_vbf_relaxed"));
+    if(not useTheoristKfactors){
       
-    gjet_nlo_mj->Divide((TH1*) kfactgjet_vbf->Get("bosonPt_LO_monojet"));
-    gjet_nlo_vbf->Divide(gjet_nlo_mj);
-    if(not nloSamples.usePhotonJetsNLO)
-      ahists.push_back(gjet_nlo_vbf);
+      kffile  = TFile::Open(kfactorFile.c_str()); 
+      kffile_unlops = TFile::Open(kfactorFileUNLOPS.c_str());
+      znlohist = (TH1*) kffile->Get("ZJets_012j_NLO/nominal");
+      zlohist  = (TH1*) kffile->Get("ZJets_LO/inv_pt");
+      anlohist  = (TH1*) kffile->Get("GJets_1j_NLO/nominal_G");
+      alohist  = (TH1*) kffile->Get("GJets_LO/inv_pt_G");
+      zewkhist  = (TH1*) kffile->Get("EWKcorr/Z");
+      aewkhist  = (TH1*) kffile->Get("EWKcorr/photon");
+      aunlopshist = (TH1*) kffile_unlops->Get("Func");
+      
+      if(zewkhist)
+	zewkhist->Divide(znlohist);
+      if(znlohist)
+	znlohist->Divide(zlohist);
+      if(aewkhist)
+	aewkhist->Divide(anlohist);
+      if(anlohist)
+	anlohist->Divide(alohist);
+    }
+    else{
+      kffile = TFile::Open(kFactorTheoristFile_zvv.c_str());
+      TH1* kfact_nloqcd_zvv = (TH1*) kffile->Get("vvj_pTV_K_NLO");
+      TH1* kfact_nloewk_zvv = (TH1*) kffile->Get("vvj_pTV_kappa_EW");
+      reweight_zvv = (TH1*) kfact_nloqcd_zvv->Clone("reweight_zvv");
+      reweight_zvv->Reset("ICES");
+      for(int iBin = 1; iBin <= reweight_zvv->GetNbinsX(); iBin++)
+	reweight_zvv->SetBinContent(iBin,kfact_nloqcd_zvv->GetBinContent(iBin)*(1+kfact_nloewk_zvv->GetBinContent(iBin)));
+      
+      kffile_alt = TFile::Open(kFactorTheoristFile_gam.c_str());
+      TH1* kfact_nloqcd_gam = (TH1*) kffile_alt->Get("aj_pTV_K_NLO");
+      TH1* kfact_nloewk_gam = (TH1*) kffile_alt->Get("aj_pTV_kappa_EW");
+      
+      reweight_gam = (TH1*) kfact_nloqcd_gam->Clone("reweight_gam");
+      reweight_gam->Reset("ICES");
+      for(int iBin = 1; iBin <= reweight_gam->GetNbinsX(); iBin++)
+	reweight_gam->SetBinContent(iBin,kfact_nloqcd_gam->GetBinContent(iBin)*(1+kfact_nloewk_gam->GetBinContent(iBin)));
+    }
   }
-
+    
   // in order to make uncertainties use the old file                                                                                                                                        
   TFile* kffileUnc = NULL;
   TFile* kffile_zvv = NULL;
@@ -2597,10 +2611,6 @@ void makegamcorhist( const string & znunuFile,
     kffile_alt->Close();
   if(kffileUnc)
     kffileUnc->Close();
-  if(kfactzjet_vbf)
-    kfactzjet_vbf->Close();
-  if(kfactgjet_vbf)
-    kfactgjet_vbf->Close();
   if(kffile_zvv)
     kffile_zvv->Close();
   if(kffile_gam)

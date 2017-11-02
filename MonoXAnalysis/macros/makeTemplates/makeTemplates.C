@@ -25,7 +25,7 @@ static bool addZgamma             = true;
 static bool addZWratio            = true;
 static bool skipTFsystematics     = false;
 static bool skipDataAnalysis      = false;
-static SamplesNLO nloSamples (false,false,false,false);
+static SamplesNLO nloSamples (false,true,true,false);
 static bool useTheoriestKFactors  = false;
 static bool useNewTheoryUncertainty = true;
 
@@ -769,9 +769,10 @@ void makeTemplates(const bool & doCorrectionHistograms   = false,  // calculate 
     cout<<"start signal region data"<<endl;
     sigdatamchist(&outfile,category,observables,observables_2D,lumi,nloSamples,doShapeSystematics,false,false,runHiggsInvisible,applyPostFitWeights,useTheoriestKFactors);
     // gamma + jets
-    cout<<"start gamma+jets region data"<<endl;
-    if(category != Category::VBF and category != Category::VBFrelaxed)
+    if(category != Category::VBF and category != Category::VBFrelaxed){
+      cout<<"start gamma+jets region data"<<endl;
       gamdatamchist(&outfile,category,observables,observables_2D,nloSamples,lumi,runHiggsInvisible,false,applyPostFitWeights,useTheoriestKFactors);
+    }
     // lepton control regions
     cout<<"start zmumu region data"<<endl;
     lepdatamchist(&outfile,Sample::zmm,category,observables,observables_2D,lumi,nloSamples,doShapeSystematics,runHiggsInvisible,false,false,applyPostFitWeights,useTheoriestKFactors); 

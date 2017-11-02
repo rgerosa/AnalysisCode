@@ -37,7 +37,7 @@ void makeHiggsSignalEfficiency(string inputFileName, Category category, bool isG
     else if(category == Category::VBFrelaxed){
       detajj_cut = 1.0;
       mjj_cut    = 200;
-      dphijj_cut = 1.3;
+      dphijj_cut = 1.5;
     }
   }
 
