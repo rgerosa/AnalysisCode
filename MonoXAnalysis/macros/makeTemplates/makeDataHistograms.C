@@ -2276,7 +2276,7 @@ void lepdatamchist(TFile* outfile,
 
   cout<<"lepton+jets control region --> top"<<endl;
   if(category != Category::VBF and category != Category::VBFrelaxed)
-    makehist4(tttree,tthist,tthist_2D,true,sample,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
+    makehist4(tttree,tthist,tthist_2D,true,sample,category,false,1.00,lumi,ehists,"",true,reweightNVTX,0,isHInv,applyPFWeight);
   else
     makehist4(tttree,tthist,tthist_2D,true,sample,category,false,1.00,lumi,ehists,"",true,reweightNVTX,0,isHInv,applyPFWeight);
 
@@ -3889,12 +3889,12 @@ void qcddatamchist(TFile* outfile,
   cout<<"QCD region: ewkz+jets sample "<<endl;
   makehist4(ewkztree,ewkzhist,ewkzhist_2D,true,Sample::qcd,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,isHInv,applyPFWeight,zewkhists); // temp fix for a wrong xsec
   cout<<"QCD region: TTbar sample "<<endl;
-  makehist4(tttree,tthist,tthist_2D,true,Sample::qcd,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
+  makehist4(tttree,tthist,tthist_2D,true,Sample::qcd,category,false,1.00,lumi,ehists,"",true,reweightNVTX,0,isHInv,applyPFWeight);
 
     //alternative ttbar             
   if(doAlternativeTop){
     cout<<"QCD region: TTbar alternative sample "<<endl;
-    makehist4(tttree_alt,tthist_alt,tthist_alt_2D,true,Sample::qcd,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
+    makehist4(tttree_alt,tthist_alt,tthist_alt_2D,true,Sample::qcd,category,false,1.00,lumi,ehists,"",true,reweightNVTX,0,isHInv,applyPFWeight);
   }
 
   cout<<"QCD region: Diboson sample "<<endl;
@@ -4257,12 +4257,12 @@ void taudatamchist(TFile* outfile,
   cout<<"Tau region: ewkz+jets sample "<<endl;
   makehist4(ewkztree,ewkzhist,ewkzhist_2D,true,Sample::taun,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,isHInv,applyPFWeight); // temp fix for a wrong xsec
   cout<<"Tau region: TTbar sample "<<endl;
-  makehist4(tttree,tthist,tthist_2D,true,Sample::taun,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
+  makehist4(tttree,tthist,tthist_2D,true,Sample::taun,category,false,1.00,lumi,ehists,"",true,reweightNVTX,0,isHInv,applyPFWeight);
 
     //alternative ttbar             
   if(doAlternativeTop){
     cout<<"Tau region: TTbar alternative sample "<<endl;
-    makehist4(tttree_alt,tthist_alt,tthist_alt_2D,true,Sample::taun,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
+    makehist4(tttree_alt,tthist_alt,tthist_alt_2D,true,Sample::taun,category,false,1.00,lumi,ehists,"",true,reweightNVTX,0,isHInv,applyPFWeight);
   }
 
   cout<<"Tau region: Diboson sample "<<endl;

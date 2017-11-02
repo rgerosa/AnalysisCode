@@ -54,7 +54,7 @@ const int   nBjets          = 1; // for top-tagged region
 const int   njetsMin        = 1;
 const int   njetsMax        = 100;
 // Re-weight and smoothing
-static bool  reweightNVTX    = false;
+static bool  reweightNVTX    = true;
 /// photon scale
 const bool  applyPhotonScale = true;
 const float photonScaleUnc   = -0.0125;
@@ -63,15 +63,16 @@ static bool doSmoothing      = false;
 const float recoilThresholdTrigger = 350; // for photon trigger application
 const bool  useSingleMuon   = true;
 const bool  useMoriondSetup = true;
-const bool  usePOGScaleFactors = true;
-const bool  applyLeptonVetoWeight = true;
+const bool  usePOGScaleFactors = false;
+const bool  applyLeptonVetoWeight = false;
 // other general options
 const bool  runOnlyData     = false;
 // k-factors
 const bool  applyEWKVKfactor = true;
 
 // k-factors
-string kfactorFile       = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_24bins.root";
+//string kfactorFile       = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_24bins.root";
+string kfactorFile       = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/uncertainties_EWK_24bins.root";
 string kfactorFileUnc    = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactors_uncertainties.root";
 string kfactorFileUNLOPS = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_gamma_unlops.root";
 string kFactorTheoristFile_zvv = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors_theorist/vvj.root";
@@ -82,7 +83,7 @@ string kFactorFile_wjetewk = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kF
 string kFactorFile_zjetewk = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kFactor_ZToNuNu_pT_Mjj.root";
 
 /// basic trees
-string baseInputTreePath = "/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_6_06_2017/";
+string baseInputTreePath = "/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_1_02_2017/";
 
 VectorSorter jetSorter;
 
@@ -1050,7 +1051,7 @@ void makehist4(TTree* tree,            /*input tree*/
 	sfwgt *= trackingefficiency_electron->GetBinContent(trackingefficiency_electron->FindBin(eta1,ptVal));
       }
       if(pt2 > 0.){
-	float ptVal = pt1;
+	float ptVal = pt2;
 	if(pt2 < trackingefficiency_electron->GetYaxis()->GetBinLowEdge(1)) ptVal =  trackingefficiency_electron->GetYaxis()->GetBinLowEdge(1)+1;
 	else if(pt2 > trackingefficiency_electron->GetYaxis()->GetBinLowEdge(trackingefficiency_electron->GetNbinsY()+1)) ptVal = trackingefficiency_electron->GetYaxis()->GetBinLowEdge(trackingefficiency_electron->GetNbinsY()+1)-1;
 	sfwgt *= trackingefficiency_electron->GetBinContent(trackingefficiency_electron->FindBin(eta2,ptVal));
@@ -1299,12 +1300,16 @@ void makehist4(TTree* tree,            /*input tree*/
     if(isMC and (sample == Sample::topmu or sample == Sample::topel))
       btagw = 0.920;
     if(isMC and (sample == Sample::sig and category != Category::VBF and category != Category::VBFrelaxed))
-      btagw = 1.015;
+      btagw = 1.010;
     if(isMC and (sample == Sample::zee and category != Category::VBF and category != Category::VBFrelaxed))
       btagw = 0.980;
+    if(isMC and (sample == Sample::wen and category != Category::VBF and category != Category::VBFrelaxed))
+      btagw = 0.990;
     else
       btagw = *wgtbtag;
 
+    // fix problematic values
+    if(btagw < 0 or btagw > 2) btagw = 1;
 
     /// loose lepton veto weight
     double veto_wgt = 1;
@@ -1511,16 +1516,20 @@ void makehist4(TTree* tree,            /*input tree*/
       
     
       // VBF selection
-      if(goodMonoJet and centralJets.size()+forwardJets.size() > 2 and fabs(jeteta->at(0)) < 4.7 and fabs(jeteta->at(1)) < 4.7 and 
+      if(goodMonoJet and 
+	 centralJets.size()+forwardJets.size() > 2 and 
+	 fabs(jeteta->at(0)) < 4.7 and fabs(jeteta->at(1)) < 4.7 and 
 	 jetpt->at(0) > leadingJetPtCutVBF and jetpt->at(1) > trailingJetPtCutVBF and
-	 jmdphi > jetmetdphiVBF and jeteta->at(0)*jeteta->at(1) < 0 and
-	 fabs(jeteta->at(0)-jeteta->at(1)) > detajj){
-	
+	 jmdphi > jetmetdphiVBF and 
+	 jeteta->at(0)*jeteta->at(1) < 0 and
+	 fabs(jeteta->at(0)-jeteta->at(1)) > detajjrelaxed){
+
 	TLorentzVector jet1 ;
 	TLorentzVector jet2 ;
 	jet1.SetPtEtaPhiM(jetpt->at(0),jeteta->at(0),jetphi->at(0),jetm->at(0));
 	jet2.SetPtEtaPhiM(jetpt->at(1),jeteta->at(1),jetphi->at(1),jetm->at(1));
-	if((jet1+jet2).M() > mjj and fabs(deltaPhi(jetphi->at(0),jetphi->at(1))) < dphijj){
+	if((jet1+jet2).M() > mjjrelaxed and 
+	   fabs(deltaPhi(jetphi->at(0),jetphi->at(1))) < dphijjrelaxed){
 	  if(removeVBF) goodMonoJet = false;
 	}
       }
@@ -1591,16 +1600,22 @@ void makehist4(TTree* tree,            /*input tree*/
 
 
       // remove VBF overlap
-      if(goodMonoV and category == Category::monoV and centralJets.size()+forwardJets.size() > 2 and fabs(jeteta->at(0)) < 4.7 and fabs(jeteta->at(1)) < 4.7 and
-         jetpt->at(0) > leadingJetPtCutVBF and jetpt->at(1) > trailingJetPtCutVBF and
-         (sample != Sample::taun and jmdphi > jetmetdphiVBF) and jeteta->at(0)*jeteta->at(1) < 0 and
-         fabs(jeteta->at(0)-jeteta->at(1)) > detajj){
+      if(goodMonoV and 
+	 category == Category::monoV and 
+	 centralJets.size()+forwardJets.size() > 2 and 
+	 fabs(jeteta->at(0)) < 4.7 and fabs(jeteta->at(1)) < 4.7 and
+         jetpt->at(0) > leadingJetPtCutVBF and 
+	 jetpt->at(1) > trailingJetPtCutVBF and
+         (sample != Sample::taun and jmdphi > jetmetdphiVBF) and 
+	 jeteta->at(0)*jeteta->at(1) < 0 and
+         fabs(jeteta->at(0)-jeteta->at(1)) > detajjrelaxed){
 	
         TLorentzVector jet1 ;
         TLorentzVector jet2 ;
         jet1.SetPtEtaPhiM(jetpt->at(0),jeteta->at(0),jetphi->at(0),jetm->at(0));
         jet2.SetPtEtaPhiM(jetpt->at(1),jeteta->at(1),jetphi->at(1),jetm->at(1));
-        if((jet1+jet2).M() > mjj and fabs(deltaPhi(jetphi->at(0),jetphi->at(1))) < dphijj){
+        if((jet1+jet2).M() > mjjrelaxed and 
+	   fabs(deltaPhi(jetphi->at(0),jetphi->at(1))) < dphijjrelaxed){
           if(removeVBF) goodMonoV = false;
 	}
       }             
@@ -2119,7 +2134,8 @@ void makehist4(TTree* tree,            /*input tree*/
 	else
 	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*veto_wgt*kwgt*kewkgt*hwgt*ggZHwgt*hnnlowgt*pfwgt/(**wgtsum);
       }
-      
+
+
       // for data-based events 
       if (!isMC && sample == Sample::qcdgam) 
 	evtwgt = sfwgt*pfwgt*hltw;
