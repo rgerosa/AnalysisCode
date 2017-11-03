@@ -65,6 +65,7 @@ private:
   const bool isMC;
   const bool isReMiniAOD;
   const bool useLHEWeights;
+
   // xsection value
   float xsec;
   
@@ -161,9 +162,11 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
   addSubstructurePuppi(iConfig.existsAs<bool>("addSubstructurePuppi") ? iConfig.getParameter<bool>("addSubstructurePuppi") : false),
   useMiniAODSubstructure(iConfig.existsAs<bool>("useMiniAODSubstructure") ? iConfig.getParameter<bool>("useMiniAODSubstructure") : false){
 
+  usesResource();
+  usesResource("TFileService");
+
   if(isMC)
     pileupInfoToken = consumes<std::vector<PileupSummaryInfo> > (iConfig.getParameter<edm::InputTag>("pileup"));
-
 
   filterResultsToken       = consumes<edm::TriggerResults> (filterResultsTag);
   badChargedCandidateToken = consumes<bool>(badChargedCandidateTag);
@@ -172,9 +175,6 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
   verticesToken  = consumes<std::vector<reco::Vertex> > (verticesTag);
   rhoToken       = consumes<double>(rhoTag),
   
-  usesResource();
-  usesResource("TFileService");
-
   // trigger tokens
   filterResultsToken    = consumes<edm::TriggerResults> (filterResultsTag);
   badChargedCandidateToken = consumes<bool>(badChargedCandidateTag);
@@ -188,30 +188,51 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
     DeclareAndSetBranches(iConfig);
   }
 
+  // consumes collector
   edm::ConsumesCollector iC = consumesCollector();
+
+  // initialize all pointers
+  triggerFiller  = NULL;
+  muonFiller     = NULL;
+  electronFiller = NULL;
+  photonFiller   = NULL;
+  tauFiller      = NULL;
+  jetAK4Filler   = NULL;
+  jetPuppiAK4Filler = NULL;
+  recoilTreeFiller = NULL;
+  jetMetDphiFiller = NULL;
+  recoilPuppiTreeFiller = NULL;
+  puppiJetMetDphiFiller = NULL;
+  jetAK8Filler = NULL;
+  jetPuppiAK8Filler = NULL;
+  genParticleFiller = NULL;
 
   //Create filler objects
   triggerFiller = new TriggerTreeFiller(iConfig,iC,tree);
   triggerFiller->hltPrescaleProvider.reset(new HLTPrescaleProvider(iConfig,iC,*this)); //ND 
 
-  muonFiller    = new MuonTreeFiller(iConfig,iC,tree);
+  muonFiller     = new MuonTreeFiller(iConfig,iC,tree);
   electronFiller = new ElectronTreeFiller(iConfig,iC,tree);
   photonFiller   = new PhotonTreeFiller(iConfig,iC,tree);
   tauFiller      = new TauTreeFiller(iConfig,iC,tree);
+ 
 
-  recoilTreeFiller = new RecoilTreeFiller(iConfig,iC,tree);
-  jetAK4Filler     = new JetTreeFiller(iConfig,iC,tree);
-  jetMetDphiFiller = new JetMetDphiTreeFiller(iConfig,iC,tree);
-  
+  jetAK4Filler   = new JetTreeFiller(iConfig,iC,tree);
   if(addPuppiJets) 
     jetPuppiAK4Filler  = new JetTreeFiller(iConfig,iC,tree,true);
+
+  recoilTreeFiller = new RecoilTreeFiller(iConfig,iC,tree);
+  jetMetDphiFiller = new JetMetDphiTreeFiller(iConfig,iC,tree);
+  
   if(addPuppiMET)
     recoilPuppiTreeFiller = new RecoilTreeFiller(iConfig,iC,tree,true);   
+
   if(addPuppiMET and addPuppiJets)
     puppiJetMetDphiFiller = new JetMetDphiTreeFiller(iConfig,iC,tree,true);
 
   if(addSubstructureCHS or useMiniAODSubstructure)
     jetAK8Filler   = new VJetTreeFiller(iConfig,iC,tree);
+
   if(addSubstructurePuppi or useMiniAODSubstructure) 
     jetPuppiAK8Filler  = new VJetTreeFiller(iConfig,iC,tree,true);
 
@@ -220,29 +241,14 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
 }
 
 
-MonoJetTreeMaker::~MonoJetTreeMaker() {
-  if(triggerFiller) delete triggerFiller;
-  if(muonFiller) delete muonFiller;
-  if(electronFiller) delete electronFiller;
-  if(photonFiller) delete photonFiller;
-  if(tauFiller) delete tauFiller;
-  if(genParticleFiller) delete genParticleFiller;
-  if(jetAK4Filler) delete jetAK4Filler;
-  if(jetPuppiAK4Filler) delete jetPuppiAK4Filler;
-  if(jetAK8Filler) delete jetAK8Filler;
-  if(jetPuppiAK8Filler) delete jetPuppiAK8Filler;
-  if(recoilTreeFiller) delete recoilTreeFiller;
-  if(recoilPuppiTreeFiller) delete recoilPuppiTreeFiller;
-  if(jetMetDphiFiller) delete jetMetDphiFiller;
-  if(puppiJetMetDphiFiller) delete puppiJetMetDphiFiller;
-}
+MonoJetTreeMaker::~MonoJetTreeMaker() {}
 
 void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
     using namespace edm;
     using namespace reco;
     using namespace std;
-
+    
     // Event, lumi, run info
     event = iEvent.id().event();
     run   = iEvent.id().run();
@@ -314,87 +320,89 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     // Fill other object fillers
     bool isGoodEvent = true;
     // fill trigger
-    if(triggerFiller) {
+    if(triggerFiller != NULL) {
       isGoodEvent = triggerFiller->Fill(iEvent,iSetup);    
       if(not isGoodEvent) return;
     }
 
     // fill muons
-    if(muonFiller) {
+    if(muonFiller != NULL) {
       isGoodEvent = muonFiller->Fill(iEvent,iSetup);
       if(not isGoodEvent) return;
     }
 
     // fill electrons
-    if(electronFiller) {
+    if(electronFiller != NULL) {
       isGoodEvent = electronFiller->Fill(iEvent,iSetup);
       if(not isGoodEvent) return;
     }
 
     // fill photons
-    if(photonFiller) {
+    if(photonFiller != NULL) {
       isGoodEvent = photonFiller->Fill(iEvent,iSetup);
       if(not isGoodEvent) return;
     }
     // fill taus
-    if(tauFiller) {
+    if(tauFiller != NULL) {
       isGoodEvent = tauFiller->Fill(iEvent,iSetup);
       if(not isGoodEvent) return;
     }
-        
+    
     // fill Recoil
-    if(recoilTreeFiller) {
+    if(recoilTreeFiller != NULL) {
       isGoodEvent = recoilTreeFiller->Fill(iEvent,iSetup);
       if(not isGoodEvent) return;
     }
 
+    
     // fill Puppi recoil
-    if(recoilPuppiTreeFiller) {
+    if(recoilPuppiTreeFiller  != NULL) {
       isGoodEvent = recoilPuppiTreeFiller->Fill(iEvent,iSetup);
       if(not isGoodEvent) return;
     }
 
     // fill AK4 jets
-    if(jetAK4Filler) {
+    if(jetAK4Filler != NULL) {
       isGoodEvent = jetAK4Filler->Fill(iEvent,iSetup);
       if(not isGoodEvent) return;
     }
-
+    
     // fill AK4 Puppi jets
-    if(jetPuppiAK4Filler) {
+    if(jetPuppiAK4Filler != NULL) {
       isGoodEvent = jetPuppiAK4Filler->Fill(iEvent,iSetup);
       if(not isGoodEvent) return;
     }
 
-    if(jetMetDphiFiller){
+    if(jetMetDphiFiller != NULL){
       isGoodEvent = jetMetDphiFiller->Fill(iEvent,iSetup);
       if(not isGoodEvent) return;
     }
-
-    if(puppiJetMetDphiFiller){
+    
+    if(puppiJetMetDphiFiller != NULL){
       isGoodEvent = puppiJetMetDphiFiller->Fill(iEvent,iSetup);
       if(not isGoodEvent) return;
     }
-
+       
     // fill AK8 jets
-    if(jetAK8Filler){
+    if(jetAK8Filler != NULL){
       isGoodEvent = jetAK8Filler->Fill(iEvent,iSetup);
       if(not isGoodEvent) return;
     }
-
+    
     // fill AK8 Puppi jets
-    if(jetPuppiAK8Filler){
+    if(jetPuppiAK8Filler != NULL){
       isGoodEvent = jetPuppiAK8Filler->Fill(iEvent,iSetup);
       if(not isGoodEvent) return;
     }
-
-    if(genParticleFiller) {
+    
+    if(genParticleFiller != NULL) {
       isGoodEvent = genParticleFiller->Fill(iEvent,iSetup);
       if(not isGoodEvent) return;
     }
-
+    
     // FILL the Event tree    
     tree->Fill();    
+    
 }    
 
 

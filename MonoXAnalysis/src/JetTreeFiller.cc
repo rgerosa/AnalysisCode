@@ -35,7 +35,7 @@ JetTreeFiller::JetTreeFiller(const edm::ParameterSet & iConfig, edm::ConsumesCol
     jetsJERTag = iConfig.getParameter<edm::InputTag>("puppijetsJER");
   }
 
-  jetsToken = iC.consumes<std::vector<pat::Jet> > (jetsTag);
+  jetsToken        = iC.consumes<std::vector<pat::Jet> > (jetsTag);
   if(jetsJESUpTag.label() != "")
     jetsJESUpToken = iC.consumes<std::vector<pat::Jet> > (jetsJESUpTag);
   if(jetsJESDwTag.label() != "")
@@ -81,40 +81,43 @@ JetTreeFiller::JetTreeFiller(const edm::ParameterSet & iConfig, edm::ConsumesCol
 /////
 void JetTreeFiller::initBranches(){
 
-  njets       = 0; njetsinc    = 0; njetsincup    = 0; njetsincdw    = 0; njetsincjer    = 0;
-  nbjets      = 0; nbjetslowpt   = 0; nbjetsMVA     = 0; nbjetsMVAlowpt = 0;
+  if(not isPuppi_){
+    njets       = 0; njetsinc    = 0; njetsincup    = 0; njetsincdw    = 0; njetsincjer    = 0;
+    nbjets      = 0; nbjetslowpt   = 0; nbjetsMVA     = 0; nbjetsMVAlowpt = 0;
     
-  combinejetpt        .clear(); combinejeteta       .clear(); combinejetphi       .clear(); combinejetbtag      .clear(); 
-  combinejetCHfrac    .clear(); combinejetNHfrac    .clear(); combinejetEMfrac    .clear(); combinejetCEMfrac   .clear(); combinejetmetdphi  .clear();
-  combinejetPHfrac    .clear(); combinejetELfrac    .clear(); combinejetMUfrac    .clear(); combinejetHFHfrac   .clear(); combinejetHFEMfrac .clear();
-  combinejetCHmult    .clear(); combinejetNHmult    .clear(); combinejetPHmult    .clear(); combinejetMUmult    .clear(); combinejetHFHmult  .clear(); combinejetHFEMmult .clear();
-   combinejetHFlav     .clear(); combinejetPFlav     .clear(); combinejetQGL       .clear(); combinejetPUID      .clear();
-  combinejetGenpt     .clear(); combinejetGeneta    .clear(); combinejetGenphi    .clear(); combinejetGenm      .clear(); 
-  combinejetm         .clear(); combinejetbtagMVA   .clear();
-  combinejetBtagSF .clear(); combinejetBtagSFUp .clear(); combinejetBtagSFDown .clear();
-  combinejetBtagMVASF .clear(); combinejetBtagMVASFUp .clear(); combinejetBtagMVASFDown .clear();
-  combinejetPassPUID.clear();
+    combinejetpt        .clear(); combinejeteta       .clear(); combinejetphi       .clear(); combinejetbtag      .clear(); 
+    combinejetCHfrac    .clear(); combinejetNHfrac    .clear(); combinejetEMfrac    .clear(); combinejetCEMfrac   .clear(); combinejetmetdphi  .clear();
+    combinejetPHfrac    .clear(); combinejetELfrac    .clear(); combinejetMUfrac    .clear(); combinejetHFHfrac   .clear(); combinejetHFEMfrac .clear();
+    combinejetCHmult    .clear(); combinejetNHmult    .clear(); combinejetPHmult    .clear(); combinejetMUmult    .clear(); combinejetHFHmult  .clear(); combinejetHFEMmult .clear();
+    combinejetHFlav     .clear(); combinejetPFlav     .clear(); combinejetQGL       .clear(); combinejetPUID      .clear();
+    combinejetGenpt     .clear(); combinejetGeneta    .clear(); combinejetGenphi    .clear(); combinejetGenm      .clear(); 
+    combinejetm         .clear(); combinejetbtagMVA   .clear();
+    combinejetBtagSF .clear(); combinejetBtagSFUp .clear(); combinejetBtagSFDown .clear();
+    combinejetBtagMVASF .clear(); combinejetBtagMVASFUp .clear(); combinejetBtagMVASFDown .clear();
+    combinejetPassPUID.clear();
+    
+    combinejetptup        .clear(); combinejetetaup        .clear(); combinejetphiup        .clear(); combinejetmup        .clear();
+    combinejetptdw        .clear(); combinejetetadw        .clear(); combinejetphidw        .clear(); combinejetmdw        .clear();
+    combinejetptjer       .clear(); combinejetetajer       .clear(); combinejetphijer       .clear(); combinejetmjer       .clear();
+    ht = 0.; htinc  = 0.; 
+  }
+  else{
+    
+    npuppijets       = 0; npuppijetsinc    = 0; npuppijetsincup = 0; npuppijetsincdw  = 0; npuppijetsincjer = 0; npuppibjets     = 0; npuppibjetslowpt = 0;
+    npuppibjetsMVA   = 0; npuppibjetsMVAlowpt = 0;      
+    combinePuppijetpt        .clear(); combinePuppijeteta       .clear(); combinePuppijetphi       .clear(); combinePuppijetbtag      .clear(); 
+    combinePuppijetCHfrac    .clear(); combinePuppijetbtagMVA   .clear();
+    combinePuppijetNHfrac    .clear(); combinePuppijetEMfrac    .clear(); combinePuppijetCEMfrac   .clear(); combinePuppijetmetdphi   .clear();
+    combinePuppijetHFlav     .clear(); combinePuppijetPFlav     .clear(); combinePuppijetQGL       .clear(); 
+    combinePuppijetGenpt     .clear(); combinePuppijetGeneta    .clear(); combinePuppijetGenphi    .clear(); combinePuppijetGenm      .clear(); combinePuppijetm         .clear(); 
+    combinePuppijetBtagSF    .clear(); combinePuppijetBtagSFUp .clear(); combinePuppijetBtagSFDown .clear();
+    combinePuppijetBtagMVASF    .clear(); combinePuppijetBtagMVASFUp .clear(); combinePuppijetBtagMVASFDown .clear();
+    combinePuppijetptup        .clear(); combinePuppijetetaup       .clear(); combinePuppijetphiup       .clear(); combinePuppijetmup     .clear(); 
+    combinePuppijetptdw        .clear(); combinePuppijetetadw       .clear(); combinePuppijetphidw       .clear(); combinePuppijetmdw     .clear(); 
+    combinePuppijetptjer       .clear(); combinePuppijetetajer      .clear(); combinePuppijetphijer      .clear(); combinePuppijetmjer    .clear(); 
+    Puppiht = 0.; Puppihtinc = 0.;
+  }
 
-  combinejetptup        .clear(); combinejetetaup        .clear(); combinejetphiup        .clear(); combinejetmup        .clear();
-  combinejetptdw        .clear(); combinejetetadw        .clear(); combinejetphidw        .clear(); combinejetmdw        .clear();
-  combinejetptjer       .clear(); combinejetetajer       .clear(); combinejetphijer       .clear(); combinejetmjer       .clear();
-
-  ht = 0.; htinc  = 0.; 
-
-  npuppijets       = 0; npuppijetsinc    = 0; npuppijetsincup = 0; npuppijetsincdw  = 0; npuppijetsincjer = 0; npuppibjets     = 0; npuppibjetslowpt = 0;
-  npuppibjetsMVA   = 0; npuppibjetsMVAlowpt = 0;      
-  combinePuppijetpt        .clear(); combinePuppijeteta       .clear(); combinePuppijetphi       .clear(); combinePuppijetbtag      .clear(); 
-  combinePuppijetCHfrac    .clear(); combinePuppijetbtagMVA   .clear();
-  combinePuppijetNHfrac    .clear(); combinePuppijetEMfrac    .clear(); combinePuppijetCEMfrac   .clear(); combinePuppijetmetdphi   .clear();
-  combinePuppijetHFlav     .clear(); combinePuppijetPFlav     .clear(); combinePuppijetQGL       .clear(); 
-  combinePuppijetGenpt     .clear(); combinePuppijetGeneta    .clear(); combinePuppijetGenphi    .clear(); combinePuppijetGenm      .clear(); combinePuppijetm         .clear(); 
-  combinePuppijetBtagSF    .clear(); combinePuppijetBtagSFUp .clear(); combinePuppijetBtagSFDown .clear();
-  combinePuppijetBtagMVASF    .clear(); combinePuppijetBtagMVASFUp .clear(); combinePuppijetBtagMVASFDown .clear();
-  combinePuppijetptup        .clear(); combinePuppijetetaup       .clear(); combinePuppijetphiup       .clear(); combinePuppijetmup     .clear(); 
-  combinePuppijetptdw        .clear(); combinePuppijetetadw       .clear(); combinePuppijetphidw       .clear(); combinePuppijetmdw     .clear(); 
-  combinePuppijetptjer       .clear(); combinePuppijetetajer      .clear(); combinePuppijetphijer      .clear(); combinePuppijetmjer    .clear(); 
-  Puppiht = 0.; Puppihtinc = 0.;
-  
 }
 
 /////
@@ -428,7 +431,6 @@ bool JetTreeFiller::Fill(const edm::Event& iEvent, const edm::EventSetup& iSetup
         Puppiht += jets[i]->pt();
     }    
   }
-
   return true;
 }
 

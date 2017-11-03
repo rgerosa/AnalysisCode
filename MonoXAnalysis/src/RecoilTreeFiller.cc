@@ -26,11 +26,11 @@ RecoilTreeFiller::RecoilTreeFiller(const edm::ParameterSet & iConfig, edm::Consu
     t1taumetTag = iConfig.getParameter<edm::InputTag>("puppit1taumet");
   }
 
-  t1metToken    = iC.consumes<edm::View<pat::MET>  > (t1metTag);
-  t1mumetToken  = iC.consumes<edm::View<pat::MET>  > (t1mumetTag);
-  t1elmetToken = iC.consumes<edm::View<pat::MET>   > (t1elmetTag);
-  t1phmetToken  = iC.consumes<edm::View<pat::MET>  > (t1phmetTag);
-  t1taumetToken  = iC.consumes<edm::View<pat::MET> > (t1taumetTag);
+  t1metToken    = iC.consumes<edm::View<pat::MET> > (t1metTag);
+  t1mumetToken  = iC.consumes<edm::View<pat::MET> > (t1mumetTag);
+  t1elmetToken  = iC.consumes<edm::View<pat::MET> > (t1elmetTag);
+  t1phmetToken  = iC.consumes<edm::View<pat::MET> > (t1phmetTag);
+  t1taumetToken = iC.consumes<edm::View<pat::MET> > (t1taumetTag);
   
   if(isReMiniAOD and not isPuppi_){
     
@@ -63,7 +63,7 @@ RecoilTreeFiller::RecoilTreeFiller(const edm::ParameterSet & iConfig, edm::Consu
     t1metOriginalTag   = iConfig.getParameter<edm::InputTag>("t1metOriginal");
     t1metOriginalToken = iC.consumes<edm::View<pat::MET> > (t1metOriginalTag);
   }
-
+  
   if(addMETBreakDown and not isPuppi_){
     pfMetHadronHFToken = iC.consumes<edm::View<pat::MET> > (iConfig.getParameter<edm::InputTag>("pfMetHadronHF"));
     pfMetEgammaHFToken = iC.consumes<edm::View<pat::MET> > (iConfig.getParameter<edm::InputTag>("pfMetEgammaHF"));
@@ -78,17 +78,16 @@ RecoilTreeFiller::RecoilTreeFiller(const edm::ParameterSet & iConfig, edm::Consu
   
   tree_ = tree;
   this->DeclareAndSetBranches();
-  this->initBranches();
 }
 
 /////
 void RecoilTreeFiller::initBranches(){
-
-  genmet = -99.;      genmetphi = -99.;
+  
+  genmet     = -99.;      genmetphi = -99.;
   t1pfmet    = -99. ; t1pfmetphi = -99.; pfmet      = -99. ; pfmetphi   = -99.; calomet    = -99. ; calometphi = -99.;
   t1mumet    = -99;   t1mumetphi = -99;  mumet      = -99;   mumetphi   = -99;  t1elmet    = -99;   t1elmetphi = -99;
   elmet      = -99;   elmetphi   = -99;  t1phmet    = -99;   t1phmetphi = -99;  phmet      = -99;   phmetphi   = -99;
-  t1taumet    = -99;  t1taumetphi = -99; taumet      = -99;  taumetphi   = -99;
+  t1taumet   = -99;  t1taumetphi = -99; taumet      = -99;  taumetphi   = -99;
 
   t1pfmetEGClean    = -99. ; t1pfmetphiEGClean = -99. ; t1pfmetOriginal    = -99. ; t1pfmetphiOriginal = -99. ;
   t1pfmetMuClean    = -99. ; t1pfmetphiMuClean = -99. ; t1mumetEGClean    = -99. ; t1mumetphiEGClean = -99. ;
@@ -145,9 +144,9 @@ bool RecoilTreeFiller::Fill(const edm::Event& iEvent, const edm::EventSetup& iSe
   using namespace reco;
   using namespace std;
   using namespace pat;
-
+  
   this->initBranches();
-
+  
   Handle<View<pat::MET> > t1metH;
   iEvent.getByToken(t1metToken, t1metH);
   
@@ -163,7 +162,7 @@ bool RecoilTreeFiller::Fill(const edm::Event& iEvent, const edm::EventSetup& iSe
     iEvent.getByToken(t1metOriginalToken, t1metOriginalH);
   }
   
-
+  
   Handle<View<pat::MET> > t1mumetH;
   iEvent.getByToken(t1mumetToken, t1mumetH);
 
@@ -457,7 +456,7 @@ bool RecoilTreeFiller::Fill(const edm::Event& iEvent, const edm::EventSetup& iSe
       puppit1pfmetUncEnDownPhi  = t1metH->front().shiftedPhi(pat::MET::METUncertainty::UnclusteredEnDown, pat::MET::METCorrectionLevel::Type1);      
     }
   }
-
+  
   return true;  
 }
 
@@ -466,7 +465,7 @@ bool RecoilTreeFiller::Fill(const edm::Event& iEvent, const edm::EventSetup& iSe
 void RecoilTreeFiller::DeclareAndSetBranches(){
 
   if(not isPuppi_){
-
+    
     tree_->Branch("pfmet"                , &pfmet                , "pfmet/F");
     tree_->Branch("pfmetphi"             , &pfmetphi             , "pfmetphi/F");
     tree_->Branch("calomet"              , &calomet              , "calomet/F");   //ND

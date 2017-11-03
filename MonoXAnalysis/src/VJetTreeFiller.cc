@@ -123,14 +123,14 @@ void VJetTreeFiller::initBranches(){
 /////
 bool VJetTreeFiller::Fill(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
-  this->initBranches();
-
   if(isTriggerTree or isPhotonPurity or applyDiMuonFilter or applyDiElectronFilter or applyPhotonJetsFilter) return true;
   
   using namespace edm;
   using namespace reco;
   using namespace std;
   using namespace pat;
+
+  this->initBranches();
 
   Handle<pat::MuonRefVector> muonsH;
   iEvent.getByToken(muonsToken, muonsH);
