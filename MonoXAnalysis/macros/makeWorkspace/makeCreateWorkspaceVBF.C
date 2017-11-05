@@ -23,6 +23,7 @@ static bool  addBinByBinMCUncertainty = true;
 static float scaleWZUncertainty     = 1.0; // scale up/down the size of theory uncertanty on the Z/W-QCD ratio;                                                                                      
 static float scaleWZEWKUncertainty  = 1.0; // scale up/down the size of theory uncertanty on the Z/W-EWK ratio;                                                                                       
 static float scaleSignal = 1;
+static bool  applyUncertaintyOnNumerator = true; // write the perturbation nuisance on the numerator
 
 // function to create workspace, to be run from a release which has the combine package
 void makeCreateWorkspaceVBF(string   inputName,                        // input template file
@@ -173,6 +174,7 @@ void makeCreateWorkspaceVBF(string   inputName,                        // input 
 			     znn_SR_bins,     //bins for Znunu                                                                                                                                        
 			     &znn_ewk_SR_bins, 
 			     observable,
+			     applyUncertaintyOnNumerator,
 			     not freezeZQCDOverZEWKNuisances // decide if the stat uncertainty has to be frozen or not
 			     );
 	
@@ -295,7 +297,9 @@ void makeCreateWorkspaceVBF(string   inputName,                        // input 
 			     wln_SR_syst,  //list of systematic variations for the TFs
 			     znn_SR_bins,  //bins for Znunu
 			     &wln_SR_bins, // W+jets -> empty list
-			     observable);
+			     observable,
+			     applyUncertaintyOnNumerator
+			     );
 
       }
     }
@@ -358,14 +362,18 @@ void makeCreateWorkspaceVBF(string   inputName,                        // input 
 			     wln_SR_syst, //list of systematic variations for the TFs
 			     znn_SR_bins, //bins for Znunu
 			     &wln_SR_bins, // W+jets -> empty list
-			     observable);
+			     observable,
+			     applyUncertaintyOnNumerator
+			     );
 	
 	makeConnectedBinList("WJets_EWK_SR_"+suffix,*met,wspace_SR,
 			     (TH1F*)templatesfile->FindObjectAny(("zwjewkcorhist_"+observable).c_str()), //Z/W ratio --> central value + stat unc.
 			     wln_ewk_SR_syst, //list of systematic variations for the TFs
 			     znn_ewk_SR_bins, //bins for Znunu
 			     &wln_ewk_SR_bins, // W+jets -> empty list
-			     observable);
+			     observable,
+			     applyUncertaintyOnNumerator
+			     );
 	
       }
     }
@@ -434,16 +442,26 @@ void makeCreateWorkspaceVBF(string   inputName,                        // input 
     
     
     if(splitEWKQCD){
+
       vector<pair<RooRealVar*,TH1*> > znn_ZM_syst;
       vector<pair<RooRealVar*,TH1*> > znn_ewk_ZM_syst;    
-      if(category == Category::VBFrelaxed){
-	makeConnectedBinList("Znunu_ZM_"+suffix,*met,*wspace_ZM,(TH1F*)templatesfile->FindObjectAny(("zmmcorhist_"+observable).c_str()),znn_ZM_syst,znn_SR_bins,NULL,observable,true,1.75);
-	makeConnectedBinList("Znunu_EWK_ZM_"+suffix,*met,*wspace_ZM,(TH1F*)templatesfile->FindObjectAny(("zewkmmcorhist_"+observable).c_str()),znn_ewk_ZM_syst,znn_ewk_SR_bins,NULL,observable,true,1.75);
-      }
-      else{
-	makeConnectedBinList("Znunu_ZM_"+suffix,*met,*wspace_ZM,(TH1F*)templatesfile->FindObjectAny(("zmmcorhist_"+observable).c_str()),znn_ZM_syst,znn_SR_bins,NULL,observable);
-	makeConnectedBinList("Znunu_EWK_ZM_"+suffix,*met,*wspace_ZM,(TH1F*)templatesfile->FindObjectAny(("zewkmmcorhist_"+observable).c_str()),znn_ewk_ZM_syst,znn_ewk_SR_bins,NULL,observable);
-      }
+
+      float rescale = 1;
+      if(category == Category::VBFrelaxed)
+	rescale = 1.5;
+
+      makeConnectedBinList("Znunu_ZM_"+suffix,
+			   *met,
+			   *wspace_ZM,
+			   (TH1F*)templatesfile->FindObjectAny(("zmmcorhist_"+observable).c_str()),
+			   znn_ZM_syst,znn_SR_bins,
+			   NULL,observable,applyUncertaintyOnNumerator,true,rescale);
+
+      makeConnectedBinList("Znunu_EWK_ZM_"+suffix,
+			   *met,*wspace_ZM,
+			   (TH1F*)templatesfile->FindObjectAny(("zewkmmcorhist_"+observable).c_str()),
+			   znn_ewk_ZM_syst,znn_ewk_SR_bins,
+			   NULL,observable,applyUncertaintyOnNumerator,true,rescale);
     }
     
     else{
@@ -453,7 +471,12 @@ void makeCreateWorkspaceVBF(string   inputName,                        // input 
       TH1F* denominator = (TH1F*) ((TH1F*) templatesfile->Get(("ZM/vllbkghistzmm_"+observable).c_str()))->Clone(Form("denzmm_%s",observable.c_str()));
       denominator->Add((TH1F*) templatesfile->Get(("ZM/ewkzbkghistzmm_"+observable).c_str()));
       numerator->Divide(denominator);
-      makeConnectedBinList("Znunu_ZM_"+suffix,*met,*wspace_ZM,numerator,znn_ZM_syst,znn_SR_bins,NULL,observable);
+
+      makeConnectedBinList("Znunu_ZM_"+suffix,
+			   *met,
+			   *wspace_ZM,numerator,
+			   znn_ZM_syst,znn_SR_bins,
+			   NULL,observable,applyUncertaintyOnNumerator);
       
     }
 
@@ -485,26 +508,35 @@ void makeCreateWorkspaceVBF(string   inputName,                        // input 
     
     
     if(splitEWKQCD){
+
       vector<pair<RooRealVar*,TH1*> > znn_ZE_syst;
       vector<pair<RooRealVar*,TH1*> > znn_ewk_ZE_syst;    
-      if(category == Category::VBFrelaxed){
-	makeConnectedBinList("Znunu_ZE_"+suffix,*met,*wspace_ZE,(TH1F*)templatesfile->FindObjectAny(("zeecorhist_"+observable).c_str()),znn_ZE_syst,znn_SR_bins,NULL,observable,true,1.75);
-	makeConnectedBinList("Znunu_EWK_ZE_"+suffix,*met,*wspace_ZE,(TH1F*)templatesfile->FindObjectAny(("zewkeecorhist_"+observable).c_str()),znn_ewk_ZE_syst,znn_ewk_SR_bins,NULL,observable,true,1.75);
-      }
-      else{
-	makeConnectedBinList("Znunu_ZE_"+suffix,*met,*wspace_ZE,(TH1F*)templatesfile->FindObjectAny(("zeecorhist_"+observable).c_str()),znn_ZE_syst,znn_SR_bins,NULL,observable);
-	makeConnectedBinList("Znunu_EWK_ZE_"+suffix,*met,*wspace_ZE,(TH1F*)templatesfile->FindObjectAny(("zewkeecorhist_"+observable).c_str()),znn_ewk_ZE_syst,znn_ewk_SR_bins,NULL,observable);
-      }
-    }
-    
-    else{
 
+      float rescale = 1;
+      if(category == Category::VBFrelaxed)
+	rescale = 1.5;
+
+      makeConnectedBinList("Znunu_ZE_"+suffix,
+			   *met,
+			   *wspace_ZE,
+			   (TH1F*)templatesfile->FindObjectAny(("zeecorhist_"+observable).c_str()),
+			   znn_ZE_syst,znn_SR_bins,NULL,observable,applyUncertaintyOnNumerator,true,rescale);
+
+      makeConnectedBinList("Znunu_EWK_ZE_"+suffix,
+			   *met,
+			   *wspace_ZE,
+			   (TH1F*)templatesfile->FindObjectAny(("zewkeecorhist_"+observable).c_str()),
+			   znn_ewk_ZE_syst,znn_ewk_SR_bins,NULL,observable,applyUncertaintyOnNumerator,true,rescale);
+
+    }    
+    else{
+      
       vector<pair<RooRealVar*,TH1*> > znn_ZE_syst;
       TH1F* numerator = (TH1F*) znn_SR_total_hist->Clone(("zeecorhist_"+observable).c_str());
       TH1F* denominator = (TH1F*) ((TH1F*) templatesfile->Get(("ZE/vllbkghistzee_"+observable).c_str()))->Clone(Form("denzee_%s",observable.c_str()));
       denominator->Add((TH1F*) templatesfile->Get(("ZE/ewkzbkghistzee_"+observable).c_str()));
       numerator->Divide(denominator);
-      makeConnectedBinList("Znunu_ZE_"+suffix,*met,*wspace_ZE,numerator,znn_ZE_syst,znn_SR_bins,NULL,observable);
+      makeConnectedBinList("Znunu_ZE_"+suffix,*met,*wspace_ZE,numerator,znn_ZE_syst,znn_SR_bins,NULL,observable,applyUncertaintyOnNumerator);
       
     }
 
@@ -540,8 +572,17 @@ void makeCreateWorkspaceVBF(string   inputName,                        // input 
       vector<pair<RooRealVar*,TH1*> > wln_WM_syst;
       vector<pair<RooRealVar*,TH1*> > wln_ewk_WM_syst;
 	
-      makeConnectedBinList("WJets_WM_"+suffix,*met,*wspace_WM,(TH1F*)templatesfile->FindObjectAny(("wmncorhist_"+observable).c_str()),wln_WM_syst,wln_SR_bins,NULL,observable);
-      makeConnectedBinList("WJets_EWK_WM_"+suffix,*met,*wspace_WM,(TH1F*)templatesfile->FindObjectAny(("wewkmncorhist_"+observable).c_str()),wln_ewk_WM_syst,wln_ewk_SR_bins,NULL,observable);
+      makeConnectedBinList("WJets_WM_"+suffix,
+			   *met,
+			   *wspace_WM,
+			   (TH1F*)templatesfile->FindObjectAny(("wmncorhist_"+observable).c_str()),
+			   wln_WM_syst,wln_SR_bins,NULL,observable,applyUncertaintyOnNumerator);
+      
+      makeConnectedBinList("WJets_EWK_WM_"+suffix,
+			   *met,
+			   *wspace_WM,
+			   (TH1F*)templatesfile->FindObjectAny(("wewkmncorhist_"+observable).c_str()),
+			   wln_ewk_WM_syst,wln_ewk_SR_bins,NULL,observable,applyUncertaintyOnNumerator);
     }
     else{
 
@@ -550,7 +591,7 @@ void makeCreateWorkspaceVBF(string   inputName,                        // input 
       TH1F* denominator = (TH1F*) ((TH1F*) templatesfile->Get(("WM/vlbkghistwmn_"+observable).c_str()))->Clone(Form("denwmn_%s",observable.c_str()));
       denominator->Add((TH1F*) templatesfile->Get(("WM/ewkwbkghistwmn_"+observable).c_str()));
       numerator->Divide(denominator);
-      makeConnectedBinList("WJets_WM_"+suffix,*met,*wspace_WM,numerator,wln_WM_syst,wln_SR_bins,NULL,observable);
+      makeConnectedBinList("WJets_WM_"+suffix,*met,*wspace_WM,numerator,wln_WM_syst,wln_SR_bins,NULL,observable,applyUncertaintyOnNumerator);
       
     }
 
@@ -586,8 +627,18 @@ void makeCreateWorkspaceVBF(string   inputName,                        // input 
       vector<pair<RooRealVar*,TH1*> > wln_WE_syst;
       vector<pair<RooRealVar*,TH1*> > wln_ewk_WE_syst;
 	
-      makeConnectedBinList("WJets_WE_"+suffix,*met,*wspace_WE,(TH1F*)templatesfile->FindObjectAny(("wencorhist_"+observable).c_str()),wln_WE_syst,wln_SR_bins,NULL,observable);
-      makeConnectedBinList("WJets_EWK_WE_"+suffix,*met,*wspace_WE,(TH1F*)templatesfile->FindObjectAny(("wewkencorhist_"+observable).c_str()),wln_ewk_WE_syst,wln_ewk_SR_bins,NULL,observable);
+      makeConnectedBinList("WJets_WE_"+suffix,
+			   *met,
+			   *wspace_WE,
+			   (TH1F*)templatesfile->FindObjectAny(("wencorhist_"+observable).c_str()),
+			   wln_WE_syst,wln_SR_bins,NULL,observable,applyUncertaintyOnNumerator);
+
+      makeConnectedBinList("WJets_EWK_WE_"+suffix,
+			   *met,
+			   *wspace_WE,
+			   (TH1F*)templatesfile->FindObjectAny(("wewkencorhist_"+observable).c_str()),
+			   wln_ewk_WE_syst,wln_ewk_SR_bins,NULL,observable,applyUncertaintyOnNumerator);
+
     }
     else{
 
@@ -596,7 +647,7 @@ void makeCreateWorkspaceVBF(string   inputName,                        // input 
       TH1F* denominator = (TH1F*) ((TH1F*) templatesfile->Get(("WE/vlbkghistwen_"+observable).c_str()))->Clone(Form("denwen_%s",observable.c_str()));
       denominator->Add((TH1F*) templatesfile->Get(("WE/ewkwbkghistwen_"+observable).c_str()));
       numerator->Divide(denominator);
-      makeConnectedBinList("WJets_WE_"+suffix,*met,*wspace_WE,numerator,wln_WE_syst,wln_SR_bins,NULL,observable);
+      makeConnectedBinList("WJets_WE_"+suffix,*met,*wspace_WE,numerator,wln_WE_syst,wln_SR_bins,NULL,observable,applyUncertaintyOnNumerator);
       
     }
 

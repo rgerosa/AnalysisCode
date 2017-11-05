@@ -30,6 +30,7 @@ static float flatZgammaUncertainty = 0.15;
 static bool  addBinByBinMCUncertainty = true;
 static bool  useNewTheoryUncertainty  = true;
 static bool  addNewShapeSysUncertainties = true;
+static bool  applyUncertaintyOnNumerator = false;
 
 // function to create workspace, to be run from a release which has the combine package
 void makeCreateWorkspace(string   inputName,                        // input template file
@@ -391,7 +392,8 @@ void makeCreateWorkspace(string   inputName,                        // input tem
 			       wln_SR_syst, //list of systematic variations for the TFs
 			       znn_SR_bins, //bins for Znunu
 			       &wln_SR_bins, // W+jets -> empty list
-			       observable);
+			       observable,
+			       applyUncertaintyOnNumerator);
 	  
 	}
 	
@@ -446,7 +448,7 @@ void makeCreateWorkspace(string   inputName,                        // input tem
 	  makeConnectedBinListCutAndCount("WJets_SR_"+suffix,*met,wspace_SR,
 					  (TH1F*)templatesfile->FindObjectAny(("nhist_zwj_ewk_"+observable).c_str()),
 					  (TH1F*)templatesfile->FindObjectAny(("dhist_zwj_ewk_"+observable).c_str()),
-					  wln_SR_syst,znn_SR_bins,&wln_SR_bins,observable);
+					  wln_SR_syst,znn_SR_bins,&wln_SR_bins,observable,applyUncertaintyOnNumerator);
 	  	  
 	}
       }
@@ -499,7 +501,8 @@ void makeCreateWorkspace(string   inputName,                        // input tem
 			       wln_SR_syst, //list of systematic variations for the TFs
 			       znn_SR_bins, //bins for Znunu
 			       &wln_SR_bins, // W+jets -> empty list
-			       observable);
+			       observable,
+			       applyUncertaintyOnNumerator);
 	}
       }
     }  
@@ -632,7 +635,9 @@ void makeCreateWorkspace(string   inputName,                        // input tem
 	vector<pair<RooRealVar*,TH1*> > znn_ZM_syst;
 	if(addNewShapeSysUncertainties)
 	  znn_ZM_syst.push_back(pair<RooRealVar*,TH1*>(CMS_met_trig,triggersys));
-	makeConnectedBinList("Znunu_ZM_"+suffix,*met,*wspace_ZM,(TH1F*)templatesfile->FindObjectAny(("zmmcorhist_"+observable).c_str()),znn_ZM_syst,znn_SR_bins,NULL,observable,true,1.75);
+	makeConnectedBinList("Znunu_ZM_"+suffix,*met,*wspace_ZM,
+			     (TH1F*)templatesfile->FindObjectAny(("zmmcorhist_"+observable).c_str()),znn_ZM_syst,znn_SR_bins,
+			     NULL,observable,applyUncertaintyOnNumerator);
 	
       }
       else{
@@ -641,7 +646,7 @@ void makeCreateWorkspace(string   inputName,                        // input tem
 	makeConnectedBinListCutAndCount("Znunu_ZM_"+suffix,*met,*wspace_ZM,
 					(TH1F*)templatesfile->FindObjectAny(("nhist_zmm_"+observable).c_str()),
 					(TH1F*)templatesfile->FindObjectAny(("dhist_zmm_"+observable).c_str()),
-					znn_ZM_syst,znn_SR_bins,NULL,observable);
+					znn_ZM_syst,znn_SR_bins,NULL,observable,applyUncertaintyOnNumerator);
 	
       }
 
@@ -688,7 +693,9 @@ void makeCreateWorkspace(string   inputName,                        // input tem
 	vector<pair<RooRealVar*,TH1*> > znn_ZE_syst;
 	if(addNewShapeSysUncertainties)
 	  znn_ZE_syst.push_back(pair<RooRealVar*,TH1*>(CMS_met_trig,triggersys));
-	makeConnectedBinList("Znunu_ZE_"+suffix,*met,*wspace_ZE,(TH1F*)templatesfile->FindObjectAny(("zeecorhist_"+observable).c_str()),znn_ZE_syst,znn_SR_bins,NULL,observable);
+	makeConnectedBinList("Znunu_ZE_"+suffix,*met,*wspace_ZE,
+			     (TH1F*)templatesfile->FindObjectAny(("zeecorhist_"+observable).c_str()),znn_ZE_syst,znn_SR_bins,
+			     NULL,observable,applyUncertaintyOnNumerator);
 	
       }
       else{
@@ -696,7 +703,7 @@ void makeCreateWorkspace(string   inputName,                        // input tem
 	makeConnectedBinListCutAndCount("Znunu_ZE_"+suffix,*met,*wspace_ZE,
 					(TH1F*)templatesfile->FindObjectAny(("nhist_zee_"+observable).c_str()),
 					(TH1F*)templatesfile->FindObjectAny(("dhist_zee_"+observable).c_str()),
-					znn_ZE_syst,znn_SR_bins,NULL,observable);
+					znn_ZE_syst,znn_SR_bins,NULL,observable,applyUncertaintyOnNumerator);
 	
       }
     }
@@ -740,7 +747,8 @@ void makeCreateWorkspace(string   inputName,                        // input tem
       if(not isCutAndCount){
 	// Z->mumu connected with Z->nunu SR
 	vector<pair<RooRealVar*,TH1*> >   znn_ZL_syst;
-	makeConnectedBinList("Znunu_ZL_"+suffix,*met,*wspace_ZL,(TH1F*)templatesfile->FindObjectAny(("zllcorhist_"+observable).c_str()),znn_ZL_syst,znn_SR_bins,NULL,observable);
+	makeConnectedBinList("Znunu_ZL_"+suffix,*met,*wspace_ZL,(TH1F*)templatesfile->FindObjectAny(("zllcorhist_"+observable).c_str()),
+			     znn_ZL_syst,znn_SR_bins,NULL,observable,applyUncertaintyOnNumerator);
 	
       }
       else{
@@ -748,7 +756,7 @@ void makeCreateWorkspace(string   inputName,                        // input tem
 	makeConnectedBinListCutAndCount("Znunu_ZL_"+suffix,*met,*wspace_ZL,
 					(TH1F*)templatesfile->FindObjectAny(("nhist_zll_"+observable).c_str()),
 					(TH1F*)templatesfile->FindObjectAny(("dhist_zll_"+observable).c_str()),
-					znn_ZL_syst,znn_SR_bins,NULL,observable);
+					znn_ZL_syst,znn_SR_bins,NULL,observable,applyUncertaintyOnNumerator);
 	
       }
     }
@@ -857,14 +865,15 @@ void makeCreateWorkspace(string   inputName,                        // input tem
 	  wln_WM_syst.push_back(pair<RooRealVar*,TH1*>(CMS_tau_veto,tauvetosys));
 	}
 
-	makeConnectedBinList("WJets_WM_"+suffix,*met,*wspace_WM,(TH1F*)templatesfile->FindObjectAny(("wmncorhist_"+observable).c_str()),wln_WM_syst,wln_SR_bins,NULL,observable);
+	makeConnectedBinList("WJets_WM_"+suffix,*met,*wspace_WM,(TH1F*)templatesfile->FindObjectAny(("wmncorhist_"+observable).c_str()),
+			     wln_WM_syst,wln_SR_bins,NULL,observable,applyUncertaintyOnNumerator);
       }
       else{
 	vector<pair<RooRealVar*,systematicCutAndCount> > wln_WM_syst;
 	makeConnectedBinListCutAndCount("WJets_WM_"+suffix,*met,*wspace_WM,
 					(TH1F*)templatesfile->FindObjectAny(("nhist_wmn_"+observable).c_str()),
 					(TH1F*)templatesfile->FindObjectAny(("dhist_wmn_"+observable).c_str()),
-					wln_WM_syst,wln_SR_bins,NULL,observable);
+					wln_WM_syst,wln_SR_bins,NULL,observable,applyUncertaintyOnNumerator);
 	
       }
 
@@ -917,14 +926,15 @@ void makeCreateWorkspace(string   inputName,                        // input tem
 	  wln_WE_syst.push_back(pair<RooRealVar*,TH1*>(CMS_ele_veto,elevetosys));
 	  wln_WE_syst.push_back(pair<RooRealVar*,TH1*>(CMS_tau_veto,tauvetosys));
 	}
-	makeConnectedBinList("WJets_WE_"+suffix,*met,*wspace_WE,(TH1F*)templatesfile->FindObjectAny(("wencorhist_"+observable).c_str()),wln_WE_syst,wln_SR_bins,NULL,observable);
+	makeConnectedBinList("WJets_WE_"+suffix,*met,*wspace_WE,(TH1F*)templatesfile->FindObjectAny(("wencorhist_"+observable).c_str()),
+			     wln_WE_syst,wln_SR_bins,NULL,observable,applyUncertaintyOnNumerator);
       }
       else{	
 	vector<pair<RooRealVar*,systematicCutAndCount> > wln_WE_syst;
 	makeConnectedBinListCutAndCount("WJets_WE_"+suffix,*met,*wspace_WE,
 					(TH1F*)templatesfile->FindObjectAny(("nhist_wen_"+observable).c_str()),
 					(TH1F*)templatesfile->FindObjectAny(("dhist_wen_"+observable).c_str()),
-					wln_WE_syst,wln_SR_bins,NULL,observable);
+					wln_WE_syst,wln_SR_bins,NULL,observable,applyUncertaintyOnNumerator);
 	
       } 
     }
@@ -966,14 +976,15 @@ void makeCreateWorkspace(string   inputName,                        // input tem
 	// connected W->enu with W+jets SR 
 	vector<pair<RooRealVar*,TH1*> > wln_WL_syst;
 	vector<pair<RooRealVar*,TH1*> > wln_ewk_WL_syst;
-	makeConnectedBinList("WJets_WL_"+suffix,*met,*wspace_WL,(TH1F*)templatesfile->FindObjectAny(("wlncorhist_"+observable).c_str()),wln_WL_syst,wln_SR_bins,NULL,observable);
+	makeConnectedBinList("WJets_WL_"+suffix,*met,*wspace_WL,(TH1F*)templatesfile->FindObjectAny(("wlncorhist_"+observable).c_str()),wln_WL_syst,
+			     wln_SR_bins,NULL,observable,applyUncertaintyOnNumerator);
       }
       else{
 	vector<pair<RooRealVar*,systematicCutAndCount> > wln_WL_syst;
 	makeConnectedBinListCutAndCount("WJets_WL_"+suffix,*met,*wspace_WL,
 					(TH1F*)templatesfile->FindObjectAny(("nhist_wln_"+observable).c_str()),
 					(TH1F*)templatesfile->FindObjectAny(("dhist_wln_"+observable).c_str()),
-					wln_WL_syst,wln_SR_bins,NULL,observable);
+					wln_WL_syst,wln_SR_bins,NULL,observable,applyUncertaintyOnNumerator);
 	
       }    
     }
@@ -1061,7 +1072,8 @@ void makeCreateWorkspace(string   inputName,                        // input tem
 	      uncertainty_temp->SetBinContent(iBin+1,flatZgammaUncertainty);
 	    znn_GJ_syst.push_back(pair<RooRealVar*,TH1*>(znn_GJ,uncertainty_temp));	  
 	  }	  
-	  makeConnectedBinList("Znunu_GJ_"+suffix,*met,*wspace_GJ,(TH1F*)templatesfile->FindObjectAny(("gamcorewkhist_"+observable).c_str()),znn_GJ_syst,znn_SR_bins,NULL,observable);  	  
+	  makeConnectedBinList("Znunu_GJ_"+suffix,*met,*wspace_GJ,(TH1F*)templatesfile->FindObjectAny(("gamcorewkhist_"+observable).c_str()),
+			       znn_GJ_syst,znn_SR_bins,NULL,observable,applyUncertaintyOnNumerator);  	  
 	}
 	else{
 	  
@@ -1120,7 +1132,7 @@ void makeCreateWorkspace(string   inputName,                        // input tem
 	  makeConnectedBinListCutAndCount("Znunu_GJ_"+suffix,*met,*wspace_GJ,
 					  (TH1F*)templatesfile->FindObjectAny(("nhist_gam_ewk_"+observable).c_str()),
 					  (TH1F*)templatesfile->FindObjectAny(("dhist_gam_ewk_"+observable).c_str()),
-					  znn_GJ_syst,znn_SR_bins,NULL,observable);
+					  znn_GJ_syst,znn_SR_bins,NULL,observable,applyUncertaintyOnNumerator);
 	  
 	}
       }
@@ -1162,7 +1174,8 @@ void makeCreateWorkspace(string   inputName,                        // input tem
 	  znn_GJ_syst.push_back(pair<RooRealVar*,TH1*>(znn_GJ,uncertainty_temp));	  	
 	}
       
-	makeConnectedBinList("Znunu_GJ_"+suffix,*met,*wspace_GJ,(TH1F*)templatesfile->FindObjectAny(("gamcorewkhist_"+observable).c_str()),znn_GJ_syst,znn_SR_bins,NULL,observable);  
+	makeConnectedBinList("Znunu_GJ_"+suffix,*met,*wspace_GJ,(TH1F*)templatesfile->FindObjectAny(("gamcorewkhist_"+observable).c_str()),
+			     znn_GJ_syst,znn_SR_bins,NULL,observable,applyUncertaintyOnNumerator);  
       }
       
       // Other MC backgrounds photon+jets control region

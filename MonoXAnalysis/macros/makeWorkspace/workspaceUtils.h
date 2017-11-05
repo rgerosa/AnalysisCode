@@ -330,6 +330,7 @@ void makeConnectedBinList(string procname,  // name to be used to fill the works
 			  const RooArgList& srbinlist,  // Binning into the signal region
                           RooArgList* crbinlist = NULL, // constrol region bins
                           string observable     = "met", // observable name
+			  bool   applyUncertaintyOnNumerator = false,
 			  bool   addStatUncertainty = true,
 			  float  reductionFactorLastBin = 1
 			  ) {
@@ -382,6 +383,10 @@ void makeConnectedBinList(string procname,  // name to be used to fill the works
     formss << "@0/";
     formss << "(";
     formss << "@1";
+
+    if(applyUncertaintyOnNumerator)
+      formss << ")";
+
     if(i != rhist->GetNbinsX()){
       if(rhist->GetBinContent(i) == 0)
 	formss << "*(TMath::Max(0,1+1*@2))";
@@ -426,7 +431,10 @@ void makeConnectedBinList(string procname,  // name to be used to fill the works
 	formss << "*(TMath::Max(0,1-" << fabs(syst[j].second->GetBinContent(i)) << "*@" << j+3 << "))";
       
     }
-    formss << ")";
+
+    if(not applyUncertaintyOnNumerator)
+      formss << ")";
+
     // create a single RooFormulaVar                                                                                                                                         
     RooFormulaVar* binvar = new RooFormulaVar(binss.str().c_str(), "", formss.str().c_str(), RooArgList(fobinlist));
     crbinlist->add(*binvar);
@@ -455,7 +463,8 @@ void makeConnectedBinListCutAndCount(string procname,  // name to be used to fil
 				     const RooArgList& srbinlist,  // Binning into the signal region
 				     RooArgList* crbinlist = NULL, // constrol region bins
 				     string observable = "met",     // observable name
-				     bool   addStatUncertainty = true
+				     bool   addStatUncertainty = true,
+				     bool   applyUncertaintyOnNumerator = false
 				     ) {
 
 
@@ -521,6 +530,9 @@ void makeConnectedBinListCutAndCount(string procname,  // name to be used to fil
   formss << "@0/";
   formss << "(";
   formss << "@1";
+  if(applyUncertaintyOnNumerator)
+    formss << ")";
+    
   if(ratio_err/rbinvar->getVal() >= 0)
     formss << "*(TMath::Max(0,1+" << ratio_err/rbinvar->getVal() << "*@2))";
   else
@@ -564,7 +576,9 @@ void makeConnectedBinListCutAndCount(string procname,  // name to be used to fil
 
     }
   }
-  formss << ")";
+
+  if(not applyUncertaintyOnNumerator)
+    formss << ")";
     
   // create a single RooFormulaVar                                                                                                                                         
   RooFormulaVar* binvar = new RooFormulaVar(binss.str().c_str(), "", formss.str().c_str(), RooArgList(fobinlist));
@@ -584,7 +598,5 @@ void makeConnectedBinListCutAndCount(string procname,  // name to be used to fil
   ws.import(norm, RooFit::RecycleConflictNodes());
   
 }
-
-
 
 #endif
