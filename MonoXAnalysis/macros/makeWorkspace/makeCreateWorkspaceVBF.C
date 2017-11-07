@@ -59,7 +59,6 @@ void makeCreateWorkspaceVBF(string   inputName,                        // input 
   // Select observable and binning
   cout<<"Load binning and observable ..."<<endl;
   double xMin = 0., xMax = 0.;
-  double yMin = 0., yMax = 0.;
   vector<double> bins = selectBinning(observable,category);  
   RooBinning *binning = NULL;
 
