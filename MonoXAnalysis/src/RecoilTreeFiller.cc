@@ -471,6 +471,9 @@ void RecoilTreeFiller::DeclareAndSetBranches(){
     tree_->Branch("calomet"              , &calomet              , "calomet/F");   //ND
     tree_->Branch("calometphi"           , &calometphi           , "calometphi/F");//ND
 
+    tree_->Branch("genmet"                , &genmet                , "genmet/F");
+    tree_->Branch("genmetphi"             , &genmetphi             , "genmetphi/F");
+
     tree_->Branch("t1pfmet"              , &t1pfmet              , "t1pfmet/F");
     tree_->Branch("t1pfmetphi"           , &t1pfmetphi           , "t1pfmetphi/F");
     tree_->Branch("t1mumet"              , &t1mumet              , "t1mumet/F");

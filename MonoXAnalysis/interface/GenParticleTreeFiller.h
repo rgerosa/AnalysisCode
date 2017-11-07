@@ -100,7 +100,8 @@ class GenParticleTreeFiller {
 
   // DM mediator and DM particles
   float dmmass,dmpt,dmeta,dmphi,dmX1pt,dmX1eta,dmX1phi,dmX1mass,dmX2pt,dmX2eta,dmX2phi,dmX2mass;
-  int   dmid,dmX1id,dmX2id;
+  float dmX1pt_ll,dmX1eta_ll,dmX1phi_ll,dmX1mass_ll,dmX2pt_ll,dmX2eta_ll,dmX2phi_ll,dmX2mass_ll;
+  int   dmid,dmX1id,dmX2id,dmX1id_ll,dmX2id_ll;
 
   // for fastSIM
   float samplemedM,sampledmM;

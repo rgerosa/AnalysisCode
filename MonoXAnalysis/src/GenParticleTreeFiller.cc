@@ -52,6 +52,8 @@ void GenParticleTreeFiller::initBranches(){
   dmmass   = 0.; dmphi   = 0.; dmeta   = 0.; dmpt   = 0.; dmid   = 0;
   dmX1mass = 0.; dmX1phi = 0.; dmX1eta = 0.; dmX1pt = 0.; dmX1id = 0;
   dmX2mass = 0.; dmX2phi = 0.; dmX2eta = 0.; dmX2pt = 0.; dmX2id = 0;
+  dmX1mass_ll = 0.; dmX1phi_ll = 0.; dmX1eta_ll = 0.; dmX1pt_ll = 0.; dmX1id_ll = 0;
+  dmX2mass_ll = 0.; dmX2phi_ll = 0.; dmX2eta_ll = 0.; dmX2pt_ll = 0.; dmX2id_ll = 0;
 
   qcdscalewgt.clear();
   couplingwgt.clear();
@@ -155,6 +157,8 @@ bool GenParticleTreeFiller::Fill(const edm::Event& iEvent, const edm::EventSetup
       
     TLorentzVector dm1vec; 
     TLorentzVector dm2vec; 
+    TLorentzVector dm1vec_ll; 
+    TLorentzVector dm2vec_ll; 
     bool foundfirst = false;
     
     // loop on gen particles looking for the DM particles --> then to the mediator
@@ -169,7 +173,7 @@ bool GenParticleTreeFiller::Fill(const edm::Event& iEvent, const edm::EventSetup
 	goodParticle = true;
       else if(abs(gens_iter->pdgId()) == 18) // DM particles in MG DMSimp and SMM
 	goodParticle = true;
-
+      
       if(not goodParticle)
 	continue;
       
@@ -179,10 +183,23 @@ bool GenParticleTreeFiller::Fill(const edm::Event& iEvent, const edm::EventSetup
 	foundfirst = true;	
 	if(readDMFromGenParticle_)
 	  sampledmM = gens_iter->mass();
+
+	for(size_t ipart = 0; ipart < gens_iter->numberOfDaughters(); ipart++){
+	  if(fabs(gens_iter->daughter(ipart)->pdgId()) == 5000522){
+	    dm1vec_ll.SetPtEtaPhiM(gens_iter->daughter(ipart)->pt(), gens_iter->daughter(ipart)->eta(), gens_iter->daughter(ipart)->phi(), gens_iter->daughter(ipart)->mass());
+	    dmX1id_ll = gens_iter->daughter(ipart)->pdgId();
+	  }	
+	}
       }
       else{
 	dm2vec.SetPtEtaPhiM(gens_iter->pt(), gens_iter->eta(), gens_iter->phi(), gens_iter->mass());
 	dmX2id = gens_iter->pdgId();
+	for(size_t ipart = 0; ipart < gens_iter->numberOfDaughters(); ipart++){
+	  if(fabs(gens_iter->daughter(ipart)->pdgId()) == 5000522){
+	    dm2vec_ll.SetPtEtaPhiM(gens_iter->daughter(ipart)->pt(), gens_iter->daughter(ipart)->eta(), gens_iter->daughter(ipart)->phi(), gens_iter->daughter(ipart)->mass());
+	    dmX2id_ll = gens_iter->daughter(ipart)->pdgId();
+	  }	
+	}
 	break;
       }
     }
@@ -196,6 +213,16 @@ bool GenParticleTreeFiller::Fill(const edm::Event& iEvent, const edm::EventSetup
     dmX2eta  = dm2vec.Eta();
     dmX2phi  = dm2vec.Phi();
     dmX2mass = dm2vec.M();
+
+    dmX1pt_ll   = dm1vec_ll.Pt();
+    dmX1eta_ll  = dm1vec_ll.Eta();
+    dmX1phi_ll  = dm1vec_ll.Phi();
+    dmX1mass_ll = dm1vec_ll.M();
+
+    dmX2pt_ll   = dm2vec_ll.Pt();
+    dmX2eta_ll  = dm2vec_ll.Eta();
+    dmX2phi_ll  = dm2vec_ll.Phi();
+    dmX2mass_ll = dm2vec_ll.M();
       
     TLorentzVector medvec(dm1vec);
     medvec += dm2vec;
@@ -479,6 +506,9 @@ void GenParticleTreeFiller::DeclareAndSetBranches(){
   if(not isQCDTree){    
 
     if(not isTriggerTree or (isTriggerTree and isMC)){
+
+      tree_->Branch("wgt"                 , &wgt                 , "wgt/F");
+
       tree_->Branch("wzid"                 , &wzid                 , "wzid/I");
       tree_->Branch("wzmass"               , &wzmass               , "wzmass/F");
       tree_->Branch("wzmt"                 , &wzmt                 , "wzmt/F");
@@ -562,6 +592,18 @@ void GenParticleTreeFiller::DeclareAndSetBranches(){
 	tree_->Branch("dmX2eta",&dmX2eta,"dmX2eta/F");
 	tree_->Branch("dmX2phi",&dmX2phi,"dmX2phi/F");
 	tree_->Branch("dmX2mass",&dmX2mass,"dmX2mass/F");
+
+	tree_->Branch("dmX1id_ll",&dmX1id_ll,"dmX1id_ll/I");
+	tree_->Branch("dmX1pt_ll",&dmX1pt_ll,"dmX1pt_ll/F");
+	tree_->Branch("dmX1eta_ll",&dmX1eta_ll,"dmX1eta_ll/F");
+	tree_->Branch("dmX1phi_ll",&dmX1phi_ll,"dmX1phi_ll/F");
+	tree_->Branch("dmX1mass_ll",&dmX1mass_ll,"dmX1mass_ll/F");
+	
+	tree_->Branch("dmX2id_ll",&dmX2id_ll,"dmX2id_ll/I");
+	tree_->Branch("dmX2pt_ll",&dmX2pt_ll,"dmX2pt_ll/F");
+	tree_->Branch("dmX2eta_ll",&dmX2eta_ll,"dmX2eta_ll/F");
+	tree_->Branch("dmX2phi_ll",&dmX2phi_ll,"dmX2phi_ll/F");
+	tree_->Branch("dmX2mass_ll",&dmX2mass_ll,"dmX2mass_ll/F");
 	
 	if(useLHEWeights){
 	  tree_->Branch("qcdscalewgt","std::vector<float>",&qcdscalewgt);

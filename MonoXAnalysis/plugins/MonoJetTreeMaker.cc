@@ -430,6 +430,7 @@ void MonoJetTreeMaker::DeclareAndSetBranches(const edm::ParameterSet& iConfig){
     tree->Branch("putrue", &putrue, "putrue/I");
   }
   
+  tree->Branch("xsec"                 , &xsec                 , "xsec/F");  
   tree->Branch("nvtx"                 , &nvtx                 , "nvtx/i");  
   
   // MET filters
