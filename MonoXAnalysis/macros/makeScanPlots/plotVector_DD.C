@@ -20,59 +20,97 @@ int code(double mh){
     return (int)(mh/100000000);
 }
 
+// To convert mMED-mDM in DM-nucleons vs mDM
+
+static float gq  = 0.25;
+static float gDM = 1.0;
+static float mMED_min = 15;
+
 double vecF(double mMED,double mDM){    
-    double mR = (0.939*mDM)/(0.939+mDM);
-    double c = 6.9e-41*1e12;
-    return c*(mR*mR)/(mMED*mMED*mMED*mMED);
+  double mR = (0.939*mDM)/(0.939+mDM);
+  double c = 6.9e-41*1e12*pow((gq*gDM)/0.25,2);
+  return c*(mR*mR)/(mMED*mMED*mMED*mMED);
 }
 
 TGraph * makeOBV(TGraph *Graph1){
-    TGraph *gr = new TGraph();
-    double X;
-    double Y;
-    int pp=0;
-    Graph1->GetPoint(1,X,Y);
-    for (double MDM = 1; MDM < Y; MDM += 0.1){
-        gr->SetPoint(pp,MDM,vecF(X,MDM));
-        pp++;
-    }
-    for (int p =0; p < Graph1->GetN(); p++){
-        Graph1->GetPoint(p,X,Y);
-        if (!(X >0)) continue;
-        if (!(Y >0)) continue;
-        gr->SetPoint(pp,Y,vecF(X,Y));
-        pp++;
-    }
-    gr->SetName(Form("%s_DD",Graph1->GetName()));
-    gr->SetLineStyle(Graph1->GetLineStyle());
-    gr->SetLineColor(Graph1->GetLineColor());
-    gr->SetLineWidth(Graph1->GetLineWidth());
-    
-    return gr;
+  TGraph *gr = new TGraph();
+  double X;
+  double Y;
+  int pp=0;
+  Graph1->GetPoint(0,X,Y);
+  for (double MDM = 1; MDM < Y; MDM += 0.1){
+    gr->SetPoint(pp,MDM,vecF(X,MDM));
+    pp++;
+  }
+  for (int p =0; p < Graph1->GetN(); p++){
+    Graph1->GetPoint(p,X,Y);
+    if(X <= mMED_min) continue;
+    gr->SetPoint(pp,Y,vecF(X,Y));
+    pp++;
+  }
+  gr->SetName(Form("%s_DD",Graph1->GetName()));
+  gr->SetLineStyle(Graph1->GetLineStyle());
+  gr->SetLineColor(Graph1->GetLineColor());
+  gr->SetLineWidth(Graph1->GetLineWidth());
+  
+  return gr;
 }
 
-/////                                                                                                                                                                                                  
-static float nbinsX = 800;
-static float nbinsY = 500;
-static float minX = 100;
-static float minY = 0;
-static float maxX = 5000;
-static float maxY = 1500;
+TGraph* produceContour (const int & reduction){
+
+  TObjArray *lContoursE = (TObjArray*) gROOT->GetListOfSpecials()->FindObject("contours");
+  std::vector<double> lXE;
+  std::vector<double> lYE;
+  int lTotalContsE = lContoursE->GetSize();
+  for(int i0 = 0; i0 < lTotalContsE; i0++){
+    TList * pContLevel = (TList*)lContoursE->At(i0);
+    TGraph *pCurv = (TGraph*)pContLevel->First();
+    for(int i1 = 0; i1 < pContLevel->GetSize(); i1++){
+      for(int i2  = 0; i2 < pCurv->GetN(); i2++) {
+        if(i2%reduction != 0) continue; // reduce number of points                                                                                                                                
+        lXE.push_back(pCurv->GetX()[i2]);
+        lYE.push_back(pCurv->GetY()[i2]);
+      }
+      pCurv->SetLineColor(kRed);
+      pCurv = (TGraph*)pContLevel->After(pCurv);
+    }
+  }
+  if(lXE.size() == 0) {
+    lXE.push_back(0);
+    lYE.push_back(0);
+  }
+
+  TGraph *lTotalE = new TGraph(lXE.size(),&lXE[0],&lYE[0]);
+  return lTotalE;
+}
+
+/////                                                                                                                                                                                                 
+static float nbinsX = 1000;
+static float nbinsY = 600;
+static float minX = 0;
+static float minY = 1;
+static float maxX = 2500;
+static float maxY = 1200;
+static float minZ = 0.01;
 static float maxZ = 10;
 
 static float minX_dd = 1;
-static float maxX_dd = 1400;
-static double minY_dd = 5e-47;
-static double maxY_dd = 5e-34;
-
-static bool saveOutputFile = false;
+static float maxX_dd = 1200;
+static double minY_dd = 1e-47;
+static double maxY_dd = 1e-26;
+static int reductionForContour = 20;
+static bool saveOutputFile = true;
+static bool addPreliminary = false;
 
 TGraph* superCDMS();
 TGraph* lux();
 TGraph* cdmslite();
 TGraph* panda();
+TGraph* xenon();
 TGraph* cresst();
+TGraph* neutrino_floor();
 
+//////
 void plotVector_DD (string inputFileName, string outputDirectory, string coupling = "025", string energy = "13") {
 
   gROOT->SetBatch(kTRUE);
@@ -92,22 +130,70 @@ void plotVector_DD (string inputFileName, string outputDirectory, string couplin
   tree->SetBranchAddress("mh",&mh);
   tree->SetBranchAddress("limit",&limit);
   tree->SetBranchAddress("quantileExpected",&quantile);
+
+  // find bad limits
+  int currentmedmass = -1;
+  int currentdmmass  = -1;
+  int npoints = 0;
+  vector<pair<int,int> > goodMassPoint;
+  for(int i = 0; i < tree->GetEntries(); i++){
+    tree->GetEntry(i);
+
+    int c       = code(mh);
+    int medmass = mmed(mh, c);
+    int dmmass  = mdm(mh, c);
+
+    if(medmass != currentmedmass or dmmass != currentdmmass){
+      if(npoints == 6)
+        goodMassPoint.push_back(pair<int,int>(currentmedmass,currentdmmass));
+      npoints = 0;
+      currentmedmass = medmass;
+      currentdmmass  = dmmass;
+      npoints++;
+    }
+    else
+      npoints++;
+  }
+
+  if(npoints == 6)
+    goodMassPoint.push_back(pair<int,int>(currentmedmass,currentdmmass));
+
   
   int expcounter = 0;
   int obscounter = 0;
+  double minmass = 100000;
 
+  // main loop
   for (int i = 0; i < tree->GetEntries(); i++){
     
     tree->GetEntry(i);
     
     if (quantile != 0.5 && quantile != -1) continue;
+
     int c       = code(mh);
     int medmass = mmed(mh,c);
     int dmmass  = mdm(mh,c);
-    //for cosmetic reasons
-    if(medmass >  1400 and dmmass >= 150 and dmmass <= 350) continue;
-    if(medmass == 2500 and dmmass <= 50) continue;
 
+    bool isGoodMassPoint = false;
+    for(auto mass : goodMassPoint){
+      if(medmass == mass.first and dmmass == mass.second){
+        isGoodMassPoint = true;
+        break;
+      }
+    }
+    if(not isGoodMassPoint){ // printout bad limits                                                                                                                                                 
+      cout<<"Bad limit value: medmass "<<medmass<<" dmmass "<<dmmass<<endl;
+      continue;
+    }
+
+    // remove some point by hand                                                                                                                                                                    
+    if(medmass == 1800 and (dmmass == 200 or dmmass == 250 or dmmass == 350 or dmmass == 400 or dmmass == 800)) continue;
+    if(medmass == 1725 and (dmmass == 200 or dmmass > 700)) continue;
+    if(medmass == 1525 and dmmass > 600) continue;
+    if(medmass == 1125 and dmmass > 600) continue;
+    if(medmass == 600  and dmmass == 350) continue;
+    if(medmass == 525  and dmmass == 275) continue;
+    
     if (quantile == 0.5) {
       expcounter++;
       grexp->SetPoint(expcounter, double(medmass), double(dmmass), limit);
@@ -115,6 +201,7 @@ void plotVector_DD (string inputFileName, string outputDirectory, string couplin
     if (quantile == -1) {
       obscounter++;
       grobs->SetPoint(obscounter, double(medmass), double(dmmass), limit);
+      if(medmass <= minmass) minmass = medmass;
     }
   }
   tree->ResetBranchAddresses();
@@ -131,10 +218,27 @@ void plotVector_DD (string inputFileName, string outputDirectory, string couplin
     }
   }
 
+  // fix mass points below min med mass generated                                                                                                                                                    
+  for (int i = 1; i   <= nbinsX; i++) {
+    for (int j = 1; j <= nbinsY; j++) {
+      if(hexp->GetXaxis()->GetBinCenter(i) < minmass){
+        hexp->SetBinContent(i,j,hexp->GetBinContent(hexp->FindBin(minmass,hexp->GetYaxis()->GetBinCenter(j))));
+        hobs->SetBinContent(i,j,hobs->GetBinContent(hobs->FindBin(minmass,hobs->GetYaxis()->GetBinCenter(j))));
+      }
+    }
+  }
+
   for(int i = 0; i < nbinsX; i++){
     for(int j = 0; j < nbinsY; j++){
+
       if(hexp -> GetBinContent(i,j) <= 0) hexp->SetBinContent(i,j,maxZ);
       if(hobs -> GetBinContent(i,j) <= 0) hobs->SetBinContent(i,j,maxZ);
+
+      if(hexp -> GetBinContent(i,j) > maxZ) hexp->SetBinContent(i,j,maxZ);
+      if(hobs -> GetBinContent(i,j) > maxZ) hobs->SetBinContent(i,j,maxZ);
+
+      if(hexp -> GetBinContent(i,j) < minZ) hexp->SetBinContent(i,j,minZ);
+      if(hobs -> GetBinContent(i,j) < minZ) hobs->SetBinContent(i,j,minZ);
     }
   }
 
@@ -143,126 +247,94 @@ void plotVector_DD (string inputFileName, string outputDirectory, string couplin
   
   TH2* hexp2 = (TH2*)hexp->Clone("hexp2");
   TH2* hobs2 = (TH2*)hobs->Clone("hobs2");
-  
-  hexp2->SetContour(2);
-  hexp2->SetContourLevel(1, 1);
-  hobs2->SetContour(2);
-  hobs2->SetContourLevel(1, 1);
-  
+
+  //////////                                                                                                                                                                                         
+  double contours[1]; contours[0]=1;
+  hexp2->SetContour(1,contours);
+  hobs2->SetContour(1,contours);
+
   hexp2->Draw("contz list");
   gPad->Update();
-  
-  TObjArray *lContoursE = (TObjArray*) gROOT->GetListOfSpecials()->FindObject("contours");
-  std::vector<double> lXE;
-  std::vector<double> lYE;
-  int lTotalContsE = lContoursE->GetSize();
-  for(int i0 = 0; i0 < lTotalContsE; i0++){
-    TList * pContLevel = (TList*)lContoursE->At(i0);
-    TGraph *pCurv = (TGraph*)pContLevel->First();
-    for(int i1 = 0; i1 < pContLevel->GetSize(); i1++){
-      for(int i2  = 0; i2 < pCurv->GetN(); i2++) {
-	lXE.push_back(pCurv->GetX()[i2]); 
-	lYE.push_back(pCurv->GetY()[i2]);
-            }
-      pCurv->SetLineColor(kRed);                                                                                                            
-      pCurv = (TGraph*)pContLevel->After(pCurv);                                                                                        
-    }
-  }
-  if(lXE.size() == 0) {
-    lXE.push_back(0); 
-    lYE.push_back(0); 
-  }
 
-  TGraph *lTotalE = new TGraph(lXE.size(),&lXE[0],&lYE[0]);  
-  lTotalE->SetLineColor(1);
+  
+  TGraph* lTotalE = produceContour(reductionForContour);
+  lTotalE->SetLineColor(kBlack);
+  lTotalE->SetLineStyle(2);
   lTotalE->SetLineWidth(3);
 
   hobs2->Draw("contz list");
   gPad->Update();
-  
-  TObjArray *lContours = (TObjArray*) gROOT->GetListOfSpecials()->FindObject("contours");
-  std::vector<double> lX;
-  std::vector<double> lY;
-  int lTotalConts = lContours->GetSize();
-  for(int i0 = 0; i0 < lTotalConts; i0++){
-    TList * pContLevel = (TList*)lContours->At(i0);
-    TGraph *pCurv = (TGraph*)pContLevel->First();
-    for(int i1 = 0; i1 < pContLevel->GetSize(); i1++){
-      for(int i2  = 0; i2 < pCurv->GetN(); i2++) {
-	lX.push_back(pCurv->GetX()[i2]);
-	lY.push_back(pCurv->GetY()[i2]);
-      }
-      pCurv->SetLineColor(kRed);
-            pCurv = (TGraph*)pContLevel->After(pCurv);
-    }
-  }
-  if(lX.size() == 0) {
-    lX.push_back(0); 
-    lY.push_back(0); 
-  }
 
-  TGraph *lTotal = new TGraph(lX.size(),&lX[0],&lY[0]);  
-  lTotal->SetLineColor(1);
+  TGraph* lTotal = produceContour(reductionForContour);
+  lTotal->SetLineColor(kRed);
   lTotal->SetLineWidth(3);
-  
+    
   TGraph *DDE_graph = makeOBV(lTotalE);
   TGraph *DD_graph  = makeOBV(lTotal);
 
-  TCanvas* canvas = new TCanvas("canvas","canvas",750,600);
+  TCanvas* canvas = new TCanvas("canvas","canvas",600,625);
   canvas->SetLogx();
   canvas->SetLogy();
 
   TH1* frame = canvas->DrawFrame(minX_dd,minY_dd,maxX_dd,maxY_dd,"");
   frame->GetYaxis()->SetTitle("#sigma^{SI}_{DM-nucleon} [cm^{2}]");
   frame->GetXaxis()->SetTitle("m_{DM} [GeV]");
-  frame->GetXaxis()->SetLabelSize(0.035);
-  frame->GetYaxis()->SetLabelSize(0.035);
-  frame->GetXaxis()->SetTitleSize(0.045);
-  frame->GetYaxis()->SetTitleSize(0.045);
-  frame->GetYaxis()->SetTitleOffset(1.25);
+  frame->GetXaxis()->SetLabelSize(0.032);
+  frame->GetYaxis()->SetLabelSize(0.032);
+  frame->GetXaxis()->SetTitleSize(0.042);
+  frame->GetYaxis()->SetTitleSize(0.042);
+  frame->GetYaxis()->SetTitleOffset(1.65);
   frame->GetXaxis()->SetTitleOffset(1.15);
   frame->GetYaxis()->CenterTitle();
   frame->Draw();
 
   TGraph *lM0 = lux();
   TGraph *lM1 = cdmslite();
-  TGraph *lM2 = panda();
+  TGraph *lM2 = xenon();
   TGraph *lM3 = cresst();
+  TGraph *lM4 = neutrino_floor();
 
   lM0->SetLineColor(kBlue);
   lM1->SetLineColor(kBlue+2);
   lM2->SetLineColor(kAzure+1);
   lM3->SetLineColor(kAzure+8);
+  lM4->SetLineColor(kGreen+2);
 
   lM0->Draw("L SAME");
   lM1->Draw("L SAME");
   lM2->Draw("L SAME");
   lM3->Draw("L SAME");
+  //lM4->Draw("L SAME");
 
-  DDE_graph->SetLineColor(kRed);
-  DD_graph->SetLineColor(kBlack);
   DDE_graph->Draw("L SAME");
   DD_graph->Draw("L SAME");
 
-  gPad->SetRightMargin(0.28);
+  //gPad->SetRightMargin(0.28);
+  gPad->SetLeftMargin(0.15);
   gPad->RedrawAxis();
   gPad->Modified();
   gPad->Update();
 
-  TLegend *leg = new TLegend(0.75,0.45,0.97,0.72,NULL,"brNDC");
+  TLegend *leg = new TLegend(0.22,0.60,0.80,0.78,NULL,"brNDC");
   leg->SetFillStyle(0);
   leg->SetBorderSize(0);
   leg->SetFillColor(0);
+  leg->SetNColumns(2);
   leg->AddEntry(DDE_graph,"CMS exp. 90% CL","L");
   leg->AddEntry(DD_graph ,"CMS obs. 90% CL","L");
   leg->AddEntry(lM0 ,"LUX","L");
   leg->AddEntry(lM1 ,"CDMSLite","L");
-  leg->AddEntry(lM2 ,"Panda-X II","L");
+  leg->AddEntry(lM2 ,"Xenon-1T","L");
   leg->AddEntry(lM3 ,"CRESST-II","L");
+  //leg->AddEntry(lM4 ,"Neutrino floor","L");
   leg->Draw("SAME");
 
-  CMS_lumi(canvas,"35.9",false,true,false,0,-0.22);
+  if(addPreliminary)
+    CMS_lumi(canvas,"35.9",false,false,false,0.05,0);
+  else
+    CMS_lumi(canvas,"35.9",false,true,false,0.05,0);
 
+  canvas->RedrawAxis("samesaxis");
 
   TLatex * tex = new TLatex();
   tex->SetNDC();
@@ -270,14 +342,10 @@ void plotVector_DD (string inputFileName, string outputDirectory, string couplin
   tex->SetLineWidth(2);
   tex->SetTextSize(0.030);
   tex->Draw();
-  if (coupling == "1"){
-    tex->DrawLatex(0.75,0.82,"#bf{Vector med, Dirac DM,}");
-    tex->DrawLatex(0.75,0.78,"#bf{g_{q} = 1, g_{DM} = 1}");
-  }
-  else{
-    tex->DrawLatex(0.75,0.82,"#bf{Vector med, Dirac DM,}");
-    tex->DrawLatex(0.75,0.78,"#bf{g_{q} = 0.25, g_{DM} = 1}");
-  }
+  if (coupling == "1")
+    tex->DrawLatex(0.225,0.81,"#bf{Vector med, Dirac DM, g_{q} = 1, g_{DM} = 1}");
+  else
+    tex->DrawLatex(0.225,0.81,"#bf{Vector med, Dirac DM, g_{q} = 0.25, g_{DM} = 1}");
     
   ///////                                                                                                                                                                                             
   canvas->SaveAs((outputDirectory+"/scanDD_vector_g"+coupling+"_"+energy+"TeV_v1.pdf").c_str(),"pdf");
@@ -285,11 +353,13 @@ void plotVector_DD (string inputFileName, string outputDirectory, string couplin
   
   if(saveOutputFile){
 
-    TFile*outfile = new TFile(("vector_g"+coupling+"_DD.root").c_str(),"RECREATE");
-    DDE_graph->SetName("expected");
-    DD_graph->SetName("observed");
-    DDE_graph->Write();
-    DD_graph->Write();
+    TFile*outfile = new TFile((outputDirectory+"/vector_g"+coupling+"_DD.root").c_str(),"RECREATE");
+    //hobs2->Write("contour_obs");
+    //hexp2->Write("contour_exp");
+    lTotalE->Write("contour_exp_graph");
+    lTotal->Write("contour_obs_graph");
+    DDE_graph->Write("expected_dd");
+    DD_graph->Write("observed_dd");
     outfile->Write();
     outfile->Close();
   }
@@ -508,4 +578,119 @@ TGraph *lux(){
   lLimit->SetLineWidth(3.);
   return lLimit;
     
+}
+
+TGraph* neutrino_floor(){
+
+  int i0 = -1;
+  double *lX = new double[1000];
+  double *lY = new double[1000];
+  
+  i0++; lX[i0] = 0.30482158919260427; lY[i0] = 6.299697963699192e-44;
+  i0++; lX[i0] = 0.3603946561512068;  lY[i0] =  4.0949150623804635e-44;
+  i0++; lX[i0] = 0.43984751685789686; lY[i0] = 5.779692884153241e-44;
+  i0++; lX[i0] = 0.5200746924731524; lY[i0] =  4.4633389000179914e-44;
+  i0++; lX[i0] = 0.6411993957422804; lY[i0] =  2.7789296403176915e-44;
+  i0++; lX[i0] = 0.7988323339256767; lY[i0] =  1.5873776897913385e-44;
+  i0++; lX[i0] = 1.0162579107120813; lY[i0] =  8.318940674880885e-45;
+  i0++; lX[i0] = 1.2793860690880594; lY[i0] =  4.3596917354484964e-45;
+  i0++; lX[i0] = 1.7516637252854315; lY[i0] =  2.958614867885203e-45;
+  i0++; lX[i0] = 2.2289068055528998; lY[i0] =  2.5999559286685708e-45;
+  i0++; lX[i0] = 2.8964966553873484; lY[i0] =  2.833876712454476e-45;
+  i0++; lX[i0] = 4.268822489777; lY[i0] =      3.999823395608993e-45;
+  i0++; lX[i0] = 5.724444577448171; lY[i0] =   4.1758827810524175e-45;
+  i0++; lX[i0] = 6.839499775885055; lY[i0] =   2.833876712454476e-45;
+  i0++; lX[i0] = 8.17073546776026; lY[i0] =    1.4225293134853725e-45;
+  i0++; lX[i0] = 8.97476948447229; lY[i0] =    4.845896673409914e-46;
+  i0++; lX[i0] = 9.25839860916086; lY[i0] =    2.2317187169684525e-46;
+  i0++; lX[i0] = 9.550140289895431; lY[i0] =   8.286427728546935e-47;
+  i0++; lX[i0] = 9.851777264155823; lY[i0] =   3.6553180422141624e-47;
+  i0++; lX[i0] = 10.162941309378429; lY[i0] =  1.612437883662069e-47;
+  i0++; lX[i0] = 10.484120160024952; lY[i0] =  7.425886368281569e-48;
+  i0++; lX[i0] = 10.814485589904205; lY[i0] =  2.7572502862167695e-48;
+  i0++; lX[i0] = 11.157050406504503; lY[i0] =  1.5085907086001826e-48;
+  i0++; lX[i0] = 11.509440928960965; lY[i0] =  6.654711796333953e-49;
+  i0++; lX[i0] = 12.251893114554521; lY[i0] =  2.811768697974256e-49;;
+  i0++; lX[i0] = 14.637115109229152; lY[i0] =  1.5384196906973548e-49;
+  i0++; lX[i0] = 18.046079725235675; lY[i0] =  9.578390020327465e-50;
+  i0++; lX[i0] = 22.722595717571664; lY[i0] =  7.722449945836317e-50;
+  i0++; lX[i0] = 31.44380379973561; lY[i0] =   8.062367401460673e-50;
+  i0++; lX[i0] = 42.61450002802649; lY[i0] =   1.089971057280838e-49;
+  i0++; lX[i0] = 64.13479538097116; lY[i0] =   1.5384196906973548e-49;
+  i0++; lX[i0] = 96.52970659121127; lY[i0] =   2.5796728079999194e-49;
+  i0++; lX[i0] = 132.19839802285773; lY[i0] =  3.340484983513337e-49;
+  i0++; lX[i0] = 235.2858107825558; lY[i0] =   5.365273145287781e-49;
+  i0++; lX[i0] = 401.5785603427742; lY[i0] =   8.996666725006114e-49;
+  i0++; lX[i0] = 989.1533688824095; lY[i0] =   1.953513093877141e-48;
+  i0++; lX[i0] =  1488.6751897112276; lY[i0] =  2.7572502862167695e-48;
+  i0++; lX[i0] = 2312.1664768828095; lY[i0] =  4.6234480949599336e-48;
+  i0++; lX[i0] = 3516.4629174691013; lY[i0] =  6.525681155193038e-48;
+  i0++; lX[i0] = 4866.731114703792; lY[i0] =   9.210553176894823e-48;
+  i0++; lX[i0] = 6459.013016462642; lY[i0] =   1.3000066630116841e-47;
+  i0++; lX[i0] = 10031.23380395163; lY[i0] =   1.8348706005132336e-47;
+
+  TGraph *lLimit = new TGraph(i0,lX,lY);
+  lLimit->SetLineWidth(3.);
+  return lLimit;
+  
+ 
+}
+
+TGraph *xenon(){
+  
+  int i0 = -1;
+  double *lX = new double[1000];
+  double *lY = new double[1000];
+  
+  i0++; lX[i0] = 6.2662857571501345; lY[i0] = 8.543266059341143e-44;
+  i0++; lX[i0] = 6.546165237459862; lY[i0] = 6.138103229381494e-44;
+  i0++; lX[i0] = 6.779666254444859; lY[i0] = 4.273357542109263e-44;
+  i0++; lX[i0] = 7.083000795258592; lY[i0] = 2.837863178135969e-44;
+  i0++; lX[i0] = 7.464615600011724; lY[i0] = 1.826158468270242e-44;
+  i0++; lX[i0] = 7.9359351889724685; lY[i0] = 1.0861690808398076e-44;
+  i0++; lX[i0] = 8.364000229168054; lY[i0] = 6.562873255542149e-45;
+  i0++; lX[i0] = 9.047496326054578; lY[i0] = 4.028359352386536e-45;
+  i0++; lX[i0] = 9.787282397354216; lY[i0] = 2.358574357958542e-45;
+  i0++; lX[i0] = 10.773534028219355; lY[i0] = 1.2966432776590116e-45;
+  i0++; lX[i0] = 11.653761493745419; lY[i0] = 8.085228676856251e-46;
+  i0++; lX[i0] = 13.051491437918491; lY[i0] = 4.885273571519322e-46;
+  i0++; lX[i0] = 14.744023607773366; lY[i0] = 2.9986313485755303e-46;
+  i0++; lX[i0] = 16.94685704302921; lY[i0] = 1.929612418460103e-46;
+  i0++; lX[i0] = 19.309090031421555; lY[i0] = 1.3433993325988877e-46;
+  i0++; lX[i0] = 21.99798577079349; lY[i0] = 1.0608183551394396e-46;
+  i0++; lX[i0] = 25.498135022600614; lY[i0] = 9.062853448588874e-47;
+  i0++; lX[i0] = 29.81276216010585; lY[i0] = 7.742636826811214e-47;
+  i0++; lX[i0] = 34.85334634119006; lY[i0] = 7.502632520822492e-47;
+  i0++; lX[i0] = 42.366398703467055; lY[i0] = 7.681925401780325e-47;
+  i0++; lX[i0] = 49.31031717163866; lY[i0] = 8.245923781774311e-47;
+  i0++; lX[i0] = 58.65047988876358; lY[i0] = 8.921283702446966e-47;
+  i0++; lX[i0] = 70.36461542082742; lY[i0] = 1.0118781198504426e-46;
+  i0++; lX[i0] = 83.68907499954075; lY[i0] = 1.147701792233362e-46;
+  i0++; lX[i0] = 102.15715500762107; lY[i0] = 1.3647174196395528e-46;
+  i0++; lX[i0] = 127.98931328428989; lY[i0] = 1.622767907196007e-46;
+  i0++; lX[i0] = 154.8790045783498; lY[i0] = 1.9913394573407126e-46;
+  i0++; lX[i0] = 200.88081263549006; lY[i0] = 2.5618105424761687e-46;
+  i0++; lX[i0] = 249.49149885765476; lY[i0] = 3.193548412908898e-46;
+  i0++; lX[i0] = 315.2849237925243; lY[i0] = 4.044246393116117e-46;
+  i0++; lX[i0] = 391.58580600176094; lY[i0] = 4.962796825169922e-46;
+  i0++; lX[i0] = 490.57577025301464; lY[i0] = 6.284787504342158e-46;
+  i0++; lX[i0] = 583.4467421081572; lY[i0] = 7.473159878245431e-46;
+  i0++; lX[i0] = 687.904332649574; lY[i0] = 8.886238162743408e-46;
+  i0++; lX[i0] = 892.2373394747145; lY[i0] = 1.1253355826007646e-45;
+  i0++; lX[i0] = 1167.2979372125035; lY[i0] = 1.494028817264169e-45;
+  i0++; lX[i0] = 1437.2660133277113; lY[i0] = 1.8333604707298815e-45;
+  i0++; lX[i0] = 1754.3565126041958; lY[i0] = 2.2854638641349838e-45;
+  i0++; lX[i0] = 2197.877322459486; lY[i0] = 2.849055140905999e-45;
+  i0++; lX[i0] = 2826.141743698262; lY[i0] = 3.5516270124862015e-45;
+  i0++; lX[i0] = 3665.501539159193; lY[i0] = 4.6415888336127535e-45;
+  i0++; lX[i0] = 4552.440310089992; lY[i0] = 5.878016072274875e-45;
+  i0++; lX[i0] = 5753.050071199337; lY[i0] = 7.327524259667632e-45;
+  i0++; lX[i0] = 6961.778709595096; lY[i0] = 8.921283702446965e-45;
+  i0++; lX[i0] = 8497.879610544662; lY[i0] = 1.0861690808398076e-44;
+  i0++; lX[i0] = 9594.342745086236; lY[i0] = 1.2319647754934755e-44;
+
+  TGraph *lLimit = new TGraph(i0,lX,lY);
+  lLimit->SetLineWidth(3.);
+  return lLimit;
+
 }

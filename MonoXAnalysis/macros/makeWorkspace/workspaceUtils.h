@@ -380,10 +380,12 @@ void makeConnectedBinList(string procname,  // name to be used to fill the works
 
     // bin [i] (CR) = bin [i] (SR) /( Rbin [i] *(1+RhistError[i]/Rbin[i]*Rbin_Err[i] )) --> statstical uncertainty                                                         
     stringstream formss;
+    if(applyUncertaintyOnNumerator)
+      formss << "(";
     formss << "@0/";
-    formss << "(";
-    formss << "@1";
-
+    if(not applyUncertaintyOnNumerator)
+      formss << "(";
+    formss << "@1";    
     if(applyUncertaintyOnNumerator)
       formss << ")";
 

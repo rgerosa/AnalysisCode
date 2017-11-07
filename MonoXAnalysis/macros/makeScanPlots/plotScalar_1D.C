@@ -36,7 +36,12 @@ int code(double mh){
     return (int)(mh/100000000);
 }
 
-void plotScalar_1D(string inputFileName, string outputDIR, int dmMass = 1, string coupling = "025",string postfix = "COMB") {
+/////
+static bool addPreliminary = false;
+static bool saveOutputFile = true;
+static bool addICHEPContours = false;
+
+void plotScalar_1D(string inputFileName, string outputDIR, int dmMass = 1, bool isDMF = false, string coupling = "1",string postfix = "COMB") {
   
   system(("mkdir -p "+outputDIR).c_str());
   gROOT->SetBatch(kTRUE);
@@ -67,7 +72,7 @@ void plotScalar_1D(string inputFileName, string outputDIR, int dmMass = 1, strin
   TGraph* grexp_2sigma_up   = new TGraphErrors();
   TGraph* grexp_1sigma_dw   = new TGraphErrors();
   TGraph* grexp_2sigma_dw   = new TGraphErrors();
-  
+
   double mh;
   double limit;
   float  quantile;
@@ -83,8 +88,8 @@ void plotScalar_1D(string inputFileName, string outputDIR, int dmMass = 1, strin
   int exp_down_counter_2s = 0;
   int obscounter          = 0;
 
-  int medMin = 100000;
-  int medMax = 0;
+  double medMin = 100000;
+  double medMax = 0;
 
   cout<<"Loop on the limit tree entries: mass points and quantiles "<<endl;
 
@@ -96,29 +101,35 @@ void plotScalar_1D(string inputFileName, string outputDIR, int dmMass = 1, strin
     int medmass  = mmed(mh,c);
     int dmmass   = mdm(mh,c);
     
+    // for plotting reasons --> smooth plot
     if (medmass < 2* dmmass) continue; // skip off-shell points
     if (dmmass != dmMass) continue; // skip points not belonging to the selected DM mass
-
-    // for plotting reasons
     if (medmass > 600) continue;
-    if (medmass == 90) continue;
-    
-    // fill expected limit graph
-    if (quantile == 0.5) {
 
+    // fill expected limit graph
+    if(quantile != -1 and not isDMF){
+      if (medmass == 30  and dmmass == 1) continue;
+      if (medmass == 100 and dmmass == 1) continue;
+      if (medmass == 125 and dmmass == 1) continue;
+      if (medmass == 315 and dmmass == 1) continue;
+    }
+    else if (quantile == -1 and not isDMF) {      
+      if (medmass == 40  and dmmass == 1) continue;
+      if (medmass == 175 and dmmass == 1) continue;
+      if (medmass == 315 and dmmass == 1) continue;
+    }
+
+    if (quantile == 0.5) {      
       grexp->SetPoint(expcounter, double(medmass), limit);
       expcounter++;
       // find max and min for frame
       if(medmass < medMin)
 	medMin = medmass;
-
       if(medmass > medMax)
-	medMax = medmass;
-
+	medMax = medmass;      
       medMassList.push_back(medmass);
     }
-
-    else if (quantile == -1) {      
+    else if (quantile == -1){
       grobs->SetPoint(obscounter, double(medmass), limit);
       obscounter++;
     }
@@ -146,11 +157,18 @@ void plotScalar_1D(string inputFileName, string outputDIR, int dmMass = 1, strin
     }    
   }
 
-  //cout<<"Found: NexpLim "<<expcounter<<" NObsLim "<<obscounter<<" 1sigmaUp "<<exp_up_counter_1s<<" 1sigmaDw "<<exp_down_counter_1s<<" 2sigmaUp "<<exp_up_counter_2s<<" 2sigmDw "<<exp_up_counter_2s<<" for mDM "<<dmMass<<" medMin "<<medMin<<" medMax "<<medMax<<endl;
-
   tree->ResetBranchAddresses();
 
-  // Make 1 and 2 sigma brazilian bands
+  //// make a spline
+  TSpline3 *splineexp = new TSpline3("splineexp",grexp->GetX(),grexp->GetY(),grexp->GetN());
+  splineexp->SetLineColor(kBlack);
+  splineexp->SetLineStyle(7);
+  splineexp->SetLineWidth(2);
+
+  TSpline3 *splineobs = new TSpline3("splineobs",grobs->GetX(),grobs->GetY(),grobs->GetN());
+  splineobs->SetLineColor(kBlack);
+  splineobs->SetLineWidth(2);
+
   TGraphAsymmErrors* graph_1sigma_band = new TGraphAsymmErrors();
   TGraphAsymmErrors* graph_2sigma_band = new TGraphAsymmErrors();
 
@@ -212,45 +230,69 @@ void plotScalar_1D(string inputFileName, string outputDIR, int dmMass = 1, strin
     return;
   }
   
+  
   //////////// All the plotting and cosmetics
-  TCanvas* canvas = new TCanvas("canvas", "canvas",600,600);
-  TH1* frame = canvas->DrawFrame(medMin,TMath::MinElement(graph_2sigma_band->GetN(),graph_2sigma_band->GetY())*0.5,
+  TCanvas* canvas = new TCanvas("canvas", "canvas",625,600);
+  TH1* frame = canvas->DrawFrame(min(medMin,0.),TMath::MinElement(graph_2sigma_band->GetN(),graph_2sigma_band->GetY())*0.5,
 				 medMax,TMath::MaxElement(graph_2sigma_band->GetN(),graph_2sigma_band->GetY())*1.5, "");
   frame->GetYaxis()->CenterTitle();
   frame->GetXaxis()->SetTitle("m_{med} [GeV]");
   frame->GetYaxis()->SetTitle("95%  CL upper limit on #sigma/#sigma_{theory}");
   frame->GetXaxis()->SetTitleOffset(1.15);
-  frame->GetYaxis()->SetTitleOffset(1.10);  
+  frame->GetYaxis()->SetTitleOffset(1.07);  
   frame->Draw();
-  CMS_lumi(canvas,"35.9");
+
+  if(not addPreliminary)
+    CMS_lumi(canvas,"35.9",false,true);
+  else
+    CMS_lumi(canvas,"35.9",false,false);
 
   graph_2sigma_band->SetFillColor(kOrange);
   graph_1sigma_band->SetFillColor(kGreen+1);
   graph_2sigma_band->SetLineColor(kOrange);
   graph_1sigma_band->SetLineColor(kGreen+1);
-  
+
   graph_2sigma_band->Draw("3same");
   graph_1sigma_band->Draw("3same");
 
-  grexp->SetLineColor(kBlack);
-  grexp->SetLineStyle(7);
-  grexp->SetLineWidth(2);
-  grexp->Draw("Csame");
+  TGraph* graph_obs_ichep = NULL;
+  TGraph* graph_exp_ichep = NULL;
+  if(addICHEPContours){
+    TFile* icheplines = TFile::Open("externalFiles/monojet_S_1D_ICHEP2016.root","READ");
+    graph_obs_ichep = (TGraph*) icheplines->Get("obs");
+    graph_obs_ichep->SetLineWidth(2);
+    graph_obs_ichep->SetLineStyle(1);
+    graph_obs_ichep->SetLineColor(kBlue);
+    graph_obs_ichep->Draw("Lsame");
+    graph_exp_ichep = (TGraph*) icheplines->Get("exp");
+    graph_exp_ichep->SetLineWidth(2);
+    graph_exp_ichep->SetLineStyle(7);
+    graph_exp_ichep->SetLineColor(kBlue);
+    graph_exp_ichep->Draw("Lsame");
+  }  
 
-  grobs->SetLineColor(kBlack);
-  grobs->SetLineWidth(2);
-  grobs->Draw("Csame");
+  splineexp->Draw("Lsame");
+  splineobs->Draw("Lsame");
 
-  TF1* line = new TF1 ("line","1",medMin,medMax);
+  TF1* line = new TF1 ("line","1",min(medMin,0.),medMax);
   line->SetLineColor(kRed);
   line->SetLineWidth(2);
   line->Draw("L same");
 
-  TLegend *leg = new TLegend(0.175,0.5,0.57,0.77);  
-  leg->AddEntry(grobs,"Observed 95% CL","L");
-  leg->AddEntry(grexp,"Median expected 95% CL","L");
+  TLegend *leg = NULL;
+  if(not addICHEPContours)
+    leg = new TLegend(0.175,0.5,0.57,0.77);  
+  else
+    leg = new TLegend(0.175,0.45,0.57,0.77);  
+
+  leg->AddEntry(splineexp,"Median expected 95% CL","L");
+  leg->AddEntry(splineobs,"Observed 95% CL","L");
   leg->AddEntry(graph_1sigma_band,"68% expected","F");
   leg->AddEntry(graph_2sigma_band,"95% expected","F");
+  if(addICHEPContours){
+    leg->AddEntry(graph_obs_ichep,"EXO-16-037 observed","L");
+    leg->AddEntry(graph_exp_ichep,"EXO-16-037 expected","L");  
+  }
   leg->AddEntry(line,"#mu = 1","L");
   leg->SetFillColor(0);
   leg->SetFillStyle(0);
@@ -264,9 +306,9 @@ void plotScalar_1D(string inputFileName, string outputDIR, int dmMass = 1, strin
   tex->SetTextSize(0.030);
   tex->Draw();
   if (coupling == "1")
-    tex->DrawLatex(0.175,0.80,("#bf{Scalar med, Dirac DM, m_{med} = "+to_string(dmMass)+" GeV g_{q} = 1, g_{DM} = 1}").c_str());
+    tex->DrawLatex(0.175,0.80,("#bf{Scalar med, Dirac DM, m_{DM} = "+to_string(dmMass)+" GeV g_{q} = 1, g_{DM} = 1}").c_str());
   else
-    tex->DrawLatex(0.175,0.80,("#bf{Scalar med, Dirac DM, m_{med} = "+to_string(dmMass)+" GeV g_{q} = 0.25, g_{DM} = 1}").c_str());
+    tex->DrawLatex(0.175,0.80,("#bf{Scalar med, Dirac DM, m_{DM} = "+to_string(dmMass)+" GeV g_{q} = 0.25, g_{DM} = 1}").c_str());
   
   gPad->RedrawAxis();
   gPad->Modified(); 
@@ -275,11 +317,19 @@ void plotScalar_1D(string inputFileName, string outputDIR, int dmMass = 1, strin
   frame->GetYaxis()->SetRangeUser(0,6);
   canvas->SaveAs((outputDIR+"/scan_scalar_1D_dmMass_"+to_string(dmMass)+"_g"+string(coupling)+"_"+postfix+".pdf").c_str(),"pdf");
   canvas->SaveAs((outputDIR+"/scan_scalar_1D_dmMass_"+to_string(dmMass)+"_g"+string(coupling)+"_"+postfix+".png").c_str(),"png");
-  canvas->SaveAs((outputDIR+"/scan_scalar_1D_dmMass_"+to_string(dmMass)+"_g"+string(coupling)+"_"+postfix+".C").c_str(),"C");
 
   canvas->SetLogy();
   frame->GetYaxis()->SetRangeUser(TMath::MinElement(graph_2sigma_band->GetN(),graph_2sigma_band->GetY())*0.01,
 				  TMath::MaxElement(graph_2sigma_band->GetN(),graph_2sigma_band->GetY())*100);
   canvas->SaveAs((outputDIR+"/scan_scalar_1D_dmMass_"+to_string(dmMass)+"_g"+string(coupling)+"_"+postfix+"_log.pdf").c_str(),"pdf");
   canvas->SaveAs((outputDIR+"/scan_scalar_1D_dmMass_"+to_string(dmMass)+"_g"+string(coupling)+"_"+postfix+"_log.png").c_str(),"png");
+
+  if(saveOutputFile){
+    TFile* outputFile = new TFile((outputDIR+"/limit_scalar_1D.root").c_str(),"RECREATE");
+    outputFile->cd();
+    splineexp->Write("expected_limit");
+    splineobs->Write("observed_limit");
+    outputFile->Close();
+  }
+
 }
