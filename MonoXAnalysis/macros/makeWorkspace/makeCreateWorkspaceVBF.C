@@ -191,6 +191,20 @@ void makeCreateWorkspaceVBF(string   inputName,                        // input 
     RooArgList wln_SR_bins;
     RooArgList wln_ewk_SR_bins;
 
+    RooRealVar* wln_SR_re1 = new RooRealVar("ZW_QCD_SR_RenScale1",""  ,0.,-5.,5.);
+    RooRealVar* wln_SR_fa1 = new RooRealVar("ZW_QCD_SR_FactScale1","" ,0.,-5.,5.);
+    RooRealVar* wln_SR_re2 = new RooRealVar("ZW_QCD_SR_RenScale2",""  ,0.,-5.,5.);
+    RooRealVar* wln_SR_fa2 = new RooRealVar("ZW_QCD_SR_FactScale2","" ,0.,-5.,5.);
+    RooRealVar* wln_SR_pdf = new RooRealVar("ZW_QCD_SR_PDF",""        ,0.,-5.,5.);
+    RooRealVar* wln_SR_ewk = new RooRealVar(("ZW_QCD_SR_"+suffix+"_EWK").c_str(),"",0.,-5.,5.);
+    
+    RooRealVar* wln_ewk_SR_re1 = new RooRealVar("ZW_EWK_SR_RenScale1",""  ,0.,-5.,5.);
+    RooRealVar* wln_ewk_SR_fa1 = new RooRealVar("ZW_EWK_SR_FactScale1","" ,0.,-5.,5.);
+    RooRealVar* wln_ewk_SR_re2 = new RooRealVar("ZW_EWK_SR_RenScale2",""  ,0.,-5.,5.);
+    RooRealVar* wln_ewk_SR_fa2 = new RooRealVar("ZW_EWK_SR_FactScale2","" ,0.,-5.,5.);
+    RooRealVar* wln_ewk_SR_pdf = new RooRealVar("ZW_EWK_SR_PDF",""        ,0.,-5.,5.);
+    RooRealVar* wln_ewk_SR_ewk = new RooRealVar(("ZW_EWK_SR_"+suffix+"_EWK").c_str(),"",0.,-5.,5.);
+    
 
     if(not splitEWKQCD){ // summing them up
 
@@ -201,20 +215,6 @@ void makeCreateWorkspaceVBF(string   inputName,                        // input 
 	makeBinList("WJets_SR_"+suffix,*met,wspace_SR,wln_SR_total_hist,wln_SR_bins,true);      
       else{
       
-	RooRealVar* wln_SR_re1 = new RooRealVar("ZW_QCD_SR_RenScale1",""  ,0.,-5.,5.);
-	RooRealVar* wln_SR_fa1 = new RooRealVar("ZW_QCD_SR_FactScale1","" ,0.,-5.,5.);
-	RooRealVar* wln_SR_re2 = new RooRealVar("ZW_QCD_SR_RenScale2",""  ,0.,-5.,5.);
-	RooRealVar* wln_SR_fa2 = new RooRealVar("ZW_QCD_SR_FactScale2","" ,0.,-5.,5.);
-	RooRealVar* wln_SR_pdf = new RooRealVar("ZW_QCD_SR_PDF",""        ,0.,-5.,5.);
-	RooRealVar* wln_SR_ewk = new RooRealVar(("ZW_QCD_SR_"+suffix+"_EWK").c_str(),"",0.,-5.,5.);
-
-	RooRealVar* wln_ewk_SR_re1 = new RooRealVar("ZW_EWK_SR_RenScale1",""  ,0.,-5.,5.);
-	RooRealVar* wln_ewk_SR_fa1 = new RooRealVar("ZW_EWK_SR_FactScale1","" ,0.,-5.,5.);
-	RooRealVar* wln_ewk_SR_re2 = new RooRealVar("ZW_EWK_SR_RenScale2",""  ,0.,-5.,5.);
-	RooRealVar* wln_ewk_SR_fa2 = new RooRealVar("ZW_EWK_SR_FactScale2","" ,0.,-5.,5.);
-	RooRealVar* wln_ewk_SR_pdf = new RooRealVar("ZW_EWK_SR_PDF",""        ,0.,-5.,5.);
-	RooRealVar* wln_ewk_SR_ewk = new RooRealVar(("ZW_EWK_SR_"+suffix+"_EWK").c_str(),"",0.,-5.,5.);
-
 	vector<pair<RooRealVar*,TH1*> > wln_SR_syst;
 
 	// V-EWK part
@@ -310,21 +310,6 @@ void makeCreateWorkspaceVBF(string   inputName,                        // input 
 	makeBinList("WJets_EWK_SR_"+suffix,*met,wspace_SR,wln_ewk_SR_hist,wln_ewk_SR_bins,true);
       }
       else{
-	// uncertainty on Z/W QCD ratio
-	RooRealVar* wln_SR_re1 = new RooRealVar("ZW_QCD_SR_RenScale1",""  ,0.,-5.,5.);
-	RooRealVar* wln_SR_fa1 = new RooRealVar("ZW_QCD_SR_FactScale1","" ,0.,-5.,5.);
-	RooRealVar* wln_SR_re2 = new RooRealVar("ZW_QCD_SR_RenScale2",""  ,0.,-5.,5.);
-	RooRealVar* wln_SR_fa2 = new RooRealVar("ZW_QCD_SR_FactScale2","" ,0.,-5.,5.);
-	RooRealVar* wln_SR_pdf = new RooRealVar("ZW_QCD_SR_PDF",""        ,0.,-5.,5.);
-	RooRealVar* wln_SR_ewk = new RooRealVar(("ZW_QCD_SR_"+suffix+"_EWK").c_str(),"",0.,-5.,5.);
-
-	// uncertainty on Z/W-EWK ratio
-	RooRealVar* wln_ewk_SR_re1 = new RooRealVar("ZW_EWK_SR_RenScale1",""  ,0.,-5.,5.);
-	RooRealVar* wln_ewk_SR_fa1 = new RooRealVar("ZW_EWK_SR_FactScale1","" ,0.,-5.,5.);
-	RooRealVar* wln_ewk_SR_re2 = new RooRealVar("ZW_EWK_SR_RenScale2",""  ,0.,-5.,5.);
-	RooRealVar* wln_ewk_SR_fa2 = new RooRealVar("ZW_EWK_SR_FactScale2","" ,0.,-5.,5.);
-	RooRealVar* wln_ewk_SR_pdf = new RooRealVar("ZW_EWK_SR_PDF",""        ,0.,-5.,5.);
-	RooRealVar* wln_ewk_SR_ewk = new RooRealVar(("ZW_EWK_SR_"+suffix+"_EWK").c_str(),"",0.,-5.,5.);
 
 	// set of correlated systematic uncertainties for the Z/W ratio
 	vector<pair<RooRealVar*,TH1*> > wln_ewk_SR_syst;
@@ -412,8 +397,7 @@ void makeCreateWorkspaceVBF(string   inputName,                        // input 
     RooWorkspace* wspace_WM = NULL;
     RooWorkspace* wspace_WE = NULL;
 
-    
-    
+        
     ////////////////////////////////////
     // -------- CR Di-Muon  -------- //
     /////////////////////////////////// 
@@ -591,6 +575,66 @@ void makeCreateWorkspaceVBF(string   inputName,                        // input 
       TH1F* denominator = (TH1F*) ((TH1F*) templatesfile->Get(("WM/vlbkghistwmn_"+observable).c_str()))->Clone(Form("denwmn_%s",observable.c_str()));
       denominator->Add((TH1F*) templatesfile->Get(("WM/ewkwbkghistwmn_"+observable).c_str()));
       numerator->Divide(denominator);
+
+      // V-EWK part                                                                                                                                                                                   
+      TH1* uncertaintyPartial = cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZW_RenScale1_"+observable).c_str()),scaleWZEWKUncertainty,"ZW_ewk_RenScale1_"+observable);
+      uncertaintyPartial->Multiply(numerator);
+      wln_WM_syst.push_back(pair<RooRealVar*,TH1*>(wln_ewk_SR_re1,uncertaintyPartial));
+
+      uncertaintyPartial = cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZW_FactScale1_"+observable).c_str()),scaleWZEWKUncertainty,"ZW_ewk_FactScale1_"+observable);
+      uncertaintyPartial->Multiply(numerator);
+      wln_WM_syst.push_back(pair<RooRealVar*,TH1*>(wln_ewk_SR_fa1,uncertaintyPartial));
+
+      uncertaintyPartial = cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZW_RenScale2_"+observable).c_str()),scaleWZEWKUncertainty,"ZW_ewk_RenScale2_"+observable);
+      uncertaintyPartial->Multiply(numerator);
+      wln_WM_syst.push_back(pair<RooRealVar*,TH1*>(wln_ewk_SR_re2,uncertaintyPartial));
+
+      uncertaintyPartial = cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZW_FactScale2_"+observable).c_str()),scaleWZEWKUncertainty,"ZW_ewk_FactScale2_"+observable);
+      uncertaintyPartial->Multiply(numerator);
+      wln_WM_syst.push_back(pair<RooRealVar*,TH1*>(wln_ewk_SR_fa2,uncertaintyPartial));
+
+      uncertaintyPartial = cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZW_PDF_"+observable).c_str()),scaleWZEWKUncertainty,"ZW_ewk_PDF_"+observable);
+      uncertaintyPartial->Multiply(numerator);
+      wln_WM_syst.push_back(pair<RooRealVar*,TH1*>(wln_ewk_SR_pdf,uncertaintyPartial));
+	
+      uncertaintyPartial = cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZW_EWK_"+observable).c_str()),scaleWZEWKUncertainty,"ZW_ewk_EWK_"+observable);
+      uncertaintyPartial->Multiply(numerator);
+
+      if(not correlateEWK)
+	wln_WM_syst.push_back(pair<RooRealVar*,TH1*>(NULL,uncertaintyPartial));
+      else
+	wln_WM_syst.push_back(pair<RooRealVar*,TH1*>(wln_ewk_SR_ewk,uncertaintyPartial));
+      
+
+      // V-QCD part
+      uncertaintyPartial = cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZW_RenScale1_"+observable).c_str()),scaleWZUncertainty,"");
+      uncertaintyPartial->Multiply(numerator);
+      wln_WM_syst.push_back(pair<RooRealVar*,TH1*>(wln_SR_re1,uncertaintyPartial));
+
+      uncertaintyPartial = cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZW_FactScale1_"+observable).c_str()),scaleWZUncertainty,"");
+      uncertaintyPartial->Multiply(numerator);
+      wln_WM_syst.push_back(pair<RooRealVar*,TH1*>(wln_SR_fa1,uncertaintyPartial));
+      
+      uncertaintyPartial = cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZW_RenScale2_"+observable).c_str()),scaleWZUncertainty,"");
+      uncertaintyPartial->Multiply(numerator);
+      wln_WM_syst.push_back(pair<RooRealVar*,TH1*>(wln_SR_re2,uncertaintyPartial));
+
+      uncertaintyPartial = cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZW_FactScale2_"+observable).c_str()),scaleWZUncertainty,"");
+      uncertaintyPartial->Multiply(numerator);
+      wln_WM_syst.push_back(pair<RooRealVar*,TH1*>(wln_SR_fa2,uncertaintyPartial));
+
+      uncertaintyPartial = cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZW_PDF_"+observable).c_str()),scaleWZUncertainty,"");
+      uncertaintyPartial->Multiply(numerator);
+      wln_WM_syst.push_back(pair<RooRealVar*,TH1*>(wln_SR_pdf,uncertaintyPartial));
+
+      uncertaintyPartial = cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZW_EWK_"+observable).c_str()),scaleWZUncertainty,"");
+      uncertaintyPartial->Multiply(numerator);
+      
+      if(not correlateEWK)
+	wln_WM_syst.push_back(pair<RooRealVar*,TH1*>(NULL,uncertaintyPartial));
+      else
+	wln_WM_syst.push_back(pair<RooRealVar*,TH1*>(wln_SR_ewk,uncertaintyPartial));
+      
       makeConnectedBinList("WJets_WM_"+suffix,*met,*wspace_WM,numerator,wln_WM_syst,wln_SR_bins,NULL,observable,applyUncertaintyOnNumerator);
       
     }
@@ -643,10 +687,70 @@ void makeCreateWorkspaceVBF(string   inputName,                        // input 
     else{
 
       vector<pair<RooRealVar*,TH1*> > wln_WE_syst;
-      TH1F* numerator = (TH1F*) wln_SR_total_hist->Clone(("wencorhist_"+observable).c_str());
-      TH1F* denominator = (TH1F*) ((TH1F*) templatesfile->Get(("WE/vlbkghistwen_"+observable).c_str()))->Clone(Form("denwen_%s",observable.c_str()));
-      denominator->Add((TH1F*) templatesfile->Get(("WE/ewkwbkghistwen_"+observable).c_str()));
+      TH1F* numerator = (TH1F*) wln_SR_total_hist->Clone(("wmncorhist_"+observable).c_str());
+      TH1F* denominator = (TH1F*) ((TH1F*) templatesfile->Get(("WE/vlbkghistwmn_"+observable).c_str()))->Clone(Form("denwmn_%s",observable.c_str()));
+      denominator->Add((TH1F*) templatesfile->Get(("WE/ewkwbkghistwmn_"+observable).c_str()));
       numerator->Divide(denominator);
+
+      // V-EWK part                                                                                                                                                                                   
+      TH1* uncertaintyPartial = cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZW_RenScale1_"+observable).c_str()),scaleWZEWKUncertainty,"ZW_ewk_RenScale1_"+observable);
+      uncertaintyPartial->Multiply(numerator);
+      wln_WE_syst.push_back(pair<RooRealVar*,TH1*>(wln_ewk_SR_re1,uncertaintyPartial));
+
+      uncertaintyPartial = cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZW_FactScale1_"+observable).c_str()),scaleWZEWKUncertainty,"ZW_ewk_FactScale1_"+observable);
+      uncertaintyPartial->Multiply(numerator);
+      wln_WE_syst.push_back(pair<RooRealVar*,TH1*>(wln_ewk_SR_fa1,uncertaintyPartial));
+
+      uncertaintyPartial = cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZW_RenScale2_"+observable).c_str()),scaleWZEWKUncertainty,"ZW_ewk_RenScale2_"+observable);
+      uncertaintyPartial->Multiply(numerator);
+      wln_WE_syst.push_back(pair<RooRealVar*,TH1*>(wln_ewk_SR_re2,uncertaintyPartial));
+
+      uncertaintyPartial = cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZW_FactScale2_"+observable).c_str()),scaleWZEWKUncertainty,"ZW_ewk_FactScale2_"+observable);
+      uncertaintyPartial->Multiply(numerator);
+      wln_WE_syst.push_back(pair<RooRealVar*,TH1*>(wln_ewk_SR_fa2,uncertaintyPartial));
+
+      uncertaintyPartial = cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZW_PDF_"+observable).c_str()),scaleWZEWKUncertainty,"ZW_ewk_PDF_"+observable);
+      uncertaintyPartial->Multiply(numerator);
+      wln_WE_syst.push_back(pair<RooRealVar*,TH1*>(wln_ewk_SR_pdf,uncertaintyPartial));
+	
+      uncertaintyPartial = cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZW_EWK_"+observable).c_str()),scaleWZEWKUncertainty,"ZW_ewk_EWK_"+observable);
+      uncertaintyPartial->Multiply(numerator);
+
+      if(not correlateEWK)
+	wln_WE_syst.push_back(pair<RooRealVar*,TH1*>(NULL,uncertaintyPartial));
+      else
+	wln_WE_syst.push_back(pair<RooRealVar*,TH1*>(wln_ewk_SR_ewk,uncertaintyPartial));
+      
+
+      // V-QCD part
+      uncertaintyPartial = cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZW_RenScale1_"+observable).c_str()),scaleWZUncertainty,"");
+      uncertaintyPartial->Multiply(numerator);
+      wln_WE_syst.push_back(pair<RooRealVar*,TH1*>(wln_SR_re1,uncertaintyPartial));
+
+      uncertaintyPartial = cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZW_FactScale1_"+observable).c_str()),scaleWZUncertainty,"");
+      uncertaintyPartial->Multiply(numerator);
+      wln_WE_syst.push_back(pair<RooRealVar*,TH1*>(wln_SR_fa1,uncertaintyPartial));
+      
+      uncertaintyPartial = cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZW_RenScale2_"+observable).c_str()),scaleWZUncertainty,"");
+      uncertaintyPartial->Multiply(numerator);
+      wln_WE_syst.push_back(pair<RooRealVar*,TH1*>(wln_SR_re2,uncertaintyPartial));
+
+      uncertaintyPartial = cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZW_FactScale2_"+observable).c_str()),scaleWZUncertainty,"");
+      uncertaintyPartial->Multiply(numerator);
+      wln_WE_syst.push_back(pair<RooRealVar*,TH1*>(wln_SR_fa2,uncertaintyPartial));
+
+      uncertaintyPartial = cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZW_PDF_"+observable).c_str()),scaleWZUncertainty,"");
+      uncertaintyPartial->Multiply(numerator);
+      wln_WE_syst.push_back(pair<RooRealVar*,TH1*>(wln_SR_pdf,uncertaintyPartial));
+
+      uncertaintyPartial = cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZW_EWK_"+observable).c_str()),scaleWZUncertainty,"");
+      uncertaintyPartial->Multiply(numerator);
+      
+      if(not correlateEWK)
+	wln_WE_syst.push_back(pair<RooRealVar*,TH1*>(NULL,uncertaintyPartial));
+      else
+	wln_WE_syst.push_back(pair<RooRealVar*,TH1*>(wln_SR_ewk,uncertaintyPartial));
+      
       makeConnectedBinList("WJets_WE_"+suffix,*met,*wspace_WE,numerator,wln_WE_syst,wln_SR_bins,NULL,observable,applyUncertaintyOnNumerator);
       
     }
