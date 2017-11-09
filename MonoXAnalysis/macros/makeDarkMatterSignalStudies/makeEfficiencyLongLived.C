@@ -47,8 +47,8 @@ void makeEfficiencyLongLived(string inputFileDIR,
 			     Category category,
 			     float lumi = 35.9){
 
-  if(category != Category::monojet){
-    cerr<<"If category is different from monojet the analysis cannot be run --> check"<<endl;
+  if(category != Category::monojet and category != Category::monoV){
+    cerr<<"If category is different from monojet and monoV the analysis cannot be run --> check"<<endl;
     return;
   }
   system(("mkdir -p "+outputDIR).c_str());
@@ -349,29 +349,46 @@ void makeEfficiencyLongLived(string inputFileDIR,
 
       event_jetMetDphi.back()->Fill(*mmet,*xsec*lumi*(*wgt)/(sumOfWeights.at(ifile)));
 
-
-      bool goodMonojet = true;
-      if(boostedJetpt->size() > 0){
-	if(boostedJetpt->at(0) > 250 and
-	   fabs(boostedJeteta->at(0)) < 2.4 and
-	   boostedJettau2->at(0)/boostedJettau1->at(0) < 0.6 and
-	   prunedJetm->at(0) > 65 and
-	   prunedJetm->at(0) < 105) goodMonojet = false;
+      if(category == Category::monojet){
+	bool goodMonojet = true;
+	if(boostedJetpt->size() > 0){
+	  if(boostedJetpt->at(0) > 250 and
+	     fabs(boostedJeteta->at(0)) < 2.4 and
+	     boostedJettau2->at(0)/boostedJettau1->at(0) < 0.6 and
+	     prunedJetm->at(0) > 65 and
+	     prunedJetm->at(0) < 105) goodMonojet = false;
+	}
+	if(goodMonojet == false) continue;
+	
+	event_monoVVeto.back()->Fill(*mmet,*xsec*lumi*(*wgt)/(sumOfWeights.at(ifile)));
+	
+	if(*hltm90 == 0 or *hltm110 == 0 or *hltm120 == 0 or *hltmwm90 == 0 or *hltmwm120 == 0 or *hltmwm170 == 0 or *hltmwm300 == 0) continue;
+	if(*fhbhe == 0 or *fhbiso == 0 or *feeb == 0 or *fetp == 0 or *fvtx == 0 or *fbadmu == 0 or *fbadch == 0 or *fcsc == 0) continue;
+	
+	event_expWeight.back()->Fill(*mmet,puwgt*trgwgt*(*xsec)*lumi*(*wgt)/(sumOfWeights.at(ifile)));                 
+	final_templates.back()->Fill(*mmet,puwgt*trgwgt*(*xsec)*lumi*(*wgt)/(sumOfWeights.at(ifile)));
       }
-      if(goodMonojet == false) continue;
-      
-      event_monoVVeto.back()->Fill(*mmet,*xsec*lumi*(*wgt)/(sumOfWeights.at(ifile)));
+      else if(category == Category::monoV){
 
-      if(*hltm90 == 0 or *hltm110 == 0 or *hltm120 == 0 or *hltmwm90 == 0 or *hltmwm120 == 0 or *hltmwm170 == 0 or *hltmwm300 == 0) continue;
-      if(*fhbhe == 0 or *fhbiso == 0 or *feeb == 0 or *fetp == 0 or *fvtx == 0 or *fbadmu == 0 or *fbadch == 0 or *fcsc == 0) continue;
+	if(boostedJetpt->size() == 0) continue;
+	if(boostedJetpt->at(0) < 250) continue;
+	if(fabs(boostedJeteta->at(0)) > 2.4) continue;
+	if(boostedJettau2->at(0)/boostedJettau1->at(0) > 0.6) continue;
+	if(prunedJetm->at(0) < 65 or prunedJetm->at(0) > 105) continue;
+	
+	event_monoVVeto.back()->Fill(*mmet,*xsec*lumi*(*wgt)/(sumOfWeights.at(ifile)));
 
-      event_expWeight.back()->Fill(*mmet,puwgt*trgwgt*(*xsec)*lumi*(*wgt)/(sumOfWeights.at(ifile)));                 
-      final_templates.back()->Fill(*mmet,puwgt*trgwgt*(*xsec)*lumi*(*wgt)/(sumOfWeights.at(ifile)));
+	if(*hltm90 == 0 or *hltm110 == 0 or *hltm120 == 0 or *hltmwm90 == 0 or *hltmwm120 == 0 or *hltmwm170 == 0 or *hltmwm300 == 0) continue;
+	if(*fhbhe == 0 or *fhbiso == 0 or *feeb == 0 or *fetp == 0 or *fvtx == 0 or *fbadmu == 0 or *fbadch == 0 or *fcsc == 0) continue;
+	
+	event_expWeight.back()->Fill(*mmet,puwgt*trgwgt*(*xsec)*lumi*(*wgt)/(sumOfWeights.at(ifile)));                 
+	final_templates.back()->Fill(*mmet,puwgt*trgwgt*(*xsec)*lumi*(*wgt)/(sumOfWeights.at(ifile)));
 
-
+      }
     }
     ifile++;    
   }
+
 
   // calculate the efficiency
   vector<TH1F*> efficiency;
@@ -431,8 +448,11 @@ void makeEfficiencyLongLived(string inputFileDIR,
     temp->Divide(event_monoVVeto.at(nhist),event_inclusive.at(nhist),1,1,"B");
     efficiency.back()->SetBinContent(10,temp->GetBinContent(1));
     efficiency.back()->SetBinError(10,temp->GetBinError(1));
-    efficiency.back()->GetXaxis()->SetBinLabel(10,"Mono-V veto");
-
+    if(category == Category::monojet)
+      efficiency.back()->GetXaxis()->SetBinLabel(10,"Mono-V veto");
+    else if(category == Category::monoV)
+      efficiency.back()->GetXaxis()->SetBinLabel(10,"Mono-V selection");
+    
     temp->Divide(event_expWeight.at(nhist),event_inclusive.at(nhist),1,1,"B");
     efficiency.back()->SetBinContent(11,temp->GetBinContent(1));
     efficiency.back()->SetBinError(11,temp->GetBinError(1));

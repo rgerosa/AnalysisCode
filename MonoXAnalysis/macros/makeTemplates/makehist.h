@@ -62,8 +62,8 @@ static float photonScaleUnc   = -0.0125;
 static bool  doSmoothing      = false;
 // trigger and object corrections
 static float recoilThresholdTrigger = 350; // for photon trigger application
-static bool  useSingleMuon   = true;
-static bool  applyLeptonVetoWeight = true;
+static bool  useSingleMuon          = true;
+static bool  applyLeptonVetoWeight  = true;
 // other general options
 static bool  runOnlyData      = false;
 // k-factors
@@ -72,6 +72,8 @@ static bool  applyEWKVKfactor = true;
 // k-factors
 string kfactorFile       = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_24bins.root";
 string kfactorFileUnc    = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactors_uncertainties.root";
+string kfactorFileUnc_W  = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/uncertainty_wjet_nlo.root";
+string kfactorFileUnc_Z  = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/uncertainty_zjet_nlo.root";
 string kfactorFileUNLOPS = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_gamma_unlops.root";
 string kFactorTheoristFile_zvv = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors_theorist/vvj.root";
 string kFactorTheoristFile_wln = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors_theorist/evj.root";

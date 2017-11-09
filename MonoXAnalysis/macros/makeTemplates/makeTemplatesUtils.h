@@ -34,21 +34,34 @@ void fillAndSaveCorrQCDHistograms(const vector<string> & observables, // observa
 				  const bool & useNewTheoryUncertainty = false){
   
   cout<<"Re-open file for correction histo"<<endl;
-
-  TFile* zmmcorfile = TFile::Open((outDir+"/zmmcor"+ext+".root").c_str());
-  TFile* zeecorfile = TFile::Open((outDir+"/zeecor"+ext+".root").c_str());
-  TFile* wmncorfile = TFile::Open((outDir+"/wmncor"+ext+".root").c_str());
-  TFile* wencorfile = TFile::Open((outDir+"/wencor"+ext+".root").c_str());
-  TFile* zwjcorfile = TFile::Open((outDir+"/zwjcor"+ext+".root").c_str());
+  TFile* zmmcorfile = TFile::Open((outDir+"/z"+ext+"mmcor.root").c_str());
+  TFile* zeecorfile = TFile::Open((outDir+"/z"+ext+"eecor.root").c_str());
+  TFile* wmncorfile = TFile::Open((outDir+"/w"+ext+"mncor.root").c_str());
+  TFile* wencorfile = TFile::Open((outDir+"/w"+ext+"encor.root").c_str());
+  TFile* zwjcorfile = TFile::Open((outDir+"/zwj"+ext+"cor.root").c_str());
   TFile* gamcorfile  = NULL; 
   TFile* wgamcorfile = NULL;
 
+  // in case of theory uncertainties on Z/Z and W/W ratios
+  TFile* zmmcorfafile = TFile::Open((outDir+"/z"+ext+"mmcorfa.root").c_str());;
+  TFile* zmmcorrefile = TFile::Open((outDir+"/z"+ext+"mmcorre.root").c_str());;
+  TFile* zmmcorpdffile = TFile::Open((outDir+"/z"+ext+"mmcorpdf.root").c_str());;
+  TFile* zeecorfafile = TFile::Open((outDir+"/z"+ext+"eecorfa.root").c_str());;
+  TFile* zeecorrefile = TFile::Open((outDir+"/z"+ext+"eecorre.root").c_str());;
+  TFile* zeecorpdffile = TFile::Open((outDir+"/z"+ext+"eecorpdf.root").c_str());;
+  TFile* wmncorfafile = TFile::Open((outDir+"/w"+ext+"mncorfa.root").c_str());;
+  TFile* wmncorrefile = TFile::Open((outDir+"/w"+ext+"mncorre.root").c_str());;
+  TFile* wmncorpdffile = TFile::Open((outDir+"/w"+ext+"mncorpdf.root").c_str());;
+  TFile* wencorfafile = TFile::Open((outDir+"/w"+ext+"encorfa.root").c_str());;
+  TFile* wencorrefile = TFile::Open((outDir+"/w"+ext+"encorre.root").c_str());;
+  TFile* wencorpdffile = TFile::Open((outDir+"/w"+ext+"encorpdf.root").c_str());;
+  
   if(addZgamma){
     gamcorfile = TFile::Open((outDir+"/gamcor"+ext+".root").c_str());
     if(addWgamma)
       wgamcorfile = TFile::Open((outDir+"/wgamcor"+ext+".root").c_str());
   }
-
+  
   // QCD, EWK, factm re and footprint on Z/gamma                                                                                                                                                    
   TFile* gamcorqcdfile = NULL;
   TFile* gamcorewkfile = NULL;
@@ -211,13 +224,16 @@ void fillAndSaveCorrQCDHistograms(const vector<string> & observables, // observa
 
   if(addZWratio){
     if(not useNewTheoryUncertainty){
-      zwjcorqcdfile = TFile::Open((outDir+"/zwjcorqcd"+ext+".root").c_str());
-      zwjcorewkfile = TFile::Open((outDir+"/zwjcorewk"+ext+".root").c_str());
-      zwjcorre1file = TFile::Open((outDir+"/zwjcorre1"+ext+".root").c_str());
-      zwjcorfa1file = TFile::Open((outDir+"/zwjcorfa1"+ext+".root").c_str());
-      zwjcorre2file = TFile::Open((outDir+"/zwjcorre2"+ext+".root").c_str());
-      zwjcorfa2file = TFile::Open((outDir+"/zwjcorfa2"+ext+".root").c_str());
-      zwjcorpdffile = TFile::Open((outDir+"/zwjcorpdf"+ext+".root").c_str());
+      zwjcorqcdfile = TFile::Open((outDir+"/zwj"+ext+"corqcd.root").c_str());
+      if(ext == "")
+	zwjcorewkfile = TFile::Open((outDir+"/zwj"+ext+"corewk.root").c_str());
+      else
+	zwjcorewkfile = TFile::Open((outDir+"/zwj"+ext+"cor.root").c_str());
+      zwjcorre1file = TFile::Open((outDir+"/zwj"+ext+"corre1.root").c_str());
+      zwjcorfa1file = TFile::Open((outDir+"/zwj"+ext+"corfa1.root").c_str());
+      zwjcorre2file = TFile::Open((outDir+"/zwj"+ext+"corre2.root").c_str());
+      zwjcorfa2file = TFile::Open((outDir+"/zwj"+ext+"corfa2.root").c_str());
+      zwjcorpdffile = TFile::Open((outDir+"/zwj"+ext+"corpdf.root").c_str());
     }
     else{
       zwjcorqcdfile = TFile::Open((outDir+"/zwjcorqcd"+ext+".root").c_str());
@@ -254,9 +270,18 @@ void fillAndSaveCorrQCDHistograms(const vector<string> & observables, // observa
   // get histograms                                                                                                                                                                                   
   vector<TH1*> zmmcorhist, zeecorhist, wmncorhist, wencorhist, zwjcorhist, gamcorhist, wgamcorhist;
 
-  ////
   vector<TH1*> zmmcorhist_num, zeecorhist_num, wmncorhist_num, wencorhist_num, gamcorhist_num, wgamcorhist_num, zwjcorhist_num;
   vector<TH1*> zmmcorhist_den, zeecorhist_den, wmncorhist_den, wencorhist_den, gamcorhist_den, wgamcorhist_den, zwjcorhist_den;
+
+  // Z/Z ratio
+  vector<TH1*> zmmcorfahist, zmmcorrehist, zmmcorpdfhist, zeecorfahist, zeecorrehist, zeecorpdfhist;
+  vector<TH1*> zmmcorfahist_num, zmmcorrehist_num, zmmcorpdfhist_num, zeecorfahist_num, zeecorrehist_num, zeecorpdfhist_num;
+  vector<TH1*> zmmcorfahist_den, zmmcorrehist_den, zmmcorpdfhist_den, zeecorfahist_den, zeecorrehist_den, zeecorpdfhist_den;
+
+  // W/W ratio
+  vector<TH1*> wmncorfahist, wmncorrehist, wmncorpdfhist, wencorfahist, wencorrehist, wencorpdfhist;
+  vector<TH1*> wmncorfahist_num, wmncorrehist_num, wmncorpdfhist_num, wencorfahist_num, wencorrehist_num, wencorpdfhist_num;
+  vector<TH1*> wmncorfahist_den, wmncorrehist_den, wmncorpdfhist_den, wencorfahist_den, wencorrehist_den, wencorpdfhist_den;
 
   /// Z/Gamma ratio
   vector<TH1*> gamcorewkhist, gamcorqcdhist, gamcorre1hist, gamcorfa1hist, gamcorre2hist, gamcorfa2hist, gamcorpdfhist, gamcorfpchist;
@@ -318,30 +343,208 @@ void fillAndSaveCorrQCDHistograms(const vector<string> & observables, // observa
   vector<TH1*> wgamcorsudakovuphist_1_den, wgamcorsudakovdwhist_1_den, wgamcorsudakovuphist_2_den,   wgamcorsudakovdwhist_2_den;
   vector<TH1*> wgamcormixuphist_den, wgamcormixdwhist_den;
 
+  TH1* zmmuncfahist = NULL;
+  TH1* zmmuncrehist = NULL;
+  TH1* zmmuncpdfhist = NULL;
+  TH1* zeeuncfahist = NULL;
+  TH1* zeeuncrehist = NULL;
+  TH1* zeeuncpdfhist = NULL;
+  TH1* wmnuncfahist = NULL;
+  TH1* wmnuncrehist = NULL;
+  TH1* wmnuncpdfhist = NULL;
+  TH1* wenuncfahist = NULL;
+  TH1* wenuncrehist = NULL;
+  TH1* wenuncpdfhist = NULL;
+
   // output file                                                                                                                                                                                      
+  string postfix = "";
+  if(ext != "") postfix = "_"+ext;
+  string dirfix = "";
+  if(ext == "ewk") dirfix = "_EWK";
+
   for(auto obs : observables){
     
-    cout<<"Get histograms for observable "<<obs<<endl;
-    zmmcorhist.push_back( (TH1*)zmmcorfile->FindObjectAny(("zmmcor"+ext+"hist_"+obs).c_str()));
-    zmmcorhist_num.push_back( (TH1*)zmmcorfile->FindObjectAny(("nhist_zmm"+ext+"_"+obs).c_str()));
-    zmmcorhist_den.push_back( (TH1*)zmmcorfile->FindObjectAny(("dhist_zmm"+ext+"_"+obs).c_str()));
+    cout<<"Observables "<<endl;  
+    cout<<"Get Zmm histograms for observable "<<obs<<endl;
+    zmmcorhist.push_back( (TH1*)zmmcorfile->FindObjectAny(("z"+ext+"mmcorhist_"+obs).c_str()));
+    zmmcorhist_num.push_back( (TH1*)zmmcorfile->FindObjectAny(("nhist"+postfix+"_zmm_"+obs).c_str()));
+    zmmcorhist_den.push_back( (TH1*)zmmcorfile->FindObjectAny(("dhist"+postfix+"_zmm_"+obs).c_str()));
+    if(zmmcorfafile){
+      zmmcorfahist_num.push_back( (TH1*) zmmcorfafile->FindObjectAny(("nhist"+postfix+"_zmm_fa_"+obs).c_str()));
+      zmmcorfahist_den.push_back( (TH1*) zmmcorfafile->FindObjectAny(("dhist"+postfix+"_zmm_fa_"+obs).c_str()));
+      zmmcorfahist.push_back( (TH1*) zmmcorfafile->FindObjectAny(("z"+ext+"mmcorfahist_"+obs).c_str()));
+      // calculate the uncertainty
+      zmmuncfahist = (TH1*) zmmcorhist.back()->Clone(("z"+ext+"mmuncfahist_"+obs).c_str());
+      zmmuncfahist->Divide(zmmcorfahist.back());
+      for (int i = 1; i <= zmmuncfahist->GetNbinsX(); i++)
+	zmmuncfahist->SetBinContent(i, fabs(zmmuncfahist->GetBinContent(i)-1.0));
+      zmmuncfahist->SetName(("ZM"+dirfix+"_FactScale_"+obs).c_str());
+    }
     
-    zeecorhist.push_back( (TH1*)zeecorfile->FindObjectAny(("zeecor"+ext+"hist_"+obs).c_str()));
-    zeecorhist_num.push_back( (TH1*)zeecorfile->FindObjectAny(("nhist_zee"+ext+"_"+obs).c_str()));
-    zeecorhist_den.push_back( (TH1*)zeecorfile->FindObjectAny(("dhist_zee"+ext+"_"+obs).c_str()));
+    if(zmmcorrefile){
+      zmmcorrehist_num.push_back( (TH1*) zmmcorrefile->FindObjectAny(("nhist"+postfix+"_zmm_re_"+obs).c_str()));
+      zmmcorrehist_den.push_back( (TH1*) zmmcorrefile->FindObjectAny(("dhist"+postfix+"_zmm_re_"+obs).c_str()));
+      zmmcorrehist.push_back( (TH1*) zmmcorrefile->FindObjectAny(("z"+ext+"mmcorrehist_"+obs).c_str()));
 
-    wmncorhist.push_back( (TH1*)wmncorfile->FindObjectAny(("wmncor"+ext+"hist_"+obs).c_str()));
-    wmncorhist_num.push_back( (TH1*)wmncorfile->FindObjectAny(("nhist_wmn"+ext+"_"+obs).c_str()));
-    wmncorhist_den.push_back( (TH1*)wmncorfile->FindObjectAny(("dhist_wmn"+ext+"_"+obs).c_str()));
+      // calculate the uncertainty
+      zmmuncrehist = (TH1*) zmmcorhist.back()->Clone(("z"+ext+"mmuncrehist_"+obs).c_str());
+      zmmuncrehist->Divide(zmmcorrehist.back());
+      for (int i = 1; i <= zmmuncrehist->GetNbinsX(); i++)
+	zmmuncrehist->SetBinContent(i, fabs(zmmuncrehist->GetBinContent(i)-1.0));
+      zmmuncrehist->SetName(("ZM"+dirfix+"_RenScale_"+obs).c_str());
+    }
 
-    wencorhist.push_back( (TH1*)wencorfile->FindObjectAny(("wencor"+ext+"hist_"+obs).c_str()));
-    wencorhist_num.push_back( (TH1*)wencorfile->FindObjectAny(("nhist_wen"+ext+"_"+obs).c_str()));
-    wencorhist_den.push_back( (TH1*)wencorfile->FindObjectAny(("dhist_wen"+ext+"_"+obs).c_str()));
+    if(zmmcorpdffile){
+      zmmcorpdfhist_num.push_back( (TH1*) zmmcorpdffile->FindObjectAny(("nhist"+postfix+"_zmm_pdf_"+obs).c_str()));
+      zmmcorpdfhist_den.push_back( (TH1*) zmmcorpdffile->FindObjectAny(("dhist"+postfix+"_zmm_pdf_"+obs).c_str()));
+      zmmcorpdfhist.push_back( (TH1*) zmmcorpdffile->FindObjectAny(("z"+ext+"mmcorpdfhist_"+obs).c_str()));
 
-    zwjcorhist.push_back( (TH1*)zwjcorfile->FindObjectAny(("zwjcor"+ext+"hist_"+obs).c_str()));
-    zwjcorhist_num.push_back( (TH1*)zwjcorfile->FindObjectAny(("nhist_zwj"+ext+"_"+obs).c_str()));
-    zwjcorhist_den.push_back( (TH1*)zwjcorfile->FindObjectAny(("dhist_zwj"+ext+"_"+obs).c_str()));
+      // calculate the uncertainty
+      zmmuncpdfhist = (TH1*) zmmcorhist.back()->Clone(("z"+ext+"mmuncpdfhist_"+obs).c_str());
+      zmmuncpdfhist->Divide(zmmcorpdfhist.back());
+      for (int i = 1; i <= zmmuncpdfhist->GetNbinsX(); i++)
+	zmmuncpdfhist->SetBinContent(i, fabs(zmmuncpdfhist->GetBinContent(i)-1.0));
+      zmmuncpdfhist->SetName(("ZM"+dirfix+"_PDF_"+obs).c_str());      
+    }
 
+    cout<<"Get Zee histograms for observable "<<obs<<endl;
+    zeecorhist.push_back( (TH1*)zeecorfile->FindObjectAny(("z"+ext+"eecorhist_"+obs).c_str()));
+    zeecorhist_num.push_back( (TH1*)zeecorfile->FindObjectAny(("nhist"+postfix+"_zee_"+obs).c_str()));
+    zeecorhist_den.push_back( (TH1*)zeecorfile->FindObjectAny(("dhist"+postfix+"_zee_"+obs).c_str()));
+
+    if(zeecorfafile){
+      zeecorfahist_num.push_back( (TH1*) zeecorfafile->FindObjectAny(("nhist"+postfix+"_zee_fa_"+obs).c_str()));
+      zeecorfahist_den.push_back( (TH1*) zeecorfafile->FindObjectAny(("dhist"+postfix+"_zee_fa_"+obs).c_str()));
+      zeecorfahist.push_back( (TH1*) zeecorfafile->FindObjectAny(("z"+ext+"eecorfahist_"+obs).c_str()));
+      
+      // calculate the uncertainty
+      zeeuncfahist = (TH1*) zeecorhist.back()->Clone(("z"+ext+"eeuncfahist_"+obs).c_str());
+      zeeuncfahist->Divide(zeecorfahist.back());
+      for (int i = 1; i <= zeeuncfahist->GetNbinsX(); i++)
+	zeeuncfahist->SetBinContent(i, fabs(zeeuncfahist->GetBinContent(i)-1.0));
+      zeeuncfahist->SetName(("ZE"+dirfix+"_FactScale_"+obs).c_str());      
+    }
+
+    if(zeecorrefile){
+      zeecorrehist_num.push_back( (TH1*) zeecorrefile->FindObjectAny(("nhist"+postfix+"_zee_re_"+obs).c_str()));
+      zeecorrehist_den.push_back( (TH1*) zeecorrefile->FindObjectAny(("dhist"+postfix+"_zee_re_"+obs).c_str()));
+      zeecorrehist.push_back( (TH1*) zeecorrefile->FindObjectAny(("z"+ext+"eecorrehist_"+obs).c_str()));
+      
+      // calculate the uncertainty
+      zeeuncrehist = (TH1*) zeecorhist.back()->Clone(("z"+ext+"eeuncrehist_"+obs).c_str());
+      zeeuncrehist->Divide(zeecorrehist.back());
+      for (int i = 1; i <= zeeuncrehist->GetNbinsX(); i++)
+	zeeuncrehist->SetBinContent(i, fabs(zeeuncrehist->GetBinContent(i)-1.0));
+      zeeuncrehist->SetName(("ZE"+dirfix+"_RenScale_"+obs).c_str());      
+    }
+
+    if(zeecorpdffile){
+      zeecorpdfhist_num.push_back( (TH1*) zeecorpdffile->FindObjectAny(("nhist"+postfix+"_zee_pdf_"+obs).c_str()));
+      zeecorpdfhist_den.push_back( (TH1*) zeecorpdffile->FindObjectAny(("dhist"+postfix+"_zee_pdf_"+obs).c_str()));
+      zeecorpdfhist.push_back( (TH1*) zeecorpdffile->FindObjectAny(("z"+ext+"eecorpdfhist_"+obs).c_str()));
+
+      // calculate the uncertainty
+      zeeuncpdfhist = (TH1*) zeecorhist.back()->Clone(("z"+ext+"eeuncpdfhist_"+obs).c_str());
+      zeeuncpdfhist->Divide(zeecorpdfhist.back());
+      for (int i = 1; i <= zeeuncpdfhist->GetNbinsX(); i++)
+	zeeuncpdfhist->SetBinContent(i, fabs(zeeuncpdfhist->GetBinContent(i)-1.0));
+      zeeuncpdfhist->SetName(("ZE"+dirfix+"_PDF_"+obs).c_str());      
+    }
+    
+    cout<<"Get Wmn histograms for observable "<<obs<<endl;
+    wmncorhist.push_back( (TH1*)wmncorfile->FindObjectAny(("w"+ext+"mncorhist_"+obs).c_str()));
+    wmncorhist_num.push_back( (TH1*)wmncorfile->FindObjectAny(("nhist"+postfix+"_wmn_"+obs).c_str()));
+    wmncorhist_den.push_back( (TH1*)wmncorfile->FindObjectAny(("dhist"+postfix+"_wmn_"+obs).c_str()));
+    if(wmncorfafile){
+      wmncorfahist_num.push_back( (TH1*) wmncorfafile->FindObjectAny(("nhist"+postfix+"_wmn_fa_"+obs).c_str()));
+      wmncorfahist_den.push_back( (TH1*) wmncorfafile->FindObjectAny(("dhist"+postfix+"_wmn_fa_"+obs).c_str()));
+      wmncorfahist.push_back( (TH1*) wmncorfafile->FindObjectAny(("w"+ext+"mncorfahist_"+obs).c_str()));
+      
+      // calculate the uncertainty
+      wmnuncfahist = (TH1*) wmncorhist.back()->Clone(("w"+ext+"mnuncfahist_"+obs).c_str());
+      wmnuncfahist->Divide(wmncorfahist.back());
+      for (int i = 1; i <= wmnuncfahist->GetNbinsX(); i++)
+	wmnuncfahist->SetBinContent(i, fabs(wmnuncfahist->GetBinContent(i)-1.0));
+      wmnuncfahist->SetName(("WM"+dirfix+"_FactScale_"+obs).c_str());     
+    }
+
+    if(wmncorrefile){
+      wmncorrehist_num.push_back( (TH1*) wmncorrefile->FindObjectAny(("nhist"+postfix+"_wmn_re_"+obs).c_str()));
+      wmncorrehist_den.push_back( (TH1*) wmncorrefile->FindObjectAny(("dhist"+postfix+"_wmn_re_"+obs).c_str()));
+      wmncorrehist.push_back( (TH1*) wmncorrefile->FindObjectAny(("w"+ext+"mncorrehist_"+obs).c_str()));
+
+      // calculate the uncertainty
+      wmnuncrehist = (TH1*) wmncorhist.back()->Clone(("w"+ext+"mnuncrehist_"+obs).c_str());
+      wmnuncrehist->Divide(wmncorrehist.back());
+      for (int i = 1; i <= wmnuncrehist->GetNbinsX(); i++)
+	wmnuncrehist->SetBinContent(i, fabs(wmnuncrehist->GetBinContent(i)-1.0));
+      wmnuncrehist->SetName(("WM"+dirfix+"_RenScale_"+obs).c_str());      
+    }
+
+    if(wmncorpdffile){
+      wmncorpdfhist_num.push_back( (TH1*) wmncorpdffile->FindObjectAny(("nhist"+postfix+"_wmn_pdf_"+obs).c_str()));
+      wmncorpdfhist_den.push_back( (TH1*) wmncorpdffile->FindObjectAny(("dhist"+postfix+"_wmn_pdf_"+obs).c_str()));
+      wmncorpdfhist.push_back( (TH1*) wmncorpdffile->FindObjectAny(("w"+ext+"mncorpdfhist_"+obs).c_str()));
+      
+      // calculate the uncertainty
+      wmnuncpdfhist = (TH1*) wmncorhist.back()->Clone(("w"+ext+"mnuncpdfhist_"+obs).c_str());
+      wmnuncpdfhist->Divide(wmncorpdfhist.back());
+      for (int i = 1; i <= wmnuncpdfhist->GetNbinsX(); i++)
+	wmnuncpdfhist->SetBinContent(i, fabs(wmnuncpdfhist->GetBinContent(i)-1.0));
+      wmnuncpdfhist->SetName(("WM"+dirfix+"_PDF_"+obs).c_str());      
+    }
+        
+    cout<<"Get Wen histograms for observable "<<obs<<endl;
+    wencorhist.push_back( (TH1*)wencorfile->FindObjectAny(("w"+ext+"encorhist_"+obs).c_str()));
+    wencorhist_num.push_back( (TH1*)wencorfile->FindObjectAny(("nhist"+postfix+"_wen_"+obs).c_str()));
+    wencorhist_den.push_back( (TH1*)wencorfile->FindObjectAny(("dhist"+postfix+"_wen_"+obs).c_str()));
+    
+    if(wencorfafile){
+      wencorfahist_num.push_back( (TH1*) wencorfafile->FindObjectAny(("nhist"+postfix+"_wen_fa_"+obs).c_str()));
+      wencorfahist_den.push_back( (TH1*) wencorfafile->FindObjectAny(("dhist"+postfix+"_wen_fa_"+obs).c_str()));
+      wencorfahist.push_back( (TH1*) wencorfafile->FindObjectAny(("w"+ext+"encorfahist_"+obs).c_str()));
+      
+      // calculate the uncertainty
+      wenuncfahist = (TH1*) wencorhist.back()->Clone(("w"+ext+"enuncfahist_"+obs).c_str());
+      wenuncfahist->Divide(wencorfahist.back());
+      for (int i = 1; i <= wenuncfahist->GetNbinsX(); i++)
+	wenuncfahist->SetBinContent(i, fabs(wenuncfahist->GetBinContent(i)-1.0));
+      wenuncfahist->SetName(("WE"+dirfix+"_FactScale_"+obs).c_str());      
+    }
+
+    if(wencorrefile){
+      wencorrehist_num.push_back( (TH1*) wencorrefile->FindObjectAny(("nhist"+postfix+"_wen_re_"+obs).c_str()));
+      wencorrehist_den.push_back( (TH1*) wencorrefile->FindObjectAny(("dhist"+postfix+"_wen_re_"+obs).c_str()));
+      wencorrehist.push_back( (TH1*) wencorrefile->FindObjectAny(("w"+ext+"encorrehist_"+obs).c_str()));
+
+      // calculate the uncertainty
+      wenuncrehist = (TH1*) wencorhist.back()->Clone(("w"+ext+"enuncrehist_"+obs).c_str());
+      wenuncrehist->Divide(wencorrehist.back());
+      for (int i = 1; i <= wenuncrehist->GetNbinsX(); i++)
+	wenuncrehist->SetBinContent(i, fabs(wenuncrehist->GetBinContent(i)-1.0));
+      wenuncrehist->SetName(("WE"+dirfix+"_RenScale_"+obs).c_str());      
+    }
+
+    if(wencorpdffile){
+      wencorpdfhist_num.push_back( (TH1*) wencorpdffile->FindObjectAny(("nhist"+postfix+"_wen_pdf_"+obs).c_str()));
+      wencorpdfhist_den.push_back( (TH1*) wencorpdffile->FindObjectAny(("dhist"+postfix+"_wen_pdf_"+obs).c_str()));
+      wencorpdfhist.push_back( (TH1*) wencorpdffile->FindObjectAny(("w"+ext+"encorpdfhist_"+obs).c_str()));
+
+      // calculate the uncertainty
+      wenuncpdfhist = (TH1*) wencorhist.back()->Clone(("w"+ext+"enuncpdfhist_"+obs).c_str());
+      wenuncpdfhist->Divide(wencorpdfhist.back());
+      for (int i = 1; i <= wenuncpdfhist->GetNbinsX(); i++)
+	wenuncpdfhist->SetBinContent(i, fabs(wenuncpdfhist->GetBinContent(i)-1.0));
+      wenuncpdfhist->SetName(("WE"+dirfix+"_PDF_"+obs).c_str());
+      
+    }
+
+    if(zwjcorfile){
+      zwjcorhist.push_back( (TH1*)zwjcorfile->FindObjectAny(("zwjcorhist_"+obs).c_str()));
+      zwjcorhist_num.push_back( (TH1*)zwjcorfile->FindObjectAny(("nhist_zwj_"+obs).c_str()));
+      zwjcorhist_den.push_back( (TH1*)zwjcorfile->FindObjectAny(("dhist_zwj_"+obs).c_str()));
+    }
+    
     if(addZgamma){
       gamcorhist.push_back( (TH1*)gamcorfile->FindObjectAny(("gamcor"+ext+"hist_"+obs).c_str()));
       gamcorhist_num.push_back( (TH1*)gamcorfile->FindObjectAny(("nhist_gam"+ext+"_"+obs).c_str()));
@@ -353,8 +556,7 @@ void fillAndSaveCorrQCDHistograms(const vector<string> & observables, // observa
       wgamcorhist_num.push_back( (TH1*) wgamcorfile->FindObjectAny(("nhist_wgam"+ext+"_"+obs).c_str()));
       wgamcorhist_den.push_back( (TH1*) wgamcorfile->FindObjectAny(("dhist_wgam"+ext+"_"+obs).c_str()));
     }
-
-
+    
     // get histograms Z/gamma                 
     TH1* gamuncewkhist = NULL;
     TH1* gamuncre1hist = NULL;
@@ -650,16 +852,27 @@ void fillAndSaveCorrQCDHistograms(const vector<string> & observables, // observa
 	gamuncpdfhist->SetName(("ZG_PDF_"+obs).c_str());
       }
     }
-    
+
     // Same thing for Z/W ratio                                                                                                                                                                     
     cout<<"Make Z/W sys histograms"<<endl;
-    zwjcorewkhist.push_back( (TH1*)zwjcorewkfile->FindObjectAny(("zwjcorewk"+ext+"hist_"+obs).c_str()));
-    zwjcorewkhist_num.push_back( (TH1*)zwjcorewkfile->FindObjectAny(("nhist_zwj_ewk"+ext+"_"+obs).c_str()));
-    zwjcorewkhist_den.push_back( (TH1*)zwjcorewkfile->FindObjectAny(("dhist_zwj_ewk"+ext+"_"+obs).c_str()));
 
-    zwjcorqcdhist.push_back( (TH1*)zwjcorqcdfile->FindObjectAny(("zwjcorqcd"+ext+"hist_"+obs).c_str()));
-    zwjcorqcdhist_num.push_back( (TH1*)zwjcorqcdfile->FindObjectAny(("nhist_zwj_qcd"+ext+"_"+obs).c_str()));
-    zwjcorqcdhist_den.push_back( (TH1*)zwjcorqcdfile->FindObjectAny(("dhist_zwj_qcd"+ext+"_"+obs).c_str()));
+    if(zwjcorewkfile){
+      if(ext == ""){
+	zwjcorewkhist.push_back( (TH1*)zwjcorewkfile->FindObjectAny(("zwj"+ext+"corewkhist_"+obs).c_str()));
+	zwjcorewkhist_num.push_back( (TH1*)zwjcorewkfile->FindObjectAny(("nhist"+postfix+"_zwj_ewk_"+obs).c_str()));
+	zwjcorewkhist_den.push_back( (TH1*)zwjcorewkfile->FindObjectAny(("dhist"+postfix+"_zwj_ewk_"+obs).c_str()));
+      }
+      else{
+	zwjcorewkhist.push_back( (TH1*)zwjcorewkfile->FindObjectAny(("zwj"+ext+"corhist_"+obs).c_str()));
+	zwjcorewkhist_num.push_back( (TH1*)zwjcorewkfile->FindObjectAny(("nhist"+postfix+"_zwj_"+obs).c_str()));
+	zwjcorewkhist_den.push_back( (TH1*)zwjcorewkfile->FindObjectAny(("dhist"+postfix+"_zwj_"+obs).c_str()));
+      }
+    }
+    if(zwjcorqcdfile){
+      zwjcorqcdhist.push_back( (TH1*)zwjcorqcdfile->FindObjectAny(("zwj"+ext+"corqcdhist_"+obs).c_str()));
+      zwjcorqcdhist_num.push_back( (TH1*)zwjcorqcdfile->FindObjectAny(("nhist"+postfix+"_zwj_qcd_"+obs).c_str()));
+      zwjcorqcdhist_den.push_back( (TH1*)zwjcorqcdfile->FindObjectAny(("dhist"+postfix+"_zwj_qcd_"+obs).c_str()));
+    }
 
     TH1* zwjuncewkhist  = NULL;
     TH1* zwjuncre1hist  = NULL;
@@ -677,67 +890,71 @@ void fillAndSaveCorrQCDHistograms(const vector<string> & observables, // observa
     TH1* zwjuncsudakovhist_1 = NULL;
     TH1* zwjuncsudakovhist_2 = NULL;
     TH1* zwjuncmixhist = NULL;
-
+    
     if(addZWratio){
       if(not useNewTheoryUncertainty){
 	
-	zwjcorre1hist.push_back( (TH1*)zwjcorre1file->FindObjectAny(("zwjcorre1"+ext+"hist_"+obs).c_str()));
-	zwjcorre1hist_num.push_back( (TH1*)zwjcorre1file->FindObjectAny(("nhist_zwj_re1"+ext+"_"+obs).c_str()));
-	zwjcorre1hist_den.push_back( (TH1*)zwjcorre1file->FindObjectAny(("dhist_zwj_re1"+ext+"_"+obs).c_str()));
-	
-	zwjcorfa1hist.push_back( (TH1*)zwjcorfa1file->FindObjectAny(("zwjcorfa1"+ext+"hist_"+obs).c_str()));
-	zwjcorfa1hist_num.push_back( (TH1*)zwjcorfa1file->FindObjectAny(("nhist_zwj_fa1"+ext+"_"+obs).c_str()));
-	zwjcorfa1hist_den.push_back( (TH1*)zwjcorfa1file->FindObjectAny(("dhist_zwj_fa1"+ext+"_"+obs).c_str()));
-	
-	zwjcorre2hist.push_back( (TH1*)zwjcorre2file->FindObjectAny(("zwjcorre2"+ext+"hist_"+obs).c_str()));
-	zwjcorre2hist_num.push_back( (TH1*)zwjcorre2file->FindObjectAny(("nhist_zwj_re2"+ext+"_"+obs).c_str()));
-	zwjcorre2hist_den.push_back( (TH1*)zwjcorre2file->FindObjectAny(("dhist_zwj_re2"+ext+"_"+obs).c_str()));
-	
-	zwjcorfa2hist.push_back( (TH1*)zwjcorfa2file->FindObjectAny(("zwjcorfa2"+ext+"hist_"+obs).c_str()));
-	zwjcorfa2hist_num.push_back( (TH1*)zwjcorfa2file->FindObjectAny(("nhist_zwj_fa2"+ext+"_"+obs).c_str()));
-	zwjcorfa2hist_den.push_back( (TH1*)zwjcorfa2file->FindObjectAny(("dhist_zwj_fa2"+ext+"_"+obs).c_str()));
-	
-	zwjcorpdfhist.push_back( (TH1*)zwjcorpdffile->FindObjectAny(("zwjcorpdf"+ext+"hist_"+obs).c_str()));
-	zwjcorpdfhist_num.push_back( (TH1*)zwjcorpdffile->FindObjectAny(("nhist_zwj_pdf"+ext+"_"+obs).c_str()));
-	zwjcorpdfhist_den.push_back( (TH1*)zwjcorpdffile->FindObjectAny(("dhist_zwj_pdf"+ext+"_"+obs).c_str()));
-	
-	zwjuncewkhist = (TH1*)zwjcorewkhist.back()->Clone(("zwjuncewk"+ext+"hist_"+obs).c_str());
-	zwjuncewkhist->Divide(zwjcorqcdhist.back());
-	for (int i = 1; i <= zwjuncewkhist->GetNbinsX(); i++)
-	  zwjuncewkhist->SetBinContent(i, fabs(zwjuncewkhist->GetBinContent(i)-1.0));
-	zwjuncewkhist->SetName(("ZW_EWK_"+obs).c_str());
-	
+	zwjcorre1hist.push_back( (TH1*)zwjcorre1file->FindObjectAny(("zwj"+ext+"corre1hist_"+obs).c_str()));
+	zwjcorre1hist_num.push_back( (TH1*)zwjcorre1file->FindObjectAny(("nhist"+postfix+"_zwj_re1_"+obs).c_str()));
+	zwjcorre1hist_den.push_back( (TH1*)zwjcorre1file->FindObjectAny(("dhist"+postfix+"_zwj_re1_"+obs).c_str()));
+
+	zwjcorfa1hist.push_back( (TH1*)zwjcorfa1file->FindObjectAny(("zwj"+ext+"corfa1hist_"+obs).c_str()));
+	zwjcorfa1hist_num.push_back( (TH1*)zwjcorfa1file->FindObjectAny(("nhist"+postfix+"_zwj_fa1_"+obs).c_str()));
+	zwjcorfa1hist_den.push_back( (TH1*)zwjcorfa1file->FindObjectAny(("dhist"+postfix+"_zwj_fa1_"+obs).c_str()));
+
+	zwjcorre2hist.push_back( (TH1*)zwjcorre2file->FindObjectAny(("zwj"+ext+"corre2hist_"+obs).c_str()));
+	zwjcorre2hist_num.push_back( (TH1*)zwjcorre2file->FindObjectAny(("nhist"+postfix+"_zwj_re2_"+obs).c_str()));
+	zwjcorre2hist_den.push_back( (TH1*)zwjcorre2file->FindObjectAny(("dhist"+postfix+"_zwj_re2_"+obs).c_str()));
+
+	zwjcorfa2hist.push_back( (TH1*)zwjcorfa2file->FindObjectAny(("zwj"+ext+"corfa2hist_"+obs).c_str()));
+	zwjcorfa2hist_num.push_back( (TH1*)zwjcorfa2file->FindObjectAny(("nhist"+postfix+"_zwj_fa2_"+obs).c_str()));
+	zwjcorfa2hist_den.push_back( (TH1*)zwjcorfa2file->FindObjectAny(("dhist"+postfix+"_zwj_fa2_"+obs).c_str()));
+
+	zwjcorpdfhist.push_back( (TH1*)zwjcorpdffile->FindObjectAny(("zwj"+ext+"corpdfhist_"+obs).c_str()));
+	zwjcorpdfhist_num.push_back( (TH1*)zwjcorpdffile->FindObjectAny(("nhist"+postfix+"_zwj_pdf_"+obs).c_str()));
+	zwjcorpdfhist_den.push_back( (TH1*)zwjcorpdffile->FindObjectAny(("dhist"+postfix+"_zwj_pdf_"+obs).c_str()));
+
+	if(zwjcorewkhist.size() != 0 and zwjcorqcdhist.size() != 0){
+	  zwjuncewkhist = (TH1*)zwjcorewkhist.back()->Clone(("z"+ext+"wjuncewkhist_"+obs).c_str());
+	  zwjuncewkhist->Divide(zwjcorqcdhist.back());
+	  for (int i = 1; i <= zwjuncewkhist->GetNbinsX(); i++)
+	    zwjuncewkhist->SetBinContent(i, fabs(zwjuncewkhist->GetBinContent(i)-1.0));
+	  zwjuncewkhist->SetName(("ZW_EWK_"+obs).c_str());
+	}
+	else
+	  zwjcorqcdhist.push_back(zwjcorewkhist.back()); // trick for EW backgrounds on VBF
+
 	////                                                                                                                                                                                  
-	zwjuncre1hist = (TH1*)zwjcorre1hist.back()->Clone(("zwjuncre1"+ext+"hist_"+obs).c_str());
+	zwjuncre1hist = (TH1*)zwjcorre1hist.back()->Clone(("zwj"+ext+"uncre1hist_"+obs).c_str());
 	zwjuncre1hist->Divide(zwjcorqcdhist.back());
 	for (int i = 1; i <= zwjuncre1hist->GetNbinsX(); i++)
 	  zwjuncre1hist->SetBinContent(i, fabs(zwjuncre1hist->GetBinContent(i)-1.0));
-	zwjuncre1hist->SetName(("ZW_RenScale1_"+obs).c_str());
+	zwjuncre1hist->SetName(("ZW"+dirfix+"_RenScale1_"+obs).c_str());
 	
 	///                                                                                                                                                                                
-	zwjuncfa1hist = (TH1*)zwjcorfa1hist.back()->Clone(("zwjuncfa1"+ext+"hist_"+obs).c_str());
+	zwjuncfa1hist = (TH1*)zwjcorfa1hist.back()->Clone(("z"+ext+"wjuncfa1hist_"+obs).c_str());
 	zwjuncfa1hist->Divide(zwjcorqcdhist.back());
 	for (int i = 1; i <= zwjuncfa1hist->GetNbinsX(); i++)
 	  zwjuncfa1hist->SetBinContent(i, fabs(zwjuncfa1hist->GetBinContent(i)-1.0));
-	zwjuncfa1hist->SetName(("ZW_FactScale1_"+obs).c_str());
-	
-	zwjuncre2hist = (TH1*)zwjcorre2hist.back()->Clone(("zwjuncre2"+ext+"hist_"+obs).c_str());
+	zwjuncfa1hist->SetName(("ZW"+dirfix+"_FactScale1_"+obs).c_str());
+
+	zwjuncre2hist = (TH1*)zwjcorre2hist.back()->Clone(("z"+ext+"wjuncre2hist_"+obs).c_str());
 	zwjuncre2hist->Divide(zwjcorqcdhist.back());
 	for (int i = 1; i <= zwjuncre2hist->GetNbinsX(); i++)
 	  zwjuncre2hist->SetBinContent(i, fabs(zwjuncre2hist->GetBinContent(i)-1.0));
-	zwjuncre2hist->SetName(("ZW_RenScale2_"+obs).c_str());
+	zwjuncre2hist->SetName(("ZW"+dirfix+"_RenScale2_"+obs).c_str());
 	
-	zwjuncfa2hist = (TH1*)zwjcorfa2hist.back()->Clone(("zwjuncfa2"+ext+"hist_"+obs).c_str());
+	zwjuncfa2hist = (TH1*)zwjcorfa2hist.back()->Clone(("z"+ext+"wjuncfa2hist_"+obs).c_str());
 	zwjuncfa2hist->Divide(zwjcorqcdhist.back());
 	for (int i = 1; i <= zwjuncfa2hist->GetNbinsX(); i++)
 	  zwjuncfa2hist->SetBinContent(i, fabs(zwjuncfa2hist->GetBinContent(i)-1.0));
-	zwjuncfa2hist->SetName(("ZW_FactScale2_"+obs).c_str());
+	zwjuncfa2hist->SetName(("ZW"+dirfix+"_FactScale2_"+obs).c_str());
 
-	zwjuncpdfhist = (TH1*)zwjcorpdfhist.back()->Clone(("zwjuncpdf"+ext+"hist_"+obs).c_str());
+	zwjuncpdfhist = (TH1*)zwjcorpdfhist.back()->Clone(("z"+ext+"wjuncpdfhist_"+obs).c_str());
 	zwjuncpdfhist->Divide(zwjcorqcdhist.back());
 	for (int i = 1; i <= zwjuncpdfhist->GetNbinsX(); i++)
 	  zwjuncpdfhist->SetBinContent(i, fabs(zwjuncpdfhist->GetBinContent(i)-1.0));
-	zwjuncpdfhist->SetName(("ZW_PDF_"+obs).c_str());      
+	zwjuncpdfhist->SetName(("ZW"+dirfix+"_PDF_"+obs).c_str());      
       }
       else{ 
 	
@@ -920,7 +1137,7 @@ void fillAndSaveCorrQCDHistograms(const vector<string> & observables, // observa
 	zwjuncpdfhist->SetName(("ZW_PDF_"+obs).c_str());
       }
     }
-
+    
     /////////////
 
     // get histograms W/gamma               
@@ -1209,55 +1426,96 @@ void fillAndSaveCorrQCDHistograms(const vector<string> & observables, // observa
 	wgamuncpdfhist->SetName(("WG_PDF_"+obs).c_str());
       }
     }
-
-
+ 
     outputFile.cd();
     cout<<"Save transfer factor"<<endl;
-    if(not outputFile.GetDirectory("TF_ZM"))
-      outputFile.mkdir("TF_ZM");
-    outputFile.cd("TF_ZM");
+    if(not outputFile.GetDirectory(("TF_ZM"+dirfix).c_str()))
+      outputFile.mkdir(("TF_ZM"+dirfix).c_str());
+    outputFile.cd(("TF_ZM"+dirfix).c_str());
+    
     zmmcorhist.back()->Write();
+    if(zmmcorfahist.size() != 0) zmmcorfahist.back()->Write();
+    if(zmmcorrehist.size() != 0) zmmcorrehist.back()->Write();
+    if(zmmcorpdfhist.size() != 0) zmmcorpdfhist.back()->Write();
+
+    if(zmmuncfahist) zmmuncfahist->Write();
+    if(zmmuncrehist) zmmuncrehist->Write();
+    if(zmmuncpdfhist) zmmuncpdfhist->Write();
+    
     if(addHistoForCutAndCount){
       zmmcorhist_num.back()->Write();
       zmmcorhist_den.back()->Write();
     }
 
     outputFile.cd();
-    if(not outputFile.GetDirectory("TF_ZE"))
-      outputFile.mkdir("TF_ZE");
-    outputFile.cd("TF_ZE");
+    if(not outputFile.GetDirectory(("TF_ZE"+dirfix).c_str()))
+      outputFile.mkdir(("TF_ZE"+dirfix).c_str());
+    outputFile.cd(("TF_ZE"+dirfix).c_str());
+
     zeecorhist.back()->Write();
+
+    if(zeecorfahist.size() != 0) zeecorfahist.back()->Write();
+    if(zeecorrehist.size() != 0) zeecorrehist.back()->Write();
+    if(zeecorpdfhist.size() != 0) zeecorpdfhist.back()->Write();
+
+    if(zeeuncfahist) zeeuncfahist->Write();
+    if(zeeuncrehist) zeeuncrehist->Write();
+    if(zeeuncpdfhist) zeeuncpdfhist->Write();
+    
     if(addHistoForCutAndCount){
       zeecorhist_num.back()->Write();
       zeecorhist_den.back()->Write();
     }
 
     outputFile.cd();
-    if(not outputFile.GetDirectory("TF_WM"))
-      outputFile.mkdir("TF_WM");
-    outputFile.cd("TF_WM");
+    if(not outputFile.GetDirectory(("TF_WM"+dirfix).c_str()))
+      outputFile.mkdir(("TF_WM"+dirfix).c_str());
+    outputFile.cd(("TF_WM"+dirfix).c_str());
+
     wmncorhist.back()->Write();
+
+    if(wmncorfahist.size() != 0) wmncorfahist.back()->Write();
+    if(wmncorrehist.size() != 0) wmncorrehist.back()->Write();
+    if(wmncorpdfhist.size() != 0) wmncorpdfhist.back()->Write();
+
+    if(wmnuncfahist) wmnuncfahist->Write();
+    if(wmnuncrehist) wmnuncrehist->Write();
+    if(wmnuncpdfhist) wmnuncpdfhist->Write();
+
     if(addHistoForCutAndCount){
       wmncorhist_num.back()->Write();
       wmncorhist_den.back()->Write();
     }
 
     outputFile.cd();
-    if(not outputFile.GetDirectory("TF_WE"))
-      outputFile.mkdir("TF_WE");
-    outputFile.cd("TF_WE");
+    if(not outputFile.GetDirectory(("TF_WE"+dirfix).c_str()))
+      outputFile.mkdir(("TF_WE"+dirfix).c_str());
+    outputFile.cd(("TF_WE"+dirfix).c_str());
+
     wencorhist.back()->Write();
+
+    if(wencorfahist.size() != 0) wencorfahist.back()->Write();
+    if(wencorrehist.size() != 0) wencorrehist.back()->Write();
+    if(wencorpdfhist.size() != 0) wencorpdfhist.back()->Write();
+
+    if(wenuncfahist) wenuncfahist->Write();
+    if(wenuncrehist) wenuncrehist->Write();
+    if(wenuncpdfhist) wenuncpdfhist->Write();
+
     if(addHistoForCutAndCount){
       wencorhist_num.back()->Write();
       wencorhist_den.back()->Write();
     }
 
     outputFile.cd();
-    if(not outputFile.GetDirectory("TF_WZ"))
-      outputFile.mkdir("TF_WZ");
-    outputFile.cd("TF_WZ");
-    zwjcorhist.back()->Write();
-    zwjcorqcdhist.back()->Write();
+    if(not outputFile.GetDirectory(("TF_WZ"+dirfix).c_str()))
+      outputFile.mkdir(("TF_WZ"+dirfix).c_str());
+    outputFile.cd(("TF_WZ"+dirfix).c_str());
+
+    if(ext == ""){
+      zwjcorhist.back()->Write();
+      zwjcorqcdhist.back()->Write();
+    }
     zwjcorewkhist.back()->Write();
 
     if(not useNewTheoryUncertainty){
@@ -1268,10 +1526,12 @@ void fillAndSaveCorrQCDHistograms(const vector<string> & observables, // observa
       zwjcorpdfhist.back()->Write();
 
       if(addHistoForCutAndCount){
-	zwjcorhist_num.back()->Write();
-	zwjcorhist_den.back()->Write();
-	zwjcorqcdhist_num.back()->Write();
-	zwjcorqcdhist_den.back()->Write();
+	if(ext == ""){
+	  zwjcorhist_num.back()->Write();
+	  zwjcorhist_den.back()->Write();
+	  zwjcorqcdhist_num.back()->Write();
+	  zwjcorqcdhist_den.back()->Write();
+	}
 	zwjcorewkhist_num.back()->Write();
 	zwjcorewkhist_den.back()->Write();
 	zwjcorre1hist_num.back()->Write();
@@ -1286,12 +1546,13 @@ void fillAndSaveCorrQCDHistograms(const vector<string> & observables, // observa
 	zwjcorpdfhist_den.back()->Write();
       }
       
-      zwjuncewkhist->Write();
+      if(zwjuncewkhist) zwjuncewkhist->Write();
       zwjuncre1hist->Write();
       zwjuncfa1hist->Write();
       zwjuncre2hist->Write();
       zwjuncfa2hist->Write();
       zwjuncpdfhist->Write();
+      
     }
     else{
 
@@ -1366,7 +1627,7 @@ void fillAndSaveCorrQCDHistograms(const vector<string> & observables, // observa
       zwjuncmixhist->Write();      
       zwjuncpdfhist->Write();
     }
-  
+      
     outputFile.cd();
     if(addZgamma){
       if(not outputFile.GetDirectory("TF_GJ"))
@@ -1621,6 +1882,19 @@ void fillAndSaveCorrQCDHistograms(const vector<string> & observables, // observa
   if(gamcorfile) gamcorfile->Close();
   if(wgamcorfile) wgamcorfile->Close();
 
+  if(zmmcorfafile) zmmcorfafile->Close();
+  if(zeecorfafile) zeecorfafile->Close();
+  if(wmncorfafile) wmncorfafile->Close();
+  if(wencorfafile) wencorfafile->Close();
+  if(zmmcorrefile) zmmcorrefile->Close();
+  if(zeecorrefile) zeecorrefile->Close();
+  if(wmncorrefile) wmncorrefile->Close();
+  if(wencorrefile) wencorrefile->Close();
+  if(zmmcorpdffile) zmmcorpdffile->Close();
+  if(zeecorpdffile) zeecorpdffile->Close();
+  if(wmncorpdffile) wmncorpdffile->Close();
+  if(wencorpdffile) wencorpdffile->Close();
+
   if(gamcorqcdfile) gamcorqcdfile->Close();
   if(gamcorewkfile) gamcorewkfile->Close();
   if(gamcorre1file) gamcorre1file->Close();
@@ -1701,6 +1975,19 @@ void fillAndSaveCorrQCDHistograms(const vector<string> & observables, // observa
   zwjcorhist.clear(); 
   wgamcorhist.clear(); 
   wgamcorhist.clear(); 
+
+  zmmcorfahist.clear(); 
+  zeecorfahist.clear();
+  wmncorfahist.clear(); 
+  wencorfahist.clear(); 
+  zmmcorrehist.clear(); 
+  zeecorrehist.clear();
+  wmncorrehist.clear(); 
+  wencorrehist.clear(); 
+  zmmcorpdfhist.clear(); 
+  zeecorpdfhist.clear();
+  wmncorpdfhist.clear(); 
+  wencorpdfhist.clear(); 
 
   gamcorewkhist.clear(); 
   gamcorqcdhist.clear(); 
@@ -1790,6 +2077,31 @@ void fillAndSaveCorrQCDHistograms(const vector<string> & observables, // observa
   zwjcorhist_den.clear(); 
   wgamcorhist_den.clear(); 
   wgamcorhist_den.clear(); 
+
+  zmmcorfahist_num.clear(); 
+  zeecorfahist_num.clear();
+  wmncorfahist_num.clear(); 
+  wencorfahist_num.clear(); 
+  zmmcorrehist_num.clear(); 
+  zeecorrehist_num.clear();
+  wmncorrehist_num.clear(); 
+  wencorrehist_num.clear(); 
+  zmmcorpdfhist_num.clear(); 
+  zeecorpdfhist_num.clear();
+  wmncorpdfhist_num.clear(); 
+  wencorpdfhist_num.clear(); 
+  zmmcorfahist_den.clear(); 
+  zeecorfahist_den.clear();
+  wmncorfahist_den.clear(); 
+  wencorfahist_den.clear(); 
+  zmmcorrehist_den.clear(); 
+  zeecorrehist_den.clear();
+  wmncorrehist_den.clear(); 
+  wencorrehist_den.clear(); 
+  zmmcorpdfhist_den.clear(); 
+  zeecorpdfhist_den.clear();
+  wmncorpdfhist_den.clear(); 
+  wencorpdfhist_den.clear(); 
 
   gamcorewkhist_num.clear(); 
   gamcorqcdhist_num.clear(); 

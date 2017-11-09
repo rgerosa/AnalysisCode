@@ -17,7 +17,8 @@ void makezmmcorhist( const string &   signalRegionFile,
 		     const bool &     isHiggsInvisible = false,
 		     const bool &     isEWK = false,
 		     const bool &     useTheoristKfactors = false,
-		     const string &   ext = "") {
+		     const string &   ext = "",
+		     const int & kfact = 0) {
 
   // open files                                                                                                                                                                
   TChain* ntree = new TChain("tree/tree");
@@ -204,10 +205,33 @@ void makezmmcorhist( const string &   signalRegionFile,
   TFile* kffile_zewk = NULL;
   vector<TH2*> zewkhists;
   if(isEWK and applyEWKVKfactor){
+    dyhists.clear();
+    zhists.clear();
     kffile_zewk = TFile::Open(kFactorFile_zjetewk.c_str(),"READ");
     zewkhists.push_back((TH2*) kffile_zewk->Get("TH2F_kFactor"));
   }
-  
+
+  TFile* kffileUnc_z = NULL;
+  if(kfact != 0){ // systematic variations
+    kffileUnc_z =  TFile::Open(kfactorFileUnc_Z.c_str());
+    TH1* zpdfhist_unc = (TH1*) kffileUnc_z->Get("bosonpt_pdf_uncup");
+    TH1* zfachist_unc = (TH1*) kffileUnc_z->Get("bosonpt_qcd_fac_uncup");
+    TH1* zrenhist_unc = (TH1*) kffileUnc_z->Get("bosonpt_qcd_ren_uncup");
+    
+    if(kfact == 1){ // factorization scale
+      zhists.push_back(zfachist_unc);
+      dyhists.push_back(zfachist_unc);
+    } 
+    else if(kfact == 2){ // factorization scale
+      zhists.push_back(zrenhist_unc);
+      dyhists.push_back(zrenhist_unc);
+    }
+    else if(kfact == 3){ // factorization scale
+      zhists.push_back(zpdfhist_unc);    
+      dyhists.push_back(zpdfhist_unc);    
+    }
+  }
+ 
   if(not isEWK){
     // NLO Znunu or LO
     if(nloSamples.useZJetsNLO)
@@ -217,8 +241,8 @@ void makezmmcorhist( const string &   signalRegionFile,
     makehist4(dtree, dhist, dhist_2D,  true, Sample::zmm, category, false, 1.00, lumi,   dyhists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
   }
   else{
-    makehist4(ntree, nhist, nhist_2D,  true, Sample::sig, category, false, 1.00, lumi, ehists, sysName, false, reweightNVTX, 0, isHiggsInvisible, false, zewkhists);  
-    makehist4(dtree, dhist, dhist_2D,  true, Sample::zmm, category, false, 1.00, lumi, ehists, sysName, false, reweightNVTX, 0, isHiggsInvisible, false, zewkhists);
+    makehist4(ntree, nhist, nhist_2D,  true, Sample::sig, category, false, 1.00, lumi, zhists, sysName, false, reweightNVTX, 0, isHiggsInvisible, false, zewkhists);  
+    makehist4(dtree, dhist, dhist_2D,  true, Sample::zmm, category, false, 1.00, lumi, dyhists, sysName, false, reweightNVTX, 0, isHiggsInvisible, false, zewkhists);
   }
 
   string name = string("zmmcor")+ext;
@@ -298,6 +322,8 @@ void makezmmcorhist( const string &   signalRegionFile,
     kfactzjet_vbf->Close();
   if(kffile_zewk)
     kffile_zewk->Close();
+  if(kffileUnc_z)
+    kffileUnc_z->Close();
 
   ehists.clear();
   zhists.clear();
@@ -352,7 +378,8 @@ void makezeecorhist( const string &   signalRegionFile,
 		     const bool &     isHiggsInvisible = false,
 		     const bool &     isEWK = false,
 		     const bool &     useTheoristKfactors = false,
-		     const string &   ext = "") {
+		     const string &   ext = "",
+		     const int & kfact = 0) {
 
   // open files                                                                                                                                                                
   TChain* ntree = new TChain("tree/tree");
@@ -423,8 +450,6 @@ void makezeecorhist( const string &   signalRegionFile,
   // Vjets QCD k-factors after VBF cuts
   TFile* kfactzjet_vbf = NULL;
   TFile* kfactzll_vbf = NULL;
-
-
 
   vector<TH1*> ehists;
   vector<TH1*> zhists;
@@ -539,8 +564,31 @@ void makezeecorhist( const string &   signalRegionFile,
   TFile* kffile_zewk = NULL;
   vector<TH2*> zewkhists;
   if(isEWK and applyEWKVKfactor){
+    dyhists.clear();
+    zhists.clear();
     kffile_zewk = TFile::Open(kFactorFile_zjetewk.c_str(),"READ");
     zewkhists.push_back((TH2*) kffile_zewk->Get("TH2F_kFactor"));
+  }
+
+  TFile* kffileUnc_z = NULL;
+  if(kfact != 0){ // systematic variations
+    kffileUnc_z =  TFile::Open(kfactorFileUnc_Z.c_str());
+    TH1* zpdfhist_unc = (TH1*) kffileUnc_z->Get("bosonpt_pdf_uncup");
+    TH1* zfachist_unc = (TH1*) kffileUnc_z->Get("bosonpt_qcd_fac_uncup");
+    TH1* zrenhist_unc = (TH1*) kffileUnc_z->Get("bosonpt_qcd_ren_uncup");
+    
+    if(kfact == 1){ // factorization scale
+      zhists.push_back(zfachist_unc);
+      dyhists.push_back(zfachist_unc);
+    }
+    else if(kfact == 2){ // factorization scale
+      zhists.push_back(zrenhist_unc);
+      dyhists.push_back(zrenhist_unc);
+    }
+    else if(kfact == 3){ // factorization scale
+      zhists.push_back(zpdfhist_unc);    
+      dyhists.push_back(zpdfhist_unc);
+    }
   }
   
   if(not isEWK){
@@ -552,8 +600,8 @@ void makezeecorhist( const string &   signalRegionFile,
     makehist4(dtree, dhist, dhist_2D,  true, Sample::zee, category, false, 1.00, lumi, dyhists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
   }
   else{
-    makehist4(ntree, nhist, nhist_2D,  true, Sample::sig, category, false, 1.00, lumi, ehists, sysName, false, reweightNVTX, 0, isHiggsInvisible, false, zewkhists);  
-    makehist4(dtree, dhist, dhist_2D,  true, Sample::zee, category, false, 1.00, lumi, ehists, sysName, false, reweightNVTX, 0, isHiggsInvisible, false, zewkhists);
+    makehist4(ntree, nhist, nhist_2D,  true, Sample::sig, category, false, 1.00, lumi, zhists, sysName, false, reweightNVTX, 0, isHiggsInvisible, false, zewkhists);  
+    makehist4(dtree, dhist, dhist_2D,  true, Sample::zee, category, false, 1.00, lumi, dyhists, sysName, false, reweightNVTX, 0, isHiggsInvisible, false, zewkhists);
   }
 
   string name = string("zeecor")+ext;
@@ -632,6 +680,8 @@ void makezeecorhist( const string &   signalRegionFile,
     kfactzjet_vbf->Close();
   if(kffile_zewk)
     kffile_zewk->Close();
+  if(kffileUnc_z)
+    kffileUnc_z->Close();
 
   ehists.clear();
   zhists.clear();
@@ -687,7 +737,8 @@ void makewmncorhist( const string &  signalRegionFile,
 		     const bool &    isHiggsInvisible = false,
 		     const bool &    isEWK = false,
 		     const bool &    useTheoristKfactors = false,
-		     const string &  ext = "") {
+		     const string &  ext = "",
+		     const int & kfact   = 0) {
 
   TChain* ntree = new TChain("tree/tree");
   TChain* dtree = new TChain("tree/tree");
@@ -822,16 +873,34 @@ void makewmncorhist( const string &  signalRegionFile,
       if(not nloSamples.useWJetsNLO){
 	whists.push_back((TH1*) kfactwjet_vbf->Get("kfactors_cc/kfactor_vbf"));
       }
-    }
+    }    
   }
-  
   ////
   TFile* kffile_wewk = NULL;
   vector<TH2*> wewkhists;
   if(isEWK and applyEWKVKfactor){
+    whists.clear();
     kffile_wewk = TFile::Open(kFactorFile_wjetewk.c_str(),"READ");
     wewkhists.push_back((TH2*) kffile_wewk->Get("TH2F_kFactor"));
   }
+
+  TFile* kffileUnc_w = NULL;
+  if(kfact != 0){ // systematic variations
+
+    kffileUnc_w =  TFile::Open(kfactorFileUnc_W.c_str());
+
+    TH1* wpdfhist_unc = (TH1*) kffileUnc_w->Get("bosonpt_pdf_uncup");
+    TH1* wfachist_unc = (TH1*) kffileUnc_w->Get("bosonpt_qcd_fac_uncup");
+    TH1* wrenhist_unc = (TH1*) kffileUnc_w->Get("bosonpt_qcd_ren_uncup");
+    
+    if(kfact == 1) // factorization scale
+      whists.push_back(wfachist_unc);
+    else if(kfact == 2) // factorization scale
+      whists.push_back(wrenhist_unc);
+    else if(kfact == 3) // factorization scale
+      whists.push_back(wpdfhist_unc);    
+  }
+
   
   /////
   if(not isEWK){
@@ -839,8 +908,8 @@ void makewmncorhist( const string &  signalRegionFile,
     makehist4(dtree, dhist, dhist_2D,  true, Sample::wmn, category, false, 1.00, lumi, whists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
   }
   else{
-    makehist4(ntree, nhist, nhist_2D, true, Sample::sig, category, false, 1.00, lumi, ehists, sysName,false, reweightNVTX, 0, isHiggsInvisible, false, wewkhists);
-    makehist4(dtree, dhist, dhist_2D, true, Sample::wmn, category, false, 1.00, lumi, ehists, sysName,false, reweightNVTX, 0, isHiggsInvisible, false, wewkhists);
+    makehist4(ntree, nhist, nhist_2D, true, Sample::sig, category, false, 1.00, lumi, whists, sysName,false, reweightNVTX, 0, isHiggsInvisible, false, wewkhists);
+    makehist4(dtree, dhist, dhist_2D, true, Sample::wmn, category, false, 1.00, lumi, whists, sysName,false, reweightNVTX, 0, isHiggsInvisible, false, wewkhists);
   }
 
   string name = string("wmncor")+ext;
@@ -906,7 +975,6 @@ void makewmncorhist( const string &  signalRegionFile,
     unrolled.back()->Write("",TObject::kOverwrite);
   }
 
-
   outfile.Close();
   if(kffile)
     kffile->Close();
@@ -914,6 +982,8 @@ void makewmncorhist( const string &  signalRegionFile,
     kfactwjet_vbf->Close();
   if(kffile_wewk)
     kffile_wewk->Close();
+  if(kffileUnc_w) 
+    kffileUnc_w->Close();
 
   whists.clear();
   ehists.clear();
@@ -966,7 +1036,8 @@ void makewencorhist( const string &  signalRegionFile,
 		     const bool &    isHiggsInvisible = false,
 		     const bool &    isEWK = false,
 		     const bool &    useTheoristKfactors = false,
-		     const string &  ext = "") {
+		     const string &  ext = "",
+		     const int &     kfact = 0) {
 
   TChain* ntree = new TChain("tree/tree");
   TChain* dtree = new TChain("tree/tree");
@@ -1038,7 +1109,6 @@ void makewencorhist( const string &  signalRegionFile,
   vector<TH1*> ehists;
   vector<TH1*> whists;
 
-
   if(category != Category::VBF and category != Category::VBFrelaxed){ // Inclusive k-factors
 
     if(not useTheoristKfactors){
@@ -1079,14 +1149,12 @@ void makewencorhist( const string &  signalRegionFile,
   else if(category == Category::VBF or category == Category::VBFrelaxed){
     
     kfactwjet_vbf = TFile::Open(kFactorVBF_wjet.c_str());
-    kffile = TFile::Open(kfactorFile.c_str());
+    kffile   = TFile::Open(kfactorFile.c_str());
     wnlohist =  (TH1*) kffile->Get("WJets_012j_NLO/nominal");
     wewkhist =  (TH1*) kffile->Get("EWKcorr/W");
     
     if(wewkhist)
       wewkhist->Divide(wnlohist);
-    if(wnlohist)
-      wnlohist->Divide(wlohist);
     
     whists.clear();
     whists.push_back(wewkhist); // EW corrections                                                                                                                                                      
@@ -1109,8 +1177,28 @@ void makewencorhist( const string &  signalRegionFile,
   TFile* kffile_wewk = NULL;
   vector<TH2*> wewkhists;
   if(isEWK and applyEWKVKfactor){
+    whists.clear();
     kffile_wewk = TFile::Open(kFactorFile_wjetewk.c_str(),"READ");
     wewkhists.push_back((TH2*) kffile_wewk->Get("TH2F_kFactor"));
+  }
+  
+  ////
+  TFile* kffileUnc_w = NULL;
+
+  if(kfact != 0){ // systematic variations
+
+    kffileUnc_w =  TFile::Open(kfactorFileUnc_W.c_str());
+
+    TH1* wpdfhist_unc = (TH1*) kffileUnc_w->Get("bosonpt_pdf_uncup");
+    TH1* wfachist_unc = (TH1*) kffileUnc_w->Get("bosonpt_qcd_fac_uncup");
+    TH1* wrenhist_unc = (TH1*) kffileUnc_w->Get("bosonpt_qcd_ren_uncup");
+
+    if(kfact == 1) // factorization scale
+      whists.push_back(wfachist_unc);
+    else if(kfact == 2) // factorization scale
+      whists.push_back(wrenhist_unc);
+    else if(kfact == 3) // factorization scale
+      whists.push_back(wpdfhist_unc);    
   }
   
   //////////
@@ -1119,8 +1207,8 @@ void makewencorhist( const string &  signalRegionFile,
     makehist4(dtree, dhist, dhist_2D,  true, Sample::wen, category, false, 1.00, lumi, whists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
   }
   else{
-    makehist4(ntree, nhist, nhist_2D, true, Sample::sig, category, false, 1.00, lumi, ehists, sysName,false, reweightNVTX, 0, isHiggsInvisible, false, wewkhists);
-    makehist4(dtree, dhist, dhist_2D, true, Sample::wen, category, false, 1.00, lumi, ehists, sysName,false, reweightNVTX, 0, isHiggsInvisible, false, wewkhists);
+    makehist4(ntree, nhist, nhist_2D, true, Sample::sig, category, false, 1.00, lumi, whists, sysName,false, reweightNVTX, 0, isHiggsInvisible, false, wewkhists);
+    makehist4(dtree, dhist, dhist_2D, true, Sample::wen, category, false, 1.00, lumi, whists, sysName,false, reweightNVTX, 0, isHiggsInvisible, false, wewkhists);
   }
 
   string name = string("wencor")+ext;
@@ -1194,6 +1282,8 @@ void makewencorhist( const string &  signalRegionFile,
     kfactwjet_vbf->Close();
   if(kffile_wewk)
     kffile_wewk->Close();
+  if(kffileUnc_w)
+    kffileUnc_w->Close();
 
   wewkhists.clear();
 
@@ -1227,7 +1317,7 @@ void makewencorhist( const string &  signalRegionFile,
 
   if(ntree) delete ntree;
   if(dtree) delete dtree;
-
+  
   cout << "W(enu)->W+Jets transfer factor computed ..." << endl;
 }
 
@@ -1451,6 +1541,8 @@ void  makezwjcorhist(const string & znunuFile,
   vector<TH2*>  zewkhists;
   vector<TH2*>  wewkhists;
   if(isEWK and applyEWKVKfactor){
+    zhists.clear();
+    whists.clear();
     kffile_zewk = TFile::Open(kFactorFile_zjetewk.c_str(),"READ");
     kffile_wewk = TFile::Open(kFactorFile_wjetewk.c_str(),"READ");
     zewkhists.push_back((TH2*) kffile_zewk->Get("TH2F_kFactor"));
@@ -1858,8 +1950,8 @@ void  makezwjcorhist(const string & znunuFile,
     makehist4(dtree, dhist, dhist_2D,  true, Sample::sig, category, false, 1.00, lumi, whists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
   }
   else{
-    makehist4(ntree, nhist, nhist_2D,  true, Sample::sig, category, false, 1.00, lumi, ehists, sysName, false, reweightNVTX, 0, isHiggsInvisible, false, zewkhists);
-    makehist4(dtree, dhist, dhist_2D,  true, Sample::sig, category, false, 1.00, lumi, ehists, sysName, false, reweightNVTX, 0, isHiggsInvisible, false, wewkhists);
+    makehist4(ntree, nhist, nhist_2D,  true, Sample::sig, category, false, 1.00, lumi, zhists, sysName, false, reweightNVTX, 0, isHiggsInvisible, false, zewkhists);
+    makehist4(dtree, dhist, dhist_2D,  true, Sample::sig, category, false, 1.00, lumi, whists, sysName, false, reweightNVTX, 0, isHiggsInvisible, false, wewkhists);
   }
   
   string name = string("zwjcor")+ext;

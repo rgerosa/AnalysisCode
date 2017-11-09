@@ -299,7 +299,7 @@ void makeProcessUncertaintyFromGen(string inputDIR,  string outputDIR, Sample sa
     bosonpt_qcd_ren_uncup->Smooth();
     bosonpt_qcd_ren_uncdw->Smooth();
   }
-
+  
   if(category == Category::VBFrelaxed){ // same envelope for Mjj
     for(int iBin = 0; iBin < mjj_qcd_ren_uncup->GetNbinsX(); iBin++){
       float maxValue = -100;
@@ -351,7 +351,7 @@ void makeProcessUncertaintyFromGen(string inputDIR,  string outputDIR, Sample sa
       bosonpt_qcd_fac_uncdw->SetBinContent(iBin+1,1-(fabs(maxValue/bosonpt_qcd_fac.at(0)->GetBinContent(iBin+1)-1)+fabs(minValue/bosonpt_qcd_fac.at(0)->GetBinContent(iBin+1)-1))/2);
     }
   }
-
+  
   if(doSmoothing){
     bosonpt_qcd_fac_uncup->Smooth();
     bosonpt_qcd_fac_uncdw->Smooth();
@@ -417,7 +417,7 @@ void makeProcessUncertaintyFromGen(string inputDIR,  string outputDIR, Sample sa
     bosonpt_pdf_uncup->Smooth();
     bosonpt_pdf_uncdw->Smooth();
   }
-
+  
   if(category == Category::VBFrelaxed){
 
     for(int iBin = 0; iBin < mjj_pdf_uncup->GetNbinsX(); iBin++){
@@ -437,10 +437,9 @@ void makeProcessUncertaintyFromGen(string inputDIR,  string outputDIR, Sample sa
 	  mjj_pdf_uncup->SetBinContent(iBin+1,2*binEntryAbove.at(int(binEntryAbove.size()*0.34)+1)/nominalValue);
 	  mjj_pdf_uncdw->SetBinContent(iBin+1,2*binEntryBelow.at(int(binEntryBelow.size()*0.66)-1)/nominalValue);
       }
-      }
       else{
-	  mjj_pdf_uncup->SetBinContent(iBin+1,1+2*(fabs(binEntryAbove.at(int(binEntryAbove.size()*0.34)+1)/nominalValue-1)+fabs(binEntryBelow.at(int(binEntryBelow.size()*0.66)-1)/nominalValue-1))/2);
-	  mjj_pdf_uncdw->SetBinContent(iBin+1,1-2*(fabs(binEntryAbove.at(int(binEntryAbove.size()*0.34)+1)/nominalValue-1)+fabs(binEntryBelow.at(int(binEntryBelow.size()*0.66)-1)/nominalValue-1))/2);
+	mjj_pdf_uncup->SetBinContent(iBin+1,1+2*(fabs(binEntryAbove.at(int(binEntryAbove.size()*0.34)+1)/nominalValue-1)+fabs(binEntryBelow.at(int(binEntryBelow.size()*0.66)-1)/nominalValue-1))/2);
+	mjj_pdf_uncdw->SetBinContent(iBin+1,1-2*(fabs(binEntryAbove.at(int(binEntryAbove.size()*0.34)+1)/nominalValue-1)+fabs(binEntryBelow.at(int(binEntryBelow.size()*0.66)-1)/nominalValue-1))/2);
       }
     }
     
@@ -448,7 +447,6 @@ void makeProcessUncertaintyFromGen(string inputDIR,  string outputDIR, Sample sa
       mjj_pdf_uncup->Smooth();
       mjj_pdf_uncdw->Smooth();
     }
-
   }
 
 
