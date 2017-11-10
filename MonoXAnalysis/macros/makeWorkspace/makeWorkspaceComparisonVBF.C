@@ -273,7 +273,7 @@ void makeWorkspaceComparisonVBF(string fileName1, string fileName2, string outpu
   makeHistogramList(histo_WJets_SR_QCD_2,histo_WJets_SR_EWK_2,SR_VBF_2,"SR",observable,systematic);
   makeHistogramList(histo_WJets_WM_QCD_2,histo_WJets_WM_EWK_2,WM_VBF_2,"WM",observable,systematic);
   makeHistogramList(histo_WJets_WE_QCD_2,histo_WJets_WE_EWK_2,WE_VBF_2,"WE",observable,systematic);
-  
+
   /// plotting final histograms
   TCanvas* canvas = new TCanvas("canvas","",600,700);
   canvas->SetBottomMargin(0.3);
@@ -286,4 +286,23 @@ void makeWorkspaceComparisonVBF(string fileName1, string fileName2, string outpu
   plotHistogram(canvas,histo_WJets_SR_EWK_1,histo_WJets_SR_EWK_2,outputDIR,observable,"W #rightarrow l#nu (SR)","WJet_SR_EWK_"+systematic,labels);
   plotHistogram(canvas,histo_WJets_WM_EWK_1,histo_WJets_WM_EWK_2,outputDIR,observable,"W #rightarrow #mu#nu (WM)","WJet_WM_EWK_"+systematic,labels);
   plotHistogram(canvas,histo_WJets_WE_EWK_1,histo_WJets_WE_EWK_2,outputDIR,observable,"W #rightarrow e#nu (WE)","WJet_WE_EWK_"+systematic,labels);
+
+  TFile* outputFile = new TFile((outputDIR+"/template_file.root").c_str(),"RECREATE");
+  outputFile->cd();
+
+  for(auto hist : histo_WJets_SR_QCD_1) hist->Write();
+  for(auto hist : histo_WJets_SR_QCD_2) hist->Write();
+  for(auto hist : histo_WJets_WM_QCD_1) hist->Write();
+  for(auto hist : histo_WJets_WM_QCD_2) hist->Write();
+  for(auto hist : histo_WJets_WE_QCD_1) hist->Write();
+  for(auto hist : histo_WJets_WE_QCD_2) hist->Write();
+
+  for(auto hist : histo_WJets_SR_EWK_1) hist->Write();
+  for(auto hist : histo_WJets_SR_EWK_2) hist->Write();
+  for(auto hist : histo_WJets_WM_EWK_1) hist->Write();
+  for(auto hist : histo_WJets_WM_EWK_2) hist->Write();
+  for(auto hist : histo_WJets_WE_EWK_1) hist->Write();
+  for(auto hist : histo_WJets_WE_EWK_2) hist->Write();
+  
+  outputFile->Close();
 }
