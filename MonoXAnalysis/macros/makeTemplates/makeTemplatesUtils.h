@@ -1434,6 +1434,7 @@ void fillAndSaveCorrQCDHistograms(const vector<string> & observables, // observa
     outputFile.cd(("TF_ZM"+dirfix).c_str());
     
     zmmcorhist.back()->Write();
+
     if(zmmcorfahist.size() != 0) zmmcorfahist.back()->Write();
     if(zmmcorrehist.size() != 0) zmmcorrehist.back()->Write();
     if(zmmcorpdfhist.size() != 0) zmmcorpdfhist.back()->Write();
@@ -1445,6 +1446,14 @@ void fillAndSaveCorrQCDHistograms(const vector<string> & observables, // observa
     if(addHistoForCutAndCount){
       zmmcorhist_num.back()->Write();
       zmmcorhist_den.back()->Write();
+
+      if(zmmcorfahist_num.size() != 0) zmmcorfahist_num.back()->Write();
+      if(zmmcorfahist_den.size() != 0) zmmcorfahist_den.back()->Write();
+      if(zmmcorrehist_num.size() != 0) zmmcorrehist_num.back()->Write();
+      if(zmmcorrehist_den.size() != 0) zmmcorrehist_den.back()->Write();
+      if(zmmcorpdfhist_num.size() != 0) zmmcorpdfhist_num.back()->Write();
+      if(zmmcorpdfhist_den.size() != 0) zmmcorpdfhist_den.back()->Write();
+
     }
 
     outputFile.cd();
@@ -1463,8 +1472,17 @@ void fillAndSaveCorrQCDHistograms(const vector<string> & observables, // observa
     if(zeeuncpdfhist) zeeuncpdfhist->Write();
     
     if(addHistoForCutAndCount){
+
       zeecorhist_num.back()->Write();
       zeecorhist_den.back()->Write();
+
+      if(zeecorfahist_num.size() != 0) zeecorfahist_num.back()->Write();
+      if(zeecorfahist_den.size() != 0) zeecorfahist_den.back()->Write();
+      if(zeecorrehist_num.size() != 0) zeecorrehist_num.back()->Write();
+      if(zeecorrehist_den.size() != 0) zeecorrehist_den.back()->Write();
+      if(zeecorpdfhist_num.size() != 0) zeecorpdfhist_num.back()->Write();
+      if(zeecorpdfhist_den.size() != 0) zeecorpdfhist_den.back()->Write();
+
     }
 
     outputFile.cd();
@@ -1483,8 +1501,17 @@ void fillAndSaveCorrQCDHistograms(const vector<string> & observables, // observa
     if(wmnuncpdfhist) wmnuncpdfhist->Write();
 
     if(addHistoForCutAndCount){
+
       wmncorhist_num.back()->Write();
       wmncorhist_den.back()->Write();
+
+      if(wmncorfahist_num.size() != 0) wmncorfahist_num.back()->Write();
+      if(wmncorfahist_den.size() != 0) wmncorfahist_den.back()->Write();
+      if(wmncorrehist_num.size() != 0) wmncorrehist_num.back()->Write();
+      if(wmncorrehist_den.size() != 0) wmncorrehist_den.back()->Write();
+      if(wmncorpdfhist_num.size() != 0) wmncorpdfhist_num.back()->Write();
+      if(wmncorpdfhist_den.size() != 0) wmncorpdfhist_den.back()->Write();
+
     }
 
     outputFile.cd();
@@ -1503,8 +1530,17 @@ void fillAndSaveCorrQCDHistograms(const vector<string> & observables, // observa
     if(wenuncpdfhist) wenuncpdfhist->Write();
 
     if(addHistoForCutAndCount){
+
       wencorhist_num.back()->Write();
       wencorhist_den.back()->Write();
+
+      if(wencorfahist_num.size() != 0) wencorfahist_num.back()->Write();
+      if(wencorfahist_den.size() != 0) wencorfahist_den.back()->Write();
+      if(wencorrehist_num.size() != 0) wencorrehist_num.back()->Write();
+      if(wencorrehist_den.size() != 0) wencorrehist_den.back()->Write();
+      if(wencorpdfhist_num.size() != 0) wencorpdfhist_num.back()->Write();
+      if(wencorpdfhist_den.size() != 0) wencorpdfhist_den.back()->Write();
+
     }
 
     outputFile.cd();

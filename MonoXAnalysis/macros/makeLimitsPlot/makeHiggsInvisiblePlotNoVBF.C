@@ -50,16 +50,15 @@ void makeHiggsInvisiblePlotNoVBF(bool blind = false, bool addPreliminary = false
 
   TH1* frame = (TH1*) canvas->DrawFrame(0.,0.,3,1.5);
   frame->SetBins(3,0,3);
-  frame->GetYaxis()->CenterTitle();
   frame->GetXaxis()->SetBinLabel(1,"Monojet");
   frame->GetXaxis()->SetBinLabel(2,"Mono-V");
   frame->GetXaxis()->SetBinLabel(3,"Combined");
   frame->GetYaxis()->SetRangeUser(0.,1.8);
   frame->GetYaxis()->SetLabelSize(0.035);
   frame->GetXaxis()->SetLabelSize(0.05);
-  frame->GetYaxis()->SetTitle("95% CL upper limit on #sigma x B(H #rightarrow inv)/#sigma_{SM}");
+  frame->GetYaxis()->SetTitle("95% CL upper limit on #sigma x B(H #rightarrow inv.)/#sigma_{SM}");
   frame->GetYaxis()->SetTitleSize(0.038);
-  frame->GetYaxis()->SetTitleOffset(1.25);
+  frame->GetYaxis()->SetTitleOffset(1.30);
   frame->Draw();
 
   limitValueExpected->SetLineColor(kBlack);
@@ -67,7 +66,9 @@ void makeHiggsInvisiblePlotNoVBF(bool blind = false, bool addPreliminary = false
   limitValueExpected->SetLineStyle(2);
   limitValueExpected->Draw("PE0same");
   limitErr_1s->SetFillColor(kGreen+1);
+  limitErr_1s->SetLineColor(kGreen+1);
   limitErr_2s->SetFillColor(kOrange);
+  limitErr_2s->SetLineColor(kOrange);
   limitErr_2s->Draw("2same");
   limitErr_1s->Draw("2same");
   limitValueExpected->Draw("PE0 same");
@@ -85,13 +86,13 @@ void makeHiggsInvisiblePlotNoVBF(bool blind = false, bool addPreliminary = false
     limitValueObserved->Draw("PE0 same");
   }
 
-  TLegend* leg = new TLegend(0.5,0.66,0.9,0.9);
+  TLegend* leg = new TLegend(0.58,0.63,0.9,0.9);
   leg->SetBorderSize(0.);
   leg->SetFillColor(0);
   leg->SetFillStyle(0);
   if(not blind)
-    leg->AddEntry(limitValueObserved,"Observed 95% CL","PL");
-  leg->AddEntry(limitValueExpected,"Median expected 95% CL","PL");
+    leg->AddEntry(limitValueObserved,"Observed","PL");
+  leg->AddEntry(limitValueExpected,"Median expected","PL");
   leg->AddEntry(limitErr_1s,"68% expected","F");
   leg->AddEntry(limitErr_2s,"95% expected","F");
   leg->Draw("same");

@@ -969,7 +969,7 @@ void makeTemplates(const bool & doCorrectionHistograms   = false,  // calculate 
     // gamma + jets
     if(category != Category::VBF and category != Category::VBFrelaxed){
       cout<<"start gamma+jets region data"<<endl;
-      gamdatamchist(&outfile,category,observables,observables_2D,nloSamples,lumi,runHiggsInvisible,false,applyPostFitWeights,useTheoriestKFactors);
+      //gamdatamchist(&outfile,category,observables,observables_2D,nloSamples,lumi,runHiggsInvisible,false,applyPostFitWeights,useTheoriestKFactors);
     }
     // lepton control regions
     cout<<"start zmumu region data"<<endl;
@@ -980,6 +980,7 @@ void makeTemplates(const bool & doCorrectionHistograms   = false,  // calculate 
     lepdatamchist(&outfile,Sample::zee,category,observables,observables_2D,lumi,nloSamples,doShapeSystematics,runHiggsInvisible,false,true,applyPostFitWeights,useTheoriestKFactors); 
     cout<<"start wenu region data"<<endl;
     lepdatamchist(&outfile,Sample::wen,category,observables,observables_2D,lumi,nloSamples,doShapeSystematics,runHiggsInvisible,false,true,applyPostFitWeights,useTheoriestKFactors);     
+
     // top control regions
     if(addTop){
       cout<<"start top+mu region data"<<endl;

@@ -1047,7 +1047,7 @@ void makehist4(TTree* tree,            /*input tree*/
 	sfwgt *= trackingefficiency_electron->GetBinContent(trackingefficiency_electron->FindBin(eta1,ptVal));
       }
       if(pt2 > 0.){
-	float ptVal = pt2;
+	float ptVal = pt1;
 	if(pt2 < trackingefficiency_electron->GetYaxis()->GetBinLowEdge(1)) 
 	  ptVal =  trackingefficiency_electron->GetYaxis()->GetBinLowEdge(1)+1;
 	else if(pt2 > trackingefficiency_electron->GetYaxis()->GetBinLowEdge(trackingefficiency_electron->GetNbinsY()+1)) 
