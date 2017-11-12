@@ -160,15 +160,13 @@ void makezmmcorhist( const string &   signalRegionFile,
     kfactzjet_vbf = TFile::Open(kFactorVBF_zjet.c_str());
     kfactzll_vbf  = TFile::Open(kFactorVBF_zll.c_str());
     
-    zhists.clear();
-
     kffile = TFile::Open(kfactorFile.c_str());
     znlohist = (TH1*) kffile->Get("ZJets_012j_NLO/nominal");
     zewkhist = (TH1*) kffile->Get("EWKcorr/Z");    
     if(zewkhist)
       zewkhist->Divide(znlohist);
-    zhists.push_back(zewkhist); // EW corrections                                                                                                                                                 
 
+    zhists.push_back(zewkhist); // EW corrections                                                                                                                                                 
     if(category == Category::VBFrelaxed){
       if(not nloSamples.useZJetsNLO){
 	zhists.push_back((TH1*) kfactzjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_200_500"));
@@ -183,9 +181,7 @@ void makezmmcorhist( const string &   signalRegionFile,
       }
     }
     
-    dyhists.clear();
     dyhists.push_back(zewkhist); // EW corrections                                                                                                                                           
-
     if(category == Category::VBFrelaxed){
       if(not nloSamples.useDYJetsNLO){
 	dyhists.push_back((TH1*) kfactzll_vbf->Get("kfactors_shape/kfactor_vbf_mjj_200_500"));
@@ -521,9 +517,7 @@ void makezeecorhist( const string &   signalRegionFile,
     if(zewkhist)
       zewkhist->Divide(znlohist);
     if(znlohist)
-      znlohist->Divide(zlohist);
-    
-    zhists.clear();
+      znlohist->Divide(zlohist);    
     zhists.push_back(zewkhist); // EW corrections                                                                                                                                                 
 
     kfactzjet_vbf = TFile::Open(kFactorVBF_zjet.c_str());
@@ -543,7 +537,6 @@ void makezeecorhist( const string &   signalRegionFile,
       }
     }
 
-    dyhists.clear();
     dyhists.push_back(zewkhist); // EW corrections                                                                                                                                                     
     if(category == Category::VBFrelaxed){
       if(not nloSamples.useDYJetsNLO){
@@ -859,7 +852,6 @@ void makewmncorhist( const string &  signalRegionFile,
     if(wewkhist)
       wewkhist->Divide(wnlohist);
 
-    whists.clear();
     whists.push_back(wewkhist); // EW corrections                                                                                                                                                      
     if(category == Category::VBFrelaxed){
       if(not nloSamples.useWJetsNLO){
@@ -1156,7 +1148,6 @@ void makewencorhist( const string &  signalRegionFile,
     if(wewkhist)
       wewkhist->Divide(wnlohist);
     
-    whists.clear();
     whists.push_back(wewkhist); // EW corrections                                                                                                                                                      
     if(category == Category::VBFrelaxed){
       if(not nloSamples.useWJetsNLO){
@@ -1445,8 +1436,7 @@ void  makezwjcorhist(const string & znunuFile,
       if(kfact == 2 and not nloSamples.useZJetsNLO){ zhists.push_back(znlohist); zhists.push_back(zewkhist); }
       if(kfact == 2 and nloSamples.useZJetsNLO) zhists.push_back(zewkhist);
       // only QCD k-fact
-      if(kfact == 1 and not nloSamples.useZJetsNLO){ zhists.push_back(znlohist);}
-      
+      if(kfact == 1 and not nloSamples.useZJetsNLO){ zhists.push_back(znlohist);}      
       //default k-factrs NLO QCD and EW
       if(kfact == 2 and not nloSamples.useWJetsNLO){ whists.push_back(wnlohist); whists.push_back(wewkhist); }
       if(kfact == 2 and nloSamples.useWJetsNLO) whists.push_back(wewkhist);
@@ -1484,9 +1474,6 @@ void  makezwjcorhist(const string & znunuFile,
     kfactwjet_vbf = TFile::Open(kFactorVBF_wjet.c_str());
     kfactzjet_vbf = TFile::Open(kFactorVBF_zjet.c_str());
 
-    zhists.clear();
-    whists.clear();
-    
     kffile = TFile::Open(kfactorFile.c_str());
     znlohist = (TH1*) kffile->Get("ZJets_012j_NLO/nominal");
     zewkhist  = (TH1*) kffile->Get("EWKcorr/Z");
@@ -1513,10 +1500,9 @@ void  makezwjcorhist(const string & znunuFile,
       }
     }
 
-    if(kfact == 0) zhists.clear();
+    if(kfact == 0) zhists.clear(); // LO prediction    
     if(kfact == 2) zhists.push_back(zewkhist); // EW corrections                                                                                                                                 
 
-    whists.clear();
     if(category == Category::VBFrelaxed){
       if(not nloSamples.useWJetsNLO){
 	whists.push_back((TH1*) kfactwjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_200_500"));
@@ -1531,7 +1517,7 @@ void  makezwjcorhist(const string & znunuFile,
       }
     }
 
-    if(kfact == 0) whists.clear();
+    if(kfact == 0) whists.clear(); // LO prediction
     if(kfact == 2) whists.push_back(wewkhist); // EW corrections                                                                                                                               
   }
   
@@ -1554,11 +1540,13 @@ void  makezwjcorhist(const string & znunuFile,
   TFile* kffileUnc = NULL;
   TFile* kffile_zvv = NULL;
   TFile* kffile_wln = NULL;
-  
+  TFile* kffileUnc_z = NULL;
+  TFile* kffileUnc_w = NULL;
+
   if(kfact > 2){ // make systematics --> real systematics
     
     if(useNewTheoryUncertainty and category != Category::VBF and category != Category::VBFrelaxed){      
-
+      
       // make systematics
       kffile_zvv = TFile::Open(kFactorTheoristFile_zvv.c_str());
       TH1* kfact_nloqcd_zvv    = (TH1*) kffile_zvv->Get("vvj_pTV_K_NLO");
@@ -1861,82 +1849,123 @@ void  makezwjcorhist(const string & znunuFile,
 	whists.push_back(wpdfhist);
       }
     }    
-    else if(not useNewTheoryUncertainty){
+    else if(not useNewTheoryUncertainty){ ///////// ---------
       
-      kffileUnc =  TFile::Open(kfactorFileUnc.c_str());
-      TH1* zpdfhist = (TH1*) kffileUnc->Get("znlo012/znlo012_pdfUp");
-      TH1* wpdfhist = (TH1*) kffileUnc->Get("wnlo012/wnlo012_pdfUp");
-      TH1* nomhist  = (TH1*) kffileUnc->Get("znlo1_over_wnlo1/znlo1_over_wnlo1");
-      TH1* re1hist  = (TH1*) kffileUnc->Get("znlo1_over_wnlo1/znlo1_over_wnlo1_renCorrUp");
-      TH1* re2hist  = (TH1*) kffileUnc->Get("znlo1_over_wnlo1/znlo1_over_wnlo1_renAcorrUp");
-      TH1* fa1hist  = (TH1*) kffileUnc->Get("znlo1_over_wnlo1/znlo1_over_wnlo1_facCorrUp");
-      TH1* fa2hist  = (TH1*) kffileUnc->Get("znlo1_over_wnlo1/znlo1_over_wnlo1_facAcorrUp");
-      
-      TH1* znloOrig = (TH1*) kffileUnc->Get("znlo012/znlo012_nominal");
-      TH1* wnloOrig = (TH1*) kffileUnc->Get("wnlo012/wnlo012_nominal");
-      zpdfhist->Divide(znloOrig);
-      wpdfhist->Divide(wnloOrig);
-      
-      // Z/W NLO QCD re up / Z/W NLO QCD                                                                                                                                          
-      re1hist->Divide(nomhist);
-      // Z/W NLO QCD re EWK up / Z/W NLO QCD                                                                                                                                       
-      re2hist->Divide(nomhist);
-      // Z/W NLO QCD fac  up / Z/W NLO QCD                                                                                                                                         
-      fa1hist->Divide(nomhist);
-      // Z/W NLO QCD fac EWK up / Z/W NLO QCD                                                                                                                                       
-      fa2hist->Divide(nomhist);
+      if(not decorrelateZWUncertainties){
 
-      //kfact == 3 --> Znunu and Wlnu by NLO QCD, ratio for ren scale up QCD                                                                                                        
-      if(category != Category::VBF and category != Category::VBFrelaxed){ // standard monojet stuff
-	if (kfact == 3 and not nloSamples.useZJetsNLO) {zhists.push_back(znlohist); zhists.push_back(re1hist);}
-	else if(kfact == 3 and nloSamples.useZJetsNLO) zhists.push_back(re1hist);      
-	if (kfact == 3 and not nloSamples.useWJetsNLO)  whists.push_back(wnlohist);
+	kffileUnc =  TFile::Open(kfactorFileUnc.c_str());
+	TH1* zpdfhist = (TH1*) kffileUnc->Get("znlo012/znlo012_pdfUp");
+	TH1* wpdfhist = (TH1*) kffileUnc->Get("wnlo012/wnlo012_pdfUp");
+	TH1* nomhist  = (TH1*) kffileUnc->Get("znlo1_over_wnlo1/znlo1_over_wnlo1");
+	TH1* re1hist  = (TH1*) kffileUnc->Get("znlo1_over_wnlo1/znlo1_over_wnlo1_renCorrUp");
+	TH1* re2hist  = (TH1*) kffileUnc->Get("znlo1_over_wnlo1/znlo1_over_wnlo1_renAcorrUp");
+	TH1* fa1hist  = (TH1*) kffileUnc->Get("znlo1_over_wnlo1/znlo1_over_wnlo1_facCorrUp");
+	TH1* fa2hist  = (TH1*) kffileUnc->Get("znlo1_over_wnlo1/znlo1_over_wnlo1_facAcorrUp");
 	
-	//kfact == 4 --> Znunu and Wlnu by NLO QCD, ratio for fac scale up QCD                                                                                                        
-	if (kfact == 4 and not nloSamples.useZJetsNLO) {zhists.push_back(znlohist); zhists.push_back(fa1hist);}
-	else if(kfact == 4 and nloSamples.useZJetsNLO) zhists.push_back(fa1hist) ;      
-	if (kfact == 4 and not nloSamples.useWJetsNLO) whists.push_back(wnlohist);
+	TH1* znloOrig = (TH1*) kffileUnc->Get("znlo012/znlo012_nominal");
+	TH1* wnloOrig = (TH1*) kffileUnc->Get("wnlo012/wnlo012_nominal");
+	zpdfhist->Divide(znloOrig);
+	wpdfhist->Divide(wnloOrig);
 	
-	//kfact == 5 --> Znunu and Wlnu by NLO QCD, ratio for ren scale up EWK                                                                                                        
-	if (kfact == 5 and not nloSamples.useZJetsNLO) {zhists.push_back(znlohist); zhists.push_back(re2hist);}
-	else if(kfact == 5 and nloSamples.useZJetsNLO) zhists.push_back(re2hist);
-	if (kfact == 5 and not nloSamples.useWJetsNLO) whists.push_back(wnlohist);
+	// Z/W NLO QCD re up / Z/W NLO QCD                                                                                                                                          
+	re1hist->Divide(nomhist);
+	// Z/W NLO QCD re EWK up / Z/W NLO QCD                                                                                                                                       
+	re2hist->Divide(nomhist);
+	// Z/W NLO QCD fac  up / Z/W NLO QCD                                                                                                                                         
+	fa1hist->Divide(nomhist);
+	// Z/W NLO QCD fac EWK up / Z/W NLO QCD                                                                                                                                       
+	fa2hist->Divide(nomhist);
 	
-	//kfact == 6 --> Znunu and Wlnu by NLO QCD, ratio for fac scale up EWK                                                                                                        
-	if (kfact == 6 and not nloSamples.useZJetsNLO) {zhists.push_back(znlohist); zhists.push_back(fa2hist);}
-	else if(kfact == 6 and nloSamples.useZJetsNLO) zhists.push_back(fa2hist);      
-	if (kfact == 6 and not nloSamples.useWJetsNLO)  whists.push_back(wnlohist);
-	
-	//kfact == 7 --> Znunu corrected for by NLO NLO PDF, Wlnu by NLO                                                                                                              
-	if (kfact == 7 and not nloSamples.useZJetsNLO) {zhists.push_back(znlohist); zhists.push_back(zpdfhist);}
-	else if(kfact == 7 and nloSamples.useZJetsNLO) zhists.push_back(zpdfhist);
-	
-	if (kfact == 7 and not nloSamples.useWJetsNLO)  {whists.push_back(wnlohist); whists.push_back(wpdfhist);}
-	else if (kfact == 7 and nloSamples.useWJetsNLO) whists.push_back(wpdfhist);      
+	//kfact == 3 --> Znunu and Wlnu by NLO QCD, ratio for ren scale up QCD                                                                                                        
+	if(category != Category::VBF and category != Category::VBFrelaxed){ // standard monojet stuff
+	  if (kfact == 3 and not nloSamples.useZJetsNLO) {zhists.push_back(znlohist); zhists.push_back(re1hist);}
+	  else if(kfact == 3 and nloSamples.useZJetsNLO) zhists.push_back(re1hist);      
+	  if (kfact == 3 and not nloSamples.useWJetsNLO)  whists.push_back(wnlohist);
+	  
+	  //kfact == 4 --> Znunu and Wlnu by NLO QCD, ratio for fac scale up QCD                                                                                                        
+	  if (kfact == 4 and not nloSamples.useZJetsNLO) {zhists.push_back(znlohist); zhists.push_back(fa1hist);}
+	  else if(kfact == 4 and nloSamples.useZJetsNLO) zhists.push_back(fa1hist) ;      
+	  if (kfact == 4 and not nloSamples.useWJetsNLO) whists.push_back(wnlohist);
+	  
+	  //kfact == 5 --> Znunu and Wlnu by NLO QCD, ratio for ren scale up EWK                                                                                                        
+	  if (kfact == 5 and not nloSamples.useZJetsNLO) {zhists.push_back(znlohist); zhists.push_back(re2hist);}
+	  else if(kfact == 5 and nloSamples.useZJetsNLO) zhists.push_back(re2hist);
+	  if (kfact == 5 and not nloSamples.useWJetsNLO) whists.push_back(wnlohist);
+	  
+	  //kfact == 6 --> Znunu and Wlnu by NLO QCD, ratio for fac scale up EWK                                                                                                        
+	  if (kfact == 6 and not nloSamples.useZJetsNLO) {zhists.push_back(znlohist); zhists.push_back(fa2hist);}
+	  else if(kfact == 6 and nloSamples.useZJetsNLO) zhists.push_back(fa2hist);      
+	  if (kfact == 6 and not nloSamples.useWJetsNLO)  whists.push_back(wnlohist);
+	  
+	  //kfact == 7 --> Znunu corrected for by NLO NLO PDF, Wlnu by NLO                                                                                                              
+	  if (kfact == 7 and not nloSamples.useZJetsNLO) {zhists.push_back(znlohist); zhists.push_back(zpdfhist);}
+	  else if(kfact == 7 and nloSamples.useZJetsNLO) zhists.push_back(zpdfhist);
+	  
+	  if (kfact == 7 and not nloSamples.useWJetsNLO)  {whists.push_back(wnlohist); whists.push_back(wpdfhist);}
+	  else if (kfact == 7 and nloSamples.useWJetsNLO) whists.push_back(wpdfhist);      
+	}
+	else{ // in the VBF case --> add on top these corrections --> includes also the EW corrections
+
+	  if (kfact == 3 and not nloSamples.useZJetsNLO) zhists.push_back(re1hist);
+	  else if (kfact == 3 and nloSamples.useZJetsNLO){ zhists.clear(); zhists.push_back(re1hist);}
+	  if (kfact == 3 and nloSamples.useWJetsNLO) whists.clear();
+	  
+	  if (kfact == 4 and not nloSamples.useZJetsNLO) zhists.push_back(fa1hist);
+	  else if (kfact == 4 and nloSamples.useZJetsNLO){ zhists.clear(); zhists.push_back(fa1hist);}
+	  if (kfact == 4 and nloSamples.useWJetsNLO) whists.clear();
+	  
+	  if (kfact == 5 and not nloSamples.useZJetsNLO) zhists.push_back(re2hist);
+	  else if (kfact == 5 and nloSamples.useZJetsNLO){ zhists.clear(); zhists.push_back(re2hist);}
+	  if (kfact == 5 and nloSamples.useWJetsNLO) whists.clear();
+	  
+	  if (kfact == 6 and not nloSamples.useZJetsNLO) zhists.push_back(fa2hist);
+	  else if (kfact == 6 and nloSamples.useZJetsNLO){ zhists.clear(); zhists.push_back(fa2hist);}
+	  if (kfact == 6 and nloSamples.useWJetsNLO) whists.clear();
+	  
+	  if (kfact == 7 and not nloSamples.useZJetsNLO) zhists.push_back(zpdfhist);
+	  else if (kfact == 7 and nloSamples.useZJetsNLO){ zhists.clear(); zhists.push_back(zpdfhist);}
+	  
+	  if (kfact == 7 and not nloSamples.useWJetsNLO) zhists.push_back(wpdfhist);
+	  else if (kfact == 7 and nloSamples.useWJetsNLO){ whists.clear(); whists.push_back(wpdfhist);}
+	}
       }
-      else{ // in the VBF case --> add on top these corrections --> includes also the EW corrections
+      else if((category == Category::VBF or category == Category::VBFrelaxed) and decorrelateZWUncertainties){
 
-	if (kfact == 3 and not nloSamples.useZJetsNLO) zhists.push_back(re1hist);
-	else if (kfact == 3 and nloSamples.useZJetsNLO){ zhists.clear(); zhists.push_back(re1hist);}
-	if (kfact == 3 and nloSamples.useWJetsNLO) whists.clear();
+	  kffileUnc_z =  TFile::Open(kfactorFileUnc_Z.c_str());
+	  kffileUnc_w =  TFile::Open(kfactorFileUnc_W.c_str());
 
-	if (kfact == 4 and not nloSamples.useZJetsNLO) zhists.push_back(fa1hist);
-	else if (kfact == 4 and nloSamples.useZJetsNLO){ zhists.clear(); zhists.push_back(fa1hist);}
-	if (kfact == 4 and nloSamples.useWJetsNLO) whists.clear();
+	  TH1* zpdfhist_unc = (TH1*) kffileUnc_z->Get("bosonpt_pdf_uncup");
+	  TH1* zfachist_unc = (TH1*) kffileUnc_z->Get("bosonpt_qcd_fac_uncup");
+	  TH1* zrenhist_unc = (TH1*) kffileUnc_z->Get("bosonpt_qcd_ren_uncup");
 
-	if (kfact == 5 and not nloSamples.useZJetsNLO) zhists.push_back(re2hist);
-	else if (kfact == 5 and nloSamples.useZJetsNLO){ zhists.clear(); zhists.push_back(re2hist);}
-	if (kfact == 5 and nloSamples.useWJetsNLO) whists.clear();
+	  TH1* wpdfhist_unc = (TH1*) kffileUnc_w->Get("bosonpt_pdf_uncup");
+	  TH1* wfachist_unc = (TH1*) kffileUnc_w->Get("bosonpt_qcd_fac_uncup");
+	  TH1* wrenhist_unc = (TH1*) kffileUnc_w->Get("bosonpt_qcd_ren_uncup");
+	  
+	  if (kfact == 3 and not nloSamples.useZJetsNLO) zhists.push_back(zrenhist_unc);
+	  else if (kfact == 3 and nloSamples.useZJetsNLO){ zhists.clear(); zhists.push_back(zrenhist_unc);}
+	  if (kfact == 3 and nloSamples.useWJetsNLO) whists.clear();
 
-	if (kfact == 6 and not nloSamples.useZJetsNLO) zhists.push_back(fa2hist);
-	else if (kfact == 6 and nloSamples.useZJetsNLO){ zhists.clear(); zhists.push_back(fa2hist);}
-	if (kfact == 6 and nloSamples.useWJetsNLO) whists.clear();
+	  if (kfact == 4 and not nloSamples.useZJetsNLO) zhists.push_back(zfachist_unc);
+	  else if (kfact == 4 and nloSamples.useZJetsNLO){ zhists.clear(); zhists.push_back(zfachist_unc);}
+	  if (kfact == 4 and nloSamples.useWJetsNLO) whists.clear();
 
-	if (kfact == 7 and not nloSamples.useZJetsNLO) zhists.push_back(zpdfhist);
-	else if (kfact == 7 and nloSamples.useZJetsNLO){ zhists.clear(); zhists.push_back(zpdfhist);}
+	  if (kfact == 5 and not nloSamples.useZJetsNLO) zhists.push_back(zpdfhist_unc);
+	  else if (kfact == 5 and nloSamples.useZJetsNLO){ zhists.clear(); zhists.push_back(zpdfhist_unc);}
+	  if (kfact == 5 and nloSamples.useWJetsNLO) whists.clear();
 
-	if (kfact == 7 and not nloSamples.useWJetsNLO) zhists.push_back(wpdfhist);
-	else if (kfact == 7 and nloSamples.useWJetsNLO){ whists.clear(); whists.push_back(wpdfhist);}
+	  if (kfact == 6 and not nloSamples.useWJetsNLO) whists.push_back(wrenhist_unc);
+	  else if (kfact == 6 and nloSamples.useWJetsNLO){ whists.clear(); whists.push_back(wrenhist_unc);}
+	  if (kfact == 6 and nloSamples.useZJetsNLO) zhists.clear();
+
+	  if (kfact == 7 and not nloSamples.useWJetsNLO) whists.push_back(wfachist_unc);
+	  else if (kfact == 7 and nloSamples.useWJetsNLO){ whists.clear(); whists.push_back(wfachist_unc);}
+	  if (kfact == 7 and nloSamples.useZJetsNLO) zhists.clear();
+
+	  if (kfact == 8 and not nloSamples.useWJetsNLO) whists.push_back(wpdfhist_unc);
+	  else if (kfact == 8 and nloSamples.useWJetsNLO){ whists.clear(); whists.push_back(wpdfhist_unc);}
+	  if (kfact == 8 and nloSamples.useZJetsNLO) zhists.clear();
+
       }
     }
   }
@@ -2039,7 +2068,11 @@ void  makezwjcorhist(const string & znunuFile,
     kffile_zewk->Close();
   if(kffile_wewk)
     kffile_wewk->Close();
-  
+  if(kffileUnc_z)
+    kffileUnc_z->Close();
+  if(kffileUnc_w)
+    kffileUnc_w->Close();
+
   zhists.clear();
   whists.clear();
   ehists.clear();
