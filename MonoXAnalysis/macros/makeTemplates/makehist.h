@@ -85,6 +85,7 @@ string kFactorVBF_zll  = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFacto
 string kFactorVBF_gjet = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_gjets_v3.root";
 string kFactorFile_zjetewk = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kFactor_ZToNuNu_pT_Mjj.root";
 string kFactorFile_wjetewk = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kFactor_WToLNu_pT_Mjj.root";
+static bool decorrelateZWUncertainties = false;
 
 /// basic trees
 string baseInputTreePath = "/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_6_06_2017/";
