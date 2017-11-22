@@ -106,16 +106,16 @@ if __name__ == '__main__':
             
             if options.processType == "MonoZ":
                 os.system("sed -i -e 's/@MODEL/Pseudoscalar_2HDM-bbMET_5FS/g' "+options.outputBaseDIR+"/"+name+"/"+name+"_proc_card.dat");
-                process = "define p = g u c d s u~ c~ d~ s~ b b~ \\n";
+                process = "define p =  g u c d s u~ c~ d~ s~ b b~\\n";
                 process += "define j = g u c d s b u~ c~ d~ s~ b~ \\n";
-                process += "generate p p  > xd xd~ z [QCD] \\n";
+                process += "generate g g  > xd xd~ z [QCD] \\n";
                 os.system("sed -i -e 's/@PROCESS/"+process+"/g' "+options.outputBaseDIR+"/"+name+"/"+name+"_proc_card.dat");
                 os.system("sed -i -e 's/@OUTPUT/"+name+" -nojpeg/g' "+options.outputBaseDIR+"/"+name+"/"+name+"_proc_card.dat");
 
             elif options.processType == "MonoW":
                 os.system("sed -i -e 's/@MODEL/Pseudoscalar_2HDM-WMET/g' "+options.outputBaseDIR+"/"+name+"/"+name+"_proc_card.dat");
                 process = "define p = g u c d s u~ c~ d~ s~ b b~ \\n";
-                process += "define j =  u c d s b u~ c~ d~ s~ b~ \\n";
+                process += "define j =  g u c d s b u~ c~ d~ s~ b~ \\n";
                 process += "generate p p  > xd xd~ w+ [QCD] \\n";
                 process += "add process p p  > xd xd~ w- [QCD] \\n";
                 os.system("sed -i -e 's/@PROCESS/"+process+"/g' "+options.outputBaseDIR+"/"+name+"/"+name+"_proc_card.dat");
@@ -124,7 +124,7 @@ if __name__ == '__main__':
             elif options.processType == "MonoJ":
                 os.system("sed -i -e 's/@MODEL/Pseudoscalar_2HDM-bbMET_5FS/g' "+options.outputBaseDIR+"/"+name+"/"+name+"_proc_card.dat");
                 process = "define p = g u c d s u~ c~ d~ s~ b b~ \\n";
-                process += "define j =  u c d s b u~ c~ d~ s~ b~ \\n";
+                process += "define j =  g u c d s b u~ c~ d~ s~ b~ \\n";
                 process += "generate p p  > xd xd~ j [QCD] \\n";
                 os.system("sed -i -e 's/@PROCESS/"+process+"/g' "+options.outputBaseDIR+"/"+name+"/"+name+"_proc_card.dat");
                 os.system("sed -i -e 's/@OUTPUT/"+name+" -nojpeg/g' "+options.outputBaseDIR+"/"+name+"/"+name+"_proc_card.dat");
@@ -169,15 +169,15 @@ if __name__ == '__main__':
         if options.processType == "MonoZ":
             os.system("sed -i -e 's/@MODEL/Pseudoscalar_2HDM-bbMET_5FS/g' "+options.outputBaseDIR+"/"+name+"/"+name+"_proc_card.dat");
             process = "define p = g u c d s u~ c~ d~ s~ b b~ \\n";
-            process += "define j =  u c d s b u~ c~ d~ s~ b~ \\n";
-            process += "generate p p  > xd xd~ z [QCD] \\n";
+            process += "define j =  g u c d s b u~ c~ d~ s~ b~ \\n";
+            process += "generate g g  > xd xd~ z [QCD] \\n";
             os.system("sed -i -e 's/@PROCESS/"+process+"/g' "+options.outputBaseDIR+"/"+name+"/"+name+"_proc_card.dat");
             os.system("sed -i -e 's/@OUTPUT/"+name+" -nojpeg/g' "+options.outputBaseDIR+"/"+name+"/"+name+"_proc_card.dat");
 
         elif options.processType == "MonoW":
             os.system("sed -i -e 's/@MODEL/Pseudoscalar_2HDM-WMET/g' "+options.outputBaseDIR+"/"+name+"/"+name+"_proc_card.dat");
             process = "define p =  g u c d s u~ c~ d~ s~ b b~ \\n";
-            process += "define j =  u c d s b u~ c~ d~ s~ b~ \\n";
+            process += "define j =  g u c d s b u~ c~ d~ s~ b~ \\n";
             process += "generate p p  > xd xd~ w+ [QCD] \\n";
             process += "add process p p  > xd xd~ w- [QCD] \\n";
             os.system("sed -i -e 's/@PROCESS/"+process+"/g' "+options.outputBaseDIR+"/"+name+"/"+name+"_proc_card.dat");
@@ -186,7 +186,7 @@ if __name__ == '__main__':
         elif options.processType == "MonoJ":
             os.system("sed -i -e 's/@MODEL/Pseudoscalar_2HDM-bbMET_5FS/g' "+options.outputBaseDIR+"/"+name+"/"+name+"_proc_card.dat");
             process = "define p = g u c d s u~ c~ d~ s~ b b~ \\n";
-            process += "define j =  u c d s b u~ c~ d~ s~ b~ \\n";
+            process += "define j = g u c d s b u~ c~ d~ s~ b~ \\n";
             process += "generate p p  > xd xd~ j [QCD] \\n";
             os.system("sed -i -e 's/@PROCESS/"+process+"/g' "+options.outputBaseDIR+"/"+name+"/"+name+"_proc_card.dat");
             os.system("sed -i -e 's/@OUTPUT/"+name+" -nojpeg/g' "+options.outputBaseDIR+"/"+name+"/"+name+"_proc_card.dat");

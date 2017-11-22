@@ -1,5 +1,0 @@
-import model @MODEL
-# Define multiparticle labels
-@PROCESS
-
-output @OUTPUT 
