@@ -98,6 +98,11 @@ if __name__ == '__main__':
             ### make cut file
             os.system("cp "+options.inputTemplateDIR+"/cuts.f "+options.outputBaseDIR+"/"+name+"/"+name+"_cuts.f");
 
+            ### make cut file
+            os.system("cp "+options.inputTemplateDIR+"/setcuts.f "+options.outputBaseDIR+"/"+name+"/"+name+"_setcuts.f");
+            ### make cut file
+            os.system("cp "+options.inputTemplateDIR+"/cuts.inc "+options.outputBaseDIR+"/"+name+"/"+name+"_cuts.inc");
+
             ### make run card
             os.system("cp "+options.inputTemplateDIR+"/run_card.dat "+options.outputBaseDIR+"/"+name+"/"+name+"_run_card.dat");
 
@@ -159,6 +164,12 @@ if __name__ == '__main__':
 
         ### make cut file
         os.system("cp "+options.inputTemplateDIR+"/cuts.f "+options.outputBaseDIR+"/"+name+"/"+name+"_cuts.f");
+
+        ### make cut file
+        os.system("cp "+options.inputTemplateDIR+"/setcuts.f "+options.outputBaseDIR+"/"+name+"/"+name+"_setcuts.f");
+        
+        ## make cut file
+        os.system("cp "+options.inputTemplateDIR+"/cuts.inc "+options.outputBaseDIR+"/"+name+"/"+name+"_cuts.inc");
 
         ### make run card
         os.system("cp "+options.inputTemplateDIR+"/run_card.dat "+options.outputBaseDIR+"/"+name+"/"+name+"_run_card.dat");
