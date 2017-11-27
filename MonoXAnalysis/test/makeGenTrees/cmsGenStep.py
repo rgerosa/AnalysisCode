@@ -18,6 +18,10 @@ options.register (
     'if > 0 load the MLM matching for LO or FXFX for NLO');
 
 options.register (
+    'hadronicDecaysVBoson',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
+    'if true force hadronic decays of the vector bosons');
+
+options.register (
     'partonInBorn',0,VarParsing.multiplicity.singleton,VarParsing.varType.int,
     'number of partons at Born Level');
 
@@ -124,6 +128,14 @@ elif options.isAMCNLO and options.partonMultiplicity > 0:
     process.load("Configuration.Generator.Hadronizer_TuneCUETP8M1_13TeV_aMCatNLO_FXFX_5f_max2j_max1p_LHE_pythia8_cff");
     process.generator.PythiaParameters.processParameters.remove('JetMatching:nJetMax = 2');
     process.generator.PythiaParameters.processParameters += cms.vstring('JetMatching:nJetMax = '+str(options.partonMultiplicity));
+
+if options.hadronicDecaysVBoson:
+    process.generator.PythiaParameters.processParameters += cms.vstring('24:onMode  = off', 
+                                                                        '24:onIfAny = 1 2 3 4 5 -1 -2 -3 -4 -5',
+                                                                        '23:onMode  = off',
+                                                                        '23:onIfAny = 1 2 3 4 5');
+    
+    
 
 # Path and EndPath definitions                                                                                                                                                                        
 process.generation_step = cms.Path(process.pgen)

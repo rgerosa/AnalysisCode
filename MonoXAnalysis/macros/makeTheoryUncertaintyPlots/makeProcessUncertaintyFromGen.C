@@ -1,6 +1,6 @@
 #include "../CMS_lumi.h"
 
-vector<float> metBin    = {150.,200.,250.,300,350,400,450,500,550,600,650,700,800,900,1000,1125,1250,1400.};
+vector<float> metBin    = {200.,250.,300,350,400,450,500,550,600,650,700,800,900,1000,1125,1250,1400.};
 vector<float> mjjBin    = {200,400,600,900,1200,1500,1800,2200,2500,3000,3500,5000};
 
 enum class Sample   {zjet,wjet,gam};
@@ -9,6 +9,31 @@ enum class Category {monojet,VBFrelaxed};
 
 static bool symmetrize  = true;
 static bool doSmoothing = true;
+
+///
+void calculateWeights (const vector<TFile*> & fileList, const vector<TTree*> & treeList, vector<double> & sumwgt, const Sample & sample){
+
+  int ifile = 0;
+  for(auto tree : treeList){
+    TTreeReader reader (tree);
+    TTreeReaderValue<float> xsec  (reader,"xsec");
+    TTreeReaderValue<float> wgt   (reader,"wgt");
+    TTreeReaderValue<int>   wzid  (reader,"wzid");
+    
+    cout<<"Calculate sumwgt for file "<<fileList.at(ifile)->GetName()<<endl;
+    double sum = 0;
+    while(reader.Next()){
+      // filter away bad events                                                                                                                                                                       
+      if(sample == Sample::zjet and fabs(*wzid) != 23) continue;
+      if(sample == Sample::wjet and fabs(*wzid) != 24) continue;
+      if(sample == Sample::gam  and fabs(*wzid) != 21) continue;
+      sum += *wgt;
+    }
+    cout<<"Tree with entries "<<tree->GetEntries()<<" sumwgt "<<sum<<endl;
+    sumwgt.push_back(sum);
+    ifile++;
+  }
+}
 
 ////
 void makeProcessUncertaintyFromGen(string inputDIR,  string outputDIR, Sample sample, Category category, bool removeTaus = false){
@@ -48,29 +73,8 @@ void makeProcessUncertaintyFromGen(string inputDIR,  string outputDIR, Sample sa
 
   // calculate sumwgt                                                                                                                                                                            
   vector<double> sumwgt;
-  int ifile = 0;
-  for(auto tree : treeList){
-    TTreeReader reader (tree);
-    TTreeReaderValue<float> xsec  (reader,"xsec");
-    TTreeReaderValue<float> wgt   (reader,"wgt");
-    TTreeReaderValue<int>   wzid  (reader,"wzid");
+  calculateWeights(fileList,treeList,sumwgt,sample);
 
-    cout<<"Calculate sumwgt for LO file "<<fileList.at(ifile)->GetName()<<endl;
-    double sum = 0;
-    while(reader.Next()){
-      // filter away bad events                                                                                                                                                                       
-      if(sample == Sample::zjet and fabs(*wzid) != 23) continue;
-      if(sample == Sample::wjet and fabs(*wzid) != 24) continue;
-      if(sample == Sample::gam  and fabs(*wzid) != 21) continue;
-      sum += *wgt;
-    }
-    cout<<"Tree NLO with entries "<<tree->GetEntries()<<" sumwgt "<<sum<<endl;
-    sumwgt.push_back(sum);
-    ifile++;
-  }
-  
-
-  
   // loop on the events
   vector<TH1F*> bosonpt_qcd_ren;
   vector<TH1F*> mjj_qcd_ren;
@@ -80,7 +84,7 @@ void makeProcessUncertaintyFromGen(string inputDIR,  string outputDIR, Sample sa
   vector<TH1F*> mjj_pdf;
 
   // Loop on trees                                                                                                                                                                            
-  ifile = 0;
+  int ifile = 0;
   for(auto tree: treeList){
     
     TTreeReader reader (tree);
@@ -92,6 +96,8 @@ void makeProcessUncertaintyFromGen(string inputDIR,  string outputDIR, Sample sa
     TTreeReaderValue<float> wzpt_lhe (reader,"mvpt");
     TTreeReaderValue<float> wzeta   (reader,"wzeta");
     TTreeReaderValue<float> wzphi   (reader,"wzphi");
+    TTreeReaderValue<vector<float> > qcdscale_muR  (reader,"qcdscale_muR");
+    TTreeReaderValue<vector<float> > qcdscale_muF  (reader,"qcdscale_muF");
     TTreeReaderValue<vector<float> > wgtqcd  (reader,"wgtqcd");
     TTreeReaderValue<vector<float> > wgtpdf  (reader,"wgtpdf");
     TTreeReaderValue<int> l1id     (reader,"l1id");
@@ -107,28 +113,31 @@ void makeProcessUncertaintyFromGen(string inputDIR,  string outputDIR, Sample sa
     TTreeReaderValue<vector<float> > jetphi (reader,"jetphi");
     TTreeReaderValue<vector<float> > jetmass (reader,"jetmass");
 
-
     cout<<"Loop on file "<<fileList.at(ifile)->GetName()<<endl;
-    while(reader.Next()){
-      
+    while(reader.Next()){      
       // loop on the qcd weighs
       if(ifile == 0 and bosonpt_qcd_ren.size() == 0 and mjj_qcd_ren.size() == 0){
 	for(size_t iqcd = 0; iqcd < wgtqcd->size(); iqcd++){
-	  if(iqcd == 5 or iqcd == 7) continue; // skip extreme scale variations --> i.e. muR = muf = 2 or muR = muF = 0.5
-	  if(iqcd == 3 or iqcd == 6 or iqcd == 0){// Renormalization scale variatioon
-	    bosonpt_qcd_ren.push_back(new TH1F(Form("bosonpt_iqcd_ren_%d",int(iqcd)),"",metBin.size()-1,&metBin[0]));
+	  if(qcdscale_muF->at(iqcd) == 1){ // renormalization scale variationa around the nominal mF choice
+	    bosonpt_qcd_ren.push_back(new TH1F(Form("bosonpt_ren_muR_%.1f_muF_%.1f",qcdscale_muR->at(iqcd),qcdscale_muF->at(iqcd)),"",metBin.size()-1,&metBin[0]));
 	    bosonpt_qcd_ren.back()->Sumw2();	  
-	    mjj_qcd_ren.push_back(new TH1F(Form("mjj_iqcd_ren_%d",int(iqcd)),"",mjjBin.size()-1,&mjjBin[0]));
+	    mjj_qcd_ren.push_back(new TH1F(Form("mjj_ren_muR_%.1f_muF_%.1f",qcdscale_muR->at(iqcd),qcdscale_muF->at(iqcd)),"",mjjBin.size()-1,&mjjBin[0]));
 	    mjj_qcd_ren.back()->Sumw2();	  
 	  }
-	  if(iqcd == 0 or iqcd == 1 or iqcd == 2){// factorization scale variations
-	    bosonpt_qcd_fac.push_back(new TH1F(Form("bosonpt_iqcd_fac_%d",int(iqcd)),"",metBin.size()-1,&metBin[0]));
+	}
+      }
+
+      if(ifile == 0 and bosonpt_qcd_fac.size() == 0 and mjj_qcd_fac.size() == 0){
+	for(size_t iqcd = 0; iqcd < wgtqcd->size(); iqcd++){
+	  if(qcdscale_muR->at(iqcd) == 1){// factorization scale variation for a fixed muR choice
+	    bosonpt_qcd_fac.push_back(new TH1F(Form("bosonpt_fac_muR_%.1f_muF_%.1f",qcdscale_muR->at(iqcd),qcdscale_muF->at(iqcd)),"",metBin.size()-1,&metBin[0]));
 	    bosonpt_qcd_fac.back()->Sumw2();	  
-	    mjj_qcd_fac.push_back(new TH1F(Form("mjj_iqcd_fac_%d",int(iqcd)),"",mjjBin.size()-1,&mjjBin[0]));
+	    mjj_qcd_fac.push_back(new TH1F(Form("mjj_fac_muR_%.1f_muF_%.1f",qcdscale_muR->at(iqcd),qcdscale_muF->at(iqcd)),"",mjjBin.size()-1,&mjjBin[0]));
 	    mjj_qcd_fac.back()->Sumw2();	  
 	  }
 	}	
       }
+      
       if(ifile == 0 and bosonpt_pdf.size() == 0 and mjj_pdf.size() == 0){
 	for(size_t ipdf = 0; ipdf < wgtpdf->size(); ipdf++){ // PDF variations
 	  bosonpt_pdf.push_back(new TH1F(Form("bosonpt_ipdf_%d",int(ipdf)),"",metBin.size()-1,&metBin[0]));
@@ -137,7 +146,7 @@ void makeProcessUncertaintyFromGen(string inputDIR,  string outputDIR, Sample sa
 	  mjj_pdf.back()->Sumw2();	  
 	}	
       }
-
+      
       // filter away bad events                                                                                                                                                                    
       if(sample == Sample::zjet and fabs(*wzid) != 23) continue;
       else if(sample == Sample::wjet and fabs(*wzid) != 24) continue;
@@ -217,7 +226,7 @@ void makeProcessUncertaintyFromGen(string inputDIR,  string outputDIR, Sample sa
 	if(fabs(jets.at(0).DeltaPhi(jets.at(1))) > 1.5) continue;
       }      
 
-      // calculate min-dphi at gen level where met is boson 4V                                                                                                                                         
+      // calculate min-dphi at gen level where met is boson 4V                                                                                                                                        
       float mindphi   = 100;
       for(size_t ijet = 0; ijet < jets.size(); ijet++){
 	if(ijet > 3) break; // limiting min dphi to first 4 leading jets                                                                                                                                  
@@ -237,34 +246,44 @@ void makeProcessUncertaintyFromGen(string inputDIR,  string outputDIR, Sample sa
 	mjjval = min((jets.at(0)+jets.at(1)).M(),double(mjjBin.back()-1));
       
       
-      // QCD 
-      int ipos_ren = 0;
-      int ipos_fac = 0;
-
       for(size_t iqcd = 0; iqcd < wgtqcd->size(); iqcd++){	
-	if(iqcd == 3 or iqcd == 6 or iqcd == 0){
-	  bosonpt_qcd_ren.at(ipos_ren)->Fill(bosonptval,*xsec*(*wgt)*scale*(wgtqcd->at(iqcd)/(*wgt))/sumwgt.at(ifile));
-	  if(category == Category::VBFrelaxed and bosonptval > 250)
-	    mjj_qcd_ren.at(ipos_ren)->Fill(mjjval,*xsec*(*wgt)*scale*(wgtqcd->at(iqcd)/(*wgt))/sumwgt.at(ifile));		  
-	  ipos_ren++;
+	// QCD Ren
+	if(qcdscale_muF->at(iqcd) == 1) {
+	  for(size_t ihist = 0; ihist < bosonpt_qcd_ren.size(); ihist++){
+	    TString name; 	  
+	    name = Form("muR_%.1f_muF_%.1f",qcdscale_muR->at(iqcd),qcdscale_muF->at(iqcd));	
+	    if(TString(bosonpt_qcd_ren.at(ihist)->GetName()).Contains(name.Data())){
+	      bosonpt_qcd_ren.at(ihist)->Fill(bosonptval,*xsec*(*wgt)*scale*(wgtqcd->at(iqcd)/(*wgt))/sumwgt.at(ifile));
+	      if(category == Category::VBFrelaxed and bosonptval > 250 and TString(bosonpt_qcd_ren.at(ihist)->GetName()).Contains(name.Data()))
+		mjj_qcd_ren.at(ihist)->Fill(mjjval,*xsec*(*wgt)*scale*(wgtqcd->at(iqcd)/(*wgt))/sumwgt.at(ifile));		  
+	      break;
+	    }
+	  }
 	}
-	if(iqcd == 0 or iqcd == 1 or iqcd == 2){
-	  bosonpt_qcd_fac.at(ipos_fac)->Fill(bosonptval,*xsec*(*wgt)*scale*(wgtqcd->at(iqcd)/(*wgt))/sumwgt.at(ifile));
-	  if(category == Category::VBFrelaxed and bosonptval > 250)
-	    mjj_qcd_fac.at(ipos_fac)->Fill(mjjval,*xsec*(*wgt)*scale*(wgtqcd->at(iqcd)/(*wgt))/sumwgt.at(ifile));		  	
-	  ipos_fac++;
+	
+	// QCD Fac
+	if(qcdscale_muR->at(iqcd) == 1){
+	  for(size_t ihist = 0; ihist < bosonpt_qcd_fac.size(); ihist++){
+	    TString name; 	  
+	    name = Form("muR_%.1f_muF_%.1f",qcdscale_muR->at(iqcd),qcdscale_muF->at(iqcd));	
+	    if(TString(bosonpt_qcd_fac.at(ihist)->GetName()).Contains(name.Data())){
+	      bosonpt_qcd_fac.at(ihist)->Fill(bosonptval,*xsec*(*wgt)*scale*(wgtqcd->at(iqcd)/(*wgt))/sumwgt.at(ifile));
+	      if(category == Category::VBFrelaxed and bosonptval > 250 and TString(bosonpt_qcd_fac.at(ihist)->GetName()).Contains(name.Data()))
+		mjj_qcd_fac.at(ihist)->Fill(mjjval,*xsec*(*wgt)*scale*(wgtqcd->at(iqcd)/(*wgt))/sumwgt.at(ifile));		  
+	      break;
+	    }
+	  }
 	}
       }
-
+      
       // PDF 
       for(size_t ipdf = 0; ipdf < wgtpdf->size(); ipdf++){	  
+	bosonpt_pdf.at(ipdf)->Fill(bosonptval,*xsec*(*wgt)*scale*(wgtpdf->at(ipdf)/(*wgt))/sumwgt.at(ifile));
 	if(category == Category::VBFrelaxed and bosonptval > 250)
 	  mjj_pdf.at(ipdf)->Fill(mjjval,*xsec*(*wgt)*scale*(wgtpdf->at(ipdf)/(*wgt))/sumwgt.at(ifile));		
-	bosonpt_pdf.at(ipdf)->Fill(bosonptval,*xsec*(*wgt)*scale*(wgtpdf->at(ipdf)/(*wgt))/sumwgt.at(ifile));
-      }            
-
+      }           
     } 
-    ifile++;
+    ifile++;    
   }
 
   // Build the renormalization scale uncertainty
@@ -281,25 +300,26 @@ void makeProcessUncertaintyFromGen(string inputDIR,  string outputDIR, Sample sa
   for(int iBin = 0; iBin < bosonpt_qcd_ren_uncup->GetNbinsX(); iBin++){
     float maxValue = -100;
     float minValue = 999999;
-    for(int ihisto = 0; ihisto < bosonpt_qcd_ren.size(); ihisto++){
-      if(bosonpt_qcd_ren.at(ihisto)->GetBinContent(iBin+1) > maxValue) maxValue = bosonpt_qcd_ren.at(ihisto)->GetBinContent(iBin+1);
-      if(bosonpt_qcd_ren.at(ihisto)->GetBinContent(iBin+1) < minValue) minValue = bosonpt_qcd_ren.at(ihisto)->GetBinContent(iBin+1);
-    }
-    if(not symmetrize){
-      bosonpt_qcd_ren_uncup->SetBinContent(iBin+1,maxValue/bosonpt_qcd_ren.at(0)->GetBinContent(iBin+1));
-      bosonpt_qcd_ren_uncdw->SetBinContent(iBin+1,minValue/bosonpt_qcd_ren.at(0)->GetBinContent(iBin+1));    
-    }
-    else{ // symmetrize the effect
-      bosonpt_qcd_ren_uncup->SetBinContent(iBin+1,1+(fabs(maxValue/bosonpt_qcd_ren.at(0)->GetBinContent(iBin+1)-1)+fabs(minValue/bosonpt_qcd_ren.at(0)->GetBinContent(iBin+1)-1))/2);
-      bosonpt_qcd_ren_uncdw->SetBinContent(iBin+1,1-(fabs(maxValue/bosonpt_qcd_ren.at(0)->GetBinContent(iBin+1)-1)+fabs(minValue/bosonpt_qcd_ren.at(0)->GetBinContent(iBin+1)-1))/2);
-    }
-  }
 
+    for(int ihisto = 0; ihisto < bosonpt_qcd_ren.size(); ihisto++){                                                                                                                                   
+      if(bosonpt_qcd_ren.at(ihisto)->GetBinContent(iBin+1) > maxValue) maxValue = bosonpt_qcd_ren.at(ihisto)->GetBinContent(iBin+1);                                                             
+      if(bosonpt_qcd_ren.at(ihisto)->GetBinContent(iBin+1) < minValue) minValue = bosonpt_qcd_ren.at(ihisto)->GetBinContent(iBin+1);                                                           
+    }                                                                                                                                                                                                
+    if(not symmetrize){                                                                                                                                                                              
+      bosonpt_qcd_ren_uncup->SetBinContent(iBin+1,maxValue/bosonpt_qcd_ren.at(0)->GetBinContent(iBin+1));                                                                                       
+      bosonpt_qcd_ren_uncdw->SetBinContent(iBin+1,minValue/bosonpt_qcd_ren.at(0)->GetBinContent(iBin+1));                                                                                        
+    }                                                                                                                                                                                                
+    else{                                                                                                                                                                                            
+      bosonpt_qcd_ren_uncup->SetBinContent(iBin+1,1+(fabs(maxValue/bosonpt_qcd_ren.at(0)->GetBinContent(iBin+1)-1)+fabs(minValue/bosonpt_qcd_ren.at(0)->GetBinContent(iBin+1)-1))/2);              
+      bosonpt_qcd_ren_uncdw->SetBinContent(iBin+1,1-(fabs(maxValue/bosonpt_qcd_ren.at(0)->GetBinContent(iBin+1)-1)+fabs(minValue/bosonpt_qcd_ren.at(0)->GetBinContent(iBin+1)-1))/2);               
+    }   
+  }
+  
   if(doSmoothing){
     bosonpt_qcd_ren_uncup->Smooth();
     bosonpt_qcd_ren_uncdw->Smooth();
   }
-  
+
   if(category == Category::VBFrelaxed){ // same envelope for Mjj
     for(int iBin = 0; iBin < mjj_qcd_ren_uncup->GetNbinsX(); iBin++){
       float maxValue = -100;
@@ -323,7 +343,7 @@ void makeProcessUncertaintyFromGen(string inputDIR,  string outputDIR, Sample sa
       mjj_qcd_ren_uncdw->Smooth();    
     }
   }
-  
+
   // Build the factorization scale uncertainty
   TH1F* bosonpt_qcd_fac_uncup = (TH1F*) bosonpt_qcd_fac.at(0)->Clone("bosonpt_qcd_fac_uncup");
   bosonpt_qcd_fac_uncup->Reset();
@@ -380,7 +400,6 @@ void makeProcessUncertaintyFromGen(string inputDIR,  string outputDIR, Sample sa
     }
   }
 
-  
   // Build the PDF uncertainty
   TH1F* bosonpt_pdf_uncup = (TH1F*) bosonpt_pdf.at(0)->Clone("bosonpt_pdf_uncup");
   bosonpt_pdf_uncup->Reset();
@@ -390,11 +409,11 @@ void makeProcessUncertaintyFromGen(string inputDIR,  string outputDIR, Sample sa
   mjj_pdf_uncup->Reset();
   TH1F* mjj_pdf_uncdw = (TH1F*) mjj_pdf.at(0)->Clone("mjj_pdf_uncdw");
   mjj_pdf_uncdw->Reset();
-
+  
   for(int iBin = 0; iBin < bosonpt_pdf_uncup->GetNbinsX(); iBin++){
     vector<double> binEntryBelow;
     vector<double> binEntryAbove;
-    double nominalValue = bosonpt_qcd_fac.at(0)->GetBinContent(iBin+1);
+    double nominalValue = bosonpt_qcd_ren.at(0)->GetBinContent(iBin+1);
     for(int ihisto = 0; ihisto < bosonpt_pdf.size(); ihisto++){
       if(bosonpt_pdf.at(ihisto)->GetBinContent(iBin+1) > nominalValue)
 	binEntryAbove.push_back(bosonpt_pdf.at(ihisto)->GetBinContent(iBin+1));
@@ -409,17 +428,16 @@ void makeProcessUncertaintyFromGen(string inputDIR,  string outputDIR, Sample sa
     }
     else{
       bosonpt_pdf_uncup->SetBinContent(iBin+1,1+(fabs(binEntryAbove.at(int(binEntryAbove.size()*0.34)+1)/nominalValue-1)+fabs(binEntryBelow.at(int(binEntryBelow.size()*0.66)-1)/nominalValue-1)));
-      bosonpt_pdf_uncdw->SetBinContent(iBin+1,1+(fabs(binEntryAbove.at(int(binEntryAbove.size()*0.34)+1)/nominalValue-1)+fabs(binEntryBelow.at(int(binEntryBelow.size()*0.66)-1)/nominalValue-1)));
-    }
+      bosonpt_pdf_uncdw->SetBinContent(iBin+1,1-(fabs(binEntryAbove.at(int(binEntryAbove.size()*0.34)+1)/nominalValue-1)+fabs(binEntryBelow.at(int(binEntryBelow.size()*0.66)-1)/nominalValue-1)));
+    }   
   }
-
+  
   if(doSmoothing){
     bosonpt_pdf_uncup->Smooth();
     bosonpt_pdf_uncdw->Smooth();
   }
-  
-  if(category == Category::VBFrelaxed){
 
+  if(category == Category::VBFrelaxed){
     for(int iBin = 0; iBin < mjj_pdf_uncup->GetNbinsX(); iBin++){
       vector<double> binEntryBelow;
       vector<double> binEntryAbove;
@@ -448,8 +466,7 @@ void makeProcessUncertaintyFromGen(string inputDIR,  string outputDIR, Sample sa
       mjj_pdf_uncdw->Smooth();
     }
   }
-
-
+  
   //////////
   // Plot
   //////////
