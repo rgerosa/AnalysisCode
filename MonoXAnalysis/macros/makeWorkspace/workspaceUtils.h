@@ -323,6 +323,7 @@ void makeBinList(string procname, RooRealVar& var, RooWorkspace& ws, TH1F* hist,
 
 // make connections betweem signal region and control region                                                                                                                
 void makeConnectedBinList(string procname,  // name to be used to fill the workspace 
+			  string rationame,
 			  RooRealVar& var,  // observable RooRealVar
                           RooWorkspace& ws, // RooWorkspace
 			  TH1F* rhist,      // TF histogram
@@ -354,13 +355,13 @@ void makeConnectedBinList(string procname,  // name to be used to fill the works
   float extreme_tmp = 5;
   for (int i = 1; i <= rhist->GetNbinsX(); i++) {
     stringstream rbinss;
-    rbinss << "r_" << procname << "_bin" << i;
+    rbinss << "r_" << rationame << "_bin" << i;
     // Fixed value for each bin of the ratio                                                                                                                                 
     RooRealVar* rbinvar = new RooRealVar(rbinss.str().c_str(), "", rhist->GetBinContent(i));
 
     // uncertainty histograms for systematics                                                                                                                                 
     stringstream rerrbinss;
-    rerrbinss << procname << "_bin" << i << "_Runc";
+    rerrbinss << rationame << "_bin" << i << "_Runc";
     // Nuisance for the Final fit for each bin (bin-by-bin unc) --> avoid negative values                                                                                     
     float extreme = min(5.,0.9*rhist->GetBinContent(i)/rhist->GetBinError(i));
     RooRealVar* rerrbinvar = new RooRealVar(rerrbinss.str().c_str(), "", 0., -extreme, extreme);
@@ -410,7 +411,7 @@ void makeConnectedBinList(string procname,  // name to be used to fill the works
     for (size_t j = 0; j < syst.size(); j++) {
       stringstream systbinss;
       if (syst[j].first == NULL) { // add bin by bin                                                                                                                          
-	systbinss << procname << "_bin" << i << "_" << syst[j].second->GetName();
+	systbinss << rationame << "_bin" << i << "_" << syst[j].second->GetName();
 	TString nameSys (systbinss.str());
 	nameSys.ReplaceAll(("_"+observable).c_str(),"");
 	float extreme = min(5.,0.9*rhist->GetBinContent(i)/syst[j].second->GetBinContent(i));
@@ -457,6 +458,7 @@ void makeConnectedBinList(string procname,  // name to be used to fill the works
 
 // make connections betweem signal region and control region                                                                                                                
 void makeConnectedBinListCutAndCount(string procname,  // name to be used to fill the workspace 
+				     string rationame,
 				     RooRealVar& var,  // observable RooRealVar
 				     RooWorkspace& ws, // RooWorkspace
 				     TH1F* nhist,      // TF numerator histogram
@@ -494,7 +496,7 @@ void makeConnectedBinListCutAndCount(string procname,  // name to be used to fil
 
   // determi the transfer factor value for the cut and count  --> ratio of integrals
   stringstream rbinss;
-  rbinss << "r_" << procname;
+  rbinss << "r_" << rationame;
 
   double integral_num_err = 0.;
   double integral_num = nhist->IntegralAndError(nhist->FindBin(var.getMin()),nhist->FindBin(var.getMax()),integral_num_err);
@@ -505,7 +507,7 @@ void makeConnectedBinListCutAndCount(string procname,  // name to be used to fil
   RooRealVar* rbinvar = new RooRealVar(rbinss.str().c_str(), "",integral_num/integral_den);
   // stat uncertainty 
   stringstream rerrbinss;
-  rerrbinss << procname << "_Runc";
+  rerrbinss << rationame << "_Runc";
   double extreme = min(5.,0.9*rbinvar->getVal()/ratio_err);
   RooRealVar* rerrbinvar = new RooRealVar(rerrbinss.str().c_str(), "", 0., -extreme, extreme);
   if(not addStatUncertainty)
@@ -540,7 +542,7 @@ void makeConnectedBinListCutAndCount(string procname,  // name to be used to fil
   else
     formss << "*(TMath::Max(0,1-" <<fabs(ratio_err/rbinvar->getVal())<< "*@2))";
 
-  float extreme_tmp = 5;
+  float extreme_tmp = 10;
 
   // systemaitc uncertainty                                                                                                                                               
   for (size_t j = 0; j < syst.size(); j++) {

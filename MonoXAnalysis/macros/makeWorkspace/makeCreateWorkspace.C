@@ -310,8 +310,8 @@ void makeCreateWorkspace(string   inputName,                        // input tem
 	    histoVec.push_back(histoFacDw);		
 	  
 	  //make the right envelope
-	  addTemplate("ggH_SR_"+suffix+"_hptUp",vars,wspace_SR,generateEnvelopeMax(histoVec,"ggH_SR_"+suffix),isCutAndCount);
-	  addTemplate("ggH_SR_"+suffix+"_hptDown",vars,wspace_SR,generateEnvelopeMin(histoVec,"ggH_SR_"+suffix),isCutAndCount);
+	  addTemplate("ggH_SR_"+suffix+"_ggH_pTUp",vars,wspace_SR,generateEnvelopeMax(histoVec,"ggH_SR_"+suffix),isCutAndCount);
+	  addTemplate("ggH_SR_"+suffix+"_ggH_pTDown",vars,wspace_SR,generateEnvelopeMin(histoVec,"ggH_SR_"+suffix),isCutAndCount);
 	}
       }
       
@@ -387,7 +387,9 @@ void makeCreateWorkspace(string   inputName,                        // input tem
 	  
 	  
 	  // create Z/W link QCD
-	  makeConnectedBinList("WJets_SR_"+suffix,*met,wspace_SR,
+	  makeConnectedBinList("WJets_SR_"+suffix,
+			       "ZnunuWJets_"+suffix,
+			       *met,wspace_SR,
 			       (TH1F*)templatesfile->FindObjectAny(("zwjcorewkhist_"+observable).c_str()), //Z/W ratio --> central value + stat unc.
 			       wln_SR_syst, //list of systematic variations for the TFs
 			       znn_SR_bins, //bins for Znunu
@@ -445,7 +447,9 @@ void makeCreateWorkspace(string   inputName,                        // input tem
 	  wln_SR_pdf_sys.den_2 = (TH1F*)templatesfile->FindObjectAny(("dhist_zwj_qcd_"+observable).c_str());
 	  wln_SR_syst.push_back(pair<RooRealVar*,systematicCutAndCount>(wln_SR_pdf,wln_SR_pdf_sys));
 	  
-	  makeConnectedBinListCutAndCount("WJets_SR_"+suffix,*met,wspace_SR,
+	  makeConnectedBinListCutAndCount("WJets_SR_"+suffix,
+					  "ZnunuWJets_"+suffix,
+					  *met,wspace_SR,
 					  (TH1F*)templatesfile->FindObjectAny(("nhist_zwj_ewk_"+observable).c_str()),
 					  (TH1F*)templatesfile->FindObjectAny(("dhist_zwj_ewk_"+observable).c_str()),
 					  wln_SR_syst,znn_SR_bins,&wln_SR_bins,observable,applyUncertaintyOnNumerator);
@@ -456,16 +460,16 @@ void makeCreateWorkspace(string   inputName,                        // input tem
       else{
 	
 	// uncertainty on Z/W-QCD
-	RooRealVar* wln_SR_qcdscale = new RooRealVar("ZW_SR_QCDScale",""  ,0.,-5.,5.);
-	RooRealVar* wln_SR_qcdshape = new RooRealVar("ZW_SR_QCDShape",""  ,0.,-5.,5.);
-	RooRealVar* wln_SR_qcdproc  = new RooRealVar("ZW_SR_QCDProcess","" ,0.,-5.,5.);
-	RooRealVar* wln_SR_pdf      = new RooRealVar("ZW_SR_PDF",""  ,0.,-5.,5.);
-	RooRealVar* wln_SR_nnloewk  = new RooRealVar("ZW_SR_NNLOEWK",""  ,0.,-5.,5.);
-	RooRealVar* wln_SR_sudakov_1  = new RooRealVar("Znunu_SR_Sudakov",""  ,0.,-5.,5.);
-	RooRealVar* wln_SR_sudakov_2  = new RooRealVar("WJets_SR_Sudakov",""  ,0.,-5.,5.);
-	RooRealVar* wln_SR_nnlomiss_1  = new RooRealVar("Znunu_SR_NNLOMiss",""  ,0.,-5.,5.);
-	RooRealVar* wln_SR_nnlomiss_2  = new RooRealVar("WJets_SR_NNLOMiss",""  ,0.,-5.,5.);
-	RooRealVar* wln_SR_qcdewkmix   = new RooRealVar("ZW_SR_QCDEWKMIX",""  ,0.,-5.,5.);
+	RooRealVar* wln_SR_qcdscale = new RooRealVar("ZnunuWJets_QCDscale_monoj",""  ,0.,-5.,5.);
+	RooRealVar* wln_SR_qcdshape = new RooRealVar("ZnunuWJets_QCDshape_monoj",""  ,0.,-5.,5.);
+	RooRealVar* wln_SR_qcdproc  = new RooRealVar("ZnunuWJets_QCDprocess_monoj","" ,0.,-5.,5.);
+	RooRealVar* wln_SR_pdf      = new RooRealVar("ZnunuWJets_pdf_monoj",""  ,0.,-5.,5.);
+	RooRealVar* wln_SR_nnloewk  = new RooRealVar("ZnunuWJets_nnloewk_monoj",""  ,0.,-5.,5.);
+	RooRealVar* wln_SR_sudakov_1  = new RooRealVar("Znunu_sudakov_monoj",""  ,0.,-5.,5.);
+	RooRealVar* wln_SR_sudakov_2  = new RooRealVar("WJets_sudakov_monoj",""  ,0.,-5.,5.);
+	RooRealVar* wln_SR_nnlomiss_1  = new RooRealVar("Znunu_nnlomiss_monoj",""  ,0.,-5.,5.);
+	RooRealVar* wln_SR_nnlomiss_2  = new RooRealVar("WJets_nnlomiss_monoj",""  ,0.,-5.,5.);
+	RooRealVar* wln_SR_qcdewkmix   = new RooRealVar("ZnunuWJets_qcdewkmix_monoj",""  ,0.,-5.,5.);
 
 	// in case of a flat nuisance
 	RooRealVar* wln_SR     = new RooRealVar(("WJets_SR_"+suffix+"_WZ").c_str(),"",0.,-5.,5.);
@@ -496,7 +500,9 @@ void makeCreateWorkspace(string   inputName,                        // input tem
 	  }
 		
 	  // create Z/W link QCD
-	  makeConnectedBinList("WJets_SR_"+suffix,*met,wspace_SR,
+	  makeConnectedBinList("WJets_SR_"+suffix,
+			       "ZnunuWJets_"+suffix,
+			       *met,wspace_SR,			       
 			       (TH1F*)templatesfile->FindObjectAny(("zwjcorewkhist_"+observable).c_str()), //Z/W ratio --> central value + stat unc.
 			       wln_SR_syst, //list of systematic variations for the TFs
 			       znn_SR_bins, //bins for Znunu
@@ -563,7 +569,7 @@ void makeCreateWorkspace(string   inputName,                        // input tem
 
     // trigger systematics
     TH1F* triggersys = NULL;
-    RooRealVar* CMS_met_trig =  new RooRealVar("CMS_met_trig","",0.,-5.,5.);
+    RooRealVar* CMS_met_trig =  new RooRealVar("CMS_trigger_met","",0.,-5.,5.);
 
     if(addNewShapeSysUncertainties){
       if(TString(observable).Contains("met")){
@@ -635,7 +641,10 @@ void makeCreateWorkspace(string   inputName,                        // input tem
 	vector<pair<RooRealVar*,TH1*> > znn_ZM_syst;
 	if(addNewShapeSysUncertainties)
 	  znn_ZM_syst.push_back(pair<RooRealVar*,TH1*>(CMS_met_trig,triggersys));
-	makeConnectedBinList("Znunu_ZM_"+suffix,*met,*wspace_ZM,
+	makeConnectedBinList("Znunu_ZM_"+suffix,
+			     "ZnunuZmm_"+suffix,
+			     *met,
+			     *wspace_ZM,
 			     (TH1F*)templatesfile->FindObjectAny(("zmmcorhist_"+observable).c_str()),znn_ZM_syst,znn_SR_bins,
 			     NULL,observable,applyUncertaintyOnNumerator);
 	
@@ -643,7 +652,9 @@ void makeCreateWorkspace(string   inputName,                        // input tem
       else{
 	
 	vector<pair<RooRealVar*,systematicCutAndCount> > znn_ZM_syst;
-	makeConnectedBinListCutAndCount("Znunu_ZM_"+suffix,*met,*wspace_ZM,
+	makeConnectedBinListCutAndCount("Znunu_ZM_"+suffix,
+					"ZnunuZmm_"+suffix,
+					*met,*wspace_ZM,
 					(TH1F*)templatesfile->FindObjectAny(("nhist_zmm_"+observable).c_str()),
 					(TH1F*)templatesfile->FindObjectAny(("dhist_zmm_"+observable).c_str()),
 					znn_ZM_syst,znn_SR_bins,NULL,observable,applyUncertaintyOnNumerator);
@@ -693,14 +704,18 @@ void makeCreateWorkspace(string   inputName,                        // input tem
 	vector<pair<RooRealVar*,TH1*> > znn_ZE_syst;
 	if(addNewShapeSysUncertainties)
 	  znn_ZE_syst.push_back(pair<RooRealVar*,TH1*>(CMS_met_trig,triggersys));
-	makeConnectedBinList("Znunu_ZE_"+suffix,*met,*wspace_ZE,
+	makeConnectedBinList("Znunu_ZE_"+suffix,
+			     "ZnunuZee_"+suffix,
+			     *met,*wspace_ZE,
 			     (TH1F*)templatesfile->FindObjectAny(("zeecorhist_"+observable).c_str()),znn_ZE_syst,znn_SR_bins,
 			     NULL,observable,applyUncertaintyOnNumerator);
 	
       }
       else{
 	vector<pair<RooRealVar*,systematicCutAndCount> > znn_ZE_syst;
-	makeConnectedBinListCutAndCount("Znunu_ZE_"+suffix,*met,*wspace_ZE,
+	makeConnectedBinListCutAndCount("Znunu_ZE_"+suffix,
+					"ZnunuZee_"+suffix,
+					*met,*wspace_ZE,
 					(TH1F*)templatesfile->FindObjectAny(("nhist_zee_"+observable).c_str()),
 					(TH1F*)templatesfile->FindObjectAny(("dhist_zee_"+observable).c_str()),
 					znn_ZE_syst,znn_SR_bins,NULL,observable,applyUncertaintyOnNumerator);
@@ -747,13 +762,17 @@ void makeCreateWorkspace(string   inputName,                        // input tem
       if(not isCutAndCount){
 	// Z->mumu connected with Z->nunu SR
 	vector<pair<RooRealVar*,TH1*> >   znn_ZL_syst;
-	makeConnectedBinList("Znunu_ZL_"+suffix,*met,*wspace_ZL,(TH1F*)templatesfile->FindObjectAny(("zllcorhist_"+observable).c_str()),
+	makeConnectedBinList("Znunu_ZL_"+suffix,
+			     "ZnunuZll_"+suffix,
+			     *met,*wspace_ZL,(TH1F*)templatesfile->FindObjectAny(("zllcorhist_"+observable).c_str()),
 			     znn_ZL_syst,znn_SR_bins,NULL,observable,applyUncertaintyOnNumerator);
 	
       }
       else{
 	vector<pair<RooRealVar*,systematicCutAndCount> > znn_ZL_syst;
-	makeConnectedBinListCutAndCount("Znunu_ZL_"+suffix,*met,*wspace_ZL,
+	makeConnectedBinListCutAndCount("Znunu_ZL_"+suffix,
+					"ZnunuZll_"+suffix,
+					*met,*wspace_ZL,
 					(TH1F*)templatesfile->FindObjectAny(("nhist_zll_"+observable).c_str()),
 					(TH1F*)templatesfile->FindObjectAny(("dhist_zll_"+observable).c_str()),
 					znn_ZL_syst,znn_SR_bins,NULL,observable,applyUncertaintyOnNumerator);
@@ -800,10 +819,10 @@ void makeCreateWorkspace(string   inputName,                        // input tem
 	generateStatTemplate("WJets_EWK_WM_"+suffix,vars,*wspace_WM,(TH1F*)templatesfile->FindObjectAny(("ewkwbkghistwmn_"+observable).c_str()),1,isCutAndCount);
       }
 
-      RooRealVar* WtoWPDF = new RooRealVar("WtoWPDF",""  ,0.,-5.,5.);
-      RooRealVar* CMS_muon_veto = new RooRealVar("CMS_muon_veto",""  ,0.,-5.,5.);
-      RooRealVar* CMS_ele_veto  = new RooRealVar("CMS_ele_veto",""  ,0.,-5.,5.);
-      RooRealVar* CMS_tau_veto  = new RooRealVar("CMS_tau_veto",""  ,0.,-5.,5.);
+      RooRealVar* WtoWPDF = new RooRealVar("WJetsWln_pdf_monoj",""  ,0.,-5.,5.);
+      RooRealVar* CMS_muon_veto = new RooRealVar("CMS_veto_m",""  ,0.,-5.,5.);
+      RooRealVar* CMS_ele_veto  = new RooRealVar("CMS_veto_e",""  ,0.,-5.,5.);
+      RooRealVar* CMS_tau_veto  = new RooRealVar("CMS_veto_t",""  ,0.,-5.,5.);
 
       TH1F* wpdfsys = NULL;
       TH1F* muonvetosys = NULL;
@@ -865,12 +884,16 @@ void makeCreateWorkspace(string   inputName,                        // input tem
 	  wln_WM_syst.push_back(pair<RooRealVar*,TH1*>(CMS_tau_veto,tauvetosys));
 	}
 
-	makeConnectedBinList("WJets_WM_"+suffix,*met,*wspace_WM,(TH1F*)templatesfile->FindObjectAny(("wmncorhist_"+observable).c_str()),
+	makeConnectedBinList("WJets_WM_"+suffix,
+			     "WJetsWmn_"+suffix,
+			     *met,*wspace_WM,(TH1F*)templatesfile->FindObjectAny(("wmncorhist_"+observable).c_str()),
 			     wln_WM_syst,wln_SR_bins,NULL,observable,applyUncertaintyOnNumerator);
       }
       else{
 	vector<pair<RooRealVar*,systematicCutAndCount> > wln_WM_syst;
-	makeConnectedBinListCutAndCount("WJets_WM_"+suffix,*met,*wspace_WM,
+	makeConnectedBinListCutAndCount("WJets_WM_"+suffix,
+					"WJetsWmn_"+suffix,
+					*met,*wspace_WM,
 					(TH1F*)templatesfile->FindObjectAny(("nhist_wmn_"+observable).c_str()),
 					(TH1F*)templatesfile->FindObjectAny(("dhist_wmn_"+observable).c_str()),
 					wln_WM_syst,wln_SR_bins,NULL,observable,applyUncertaintyOnNumerator);
@@ -926,12 +949,16 @@ void makeCreateWorkspace(string   inputName,                        // input tem
 	  wln_WE_syst.push_back(pair<RooRealVar*,TH1*>(CMS_ele_veto,elevetosys));
 	  wln_WE_syst.push_back(pair<RooRealVar*,TH1*>(CMS_tau_veto,tauvetosys));
 	}
-	makeConnectedBinList("WJets_WE_"+suffix,*met,*wspace_WE,(TH1F*)templatesfile->FindObjectAny(("wencorhist_"+observable).c_str()),
+	makeConnectedBinList("WJets_WE_"+suffix,
+			     "WJetsWen_"+suffix,
+			     *met,*wspace_WE,(TH1F*)templatesfile->FindObjectAny(("wencorhist_"+observable).c_str()),
 			     wln_WE_syst,wln_SR_bins,NULL,observable,applyUncertaintyOnNumerator);
       }
       else{	
 	vector<pair<RooRealVar*,systematicCutAndCount> > wln_WE_syst;
-	makeConnectedBinListCutAndCount("WJets_WE_"+suffix,*met,*wspace_WE,
+	makeConnectedBinListCutAndCount("WJets_WE_"+suffix,
+					"WJetsWen_"+suffix,
+					*met,*wspace_WE,
 					(TH1F*)templatesfile->FindObjectAny(("nhist_wen_"+observable).c_str()),
 					(TH1F*)templatesfile->FindObjectAny(("dhist_wen_"+observable).c_str()),
 					wln_WE_syst,wln_SR_bins,NULL,observable,applyUncertaintyOnNumerator);
@@ -976,12 +1003,16 @@ void makeCreateWorkspace(string   inputName,                        // input tem
 	// connected W->enu with W+jets SR 
 	vector<pair<RooRealVar*,TH1*> > wln_WL_syst;
 	vector<pair<RooRealVar*,TH1*> > wln_ewk_WL_syst;
-	makeConnectedBinList("WJets_WL_"+suffix,*met,*wspace_WL,(TH1F*)templatesfile->FindObjectAny(("wlncorhist_"+observable).c_str()),wln_WL_syst,
+	makeConnectedBinList("WJets_WL_"+suffix,
+			     "WJetsWln_"+suffix,
+			     *met,*wspace_WL,(TH1F*)templatesfile->FindObjectAny(("wlncorhist_"+observable).c_str()),wln_WL_syst,
 			     wln_SR_bins,NULL,observable,applyUncertaintyOnNumerator);
       }
       else{
 	vector<pair<RooRealVar*,systematicCutAndCount> > wln_WL_syst;
-	makeConnectedBinListCutAndCount("WJets_WL_"+suffix,*met,*wspace_WL,
+	makeConnectedBinListCutAndCount("WJets_WL_"+suffix,
+					"WJetsWln_"+suffix,
+					*met,*wspace_WL,
 					(TH1F*)templatesfile->FindObjectAny(("nhist_wln_"+observable).c_str()),
 					(TH1F*)templatesfile->FindObjectAny(("dhist_wln_"+observable).c_str()),
 					wln_WL_syst,wln_SR_bins,NULL,observable,applyUncertaintyOnNumerator);
@@ -1072,7 +1103,9 @@ void makeCreateWorkspace(string   inputName,                        // input tem
 	      uncertainty_temp->SetBinContent(iBin+1,flatZgammaUncertainty);
 	    znn_GJ_syst.push_back(pair<RooRealVar*,TH1*>(znn_GJ,uncertainty_temp));	  
 	  }	  
-	  makeConnectedBinList("Znunu_GJ_"+suffix,*met,*wspace_GJ,(TH1F*)templatesfile->FindObjectAny(("gamcorewkhist_"+observable).c_str()),
+	  makeConnectedBinList("Znunu_GJ_"+suffix,
+			       "ZnunuGamma_"+suffix,
+			       *met,*wspace_GJ,(TH1F*)templatesfile->FindObjectAny(("gamcorewkhist_"+observable).c_str()),
 			       znn_GJ_syst,znn_SR_bins,NULL,observable,applyUncertaintyOnNumerator);  	  
 	}
 	else{
@@ -1129,7 +1162,9 @@ void makeCreateWorkspace(string   inputName,                        // input tem
 	  znn_GJ_fpc_sys.den_2 = (TH1F*)templatesfile->FindObjectAny(("dhist_gam_qcd_"+observable).c_str());
 	  znn_GJ_syst.push_back(pair<RooRealVar*,systematicCutAndCount>(znn_GJ_fpc,znn_GJ_fpc_sys));
 	  
-	  makeConnectedBinListCutAndCount("Znunu_GJ_"+suffix,*met,*wspace_GJ,
+	  makeConnectedBinListCutAndCount("Znunu_GJ_"+suffix,
+					  "ZnunuGamma_"+suffix,
+					  *met,*wspace_GJ,
 					  (TH1F*)templatesfile->FindObjectAny(("nhist_gam_ewk_"+observable).c_str()),
 					  (TH1F*)templatesfile->FindObjectAny(("dhist_gam_ewk_"+observable).c_str()),
 					  znn_GJ_syst,znn_SR_bins,NULL,observable,applyUncertaintyOnNumerator);
@@ -1139,16 +1174,16 @@ void makeCreateWorkspace(string   inputName,                        // input tem
       
       else{
 	vector<pair<RooRealVar*,TH1*> > znn_GJ_syst;      	
-	znn_GJ_qcdscale = new RooRealVar("ZG_GJ_QCDScale","",0.,-5.,5.);
-	znn_GJ_qcdshape = new RooRealVar("ZG_GJ_QCDShape","",0.,-5.,5.);
-	znn_GJ_qcdproc  = new RooRealVar("ZG_GJ_QCDProcess","",0.,-5.,5.);
-	znn_GJ_nnloewk  = new RooRealVar("ZG_GJ_NNLOEWK","",0.,-5.,5.);
-	znn_GJ_pdf      = new RooRealVar("ZG_GJ_PDF","",0.,-5.,5.);
-	znn_GJ_sudakov_1  = new RooRealVar("Znunu_SR_Sudakov","",0.,-5.,5.);
-	znn_GJ_sudakov_2  = new RooRealVar("Gamma_GJ_Sudakov","",0.,-5.,5.);
-	znn_GJ_nnlomiss_1 = new RooRealVar("Znunu_SR_NNLOMiss","",0.,-5.,5.);
-	znn_GJ_nnlomiss_2 = new RooRealVar("Gamma_GJ_NNLOMiss","",0.,-5.,5.);
-	znn_GJ_qcdewkmix  = new RooRealVar("ZG_GJ_QCDEWKMIX","",0.,-5.,5.);
+	znn_GJ_qcdscale = new RooRealVar("ZnunuGamma_QCDscale_monoj","",0.,-5.,5.);
+	znn_GJ_qcdshape = new RooRealVar("ZnunuGamma_QCDshape_monoj","",0.,-5.,5.);
+	znn_GJ_qcdproc  = new RooRealVar("ZnunuGamma_QCDprocess_monoj","",0.,-5.,5.);
+	znn_GJ_nnloewk  = new RooRealVar("ZnunuGamma_nnloewk_monoj","",0.,-5.,5.);
+	znn_GJ_pdf      = new RooRealVar("ZnunuGamma_pdf_monoj","",0.,-5.,5.);
+	znn_GJ_sudakov_1  = new RooRealVar("Znunu_sudakov_monoj","",0.,-5.,5.);
+	znn_GJ_sudakov_2  = new RooRealVar("Gamma_sudakov_monoj","",0.,-5.,5.);
+	znn_GJ_nnlomiss_1 = new RooRealVar("Znunu_nnlomiss_monoj","",0.,-5.,5.);
+	znn_GJ_nnlomiss_2 = new RooRealVar("Gamma_nnlomiss_monoj","",0.,-5.,5.);
+	znn_GJ_qcdewkmix  = new RooRealVar("ZnunuGamma_qcdewkmix_monoj","",0.,-5.,5.);
 	znn_GJ = new RooRealVar(("Znunu_GJ_"+suffix+"_GJ").c_str(),"",0.,-5.,5.);
 	
 	if(not addFlatZgammaUncertainty){
@@ -1174,7 +1209,9 @@ void makeCreateWorkspace(string   inputName,                        // input tem
 	  znn_GJ_syst.push_back(pair<RooRealVar*,TH1*>(znn_GJ,uncertainty_temp));	  	
 	}
       
-	makeConnectedBinList("Znunu_GJ_"+suffix,*met,*wspace_GJ,(TH1F*)templatesfile->FindObjectAny(("gamcorewkhist_"+observable).c_str()),
+	makeConnectedBinList("Znunu_GJ_"+suffix,
+			     "ZnunuGamma_"+suffix,
+			     *met,*wspace_GJ,(TH1F*)templatesfile->FindObjectAny(("gamcorewkhist_"+observable).c_str()),
 			     znn_GJ_syst,znn_SR_bins,NULL,observable,applyUncertaintyOnNumerator);  
       }
       
