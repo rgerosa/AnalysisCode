@@ -86,4 +86,11 @@ Znunu_EWK_ZM_VBF_bin6_Runc param     0     1
 Znunu_EWK_ZM_VBF_bin7_Runc param     0     1
 Znunu_EWK_ZM_VBF_bin8_Runc param     0     1
 Znunu_EWK_ZM_VBF_bin9_Runc param     0     1
+ZZ_QCD_FactScale           param     0     1
+ZZ_QCD_RenScale            param     0     1
+ZZ_QCD_PDF                 param     0     1
+ZZ_EWK_FactScale           param     0     1
+ZZ_EWK_RenScale            param     0     1
+ZZ_EWK_PDF                 param     0     1
+
 ----------------------------------------------------------------------------------

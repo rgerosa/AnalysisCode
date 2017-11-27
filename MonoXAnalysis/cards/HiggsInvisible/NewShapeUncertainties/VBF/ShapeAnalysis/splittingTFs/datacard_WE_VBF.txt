@@ -99,5 +99,11 @@ WJets_EWK_WE_VBF_bin6_Runc     param     0     1
 WJets_EWK_WE_VBF_bin7_Runc     param     0     1
 WJets_EWK_WE_VBF_bin8_Runc     param     0     1
 WJets_EWK_WE_VBF_bin9_Runc     param     0     1
+WW_QCD_FactScale           param     0     1
+WW_QCD_RenScale            param     0     1
+WW_QCD_PDF                 param     0     1
+WW_EWK_FactScale           param     0     1
+WW_EWK_RenScale            param     0     1
+WW_EWK_PDF                 param     0     1
 ------------------------------------------------------------------------------------------------
 

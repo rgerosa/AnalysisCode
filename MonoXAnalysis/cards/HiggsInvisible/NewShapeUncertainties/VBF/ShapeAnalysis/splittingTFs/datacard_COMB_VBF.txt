@@ -1,7 +1,7 @@
 Combination of datacard_SR_VBF.txt  datacard_ZM_VBF.txt  datacard_WM_VBF.txt  datacard_ZE_VBF.txt  datacard_WE_VBF.txt
 imax 5 number of bins
 jmax 20 number of processes minus 1
-kmax 361 number of nuisance parameters
+kmax 373 number of nuisance parameters
 ----------------------------------------------------------------------------------------------------------------------------------
 shapes Dibosons      ch1           workspace_VBF.root SR_VBF:Dibosons_SR_VBF SR_VBF:Dibosons_SR_VBF_$SYSTEMATIC
 shapes QCD           ch1           workspace_VBF.root SR_VBF:QCD_SR_VBF SR_VBF:QCD_SR_VBF_$SYSTEMATIC
@@ -326,33 +326,39 @@ ZW_QCD_SR_RenScale2  param  0 1
 ZW_QCD_SR_RenScale1  param  0 1
 Znunu_ZM_VBF_bin5_Runc  param  0 1
 Znunu_EWK_ZE_VBF_bin3_Runc  param  0 1
+ZZ_QCD_FactScale  param  0 1
 Znunu_EWK_ZM_VBF_bin2_Runc  param  0 1
 Znunu_EWK_ZE_VBF_bin8_Runc  param  0 1
 WJets_WM_VBF_bin5_Runc  param  0 1
 ZW_EWK_SR_PDF  param  0 1
 WJets_WM_VBF_bin8_Runc  param  0 1
 WJets_EWK_WE_VBF_bin8_Runc  param  0 1
-Znunu_ZE_VBF_bin4_Runc  param  0 1
+Znunu_EWK_ZE_VBF_bin6_Runc  param  0 1
 WJets_EWK_SR_VBF_bin5_Runc  param  0 1
 WJets_EWK_WE_VBF_bin2_Runc  param  0 1
-Znunu_EWK_ZE_VBF_bin6_Runc  param  0 1
+ZZ_QCD_PDF    param  0 1
+Znunu_ZE_VBF_bin4_Runc  param  0 1
 WJets_WE_VBF_bin2_Runc  param  0 1
 WJets_WM_VBF_bin6_Runc  param  0 1
+ZZ_EWK_FactScale  param  0 1
 Znunu_EWK_ZE_VBF_bin1_Runc  param  0 1
 WJets_EWK_WM_VBF_bin4_Runc  param  0 1
 WJets_EWK_WM_VBF_bin8_Runc  param  0 1
 WJets_WE_VBF_bin4_Runc  param  0 1
 ZW_EWK_SR_FactScale1  param  0 1
 ZW_EWK_SR_FactScale2  param  0 1
+WJets_WE_VBF_bin1_Runc  param  0 1
 WJets_EWK_WE_VBF_bin3_Runc  param  0 1
-WJets_WM_VBF_bin2_Runc  param  0 1
+WW_QCD_FactScale  param  0 1
 ZW_QCD_SR_FactScale2  param  0 1
 ZW_QCD_SR_FactScale1  param  0 1
+WW_EWK_RenScale  param  0 1
 WJets_WE_VBF_bin8_Runc  param  0 1
 Znunu_EWK_ZM_VBF_bin8_Runc  param  0 1
 WJets_EWK_SR_VBF_bin1_Runc  param  0 1
 Znunu_EWK_ZM_VBF_bin9_Runc  param  0 1
 WJets_WE_VBF_bin5_Runc  param  0 1
+WW_EWK_PDF    param  0 1
 Znunu_ZM_VBF_bin8_Runc  param  0 1
 Znunu_ZM_VBF_bin3_Runc  param  0 1
 Znunu_EWK_ZE_VBF_bin5_Runc  param  0 1
@@ -366,12 +372,15 @@ ZW_EWK_SR_VBF_EWK  param  0 1
 WJets_SR_VBF_bin5_Runc  param  0 1
 Znunu_EWK_ZM_VBF_bin4_Runc  param  0 1
 WJets_EWK_SR_VBF_bin3_Runc  param  0 1
+WW_QCD_RenScale  param  0 1
 Znunu_EWK_ZM_VBF_bin6_Runc  param  0 1
 WJets_WM_VBF_bin1_Runc  param  0 1
 Znunu_ZE_VBF_bin6_Runc  param  0 1
-WJets_WE_VBF_bin1_Runc  param  0 1
+Znunu_EWK_ZM_VBF_bin5_Runc  param  0 1
 WJets_EWK_WM_VBF_bin6_Runc  param  0 1
+ZZ_EWK_PDF    param  0 1
 WJets_EWK_WM_VBF_bin3_Runc  param  0 1
+ZZ_EWK_RenScale  param  0 1
 WJets_EWK_SR_VBF_bin2_Runc  param  0 1
 Znunu_EWK_ZE_VBF_bin2_Runc  param  0 1
 WJets_WM_VBF_bin3_Runc  param  0 1
@@ -385,6 +394,7 @@ Znunu_EWK_ZE_VBF_bin4_Runc  param  0 1
 WJets_SR_VBF_bin4_Runc  param  0 1
 Znunu_ZE_VBF_bin2_Runc  param  0 1
 WJets_EWK_WM_VBF_bin7_Runc  param  0 1
+ZZ_QCD_RenScale  param  0 1
 WJets_EWK_SR_VBF_bin8_Runc  param  0 1
 WJets_WM_VBF_bin4_Runc  param  0 1
 WJets_SR_VBF_bin8_Runc  param  0 1
@@ -401,10 +411,12 @@ WJets_EWK_SR_VBF_bin7_Runc  param  0 1
 WJets_EWK_WE_VBF_bin1_Runc  param  0 1
 WJets_EWK_WE_VBF_bin7_Runc  param  0 1
 WJets_WM_VBF_bin7_Runc  param  0 1
+WW_EWK_FactScale  param  0 1
+WJets_WM_VBF_bin2_Runc  param  0 1
 WJets_WM_VBF_bin9_Runc  param  0 1
 WJets_SR_VBF_bin1_Runc  param  0 1
-Znunu_EWK_ZM_VBF_bin5_Runc  param  0 1
 Znunu_ZE_VBF_bin7_Runc  param  0 1
+WW_QCD_PDF    param  0 1
 WJets_EWK_SR_VBF_bin6_Runc  param  0 1
 Znunu_ZM_VBF_bin7_Runc  param  0 1
 WJets_EWK_WM_VBF_bin2_Runc  param  0 1
