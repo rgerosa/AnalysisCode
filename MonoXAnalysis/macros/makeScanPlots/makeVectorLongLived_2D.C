@@ -106,7 +106,7 @@ void makeVectorLongLived_2D(string inputFileName, string outputDIR){
   canvas->SetLogz();
 
   hexp->GetYaxis()->CenterTitle();
-  hexp->GetXaxis()->SetTitle("m_{DM} [GeV]");
+  hexp->GetXaxis()->SetTitle("m_{X_{2}} [GeV]");
   hexp->GetYaxis()->SetTitle("c#tau [mm]");
   hexp->GetXaxis()->SetTitleOffset(1.15);
   hexp->GetYaxis()->SetTitleOffset(1.20);
@@ -130,7 +130,7 @@ void makeVectorLongLived_2D(string inputFileName, string outputDIR){
   canvas->SaveAs((outputDIR+"/scan_vector_mdm_ctau_mmed_"+to_string(medmass)+"_expected.png").c_str());
 
   hobs->GetYaxis()->CenterTitle();
-  hobs->GetXaxis()->SetTitle("m_{DM} [GeV]");
+  hobs->GetXaxis()->SetTitle("m_{X_{2}} [GeV]");
   hobs->GetYaxis()->SetTitle("c#tau [mm]");
   hobs->GetXaxis()->SetTitleOffset(1.15);
   hobs->GetYaxis()->SetTitleOffset(1.20);
