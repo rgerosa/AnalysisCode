@@ -1075,7 +1075,7 @@ void makeTemplates(const bool & doCorrectionHistograms   = false,  // calculate 
     // gamma + jets
     if(category != Category::VBF and category != Category::VBFrelaxed){
       cout<<"start gamma+jets region data"<<endl;
-      //gamdatamchist(&outfile,category,observables,observables_2D,nloSamples,lumi,runHiggsInvisible,false,applyPostFitWeights,useTheoriestKFactors);
+      gamdatamchist(&outfile,category,observables,observables_2D,nloSamples,lumi,runHiggsInvisible,false,applyPostFitWeights,useTheoriestKFactors);
     }
     // lepton control regions
     cout<<"start zmumu region data"<<endl;

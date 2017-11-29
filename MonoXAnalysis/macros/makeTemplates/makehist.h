@@ -589,9 +589,11 @@ void makehist4(TTree* tree,            /*input tree*/
     // MET Filters --> apply on both data and monte-carlo
     if((category != Category::VBF and category != Category::VBFrelaxed) and 
        (*fhbhe == 0 or *fhbiso == 0 or *feeb == 0 or *fetp == 0 or *fvtx == 0 or *fcsc == 0 or *fbadmu == 0 or *fbadch == 0)) continue;
-    if((category == Category::VBF or category == Category::VBFrelaxed) and not isMC and 
-       (*fhbhe == 0 or *fhbiso == 0 or *feeb == 0 or *fetp == 0 or *fvtx == 0 or *fcsc == 0 or *fbadmu == 0 or *fbadch == 0)) continue;
-    
+    if(category == Category::VBF or category == Category::VBFrelaxed){
+      if(not isMC and (*fhbhe == 0 or *fhbiso == 0 or *feeb == 0 or *fetp == 0 or *fvtx == 0 or *fcsc == 0 or *fbadmu == 0 or *fbadch == 0)) continue;
+      else if(isMC and sample != Sample::sig and (*fhbhe == 0 or *fhbiso == 0 or *feeb == 0 or *fetp == 0 or *fvtx == 0 or *fcsc == 0 or *fbadmu == 0 or *fbadch == 0)) continue;
+    }
+
     // check dphi jet-met
     Double_t jmdphi = 0.0;    
     if (sample == Sample::sig || sample == Sample::wmn || sample == Sample::zmm || sample == Sample::topmu || sample == Sample::qcd || sample == Sample::taun) jmdphi = fabs(*jmmdphi);

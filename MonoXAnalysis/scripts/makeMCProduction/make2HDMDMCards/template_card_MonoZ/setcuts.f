@@ -53,9 +53,8 @@ c--cuts
       double precision r2max(nincoming+1:nexternal,nincoming+1:nexternal)
       double precision s_max(nexternal,nexternal)
       double precision ptll_min(nexternal,nexternal),ptll_max(nexternal,nexternal)
-      double precision ptboson_min(nexternal,nexternal),ptboson_max(nexternal,nexternal)
       double precision inclHtmin,inclHtmax
-      common/to_cuts/  etmin, emin, etamax, r2min, s_min, ptboson_min, ptboson_max,
+      common/to_cuts/  etmin, emin, etamax, r2min, s_min, 
      $     etmax, emax, etamin, r2max, s_max, ptll_min, ptll_max, inclHtmin,inclHtmax
 
       double precision ptjmin4(4),ptjmax4(4),htjmin4(2:4),htjmax4(2:4)
@@ -76,11 +75,11 @@ c
       integer icolup(2,nexternal,maxflow,maxsproc)
       include 'leshouche.inc'
 C
-      LOGICAL  IS_A_J(NEXTERNAL),IS_A_L(NEXTERNAL), IS_A_DM(NEXTERNAL)
+      LOGICAL  IS_A_J(NEXTERNAL),IS_A_L(NEXTERNAL) 
       LOGICAL  IS_A_B(NEXTERNAL),IS_A_A(NEXTERNAL),IS_A_ONIUM(NEXTERNAL)
       LOGICAL  IS_A_NU(NEXTERNAL),IS_HEAVY(NEXTERNAL)
       logical  do_cuts(nexternal)
-      COMMON /TO_SPECISA/IS_A_J,IS_A_A,IS_A_L,IS_A_DM,IS_A_B,IS_A_NU,IS_HEAVY,
+      COMMON /TO_SPECISA/IS_A_J,IS_A_A,IS_A_L,IS_A_B,IS_A_NU,IS_HEAVY,
      . IS_A_ONIUM, do_cuts 
 c
 c
@@ -91,7 +90,7 @@ c     reading parameters
 c For checking the consistency of the grouping and the cuts defined here
       integer iproc
       logical equal
-      LOGICAL  IS_A_J_SAVE(NEXTERNAL),IS_A_L_SAVE(NEXTERNAL),IS_A_DM_SAVE(NEXTERNAL)
+      LOGICAL  IS_A_J_SAVE(NEXTERNAL),IS_A_L_SAVE(NEXTERNAL),
      $     ,IS_A_B_SAVE(NEXTERNAL),IS_A_A_SAVE(NEXTERNAL)
      $     ,IS_A_ONIUM_SAVE(NEXTERNAL),IS_A_NU_SAVE(NEXTERNAL)
      $     ,IS_HEAVY_SAVE(NEXTERNAL),DO_CUTS_SAVE(NEXTERNAL)
@@ -99,14 +98,14 @@ c For checking the consistency of the grouping and the cuts defined here
      $     ,r2max_save(nexternal,nexternal),s_min_save(nexternal
      $     ,nexternal),s_max_save(nexternal,nexternal)
      $     ,ptll_min_save(nexternal,nexternal),ptll_max_save(nexternal
-     $     ,nexternal),ptboson_min_save(nexternal,nexternal),ptboson_max_save(nexternal,nexternal)
+     $     ,nexternal),
      &     ,etmin_save(nexternal),etmax_save(nexternal)
      $     ,emin_save(nexternal) ,emax_save(nexternal)
      $     ,etamin_save(nexternal),etamax_save(nexternal)
-      save  IS_A_J_SAVE,IS_A_L_SAVE,IS_A_DM_SAVE,IS_A_B_SAVE,IS_A_A_SAVE
+      save  IS_A_J_SAVE,IS_A_L_SAVE,IS_A_B_SAVE,IS_A_A_SAVE
      $     ,IS_A_ONIUM_SAVE,IS_A_NU_SAVE,IS_HEAVY_SAVE
      $     ,r2min_save,r2max_save,s_min_save,s_max_save,ptll_min_save
-     $     ,ptll_max_save,ptboson_min_save,ptboson_max_save,etmin_save,etmax_save,emin_save,emax_save
+     $     ,ptll_max_save,etmin_save,etmax_save,emin_save,emax_save
      $     ,etamin_save,etamax_save
 c
 c     setup masses for the final-state particles
@@ -223,9 +222,9 @@ c-neutrino's for missing et
          if (abs(idup(i,1,iproc)).eq.12) is_a_nu(i)=.true.  ! no cuts on ve ve~
          if (abs(idup(i,1,iproc)).eq.14) is_a_nu(i)=.true.  ! no cuts on vm vm~
          if (abs(idup(i,1,iproc)).eq.16) is_a_nu(i)=.true.  ! no cuts on vt vt~
+         if (abs(idup(i,1,iproc)).eq.52) is_a_nu(i)=.true.  ! DM candidates
+         if (abs(idup(i,1,iproc)).eq.55) is_a_nu(i)=.true.  ! DM candidates
          if (pmass(i).gt.10d0)     is_heavy(i)=.true. ! heavy fs particle
-c-DM particles
-         if (abs(idup(i,1,iproc)).eq.18)  is_a_dm(i)=.true. ! DM candidate
 c-onium
          if (idup(i,1,iproc).eq.441)   is_a_onium(i)=.true. ! charmonium
          if (idup(i,1,iproc).eq.10441)   is_a_onium(i)=.true. ! charmonium
@@ -438,23 +437,6 @@ c
          enddo
       enddo
 
-c     
-c     boson cut (min and max)
-c
-
-      do i=nincoming+1,nexternal-1
-         do j=i+1,nexternal
-            ptboson_min(j,i)=0.0d0**2
-            ptboson_max(j,i)=-1
-            if(((is_a_dm(i).and.is_a_dm(j)).and.
-     &           (abs(idup(i,1,iproc)).eq.abs(idup(j,1,iproc))).and.
-     &           (idup(i,1,iproc)*idup(j,1,iproc).lt.0)) ! Leptons from same flavor but different charge
-     &           .and. is_a_dm(i).and.is_a_dm(j)) then
-               ptboson_min(j,i)=ptbosonmin*dabs(ptbosonmin)
-               ptboson_max(j,i)=ptbosonmax*dabs(ptbosonmax)
-            endif
-         enddo
-      enddo
 
 c
 c   EXTRA JET CUTS
@@ -553,8 +535,6 @@ c Check that results are consistent among all the grouped subprocesses
                s_max_save(j,i) = s_max(j,i)
                ptll_min_save(j,i) = ptll_min(j,i)
                ptll_max_save(j,i) = ptll_max(j,i)
-               ptboson_min_save(j,i) = ptboson_min(j,i)
-               ptboson_max_save(j,i) = ptboson_max(j,i)
             enddo
          enddo
       else
@@ -614,8 +594,6 @@ c Check that results are consistent among all the grouped subprocesses
                if (s_max_save(j,i).ne.s_max(j,i)) equal=.false.
                if (ptll_min_save(j,i).ne.ptll_min(j,i)) equal=.false.
                if (ptll_max_save(j,i).ne.ptll_max(j,i)) equal=.false.
-               if (ptboson_min_save(j,i).ne.ptboson_min(j,i)) equal=.false.
-               if (ptboson_max_save(j,i).ne.ptboson_max(j,i)) equal=.false.
             enddo
          enddo
          if (.not.equal) then
