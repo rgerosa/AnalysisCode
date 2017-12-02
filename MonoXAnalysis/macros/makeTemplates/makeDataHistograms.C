@@ -607,10 +607,10 @@ void sigdatamchist(TFile* outfile,
     zhists.push_back(zewkhist); // EW corrections
     if(category == Category::VBFrelaxed){
       if(not nloSamples.useZJetsNLO){
-	zhists.push_back((TH1*) kfactzjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_200_500"));
-	zhists.push_back((TH1*) kfactzjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_500_1000"));
-	zhists.push_back((TH1*) kfactzjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_1000_1500"));
-	zhists.push_back((TH1*) kfactzjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_1500_5000"));
+	zhists.push_back((TH1*) kfactzjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_200_500_smoothed"));
+	zhists.push_back((TH1*) kfactzjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_500_1000_smoothed"));
+	zhists.push_back((TH1*) kfactzjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_1000_1500_smoothed"));
+	zhists.push_back((TH1*) kfactzjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_1500_5000_smoothed"));
       }
     }
     else if(category == Category::VBF){
@@ -624,10 +624,10 @@ void sigdatamchist(TFile* outfile,
     dyhists.push_back(zewkhist); // EW corrections
     if(category == Category::VBFrelaxed){
       if(not nloSamples.useDYJetsNLO){
-	dyhists.push_back((TH1*) kfactzll_vbf->Get("kfactors_shape/kfactor_vbf_mjj_200_500"));
-	dyhists.push_back((TH1*) kfactzll_vbf->Get("kfactors_shape/kfactor_vbf_mjj_500_1000"));
-	dyhists.push_back((TH1*) kfactzll_vbf->Get("kfactors_shape/kfactor_vbf_mjj_1000_1500"));
-	dyhists.push_back((TH1*) kfactzll_vbf->Get("kfactors_shape/kfactor_vbf_mjj_1500_5000"));
+	dyhists.push_back((TH1*) kfactzll_vbf->Get("kfactors_shape/kfactor_vbf_mjj_200_500_smoothed"));
+	dyhists.push_back((TH1*) kfactzll_vbf->Get("kfactors_shape/kfactor_vbf_mjj_500_1000_smoothed"));
+	dyhists.push_back((TH1*) kfactzll_vbf->Get("kfactors_shape/kfactor_vbf_mjj_1000_1500_smoothed"));
+	dyhists.push_back((TH1*) kfactzll_vbf->Get("kfactors_shape/kfactor_vbf_mjj_1500_5000_smoothed"));
       }
     }
     else if(category == Category::VBF){
@@ -640,10 +640,10 @@ void sigdatamchist(TFile* outfile,
     whists.push_back(wewkhist); // EW corrections
     if(category == Category::VBFrelaxed){
       if(not nloSamples.useWJetsNLO){
-	whists.push_back((TH1*) kfactwjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_200_500"));
-	whists.push_back((TH1*) kfactwjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_500_1000"));
-	whists.push_back((TH1*) kfactwjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_1000_1500"));
-	whists.push_back((TH1*) kfactwjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_1500_5000"));
+	whists.push_back((TH1*) kfactwjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_200_500_smoothed"));
+	whists.push_back((TH1*) kfactwjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_500_1000_smoothed"));
+	whists.push_back((TH1*) kfactwjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_1000_1500_smoothed"));
+	whists.push_back((TH1*) kfactwjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_1500_5000_smoothed"));
       }
     }
     else if(category == Category::VBF){
@@ -656,10 +656,10 @@ void sigdatamchist(TFile* outfile,
     ahists.push_back(aewkhist); // EW corrections
     if(category == Category::VBFrelaxed){
       if(not nloSamples.usePhotonJetsNLO){
-	ahists.push_back((TH1*) kfactgjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_200_500"));
-	ahists.push_back((TH1*) kfactgjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_500_1000"));
-	ahists.push_back((TH1*) kfactgjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_1000_1500"));
-	ahists.push_back((TH1*) kfactgjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_1500_5000"));
+	ahists.push_back((TH1*) kfactgjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_200_500_smoothed"));
+	ahists.push_back((TH1*) kfactgjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_500_1000_smoothed"));
+	ahists.push_back((TH1*) kfactgjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_1000_1500_smoothed"));
+	ahists.push_back((TH1*) kfactgjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_1500_5000_smoothed"));
       }
     }
     else if(category == Category::VBF){
@@ -752,7 +752,6 @@ void sigdatamchist(TFile* outfile,
       makehist4(tttree_alt,tthist_alt_metUncUp,tthist_alt_metUncUp_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"uncUp",false,reweightNVTX,0,isHInv,applyPFWeight);
       makehist4(tttree_alt,tthist_alt_metUncDw,tthist_alt_metUncDw_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"uncDw",false,reweightNVTX,0,isHInv,applyPFWeight);
     }
-
 
     cout<<"signal region analysis --> do diboson shape sys "<<endl;
     makehist4(ditree,dihist_metJetUp,dihist_metJetUp_2D,true,Sample::sig,category,isWJet,1.00,lumi,ehists,"jesUp",false,reweightNVTX,0,isHInv,applyPFWeight);
@@ -906,7 +905,7 @@ void sigdatamchist(TFile* outfile,
   // data                                                
   cout<<"signal region analysis --> loop on data "<<endl;
   makehist4(dttree,dthist,dthist_2D,false,Sample::sig,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
-  
+
   if (blind) {
     for( size_t ihist = 0; ihist < dthist.size(); ihist++){
       for (int i = 1; i <= dthist.at(ihist)->GetNbinsX(); i++) {
@@ -1486,10 +1485,10 @@ void gamdatamchist(TFile* outfile,
     whists.push_back(wewkhist); // EW corrections
     if(category == Category::VBFrelaxed){
       if(not nloSamples.useWJetsNLO){
-	whists.push_back((TH1*) kfactwjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_200_500"));
-	whists.push_back((TH1*) kfactwjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_500_1000"));
-	whists.push_back((TH1*) kfactwjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_1000_1500"));
-	whists.push_back((TH1*) kfactwjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_1500_5000"));
+	whists.push_back((TH1*) kfactwjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_200_500_smoothed"));
+	whists.push_back((TH1*) kfactwjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_500_1000_smoothed"));
+	whists.push_back((TH1*) kfactwjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_1000_1500_smoothed"));
+	whists.push_back((TH1*) kfactwjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_1500_5000_smoothed"));
       }
     }
     else if(category == Category::VBF){
@@ -1502,10 +1501,10 @@ void gamdatamchist(TFile* outfile,
     ahists.push_back(aewkhist); // EW corrections
     if(category == Category::VBFrelaxed){
       if(not nloSamples.usePhotonJetsNLO){
-	ahists.push_back((TH1*) kfactgjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_200_500"));
-	ahists.push_back((TH1*) kfactgjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_500_1000"));
-	ahists.push_back((TH1*) kfactgjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_1000_1500"));
-	ahists.push_back((TH1*) kfactgjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_1500_5000"));
+	ahists.push_back((TH1*) kfactgjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_200_500_smoothed"));
+	ahists.push_back((TH1*) kfactgjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_500_1000_smoothed"));
+	ahists.push_back((TH1*) kfactgjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_1000_1500_smoothed"));
+	ahists.push_back((TH1*) kfactgjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_1500_5000_smoothed"));
       }
     }
     else if(category == Category::VBF){
@@ -2259,10 +2258,10 @@ void lepdatamchist(TFile* outfile,
     vllhists.push_back(zewkhist); // EW corrections
     if(category == Category::VBFrelaxed){
       if(not nloSamples.useDYJetsNLO){
-	vllhists.push_back((TH1*) kfactzjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_200_500"));
-	vllhists.push_back((TH1*) kfactzjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_500_1000"));
-	vllhists.push_back((TH1*) kfactzjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_1000_1500"));
-	vllhists.push_back((TH1*) kfactzjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_1500_5000"));
+	vllhists.push_back((TH1*) kfactzjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_200_500_smoothed"));
+	vllhists.push_back((TH1*) kfactzjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_500_1000_smoothed"));
+	vllhists.push_back((TH1*) kfactzjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_1000_1500_smoothed"));
+	vllhists.push_back((TH1*) kfactzjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_1500_5000_smoothed"));
       }
     }
     else if(category == Category::VBF){
@@ -2275,10 +2274,10 @@ void lepdatamchist(TFile* outfile,
     vlhists.push_back(wewkhist); // EW corrections
     if(category == Category::VBFrelaxed){
       if(not nloSamples.useWJetsNLO){
-	vlhists.push_back((TH1*) kfactwjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_200_500"));
-	vlhists.push_back((TH1*) kfactwjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_500_1000"));
-	vlhists.push_back((TH1*) kfactwjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_1000_1500"));
-	vlhists.push_back((TH1*) kfactwjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_1500_5000"));
+	vlhists.push_back((TH1*) kfactwjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_200_500_smoothed"));
+	vlhists.push_back((TH1*) kfactwjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_500_1000_smoothed"));
+	vlhists.push_back((TH1*) kfactwjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_1000_1500_smoothed"));
+	vlhists.push_back((TH1*) kfactwjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_1500_5000_smoothed"));
       }
     }    
     else if(category == Category::VBF){
@@ -2291,10 +2290,10 @@ void lepdatamchist(TFile* outfile,
     ahists.push_back(aewkhist); // EW corrections
     if(category == Category::VBFrelaxed){
       if(not nloSamples.usePhotonJetsNLO){
-	ahists.push_back((TH1*) kfactgjet_vbf->Get("kfactor_vbf_mjj_200_500"));
-	ahists.push_back((TH1*) kfactgjet_vbf->Get("kfactor_vbf_mjj_500_1000"));
-	ahists.push_back((TH1*) kfactgjet_vbf->Get("kfactor_vbf_mjj_1000_1500"));
-	ahists.push_back((TH1*) kfactgjet_vbf->Get("kfactor_vbf_mjj_1500_5000"));
+	ahists.push_back((TH1*) kfactgjet_vbf->Get("kfactor_vbf_mjj_200_500_smoothed"));
+	ahists.push_back((TH1*) kfactgjet_vbf->Get("kfactor_vbf_mjj_500_1000_smoothed"));
+	ahists.push_back((TH1*) kfactgjet_vbf->Get("kfactor_vbf_mjj_1000_1500_smoothed"));
+	ahists.push_back((TH1*) kfactgjet_vbf->Get("kfactor_vbf_mjj_1500_5000_smoothed"));
       }
     }
     else if(category == Category::VBF){

@@ -140,6 +140,12 @@ double getVtaggingScaleFactor(const double & tau2tau1, const string & sysName){
   return sfwgt;
 }
 
+// jet sorting
+bool jet_sort(const TLorentzVector & a, const TLorentzVector & b){
+  return a.Pt() > b.Pt();
+}
+
+
 // main function
 void makehist4(TTree* tree,            /*input tree*/ 
 	       vector<TH1*> hist1D,    /* set of 1D histogram */ 
@@ -475,6 +481,12 @@ void makehist4(TTree* tree,            /*input tree*/
   TTreeReaderValue<vector<float> > jetpt   (myReader,("combinejetpt"+jetSuffix).c_str());
   TTreeReaderValue<vector<float> > jetphi  (myReader,("combinejetphi"+jetSuffix).c_str());
   TTreeReaderValue<vector<float> > jetm    (myReader,("combinejetm"+jetSuffix).c_str());
+
+  TTreeReaderValue<vector<float> > genjeteta  (myReader,"combinejetGeneta");
+  TTreeReaderValue<vector<float> > genjetpt   (myReader,"combinejetGenpt");
+  TTreeReaderValue<vector<float> > genjetphi  (myReader,"combinejetGenphi");
+  TTreeReaderValue<vector<float> > genjetm    (myReader,"combinejetGenm");
+
   TTreeReaderValue<vector<float> > jetbtag (myReader,"combinejetbtag");
   TTreeReaderValue<vector<float> > jetQGL  (myReader,"combinejetQGL");
   TTreeReaderValue<vector<float> > chfrac  (myReader,"combinejetCHfrac");
@@ -1038,24 +1050,24 @@ void makehist4(TTree* tree,            /*input tree*/
 
         
     /// re-miniADO specific to adjust lumi
-    Double_t sfwgt = 1.0;
+    Double_t sfwgt_reco = 1.0;
     // apply tracking efficiency for electrons from POGs / private files
-    if(isMC && (sample == Sample::zee or sample == Sample::wen)){
+    if(isMC && (sample == Sample::zee or sample == Sample::wen or sample == Sample::topel)){
       if(pt1 > 0.){	  
 	float ptVal = pt1;
 	if(pt1 < trackingefficiency_electron->GetYaxis()->GetBinLowEdge(1)) 
 	  ptVal = trackingefficiency_electron->GetYaxis()->GetBinLowEdge(1)+1;
 	else if(pt1 > trackingefficiency_electron->GetYaxis()->GetBinLowEdge(trackingefficiency_electron->GetNbinsY()+1)) 
 	  ptVal = trackingefficiency_electron->GetYaxis()->GetBinLowEdge(trackingefficiency_electron->GetNbinsY()+1)-1;
-	sfwgt *= trackingefficiency_electron->GetBinContent(trackingefficiency_electron->FindBin(eta1,ptVal));
+	sfwgt_reco *= trackingefficiency_electron->GetBinContent(trackingefficiency_electron->FindBin(eta1,ptVal));
       }
       if(pt2 > 0.){
-	float ptVal = pt1;
+	float ptVal = pt2;
 	if(pt2 < trackingefficiency_electron->GetYaxis()->GetBinLowEdge(1)) 
 	  ptVal =  trackingefficiency_electron->GetYaxis()->GetBinLowEdge(1)+1;
 	else if(pt2 > trackingefficiency_electron->GetYaxis()->GetBinLowEdge(trackingefficiency_electron->GetNbinsY()+1)) 
 	  ptVal = trackingefficiency_electron->GetYaxis()->GetBinLowEdge(trackingefficiency_electron->GetNbinsY()+1)-1;
-	sfwgt *= trackingefficiency_electron->GetBinContent(trackingefficiency_electron->FindBin(eta2,ptVal));
+	sfwgt_reco *= trackingefficiency_electron->GetBinContent(trackingefficiency_electron->FindBin(eta2,ptVal));
       }
     }
 
@@ -1066,7 +1078,7 @@ void makehist4(TTree* tree,            /*input tree*/
 	trackwgt *= trackingefficiency_pog->Eval(*nvtx);
       if(pt2 > 0.)
 	trackwgt *= trackingefficiency_pog->Eval(*nvtx);
-      sfwgt *= trackwgt;
+      sfwgt_reco *= trackwgt;
     }
 
     // scale factor for leptons
@@ -1074,6 +1086,7 @@ void makehist4(TTree* tree,            /*input tree*/
     TH2* sfthist_lowpu = NULL;
     TH2* sflhist_highpu = NULL;
     TH2* sfthist_highpu = NULL;
+    Double_t sfwgt_id = 1;
 
     if (isMC and (sample == Sample::zmm || sample == Sample::wmn || sample == Sample::topmu)) {
       if (pt1 > 0.){
@@ -1083,9 +1096,9 @@ void makehist4(TTree* tree,            /*input tree*/
 	else if(ptValue > msftight_id->GetYaxis()->GetBinLowEdge(msftight_id->GetNbinsY()+1)) 
 	  ptValue = msftight_id->GetYaxis()->GetBinLowEdge(msftight_id->GetNbinsY()+1)-1; 
 	if(id1 == 1)
-	  sfwgt *= msftight_id->GetBinContent(msftight_id->FindBin(fabs(eta1),ptValue))*msftight_iso->GetBinContent(msftight_iso->FindBin(fabs(eta1),ptValue));
+	  sfwgt_id *= msftight_id->GetBinContent(msftight_id->FindBin(fabs(eta1),ptValue))*msftight_iso->GetBinContent(msftight_iso->FindBin(fabs(eta1),ptValue));
 	else 
-	  sfwgt *= msfloose_id->GetBinContent(msfloose_id->FindBin(fabs(eta1),ptValue))*msfloose_iso->GetBinContent(msfloose_iso->FindBin(fabs(eta1),ptValue));
+	  sfwgt_id *= msfloose_id->GetBinContent(msfloose_id->FindBin(fabs(eta1),ptValue))*msfloose_iso->GetBinContent(msfloose_iso->FindBin(fabs(eta1),ptValue));
       }
       if(pt2 > 0.){
 	float ptValue = pt2;
@@ -1094,9 +1107,9 @@ void makehist4(TTree* tree,            /*input tree*/
 	else if(ptValue > msftight_id->GetYaxis()->GetBinLowEdge(msftight_id->GetNbinsY()+1)) 
 	  ptValue = msftight_id->GetYaxis()->GetBinLowEdge(msftight_id->GetNbinsY()+1)-1; 
 	if(id2 == 1)
-	  sfwgt *= msftight_id->GetBinContent(msftight_id->FindBin(fabs(eta2),ptValue))*msftight_iso->GetBinContent(msftight_iso->FindBin(fabs(eta2),ptValue));
+	  sfwgt_id *= msftight_id->GetBinContent(msftight_id->FindBin(fabs(eta2),ptValue))*msftight_iso->GetBinContent(msftight_iso->FindBin(fabs(eta2),ptValue));
 	else 
-	  sfwgt *= msfloose_id->GetBinContent(msfloose_id->FindBin(fabs(eta2),ptValue))*msfloose_iso->GetBinContent(msfloose_iso->FindBin(fabs(eta2),ptValue));
+	  sfwgt_id *= msfloose_id->GetBinContent(msfloose_id->FindBin(fabs(eta2),ptValue))*msfloose_iso->GetBinContent(msfloose_iso->FindBin(fabs(eta2),ptValue));
       }
     }
 
@@ -1109,9 +1122,9 @@ void makehist4(TTree* tree,            /*input tree*/
 	  else if(pt1 > esftight->GetYaxis()->GetBinLowEdge(esftight->GetNbinsY()+1)) 
 	    ptVal = esftight->GetYaxis()->GetBinLowEdge(esftight->GetNbinsY()+1)-1;
 	if (id1 == 1) 
-	  sfwgt *= esftight->GetBinContent(esftight->FindBin(eta1,ptVal));
+	  sfwgt_id *= esftight->GetBinContent(esftight->FindBin(eta1,ptVal));
 	else  
-	  sfwgt *= esfveto->GetBinContent(esfveto->FindBin(eta1,ptVal));
+	  sfwgt_id *= esfveto->GetBinContent(esfveto->FindBin(eta1,ptVal));
       }
       if (pt2 > 0.) {
 	float ptVal = pt2;
@@ -1120,25 +1133,45 @@ void makehist4(TTree* tree,            /*input tree*/
 	else if(pt2 > esftight->GetYaxis()->GetBinLowEdge(esftight->GetNbinsY()+1)) 
 	  ptVal = esftight->GetYaxis()->GetBinLowEdge(esftight->GetNbinsY()+1)-1;
 	if (id1 == 1)
-	  sfwgt *= esftight->GetBinContent(esftight->FindBin(eta2,ptVal));
+	  sfwgt_id *= esftight->GetBinContent(esftight->FindBin(eta2,ptVal));
 	else
-	  sfwgt *= esfveto->GetBinContent(esfveto->FindBin(eta2,ptVal));
+	  sfwgt_id *= esfveto->GetBinContent(esfveto->FindBin(eta2,ptVal));
       }
     }
     
     // tight tau scale factor--> as suggested by tau pog https://twiki.cern.ch/twiki/bin/viewauth/CMS/TauIDRecommendation13TeV
     if(isMC && sample == Sample::taun)
-      sfwgt *= 0.95;
+      sfwgt_id *= 0.95;
+
+    
+    // photon id scale factor
+    if (isMC && psfmedium && sample == Sample::gam) {
+      if (pt1 > 0. && id1 == 1) 
+	sfwgt_id *= psfmedium->GetBinContent(psfmedium->FindBin(eta1,min(pt1,psfmedium->GetYaxis()->GetBinLowEdge(psfmedium->GetNbinsY()+1)-1)));
+    }
+
+    // photon purity
+    if (!isMC && sample == Sample::qcdgam) {
+      double xleft, yleft, xright, yright;
+      purgraph->GetPoint(0,xleft,yleft);
+      purgraph->GetPoint(purgraph->GetN()-1,xright,yright);	
+      if(pt1 >= xleft and pt1 <= xright) // check graph extremes
+	sfwgt_id *= (1.0 - purgraph->Eval(pt1));
+      else if(pt1 < xleft)
+	sfwgt_id *= (1.0 - purgraph->Eval(xleft));
+      else if(pt1 > xright)
+	sfwgt_id *= (1.0 - purgraph->Eval(xright));
+    }
     
     // trigger scale factor for electrons
+    Double_t sfwgt_trig = 1;
     if (isMC && triggerelhist && triggerelhist_ht && (sample == Sample::zee || sample == Sample::topel || sample == Sample::wen)) {
-      float sf1 = 1.;
-      float sf2 = 1.;
-
+      double sf1 = 1;
+      double sf2 = 1;
       if(category != Category::VBF and category != Category::VBFrelaxed){
-	sf1 = triggerelhist->GetBinContent(triggerelhist->FindBin(fabs(eta1),min(pt1,triggerelhist->GetYaxis()->GetBinLowEdge(triggerelhist->GetNbinsY()+1)-1)));
+        sf1 = triggerelhist->GetBinContent(triggerelhist->FindBin(fabs(eta1),min(pt1,triggerelhist->GetYaxis()->GetBinLowEdge(triggerelhist->GetNbinsY()+1)-1)));
 	if(pt1 >= 200)
-	  sf1 = triggerelhist_ht->GetBinContent(triggerelhist_ht->FindBin(fabs(eta1),min(pt1,triggerelhist_ht->GetYaxis()->GetBinLowEdge(triggerelhist_ht->GetNbinsY()+1)-1)));
+	   sf1 = triggerelhist_ht->GetBinContent(triggerelhist_ht->FindBin(fabs(eta1),min(pt1,triggerelhist_ht->GetYaxis()->GetBinLowEdge(triggerelhist_ht->GetNbinsY()+1)-1)));
 
 	sf2 = triggerelhist->GetBinContent(triggerelhist->FindBin(fabs(eta2),min(pt2,triggerelhist->GetYaxis()->GetBinLowEdge(triggerelhist->GetNbinsY()+1)-1)));
 	if(pt2 >= 200)
@@ -1167,46 +1200,26 @@ void makehist4(TTree* tree,            /*input tree*/
 
       //////////////
       if (pt1 > 40. && id1 == 1 and id2 == 1)
-	sfwgt *= min(1.,double(sf1+sf2-sf1*sf2));
+	sfwgt_trig *= min(1.,double(sf1+sf2-sf1*sf2));
       else if(pt1 > 40 and id1 == 1 and id2 != 1)
-	sfwgt *= sf1;
+	sfwgt_trig *= sf1;
       else if(pt2 > 40 and id2 == 1 and id1 != 1)
-	sfwgt *= sf2;
+	sfwgt_trig *= sf2;
     }
     
-    
-    // photon id scale factor
-    if (isMC && psfmedium && sample == Sample::gam) {
-      if (pt1 > 0. && id1 == 1) 
-	sfwgt *= psfmedium->GetBinContent(psfmedium->FindBin(eta1,min(pt1,psfmedium->GetYaxis()->GetBinLowEdge(psfmedium->GetNbinsY()+1)-1)));
-    }
-
-    // photon purity
-    if (!isMC && sample == Sample::qcdgam) {
-      double xleft, yleft, xright, yright;
-      purgraph->GetPoint(0,xleft,yleft);
-      purgraph->GetPoint(purgraph->GetN()-1,xright,yright);	
-      if(pt1 >= xleft and pt1 <= xright) // check graph extremes
-	sfwgt *= (1.0 - purgraph->Eval(pt1));
-      else if(pt1 < xleft)
-	sfwgt *= (1.0 - purgraph->Eval(xleft));
-      else if(pt1 > xright)
-	sfwgt *= (1.0 - purgraph->Eval(xright));
-    }
 
     // met trigger scale factor
     if (isMC && (sample == Sample::sig || sample == Sample::wmn || sample == Sample::zmm || sample == Sample::topmu || sample == Sample::qcd || sample == Sample::taun)) {
       // single trigger turn on to be applied
       if(triggermet_graph and (sample == Sample::wmn ||  sample == Sample::topmu || sample == Sample::qcd || sample == Sample::taun || sample == Sample::sig))
-	sfwgt *= triggermet_graph->Eval(min(pfmet,triggermet_graph->GetXaxis()->GetXmax()));
+	sfwgt_trig *= triggermet_graph->Eval(min(pfmet,triggermet_graph->GetXaxis()->GetXmax()));
       // for Zmm
       else if(triggermet_graph_zmm and sample == Sample::zmm)
-	sfwgt *= triggermet_graph_zmm->Eval(min(pfmet,triggermet_graph_zmm->GetXaxis()->GetXmax()));
+	sfwgt_trig *= triggermet_graph_zmm->Eval(min(pfmet,triggermet_graph_zmm->GetXaxis()->GetXmax()));
       else if(triggermet_graph and sample == Sample::zmm)
-	sfwgt *= triggermet_graph->Eval(min(pfmet,triggermet_graph->GetXaxis()->GetXmax()));      
+	sfwgt_trig *= triggermet_graph->Eval(min(pfmet,triggermet_graph->GetXaxis()->GetXmax()));      
       // for VBF
       else if(category == Category::VBF or category == Category::twojet or category == Category::VBFrelaxed){
-	double sftrig = 1;
 	if(not useHTMissTriggerEfficiency){
 	  if(centralJets.size()+forwardJets.size() < 2) continue;
 	  vector<TF1*> trigger_funz;
@@ -1228,7 +1241,7 @@ void makehist4(TTree* tree,            /*input tree*/
 	      float etaj2_min = atof(seglist.at(seglist.size()-2).c_str());
 	      float etaj2_max = atof(seglist.at(seglist.size()-1).c_str());
 	      if(fabs(jeteta->at(0)) > etaj1_min and fabs(jeteta->at(0)) <= etaj1_max and fabs(jeteta->at(1)) > etaj2_min and fabs(jeteta->at(1)) <= etaj2_max){
-		sftrig *= func->Eval(min(pfmet,func->GetXaxis()->GetXmax()));
+		sfwgt_trig *= func->Eval(min(pfmet,func->GetXaxis()->GetXmax()));
 		break;
 	      }
 	    }
@@ -1236,7 +1249,7 @@ void makehist4(TTree* tree,            /*input tree*/
 	      float etaj1_min = atof(seglist.at(seglist.size()-2).c_str());
 	      float etaj1_max = atof(seglist.at(seglist.size()-1).c_str());
 	      if(fabs(jeteta->at(0)) > etaj1_min and fabs(jeteta->at(0)) <= etaj1_max){
-		sftrig *= func->Eval(min(pfmet,func->GetXaxis()->GetXmax()));
+		sfwgt_trig *= func->Eval(min(pfmet,func->GetXaxis()->GetXmax()));
 		break;
 	      }
 	    }
@@ -1255,34 +1268,33 @@ void makehist4(TTree* tree,            /*input tree*/
 	  htmiss = jet4V_total.Pt();
 
 	  if(sample == Sample::zmm)
-	    sftrig = triggermet_func_binned_Zmm.at(0)->Eval(htmiss);
+	    sfwgt_trig *= triggermet_func_binned_Zmm.at(0)->Eval(htmiss);
 	  else
-	    sftrig = triggermet_func_binned_Wmn.at(0)->Eval(htmiss);
+	    sfwgt_trig *= triggermet_func_binned_Wmn.at(0)->Eval(htmiss);
 	}
-	sfwgt *= sftrig;
       }
     }
-  
+    
     // photon trigger scale factor
     if(isMC && triggerphoton_graph && triggerphoton_graph_jetHT and sample == Sample::gam){ // linear interpolation between graph points            
       if(*pmet < recoilThresholdTrigger)	
-	sfwgt *= triggerphoton_graph->Eval(min(double(*phpt),triggerphoton_graph->GetXaxis()->GetXmax()));
+	sfwgt_trig *= triggerphoton_graph->Eval(min(double(*phpt),triggerphoton_graph->GetXaxis()->GetXmax()));
       else
-	sfwgt *= triggerphoton_graph_jetHT->Eval(min(double(*phpt),triggerphoton_graph->GetXaxis()->GetXmax()));
+	sfwgt_trig *= triggerphoton_graph_jetHT->Eval(min(double(*phpt),triggerphoton_graph->GetXaxis()->GetXmax()));
     }
     
     // B-tag weight to be adjusted
     double btagw = *wgtbtag;
     // in case of VBF re-scale zmm for trigger efficiency (PF-muon online ineffiency --> 1% downshift flat vs Mjj)
     if((sample == Sample::zmm or sample == Sample::wmn) and (category == Category::VBFrelaxed or category == Category::VBF))
-      sfwgt *= 0.98;
+      btagw *= 0.98;
 
     /// loose lepton veto weight
     double veto_wgt = 1;
     if(applyLeptonVetoWeight and sample == Sample::sig and (fabs(*wzid) == 23 or fabs(*wzid) == 24)){ // only for SR events and for W+jets / Z+jets
       if(fabs(*l1pid) == 11){ // gen lepton = electron
 	float ptVal = *l1pt;
-	if(ptVal > 10 and fabs(*l1eta) < 2.5){ // in acfeptance
+	if(ptVal > 10 and fabs(*l1eta) < 2.5){ // in acceptance
 	  if(ptVal > effeleveto_id->GetYaxis()->GetXmax()) ptVal = effeleveto_id->GetYaxis()->GetXmax()-1;
 	  if(ptVal < effeleveto_id->GetYaxis()->GetXmin()) ptVal = effeleveto_id->GetYaxis()->GetXmin()+1;
 	  float efficiency = effeleveto_id->GetBinContent(effeleveto_id->GetXaxis()->FindBin(*l1eta),effeleveto_id->GetYaxis()->FindBin(ptVal));
@@ -1348,25 +1360,37 @@ void makehist4(TTree* tree,            /*input tree*/
     }
 
     //V-tagging scale factor --> only for mono-V
+    double sfwgt_vtag = 1;
     if(isMC && category == Category::monoV && isWJet)
-      sfwgt *= getVtaggingScaleFactor(tau2tau1,sysName);
+      sfwgt_vtag *= getVtaggingScaleFactor(tau2tau1,sysName);
     
     //Gen level info --> NLO re-weight    
     Double_t kwgt = 1.0;    
     double genpt = *wzpt;
 
-    for (size_t i = 0; i < khists.size(); i++) {
-      
-      if (khists[i]) {// good histograms
+    for (size_t i = 0; i < khists.size(); i++) {      
 
+      if (khists[i]) {// good histograms
 	TString name (khists[i]->GetName());
 	if((category == Category::VBFrelaxed or category == Category::VBF) and (name.Contains("mjj") or name.Contains("Mjj"))){ // standard weights vs boson pt 
-
+	  ///////
 	  TLorentzVector jet1 ;
 	  TLorentzVector jet2 ;
-	  jet1.SetPtEtaPhiM(jetpt->at(0),jeteta->at(0),jetphi->at(0),jetm->at(0));
-	  jet2.SetPtEtaPhiM(jetpt->at(1),jeteta->at(1),jetphi->at(1),jetm->at(1));
-
+	  vector<TLorentzVector> genjet;
+	  for(int igen = 0; igen < genjetpt->size(); igen++){
+	    TLorentzVector temp; temp.SetPtEtaPhiM(genjetpt->at(igen),genjeteta->at(igen),genjetphi->at(igen),genjetm->at(igen));
+	    genjet.push_back(temp);
+	  }
+	  sort(genjet.begin(),genjet.end(),jet_sort);
+	  
+	  if(genjet.size() >= 2){
+	    jet1 = genjet.at(0);
+	    jet2 = genjet.at(1);
+	  }
+	  else{
+	    jet1.SetPtEtaPhiM(jetpt->at(0),jeteta->at(0),jetphi->at(0),jetm->at(0));
+	    jet2.SetPtEtaPhiM(jetpt->at(1),jeteta->at(1),jetphi->at(1),jetm->at(1));
+	  }
 	  // measurement is binned in mjj
 	  std::stringstream name_tmp(khists[i]->GetName());
 	  std::string segment;
@@ -1375,17 +1399,25 @@ void makehist4(TTree* tree,            /*input tree*/
 	    seglist.push_back(segment);
 	  }
 
-	  float mjj_max = atof(seglist.back().c_str());
-	  float mjj_min = atof(seglist.at(seglist.size()-2).c_str());
+	  float mjj_max = 0;
+	  float mjj_min = 0;
+	  
+	  if(name.Contains("smoothed")){
+	      mjj_max = atof(seglist.at(seglist.size()-2).c_str());
+	      mjj_min = atof(seglist.at(seglist.size()-3).c_str());
+	  }
+	  else{
+	      mjj_max = atof(seglist.at(seglist.size()-1).c_str());
+	      mjj_min = atof(seglist.at(seglist.size()-2).c_str());
+	  }
 
-	  if((jet1+jet2).M() > mjj_min and (jet1+jet2).M() <= mjj_max){
+	  if((jet1+jet2).M() > mjj_min and (jet1+jet2).M() <= mjj_max){	    
 	    if(genpt <= khists[i]->GetXaxis()->GetBinLowEdge(1)) genpt = khists[i]->GetXaxis()->GetBinLowEdge(1) + 1;
 	    if(genpt >= khists[i]->GetXaxis()->GetBinLowEdge(khists[i]->GetNbinsX()+1)) genpt = khists[i]->GetXaxis()->GetBinLowEdge(khists[i]->GetNbinsX()+1)-1;
 	    kwgt *= khists[i]->GetBinContent(khists[i]->FindBin(genpt));
 	  }	    
 	}
 	else{ // standard weights vs boson pt 
-
 	  if(genpt <= khists[i]->GetXaxis()->GetBinLowEdge(1)) genpt = khists[i]->GetXaxis()->GetBinLowEdge(1) + 1;
 	  if(genpt >= khists[i]->GetXaxis()->GetBinLowEdge(khists[i]->GetNbinsX()+1)) genpt = khists[i]->GetXaxis()->GetBinLowEdge(khists[i]->GetNbinsX()+1)-1;
 	  kwgt *= khists[i]->GetBinContent(khists[i]->FindBin(genpt));
@@ -1397,20 +1429,33 @@ void makehist4(TTree* tree,            /*input tree*/
     Double_t kewkgt = 1.0;
     if((category == Category::VBF or category == Category::VBFrelaxed or category == Category::twojet) and isMC){
       double genpt = *wzpt;
-      if(jetpt->size() >= 2) {
-	TLorentzVector jet1 ;
-	TLorentzVector jet2 ;
+      ///////
+      TLorentzVector jet1 ;
+      TLorentzVector jet2 ;
+      vector<TLorentzVector> genjet;
+      for(int igen = 0; igen < genjetpt->size(); igen++){
+	TLorentzVector temp; temp.SetPtEtaPhiM(genjetpt->at(igen),genjeteta->at(igen),genjetphi->at(igen),genjetm->at(igen));
+	genjet.push_back(temp);
+      }
+      sort(genjet.begin(),genjet.end(),jet_sort);
+      
+      if(genjet.size() >= 2){
+	jet1 = genjet.at(0);
+	jet2 = genjet.at(1);
+      }
+      else{
 	jet1.SetPtEtaPhiM(jetpt->at(0),jeteta->at(0),jetphi->at(0),jetm->at(0));
 	jet2.SetPtEtaPhiM(jetpt->at(1),jeteta->at(1),jetphi->at(1),jetm->at(1));
-	double mjj = (jet1+jet2).M();
-	for(size_t i = 0; i < kVEWKhists.size(); i++){
-	  if(kVEWKhists[i]){// good histogram
-	    if(genpt <= kVEWKhists[i]->GetXaxis()->GetBinLowEdge(1)) genpt = kVEWKhists[i]->GetXaxis()->GetBinLowEdge(1) + 1;
-	    if(genpt >= kVEWKhists[i]->GetXaxis()->GetBinLowEdge(kVEWKhists[i]->GetNbinsX()+1)) genpt = kVEWKhists[i]->GetXaxis()->GetBinLowEdge(kVEWKhists[i]->GetNbinsX()+1)-1;
-	    if(mjj <= kVEWKhists[i]->GetYaxis()->GetBinLowEdge(1)) mjj = kVEWKhists[i]->GetYaxis()->GetBinLowEdge(1) + 1;
-	    if(mjj >= kVEWKhists[i]->GetYaxis()->GetBinLowEdge(kVEWKhists[i]->GetNbinsY()+1)) mjj = kVEWKhists[i]->GetYaxis()->GetBinLowEdge(kVEWKhists[i]->GetNbinsY()+1)-1;
-	    kewkgt *= kVEWKhists[i]->GetBinContent(kVEWKhists[i]->FindBin(genpt,mjj));
-	  }
+      }
+      
+      double mjj = (jet1+jet2).M();
+      for(size_t i = 0; i < kVEWKhists.size(); i++){
+	if(kVEWKhists[i]){// good histogram
+	  if(genpt <= kVEWKhists[i]->GetXaxis()->GetBinLowEdge(1)) genpt = kVEWKhists[i]->GetXaxis()->GetBinLowEdge(1) + 1;
+	  if(genpt >= kVEWKhists[i]->GetXaxis()->GetBinLowEdge(kVEWKhists[i]->GetNbinsX()+1)) genpt = kVEWKhists[i]->GetXaxis()->GetBinLowEdge(kVEWKhists[i]->GetNbinsX()+1)-1;
+	  if(mjj <= kVEWKhists[i]->GetYaxis()->GetBinLowEdge(1)) mjj = kVEWKhists[i]->GetYaxis()->GetBinLowEdge(1) + 1;
+	  if(mjj >= kVEWKhists[i]->GetYaxis()->GetBinLowEdge(kVEWKhists[i]->GetNbinsY()+1)) mjj = kVEWKhists[i]->GetYaxis()->GetBinLowEdge(kVEWKhists[i]->GetNbinsY()+1)-1;
+	  kewkgt *= kVEWKhists[i]->GetBinContent(kVEWKhists[i]->FindBin(genpt,mjj));
 	}
       }
     }
@@ -1889,9 +1934,9 @@ void makehist4(TTree* tree,            /*input tree*/
 	else puwgt = *wgtpu;
 
 	if(XSEC != -1)
-	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt*veto_wgt*topptwgt*ggZHwgt*kwgt*kewkgt*hwgt*hnnlowgt/(**wgtsum); 
+	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt_reco*sfwgt_id*sfwgt_trig*veto_wgt*topptwgt*sfwgt_vtag*ggZHwgt*kwgt*kewkgt*hwgt*hnnlowgt/(**wgtsum); 
 	else
-	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt*veto_wgt*topptwgt*ggZHwgt*kwgt*kewkgt*hwgt*hnnlowgt/(**wgtsum);
+	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt_reco*sfwgt_id*sfwgt_trig*veto_wgt*topptwgt*sfwgt_vtag*ggZHwgt*kwgt*kewkgt*hwgt*hnnlowgt/(**wgtsum);	
       }
       else if (isMC and reweightNVTX){
 
@@ -1901,14 +1946,14 @@ void makehist4(TTree* tree,            /*input tree*/
 	else
 	  puwgt = 1;
 	if(XSEC != -1)
-	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*veto_wgt*kwgt*kewkgt*hwgt*ggZHwgt*hnnlowgt/(**wgtsum);
+	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt_vtag*sfwgt_reco*sfwgt_id*sfwgt_trig*veto_wgt*kwgt*kewkgt*hwgt*ggZHwgt*hnnlowgt/(**wgtsum);
 	else
-	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*veto_wgt*kwgt*kewkgt*hwgt*ggZHwgt*hnnlowgt/(**wgtsum);
+	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt_vtag*sfwgt_reco*sfwgt_id*sfwgt_trig*veto_wgt*kwgt*kewkgt*hwgt*ggZHwgt*hnnlowgt/(**wgtsum);
       }
       
       // for data-based events 
       if (!isMC && sample == Sample::qcdgam) 
-	evtwgt = sfwgt*hltw;
+	evtwgt = sfwgt_id*hltw;
       else if (!isMC)
 	evtwgt = hltw;      
       
@@ -2073,9 +2118,9 @@ void makehist4(TTree* tree,            /*input tree*/
 	else puwgt = *wgtpu;
 
 	if(XSEC != -1)
-          evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*veto_wgt*kwgt*kewkgt*hwgt*ggZHwgt*hnnlowgt/(**wgtsum);
+          evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt_vtag*sfwgt_reco*sfwgt_id*sfwgt_trig*veto_wgt*kwgt*kewkgt*hwgt*ggZHwgt*hnnlowgt/(**wgtsum);
 	else
-	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*veto_wgt*kwgt*kewkgt*hwgt*ggZHwgt*hnnlowgt/(**wgtsum);
+	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt_vtag*sfwgt_reco*sfwgt_id*sfwgt_trig*veto_wgt*kwgt*kewkgt*hwgt*ggZHwgt*hnnlowgt/(**wgtsum);
       }
       else if (isMC and reweightNVTX){
         // pu-weight                                                                                                                                                                                  
@@ -2087,13 +2132,13 @@ void makehist4(TTree* tree,            /*input tree*/
           puwgt = 1;
 	
 	if(XSEC != -1)
-	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt*veto_wgt*topptwgt*ggZHwgt*kwgt*kewkgt*hwgt*hnnlowgt/(**wgtsum);
+	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt_reco*sfwgt_id*sfwgt_trig*veto_wgt*topptwgt*sfwgt_vtag*ggZHwgt*kwgt*kewkgt*hwgt*hnnlowgt/(**wgtsum);
 	else
-	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt*veto_wgt*topptwgt*ggZHwgt*kwgt*kewkgt*hwgt*hnnlowgt/(**wgtsum);	
+	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt_reco*sfwgt_id*sfwgt_trig*veto_wgt*topptwgt*sfwgt_vtag*ggZHwgt*kwgt*kewkgt*hwgt*hnnlowgt/(**wgtsum);	
       }
 
       if (!isMC && sample == Sample::qcdgam) 
-	evtwgt = sfwgt*hltw;
+	evtwgt = sfwgt_id*hltw;
       else if (!isMC)
 	evtwgt = hltw;
       

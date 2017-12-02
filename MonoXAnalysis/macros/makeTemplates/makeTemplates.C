@@ -565,7 +565,7 @@ void makeTemplates(const bool & doCorrectionHistograms   = false,  // calculate 
                          baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",
                          category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,ext,8);
 	}
-	else{
+	else if(useNewTheoryUncertainty){
 	  cout<<"systematics on Z/W ratio --> QCD-Proc dw"<<endl;
 	  makezwjcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR+"/sigfilter/",
 			 baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",
@@ -1075,7 +1075,7 @@ void makeTemplates(const bool & doCorrectionHistograms   = false,  // calculate 
     // gamma + jets
     if(category != Category::VBF and category != Category::VBFrelaxed){
       cout<<"start gamma+jets region data"<<endl;
-      gamdatamchist(&outfile,category,observables,observables_2D,nloSamples,lumi,runHiggsInvisible,false,applyPostFitWeights,useTheoriestKFactors);
+      //gamdatamchist(&outfile,category,observables,observables_2D,nloSamples,lumi,runHiggsInvisible,false,applyPostFitWeights,useTheoriestKFactors);
     }
     // lepton control regions
     cout<<"start zmumu region data"<<endl;

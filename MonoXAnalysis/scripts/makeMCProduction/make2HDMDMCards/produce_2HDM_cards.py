@@ -104,6 +104,9 @@ if __name__ == '__main__':
             ### make run card
             os.system("cp "+options.inputTemplateDIR+"/run_card.dat "+options.outputBaseDIR+"/"+name+"/"+name+"_run_card.dat");
 
+            ### make madsping card
+            os.system("cp "+options.inputTemplateDIR+"/madspin_card.dat "+options.outputBaseDIR+"/"+name+"/"+name+"_madspin_card.dat");
+
             ### make proc card
             os.system("cp "+options.inputTemplateDIR+"/proc_card.dat "+options.outputBaseDIR+"/"+name+"/"+name+"_proc_card.dat");
             
@@ -168,6 +171,9 @@ if __name__ == '__main__':
         
         ### make run card
         os.system("cp "+options.inputTemplateDIR+"/run_card.dat "+options.outputBaseDIR+"/"+name+"/"+name+"_run_card.dat");
+
+        ### make madsping card
+        os.system("cp "+options.inputTemplateDIR+"/madspin_card.dat "+options.outputBaseDIR+"/"+name+"/"+name+"_madspin_card.dat");
             
         ### make proc card
         os.system("cp "+options.inputTemplateDIR+"/proc_card.dat "+options.outputBaseDIR+"/"+name+"/"+name+"_proc_card.dat");

@@ -90,7 +90,7 @@ c     reading parameters
 c For checking the consistency of the grouping and the cuts defined here
       integer iproc
       logical equal
-      LOGICAL  IS_A_J_SAVE(NEXTERNAL),IS_A_L_SAVE(NEXTERNAL),
+      LOGICAL  IS_A_J_SAVE(NEXTERNAL),IS_A_L_SAVE(NEXTERNAL)
      $     ,IS_A_B_SAVE(NEXTERNAL),IS_A_A_SAVE(NEXTERNAL)
      $     ,IS_A_ONIUM_SAVE(NEXTERNAL),IS_A_NU_SAVE(NEXTERNAL)
      $     ,IS_HEAVY_SAVE(NEXTERNAL),DO_CUTS_SAVE(NEXTERNAL)
@@ -98,7 +98,7 @@ c For checking the consistency of the grouping and the cuts defined here
      $     ,r2max_save(nexternal,nexternal),s_min_save(nexternal
      $     ,nexternal),s_max_save(nexternal,nexternal)
      $     ,ptll_min_save(nexternal,nexternal),ptll_max_save(nexternal
-     $     ,nexternal),
+     $     ,nexternal)
      &     ,etmin_save(nexternal),etmax_save(nexternal)
      $     ,emin_save(nexternal) ,emax_save(nexternal)
      $     ,etamin_save(nexternal),etamax_save(nexternal)
@@ -188,11 +188,9 @@ c
          if(.not.cut_decays.and.from_decay(i)) do_cuts(i)=.false.
          is_a_j(i)=.false.
          is_a_l(i)=.false.
-         is_a_dm(i)=.false.
          is_a_b(i)=.false.
          is_a_a(i)=.false.
          is_a_nu(i)=.false.
-
 
 c-do not apply cuts to these
          if (pmass(i).gt.20d0)     do_cuts(i)=.false.  ! no cuts on top,W,Z,H

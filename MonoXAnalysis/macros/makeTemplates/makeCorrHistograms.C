@@ -169,10 +169,10 @@ void makezmmcorhist( const string &   signalRegionFile,
     zhists.push_back(zewkhist); // EW corrections                                                                                                                                                 
     if(category == Category::VBFrelaxed){
       if(not nloSamples.useZJetsNLO){
-	zhists.push_back((TH1*) kfactzjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_200_500"));
-	zhists.push_back((TH1*) kfactzjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_500_1000"));
-	zhists.push_back((TH1*) kfactzjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_1000_1500"));
-	zhists.push_back((TH1*) kfactzjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_1500_5000"));
+	zhists.push_back((TH1*) kfactzjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_200_500_smoothed"));
+	zhists.push_back((TH1*) kfactzjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_500_1000_smoothed"));
+	zhists.push_back((TH1*) kfactzjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_1000_1500_smoothed"));
+	zhists.push_back((TH1*) kfactzjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_1500_5000_smoothed"));
       }
     }
     else if(category == Category::VBF){
@@ -184,10 +184,10 @@ void makezmmcorhist( const string &   signalRegionFile,
     dyhists.push_back(zewkhist); // EW corrections                                                                                                                                           
     if(category == Category::VBFrelaxed){
       if(not nloSamples.useDYJetsNLO){
-	dyhists.push_back((TH1*) kfactzll_vbf->Get("kfactors_shape/kfactor_vbf_mjj_200_500"));
-	dyhists.push_back((TH1*) kfactzll_vbf->Get("kfactors_shape/kfactor_vbf_mjj_500_1000"));
-	dyhists.push_back((TH1*) kfactzll_vbf->Get("kfactors_shape/kfactor_vbf_mjj_1000_1500"));
-	dyhists.push_back((TH1*) kfactzll_vbf->Get("kfactors_shape/kfactor_vbf_mjj_1500_5000"));
+	dyhists.push_back((TH1*) kfactzll_vbf->Get("kfactors_shape/kfactor_vbf_mjj_200_500_smoothed"));
+	dyhists.push_back((TH1*) kfactzll_vbf->Get("kfactors_shape/kfactor_vbf_mjj_500_1000_smoothed"));
+	dyhists.push_back((TH1*) kfactzll_vbf->Get("kfactors_shape/kfactor_vbf_mjj_1000_1500_smoothed"));
+	dyhists.push_back((TH1*) kfactzll_vbf->Get("kfactors_shape/kfactor_vbf_mjj_1500_5000_smoothed"));
       }
     }
     else if(category == Category::VBF){
@@ -525,10 +525,10 @@ void makezeecorhist( const string &   signalRegionFile,
 
     if(category == Category::VBFrelaxed){
       if(not nloSamples.useZJetsNLO){
-	zhists.push_back((TH1*) kfactzjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_200_500"));
-	zhists.push_back((TH1*) kfactzjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_500_1000"));
-	zhists.push_back((TH1*) kfactzjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_1000_1500"));
-	zhists.push_back((TH1*) kfactzjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_1500_5000"));
+	zhists.push_back((TH1*) kfactzjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_200_500_smoothed"));
+	zhists.push_back((TH1*) kfactzjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_500_1000_smoothed"));
+	zhists.push_back((TH1*) kfactzjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_1000_1500_smoothed"));
+	zhists.push_back((TH1*) kfactzjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_1500_5000_smoothed"));
       }
     }
     else if(category == Category::VBF){
@@ -540,10 +540,10 @@ void makezeecorhist( const string &   signalRegionFile,
     dyhists.push_back(zewkhist); // EW corrections                                                                                                                                                     
     if(category == Category::VBFrelaxed){
       if(not nloSamples.useDYJetsNLO){
-	dyhists.push_back((TH1*) kfactzll_vbf->Get("kfactors_shape/kfactor_vbf_mjj_200_500"));
-	dyhists.push_back((TH1*) kfactzll_vbf->Get("kfactors_shape/kfactor_vbf_mjj_500_1000"));
-	dyhists.push_back((TH1*) kfactzll_vbf->Get("kfactors_shape/kfactor_vbf_mjj_1000_1500"));
-	dyhists.push_back((TH1*) kfactzll_vbf->Get("kfactors_shape/kfactor_vbf_mjj_1500_5000"));
+	dyhists.push_back((TH1*) kfactzll_vbf->Get("kfactors_shape/kfactor_vbf_mjj_200_500_smoothed"));
+	dyhists.push_back((TH1*) kfactzll_vbf->Get("kfactors_shape/kfactor_vbf_mjj_500_1000_smoothed"));
+	dyhists.push_back((TH1*) kfactzll_vbf->Get("kfactors_shape/kfactor_vbf_mjj_1000_1500_smoothed"));
+	dyhists.push_back((TH1*) kfactzll_vbf->Get("kfactors_shape/kfactor_vbf_mjj_1500_5000_smoothed"));
       }
     }
     else if(category == Category::VBF){
@@ -855,10 +855,10 @@ void makewmncorhist( const string &  signalRegionFile,
     whists.push_back(wewkhist); // EW corrections                                                                                                                                                      
     if(category == Category::VBFrelaxed){
       if(not nloSamples.useWJetsNLO){
-	whists.push_back((TH1*) kfactwjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_200_500"));
-	whists.push_back((TH1*) kfactwjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_500_1000"));
-	whists.push_back((TH1*) kfactwjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_1000_1500"));
-	whists.push_back((TH1*) kfactwjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_1500_5000"));
+	whists.push_back((TH1*) kfactwjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_200_500_smoothed"));
+	whists.push_back((TH1*) kfactwjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_500_1000_smoothed"));
+	whists.push_back((TH1*) kfactwjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_1000_1500_smoothed"));
+	whists.push_back((TH1*) kfactwjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_1500_5000_smoothed"));
       }
     }
     else if(category == Category::VBF){
@@ -1151,10 +1151,10 @@ void makewencorhist( const string &  signalRegionFile,
     whists.push_back(wewkhist); // EW corrections                                                                                                                                                      
     if(category == Category::VBFrelaxed){
       if(not nloSamples.useWJetsNLO){
-	whists.push_back((TH1*) kfactwjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_200_500"));
-	whists.push_back((TH1*) kfactwjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_500_1000"));
-	whists.push_back((TH1*) kfactwjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_1000_1500"));
-	whists.push_back((TH1*) kfactwjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_1500_5000"));
+	whists.push_back((TH1*) kfactwjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_200_500_smoothed"));
+	whists.push_back((TH1*) kfactwjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_500_1000_smoothed"));
+	whists.push_back((TH1*) kfactwjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_1000_1500_smoothed"));
+	whists.push_back((TH1*) kfactwjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_1500_5000_smoothed"));
       }
     }
     else if(category == Category::VBF){
@@ -1488,10 +1488,10 @@ void  makezwjcorhist(const string & znunuFile,
 
     if(category == Category::VBFrelaxed){
       if(not nloSamples.useZJetsNLO){
-	zhists.push_back((TH1*) kfactzjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_200_500"));
-	zhists.push_back((TH1*) kfactzjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_500_1000"));
-	zhists.push_back((TH1*) kfactzjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_1000_1500"));
-	zhists.push_back((TH1*) kfactzjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_1500_5000"));
+	zhists.push_back((TH1*) kfactzjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_200_500_smoothed"));
+	zhists.push_back((TH1*) kfactzjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_500_1000_smoothed"));
+	zhists.push_back((TH1*) kfactzjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_1000_1500_smoothed"));
+	zhists.push_back((TH1*) kfactzjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_1500_5000_smoothed"));
       }
     }
     else if(category == Category::VBF){
@@ -1505,10 +1505,10 @@ void  makezwjcorhist(const string & znunuFile,
 
     if(category == Category::VBFrelaxed){
       if(not nloSamples.useWJetsNLO){
-	whists.push_back((TH1*) kfactwjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_200_500"));
-	whists.push_back((TH1*) kfactwjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_500_1000"));
-	whists.push_back((TH1*) kfactwjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_1000_1500"));
-	whists.push_back((TH1*) kfactwjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_1500_5000"));
+	whists.push_back((TH1*) kfactwjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_200_500_smoothed"));
+	whists.push_back((TH1*) kfactwjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_500_1000_smoothed"));
+	whists.push_back((TH1*) kfactwjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_1000_1500_smoothed"));
+	whists.push_back((TH1*) kfactwjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_1500_5000_smoothed"));
       }
     }
     else if(category == Category::VBF){
