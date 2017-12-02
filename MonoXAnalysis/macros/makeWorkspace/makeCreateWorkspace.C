@@ -342,6 +342,7 @@ void makeCreateWorkspace(string   inputName,                        // input tem
     // WJets background --> to be extracted from CRs,with connection to Z->nunu
     TH1F* wln_SR_hist = (TH1F*) templatesfile->FindObjectAny(("wjethist_"+observable).c_str());
     RooArgList wln_SR_bins;
+
     if (!connectWZ) // independent links also here
       makeBinList("WJets_SR_"+suffix,*met,wspace_SR,wln_SR_hist,wln_SR_bins,true,isCutAndCount);    
     else{
@@ -460,17 +461,17 @@ void makeCreateWorkspace(string   inputName,                        // input tem
       else{
 	
 	// uncertainty on Z/W-QCD
-	RooRealVar* wln_SR_qcdscale = new RooRealVar("ZnunuWJets_QCDscale_monoj",""  ,0.,-5.,5.);
-	RooRealVar* wln_SR_qcdshape = new RooRealVar("ZnunuWJets_QCDshape_monoj",""  ,0.,-5.,5.);
-	RooRealVar* wln_SR_qcdproc  = new RooRealVar("ZnunuWJets_QCDprocess_monoj","" ,0.,-5.,5.);
-	RooRealVar* wln_SR_pdf      = new RooRealVar("ZnunuWJets_pdf_monoj",""  ,0.,-5.,5.);
-	RooRealVar* wln_SR_nnloewk  = new RooRealVar("ZnunuWJets_nnloewk_monoj",""  ,0.,-5.,5.);
-	RooRealVar* wln_SR_sudakov_1  = new RooRealVar("Znunu_sudakov_monoj",""  ,0.,-5.,5.);
-	RooRealVar* wln_SR_sudakov_2  = new RooRealVar("WJets_sudakov_monoj",""  ,0.,-5.,5.);
-	RooRealVar* wln_SR_nnlomiss_1  = new RooRealVar("Znunu_nnlomiss_monoj",""  ,0.,-5.,5.);
-	RooRealVar* wln_SR_nnlomiss_2  = new RooRealVar("WJets_nnlomiss_monoj",""  ,0.,-5.,5.);
-	RooRealVar* wln_SR_qcdewkmix   = new RooRealVar("ZnunuWJets_qcdewkmix_monoj",""  ,0.,-5.,5.);
-
+	RooRealVar* wln_SR_qcdscale = new RooRealVar("ZnunuWJets_MJ_QCDscale",""  ,0.,-5.,5.);
+	RooRealVar* wln_SR_qcdshape = new RooRealVar("ZnunuWJets_MJ_QCDshape",""  ,0.,-5.,5.);
+	RooRealVar* wln_SR_qcdproc  = new RooRealVar("ZnunuWJets_MJ_QCDprocess","" ,0.,-5.,5.);
+	RooRealVar* wln_SR_pdf      = new RooRealVar("ZnunuWJets_MJ_pdf",""  ,0.,-5.,5.);
+	RooRealVar* wln_SR_nnloewk  = new RooRealVar("ZnunuWJets_MJ_nnloewk",""  ,0.,-5.,5.);
+	RooRealVar* wln_SR_sudakov_1  = new RooRealVar("Znunu_MJ_sudakov",""  ,0.,-5.,5.);
+	RooRealVar* wln_SR_sudakov_2  = new RooRealVar("WJets_MJ_sudakov",""  ,0.,-5.,5.);
+	RooRealVar* wln_SR_nnlomiss_1  = new RooRealVar("Znunu_MJ_nnlomiss",""  ,0.,-5.,5.);
+	RooRealVar* wln_SR_nnlomiss_2  = new RooRealVar("WJets_MJ_nnlomiss",""  ,0.,-5.,5.);
+	RooRealVar* wln_SR_qcdewkmix   = new RooRealVar("ZnunuWJets_MJ_qcdewkmix",""  ,0.,-5.,5.);
+							
 	// in case of a flat nuisance
 	RooRealVar* wln_SR     = new RooRealVar(("WJets_SR_"+suffix+"_WZ").c_str(),"",0.,-5.,5.);
 	
@@ -498,7 +499,7 @@ void makeCreateWorkspace(string   inputName,                        // input tem
 	      uncertainty_temp->SetBinContent(iBin+1,flatWZUncertainty);	  
 	    wln_SR_syst.push_back(pair<RooRealVar*,TH1*>(wln_SR,uncertainty_temp));
 	  }
-		
+	 
 	  // create Z/W link QCD
 	  makeConnectedBinList("WJets_SR_"+suffix,
 			       "ZnunuWJets_"+suffix,
@@ -546,8 +547,14 @@ void makeCreateWorkspace(string   inputName,                        // input tem
     TH1F* qcdhist = (TH1F*)templatesfile->FindObjectAny(("qbkghistDD_"+observable).c_str());
     if(qcdhist and useQCDDataDriven){
       addTemplate("QCD_SR_"+suffix,vars,wspace_SR,qcdhist,isCutAndCount);
-      addTemplate("QCD_SR_"+suffix+"_CMS_QCD_SRUp",vars,wspace_SR,(TH1F*)templatesfile->FindObjectAny(("qbkghistDD_shapeUp_"+observable).c_str()),isCutAndCount);
-      addTemplate("QCD_SR_"+suffix+"_CMS_QCD_SRDown",vars,wspace_SR,(TH1F*)templatesfile->FindObjectAny(("qbkghistDD_shapeDw_"+observable).c_str()),isCutAndCount);
+      if(category == Category::monojet){
+	addTemplate("QCD_SR_"+suffix+"_QCD_SR_monojUp",vars,wspace_SR,(TH1F*)templatesfile->FindObjectAny(("qbkghistDD_shapeUp_"+observable).c_str()),isCutAndCount);
+	addTemplate("QCD_SR_"+suffix+"_QCD_SR_monojDown",vars,wspace_SR,(TH1F*)templatesfile->FindObjectAny(("qbkghistDD_shapeDw_"+observable).c_str()),isCutAndCount);
+      }
+      else if(category == Category::monoV){
+	addTemplate("QCD_SR_"+suffix+"_QCD_SR_monovUp",vars,wspace_SR,(TH1F*)templatesfile->FindObjectAny(("qbkghistDD_shapeUp_"+observable).c_str()),isCutAndCount);
+	addTemplate("QCD_SR_"+suffix+"_QCD_SR_monovDown",vars,wspace_SR,(TH1F*)templatesfile->FindObjectAny(("qbkghistDD_shapeDw_"+observable).c_str()),isCutAndCount);
+      }
     }
     else{
       qcdhist = (TH1F*)templatesfile->FindObjectAny(("qbkghist_"+observable).c_str());
@@ -569,7 +576,7 @@ void makeCreateWorkspace(string   inputName,                        // input tem
 
     // trigger systematics
     TH1F* triggersys = NULL;
-    RooRealVar* CMS_met_trig =  new RooRealVar("CMS_trigger_met","",0.,-5.,5.);
+    RooRealVar* CMS_met_trig =  new RooRealVar("CMS_trigger2016_met","",0.,-5.,5.);
 
     if(addNewShapeSysUncertainties){
       if(TString(observable).Contains("met")){
@@ -819,10 +826,10 @@ void makeCreateWorkspace(string   inputName,                        // input tem
 	generateStatTemplate("WJets_EWK_WM_"+suffix,vars,*wspace_WM,(TH1F*)templatesfile->FindObjectAny(("ewkwbkghistwmn_"+observable).c_str()),1,isCutAndCount);
       }
 
-      RooRealVar* WtoWPDF = new RooRealVar("WJetsWln_pdf_monoj",""  ,0.,-5.,5.);
-      RooRealVar* CMS_muon_veto = new RooRealVar("CMS_veto_m",""  ,0.,-5.,5.);
-      RooRealVar* CMS_ele_veto  = new RooRealVar("CMS_veto_e",""  ,0.,-5.,5.);
-      RooRealVar* CMS_tau_veto  = new RooRealVar("CMS_veto_t",""  ,0.,-5.,5.);
+      RooRealVar* WtoWPDF = new RooRealVar("WJetsWln_MJ_pdf",""  ,0.,-5.,5.);
+      RooRealVar* CMS_muon_veto = new RooRealVar("CMS_veto2016_m",""  ,0.,-5.,5.);
+      RooRealVar* CMS_ele_veto  = new RooRealVar("CMS_veto2016_e",""  ,0.,-5.,5.);
+      RooRealVar* CMS_tau_veto  = new RooRealVar("CMS_veto2016_t",""  ,0.,-5.,5.);
 
       TH1F* wpdfsys = NULL;
       TH1F* muonvetosys = NULL;
@@ -1174,16 +1181,16 @@ void makeCreateWorkspace(string   inputName,                        // input tem
       
       else{
 	vector<pair<RooRealVar*,TH1*> > znn_GJ_syst;      	
-	znn_GJ_qcdscale = new RooRealVar("ZnunuGamma_QCDscale_monoj","",0.,-5.,5.);
-	znn_GJ_qcdshape = new RooRealVar("ZnunuGamma_QCDshape_monoj","",0.,-5.,5.);
-	znn_GJ_qcdproc  = new RooRealVar("ZnunuGamma_QCDprocess_monoj","",0.,-5.,5.);
-	znn_GJ_nnloewk  = new RooRealVar("ZnunuGamma_nnloewk_monoj","",0.,-5.,5.);
-	znn_GJ_pdf      = new RooRealVar("ZnunuGamma_pdf_monoj","",0.,-5.,5.);
-	znn_GJ_sudakov_1  = new RooRealVar("Znunu_sudakov_monoj","",0.,-5.,5.);
-	znn_GJ_sudakov_2  = new RooRealVar("Gamma_sudakov_monoj","",0.,-5.,5.);
-	znn_GJ_nnlomiss_1 = new RooRealVar("Znunu_nnlomiss_monoj","",0.,-5.,5.);
-	znn_GJ_nnlomiss_2 = new RooRealVar("Gamma_nnlomiss_monoj","",0.,-5.,5.);
-	znn_GJ_qcdewkmix  = new RooRealVar("ZnunuGamma_qcdewkmix_monoj","",0.,-5.,5.);
+	znn_GJ_qcdscale = new RooRealVar("ZnunuGamma_MJ_QCDscale","",0.,-5.,5.);
+	znn_GJ_qcdshape = new RooRealVar("ZnunuGamma_MJ_QCDshape","",0.,-5.,5.);
+	znn_GJ_qcdproc  = new RooRealVar("ZnunuGamma_MJ_QCDprocess","",0.,-5.,5.);
+	znn_GJ_nnloewk  = new RooRealVar("ZnunuGamma_MJ_nnloewk","",0.,-5.,5.);
+	znn_GJ_pdf      = new RooRealVar("ZnunuGamma_MJ_pdf","",0.,-5.,5.);
+	znn_GJ_sudakov_1  = new RooRealVar("Znunu_MJ_sudakov","",0.,-5.,5.);
+	znn_GJ_sudakov_2  = new RooRealVar("Gamma_MJ_sudakov","",0.,-5.,5.);
+	znn_GJ_nnlomiss_1 = new RooRealVar("Znunu_MJ_nnlomiss","",0.,-5.,5.);
+	znn_GJ_nnlomiss_2 = new RooRealVar("Gamma_MJ_nnlomiss","",0.,-5.,5.);
+	znn_GJ_qcdewkmix  = new RooRealVar("ZnunuGamma_MJ_qcdewkmix","",0.,-5.,5.);
 	znn_GJ = new RooRealVar(("Znunu_GJ_"+suffix+"_GJ").c_str(),"",0.,-5.,5.);
 	
 	if(not addFlatZgammaUncertainty){

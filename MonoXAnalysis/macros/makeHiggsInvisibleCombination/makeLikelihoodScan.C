@@ -30,15 +30,15 @@ void makeLikelihoodScan(string outputPlots, string postfix){
   TCanvas* canvas = new TCanvas ("canvas","",600,600);
   canvas->cd();
 
-  TFile* file_scan_monoj_obs = new TFile("","READ");
-  TFile* file_scan_monoz_obs = new TFile("","READ");
-  TFile* file_scan_monov_obs = new TFile("","READ");
+  TFile* file_scan_monoj_obs = new TFile("../makeWorkspace/HiggsInvisible/HiggsInvisibleCombination/EXO-16-048/MonoJ/higgsCombine_scan_mu_obs.MultiDimFit.mH120.root","READ");
+  TFile* file_scan_monov_obs = new TFile("../makeWorkspace/HiggsInvisible/HiggsInvisibleCombination/EXO-16-048/MonoV/higgsCombine_scan_mu_obs.MultiDimFit.mH120.root","READ");
+  TFile* file_scan_monoz_obs = new TFile("../makeWorkspace/HiggsInvisible/HiggsInvisibleCombination/EXO-16-052/higgsCombine_scan_mu_obs.MultiDimFit.mH120.root","READ");
   TFile* file_scan_vbf_obs = new TFile("","READ");
   TFile* file_scan_combined_obs = new TFile("","READ");
 
-  TFile* file_scan_monoj_exp = new TFile("","READ");
-  TFile* file_scan_monoz_exp = new TFile("","READ");
-  TFile* file_scan_monov_exp = new TFile("","READ");
+  TFile* file_scan_monoj_exp = new TFile("../makeWorkspace/HiggsInvisible/HiggsInvisibleCombination/EXO-16-048/MonoJ/higgsCombine_scan_mu_exp.MultiDimFit.mH120.root","READ");
+  TFile* file_scan_monov_exp = new TFile("../makeWorkspace/HiggsInvisible/HiggsInvisibleCombination/EXO-16-048/MonoV/higgsCombine_scan_mu_exp.MultiDimFit.mH120.root","READ");
+  TFile* file_scan_monoz_exp = new TFile("../makeWorkspace/HiggsInvisible/HiggsInvisibleCombination/EXO-16-052/higgsCombine_scan_mu_exp.MultiDimFit.mH120.root","READ");
   TFile* file_scan_vbf_exp = new TFile("","READ");
   TFile* file_scan_combined_exp = new TFile("","READ");
 
@@ -178,14 +178,14 @@ void makeLikelihoodScan(string outputPlots, string postfix){
     ipoint++;
   }
   scan_combined_exp->Sort();
-  ipoint = 0;
 
   //// Produce the final plot
   scan_combined_obs->GetXaxis()->SetTitle("BR(H #rightarrow inv)");
   scan_combined_obs->GetXaxis()->SetTitleOffset(1.1);
-  scan_combined_obs->GetYaxis()->SetTitle("-2 #Delta Log(#mathcal{L})");
+  scan_combined_obs->GetYaxis()->SetTitle("-2 #Delta Log(L)");
   scan_combined_obs->GetYaxis()->SetTitleOffset(1.1);
   scan_combined_obs->GetYaxis()->SetRangeUser(0,10);
+  scan_combined_obs->GetXaxis()->SetRangeUser(0,1);
   scan_combined_obs->SetLineColor(kBlack);
   scan_combined_obs->SetLineWidth(3);
   scan_combined_obs->Draw("AL");
@@ -210,10 +210,10 @@ void makeLikelihoodScan(string outputPlots, string postfix){
   scan_monoz_exp->SetLineStyle(7);
   scan_monoz_exp->Draw("Lsame");
 
-  scan_monov_obs->SetLineColor(kGreen+1);
+  scan_monov_obs->SetLineColor(kGreen+2);
   scan_monov_obs->SetLineWidth(2);
   scan_monov_obs->Draw("Lsame");
-  scan_monov_exp->SetLineColor(kGreen+1);
+  scan_monov_exp->SetLineColor(kGreen+2);
   scan_monov_exp->SetLineWidth(2);
   scan_monov_exp->SetLineStyle(7);
   scan_monov_exp->Draw("Lsame");
@@ -226,8 +226,16 @@ void makeLikelihoodScan(string outputPlots, string postfix){
   scan_monoj_exp->SetLineStyle(7);
   scan_monoj_exp->Draw("Lsame");
 
+  TLegend leg (0.65,0.2,0.9,0.4);
+  leg.SetFillColor(0);
+  leg.SetFillStyle(0);
+  leg.SetBorderSize(0);
+  leg.AddEntry(scan_monoz_obs,"Z(ll)H-tagged","L");
+  leg.AddEntry(scan_monov_obs,"V(qq')H-tagged","L");
+  leg.AddEntry(scan_monoj_obs,"ggH-tagged","L");
+  leg.Draw("same");
+
   CMS_lumi(canvas,"35.9");
   canvas->SaveAs((outputPlots+"/scan_profile_likelihood.png").c_str(),"png");
-  canvas->SaveAs((outputPlots+"/scan_profile_likelihood.pdf").c_str(),"pdf");
-  
+  canvas->SaveAs((outputPlots+"/scan_profile_likelihood.pdf").c_str(),"pdf");  
 }

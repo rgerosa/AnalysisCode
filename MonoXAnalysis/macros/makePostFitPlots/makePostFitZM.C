@@ -110,7 +110,7 @@ void makePostFitZM(string fitFilename, string observable, Category category, boo
   dihist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/Dibosons").c_str());
   vghist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/VGamma").c_str());
   ewkwhist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/WJets_EWK_ZM").c_str());
-  ewkzhist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/Znunu_EWK").c_str());
+  ewkzhist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/ewk_zll").c_str());
   pohist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/total_background").c_str());
   prhist = (TH1*)pfile->Get(("shapes_prefit/"+dir+"/total_background").c_str());
 

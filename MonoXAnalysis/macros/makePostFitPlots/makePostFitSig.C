@@ -141,16 +141,16 @@ void makePostFitSig(string   fitFilename,
   TH1* tphist = NULL;
   TH1* sighist = NULL;
 
-  znhist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/Znunu").c_str());    
-  zlhist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/ZJets").c_str());    
-  wlhist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/WJets").c_str());    
+  znhist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/qcd_znunu").c_str());    
+  zlhist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/qcd_zll").c_str());    
+  wlhist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/qcd_wjets").c_str());    
   tthist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/Top").c_str());    
   dihist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/Dibosons").c_str());    
   vghist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/VGamma").c_str());    
 
   if(category == Category::VBF or category == Category::VBFrelaxed){
-    ewkwhist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/WJets_EWK").c_str());    
-    ewkzhist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/Znunu_EWK").c_str());    
+    ewkwhist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/ewk_wjets").c_str());    
+    ewkzhist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/ewk_znunu").c_str());    
   }
 
   qchist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/QCD").c_str());    

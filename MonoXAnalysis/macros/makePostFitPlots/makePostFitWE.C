@@ -110,8 +110,8 @@ void makePostFitWE(string fitFilename, string observable, Category category, boo
   tthist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/Top").c_str());
   dihist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/Dibosons").c_str());
   vghist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/VGamma").c_str());
-  qcdhist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/QCD_WE").c_str());
-  ewkwhist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/WJets_EWK").c_str());
+  qcdhist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/FakeE").c_str());
+  ewkwhist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/ewk_wjets").c_str());
   ewkzhist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/ZJets_EWK_WE").c_str());
   pohist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/total_background").c_str());
   prhist = (TH1*)pfile->Get(("shapes_prefit/"+dir+"/total_background").c_str());

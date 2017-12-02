@@ -26,8 +26,8 @@ static float scaleSignal = 1;
 static bool  applyUncertaintyOnNumerator   = true;    // write the perturbation nuisance on the numerator rather then denominator
 static bool  addResidualUncertaintyOnRatio_ZZ = true; // add residual theory uncertainty on ZZ ratios 
 static bool  addResidualUncertaintyOnRatio_WW = true; // add residual theory uncertainty on WW ratios
-static bool  addUncorrelatedNuisancesOnRatio  = false; // Decorrelate ZZ and WW ratios with Z/W ones --> choice when one assumes partial correlation on Z/W ratio
-static bool  decorrelateZWRatioNuisances = true; // one nuisance for Z and one for W
+static bool  addUncorrelatedNuisancesOnRatio  = true; // Decorrelate ZZ and WW ratios with Z/W ones --> choice when one assumes partial correlation on Z/W ratio
+static bool  decorrelateZWRatioNuisances = false; // one nuisance for Z and one for W
 
 // function to create workspace, to be run from a release which has the combine package
 void makeCreateWorkspaceVBF(string   inputName,                        // input template file
@@ -171,7 +171,9 @@ void makeCreateWorkspaceVBF(string   inputName,                        // input 
 	znn_qcd_SR->Divide(znn_ewk_SR_hist);
 	// create Z-QCD/Z-EWK link                                                                                                                                                               
 	vector<pair<RooRealVar*,TH1*> > znn_ewk_SR_syst;
-	makeConnectedBinList("Znunu_EWK_SR_"+suffix,*met,wspace_SR,
+	makeConnectedBinList("Znunu_EWK_SR_"+suffix,
+			     "Znunu_EWK_SR_"+suffix,
+			     *met,wspace_SR,
 			     znn_qcd_SR,
 			     znn_ewk_SR_syst, //list of systematic variations for the TFs                                                                                                             
 			     znn_SR_bins,     //bins for Znunu                                                                                                                                        
@@ -195,30 +197,30 @@ void makeCreateWorkspaceVBF(string   inputName,                        // input 
     RooArgList wln_ewk_SR_bins;
 
     // partial correlation case
-    RooRealVar* wln_SR_re1 = new RooRealVar("ZW_QCD_SR_RenScale1",""  ,0.,-5.,5.);
-    RooRealVar* wln_SR_fa1 = new RooRealVar("ZW_QCD_SR_FactScale1","" ,0.,-5.,5.);
-    RooRealVar* wln_SR_re2 = new RooRealVar("ZW_QCD_SR_RenScale2",""  ,0.,-5.,5.);
-    RooRealVar* wln_SR_fa2 = new RooRealVar("ZW_QCD_SR_FactScale2","" ,0.,-5.,5.);
-    RooRealVar* wln_SR_pdf = new RooRealVar("ZW_QCD_SR_PDF",""        ,0.,-5.,5.);
-    RooRealVar* wln_SR_ewk = new RooRealVar(("ZW_QCD_SR_"+suffix+"_EWK").c_str(),"",0.,-5.,5.);
+    RooRealVar* wln_SR_re1 = new RooRealVar("ZnunuWJets_QCD_VBF_RenScale1",""  ,0.,-5.,5.);
+    RooRealVar* wln_SR_fa1 = new RooRealVar("ZnunuWJets_QCD_VBF_FactScale1","" ,0.,-5.,5.);
+    RooRealVar* wln_SR_re2 = new RooRealVar("ZnunuWJets_QCD_VBF_RenScale2",""  ,0.,-5.,5.);
+    RooRealVar* wln_SR_fa2 = new RooRealVar("ZnunuWJets_QCD_VBF_FactScale2","" ,0.,-5.,5.);
+    RooRealVar* wln_SR_pdf = new RooRealVar("ZnunuWJets_QCD_VBF_PDF",""        ,0.,-5.,5.);
+    RooRealVar* wln_SR_ewk = new RooRealVar("ZnunuWJets_QCD_VBF_EWKcorr","",0.,-5.,5.);
     
-    RooRealVar* wln_ewk_SR_re1 = new RooRealVar("ZW_EWK_SR_RenScale1",""  ,0.,-5.,5.);
-    RooRealVar* wln_ewk_SR_fa1 = new RooRealVar("ZW_EWK_SR_FactScale1","" ,0.,-5.,5.);
-    RooRealVar* wln_ewk_SR_re2 = new RooRealVar("ZW_EWK_SR_RenScale2",""  ,0.,-5.,5.);
-    RooRealVar* wln_ewk_SR_fa2 = new RooRealVar("ZW_EWK_SR_FactScale2","" ,0.,-5.,5.);
-    RooRealVar* wln_ewk_SR_pdf = new RooRealVar("ZW_EWK_SR_PDF",""        ,0.,-5.,5.);
-    RooRealVar* wln_ewk_SR_ewk = new RooRealVar(("ZW_EWK_SR_"+suffix+"_EWK").c_str(),"",0.,-5.,5.);
+    RooRealVar* wln_ewk_SR_re1 = new RooRealVar("ZnunuWJets_EWK_VBF_RenScale1",""  ,0.,-5.,5.);
+    RooRealVar* wln_ewk_SR_fa1 = new RooRealVar("ZnunuWJets_EWK_VBF_FactScale1","" ,0.,-5.,5.);
+    RooRealVar* wln_ewk_SR_re2 = new RooRealVar("ZnunuWJets_EWK_VBF_RenScale2",""  ,0.,-5.,5.);
+    RooRealVar* wln_ewk_SR_fa2 = new RooRealVar("ZnunuWJets_EWK_VBF_FactScale2","" ,0.,-5.,5.);
+    RooRealVar* wln_ewk_SR_pdf = new RooRealVar("ZnunuWJets_EWK_VBF_PDF",""        ,0.,-5.,5.);
+    RooRealVar* wln_ewk_SR_ewk = new RooRealVar("ZnunuWJets_EWK_VBF_EWKcorr","",0.,-5.,5.);
 
     // un-correlated
-    RooRealVar* wln_SR_rez = new RooRealVar("Z_QCD_SR_RenScale",""  ,0.,-5.,5.);
-    RooRealVar* wln_SR_faz = new RooRealVar("Z_QCD_SR_FactScale","" ,0.,-5.,5.);
-    RooRealVar* wln_SR_rew = new RooRealVar("W_QCD_SR_RenScale",""  ,0.,-5.,5.);
-    RooRealVar* wln_SR_faw = new RooRealVar("W_QCD_SR_FactScale","" ,0.,-5.,5.);
+    RooRealVar* wln_SR_rez = new RooRealVar("Znunu_QCD_VBF_RenScale",""  ,0.,-5.,5.);
+    RooRealVar* wln_SR_faz = new RooRealVar("Znunu_QCD_VBF_FactScale","" ,0.,-5.,5.);
+    RooRealVar* wln_SR_rew = new RooRealVar("WJets_QCD_VBF_RenScale",""  ,0.,-5.,5.);
+    RooRealVar* wln_SR_faw = new RooRealVar("WJets_QCD_VBF_FactScale","" ,0.,-5.,5.);
     
-    RooRealVar* wln_ewk_SR_rez = new RooRealVar("Z_EWK_SR_RenScale",""  ,0.,-5.,5.);
-    RooRealVar* wln_ewk_SR_faz = new RooRealVar("Z_EWK_SR_FactScale","" ,0.,-5.,5.);
-    RooRealVar* wln_ewk_SR_rew = new RooRealVar("W_EWK_SR_RenScale",""  ,0.,-5.,5.);
-    RooRealVar* wln_ewk_SR_faw = new RooRealVar("W_EWK_SR_FactScale","" ,0.,-5.,5.);
+    RooRealVar* wln_ewk_SR_rez = new RooRealVar("Znunu_EWK_VBF_RenScale",""  ,0.,-5.,5.);
+    RooRealVar* wln_ewk_SR_faz = new RooRealVar("Znunu_EWK_VBF_FactScale","" ,0.,-5.,5.);
+    RooRealVar* wln_ewk_SR_rew = new RooRealVar("WJets_EWK_VBF_RenScale",""  ,0.,-5.,5.);
+    RooRealVar* wln_ewk_SR_faw = new RooRealVar("WJets_EWK_VBF_FactScale","" ,0.,-5.,5.);
     
 
     if(not splitEWKQCD){ // summing them up
@@ -373,7 +375,9 @@ void makeCreateWorkspaceVBF(string   inputName,                        // input 
 	zw_ratio_total->Divide(wln_SR_total_hist);
 	
 	// create Z/W link QCD
-	makeConnectedBinList("WJets_SR_"+suffix,*met,wspace_SR,
+	makeConnectedBinList("WJets_SR_"+suffix,
+			     "ZnunuWJets_"+suffix,
+			     *met,wspace_SR,
 			     zw_ratio_total, // ratio
 			     wln_SR_syst,  //list of systematic variations for the TFs
 			     znn_SR_bins,  //bins for Znunu
@@ -453,7 +457,9 @@ void makeCreateWorkspaceVBF(string   inputName,                        // input 
 	}
        
 	// create Z/W link QCD
-	makeConnectedBinList("WJets_SR_"+suffix,*met,wspace_SR,
+	makeConnectedBinList("WJets_SR_"+suffix,
+			     "ZnunuWJets_QCD_"+suffix,
+			     *met,wspace_SR,
 			     (TH1F*)templatesfile->FindObjectAny(("zwjcorewkhist_"+observable).c_str()), //Z/W ratio --> central value + stat unc.
 			     wln_SR_syst, //list of systematic variations for the TFs
 			     znn_SR_bins, //bins for Znunu
@@ -462,7 +468,9 @@ void makeCreateWorkspaceVBF(string   inputName,                        // input 
 			     applyUncertaintyOnNumerator
 			     );
 	
-	makeConnectedBinList("WJets_EWK_SR_"+suffix,*met,wspace_SR,
+	makeConnectedBinList("WJets_EWK_SR_"+suffix,
+			     "ZnunuWJets_EWK_"+suffix,
+			     *met,wspace_SR,
 			     (TH1F*)templatesfile->FindObjectAny(("zwjewkcorhist_"+observable).c_str()), //Z/W ratio --> central value + stat unc.
 			     wln_ewk_SR_syst, //list of systematic variations for the TFs
 			     znn_ewk_SR_bins, //bins for Znunu
@@ -535,13 +543,13 @@ void makeCreateWorkspaceVBF(string   inputName,                        // input 
       generateStatTemplate("WJets_EWK_ZM_"+suffix,vars,*wspace_ZM,(TH1F*)templatesfile->FindObjectAny(("ewkwbkghistzmm_"+observable).c_str()),1);
     }
 
-    RooRealVar* zll_ZCR_re = new RooRealVar("ZZ_QCD_RenScale",""  ,0.,-5.,5.);
-    RooRealVar* zll_ZCR_fa = new RooRealVar("ZZ_QCD_FactScale","" ,0.,-5.,5.);
-    RooRealVar* zll_ZCR_pdf = new RooRealVar("ZZ_QCD_PDF",""  ,0.,-5.,5.);
+    RooRealVar* zll_ZCR_re = new RooRealVar("ZnunuZll_QCD_VBF_RenScale",""  ,0.,-5.,5.);
+    RooRealVar* zll_ZCR_fa = new RooRealVar("ZnunuZll_QCD_VBF_FactScale","" ,0.,-5.,5.);
+    RooRealVar* zll_ZCR_pdf = new RooRealVar("ZnunuZll_QCD_VBF_PDF",""  ,0.,-5.,5.);
     
-    RooRealVar* zll_ewk_ZCR_re = new RooRealVar("ZZ_EWK_RenScale",""  ,0.,-5.,5.);
-    RooRealVar* zll_ewk_ZCR_fa = new RooRealVar("ZZ_EWK_FactScale","" ,0.,-5.,5.);
-    RooRealVar* zll_ewk_ZCR_pdf = new RooRealVar("ZZ_EWK_PDF",""  ,0.,-5.,5.);
+    RooRealVar* zll_ewk_ZCR_re = new RooRealVar("ZnunuZll_EWK_VBF_RenScale",""  ,0.,-5.,5.);
+    RooRealVar* zll_ewk_ZCR_fa = new RooRealVar("ZnunuZll_EWK_VBF_FactScale","" ,0.,-5.,5.);
+    RooRealVar* zll_ewk_ZCR_pdf = new RooRealVar("ZnunuZll_EWK_VBF_PDF",""  ,0.,-5.,5.);
             
     if(splitEWKQCD){
 
@@ -587,6 +595,7 @@ void makeCreateWorkspaceVBF(string   inputName,                        // input 
       }
       
       makeConnectedBinList("Znunu_ZM_"+suffix,
+			   "ZnunuZmm_QCD_"+suffix,
 			   *met,
 			   *wspace_ZM,
 			   (TH1F*)templatesfile->FindObjectAny(("zmmcorhist_"+observable).c_str()),
@@ -594,6 +603,7 @@ void makeCreateWorkspaceVBF(string   inputName,                        // input 
 			   NULL,observable,applyUncertaintyOnNumerator,true,rescale);
 
       makeConnectedBinList("Znunu_EWK_ZM_"+suffix,
+			   "ZnunuZmm_EWK_"+suffix,
 			   *met,*wspace_ZM,
 			   (TH1F*)templatesfile->FindObjectAny(("zewkmmcorhist_"+observable).c_str()),
 			   znn_ewk_ZM_syst,znn_ewk_SR_bins,
@@ -751,6 +761,7 @@ void makeCreateWorkspaceVBF(string   inputName,                        // input 
       }
 
       makeConnectedBinList("Znunu_ZM_"+suffix,
+			   "ZnunuZmm_"+suffix,
 			   *met,
 			   *wspace_ZM,TF_nominal,
 			   znn_ZM_syst,znn_SR_bins,
@@ -829,12 +840,14 @@ void makeCreateWorkspaceVBF(string   inputName,                        // input 
       }
 
       makeConnectedBinList("Znunu_ZE_"+suffix,
+			   "ZnunuZee_QCD_"+suffix,
 			   *met,
 			   *wspace_ZE,
 			   (TH1F*)templatesfile->FindObjectAny(("zeecorhist_"+observable).c_str()),
 			   znn_ZE_syst,znn_SR_bins,NULL,observable,applyUncertaintyOnNumerator,true,rescale);
 
       makeConnectedBinList("Znunu_EWK_ZE_"+suffix,
+			   "ZnunuZee_EWK_"+suffix,
 			   *met,
 			   *wspace_ZE,
 			   (TH1F*)templatesfile->FindObjectAny(("zewkeecorhist_"+observable).c_str()),
@@ -987,7 +1000,9 @@ void makeCreateWorkspaceVBF(string   inputName,                        // input 
 	  znn_ZE_syst.push_back(pair<RooRealVar*,TH1*>(zll_ewk_ZCR_pdf,TF_ewk_ren));
 
       }
-      makeConnectedBinList("Znunu_ZE_"+suffix,*met,*wspace_ZE,TF_nominal,znn_ZE_syst,znn_SR_bins,NULL,observable,applyUncertaintyOnNumerator);      
+      makeConnectedBinList("Znunu_ZE_"+suffix,
+			   "ZnunuZee_"+suffix,
+			   *met,*wspace_ZE,TF_nominal,znn_ZE_syst,znn_SR_bins,NULL,observable,applyUncertaintyOnNumerator);      
     }
 
     ///////////////////////////////////////
@@ -1017,13 +1032,13 @@ void makeCreateWorkspaceVBF(string   inputName,                        // input 
     }
     
 
-    RooRealVar* wln_WCR_re = new RooRealVar("WW_QCD_RenScale",""  ,0.,-5.,5.);
-    RooRealVar* wln_WCR_fa = new RooRealVar("WW_QCD_FactScale","" ,0.,-5.,5.);
-    RooRealVar* wln_WCR_pdf = new RooRealVar("WW_QCD_PDF",""  ,0.,-5.,5.);
+    RooRealVar* wln_WCR_re = new RooRealVar("WJetsWln_QCD_VBF_RenScale",""  ,0.,-5.,5.);
+    RooRealVar* wln_WCR_fa = new RooRealVar("WJetsWln_QCD_VBF_FactScale","" ,0.,-5.,5.);
+    RooRealVar* wln_WCR_pdf = new RooRealVar("WJetsWln_QCD_VBF_PDF",""  ,0.,-5.,5.);
     
-    RooRealVar* wln_ewk_WCR_re = new RooRealVar("WW_EWK_RenScale",""  ,0.,-5.,5.);
-    RooRealVar* wln_ewk_WCR_fa = new RooRealVar("WW_EWK_FactScale","" ,0.,-5.,5.);
-    RooRealVar* wln_ewk_WCR_pdf = new RooRealVar("WW_EWK_PDF",""  ,0.,-5.,5.);
+    RooRealVar* wln_ewk_WCR_re = new RooRealVar("WJetsWln_EWK_VBF_RenScale",""  ,0.,-5.,5.);
+    RooRealVar* wln_ewk_WCR_fa = new RooRealVar("WJetsWln_EWK_VBF_FactScale","" ,0.,-5.,5.);
+    RooRealVar* wln_ewk_WCR_pdf = new RooRealVar("WJetsWln_EWK_VBF_PDF",""  ,0.,-5.,5.);
     
     if(splitEWKQCD){
 
@@ -1065,12 +1080,14 @@ void makeCreateWorkspaceVBF(string   inputName,                        // input 
       
 	
       makeConnectedBinList("WJets_WM_"+suffix,
+			   "WJetsWmn_QCD_"+suffix,
 			   *met,
 			   *wspace_WM,
 			   (TH1F*)templatesfile->FindObjectAny(("wmncorhist_"+observable).c_str()),
 			   wln_WM_syst,wln_SR_bins,NULL,observable,applyUncertaintyOnNumerator);
       
       makeConnectedBinList("WJets_EWK_WM_"+suffix,
+			   "WJetsWmn_EWK_"+suffix,
 			   *met,
 			   *wspace_WM,
 			   (TH1F*)templatesfile->FindObjectAny(("wewkmncorhist_"+observable).c_str()),
@@ -1225,7 +1242,9 @@ void makeCreateWorkspaceVBF(string   inputName,                        // input 
 	  wln_WM_syst.push_back(pair<RooRealVar*,TH1*>(wln_ewk_WCR_pdf,TF_ewk_pdf));
       }
       
-      makeConnectedBinList("WJets_WM_"+suffix,*met,*wspace_WM,TF_nominal,wln_WM_syst,wln_SR_bins,NULL,observable,applyUncertaintyOnNumerator);
+      makeConnectedBinList("WJets_WM_"+suffix,
+			   "WJetsWmn_"+suffix,
+			   *met,*wspace_WM,TF_nominal,wln_WM_syst,wln_SR_bins,NULL,observable,applyUncertaintyOnNumerator);
 
     }
     ///////////////////////////////////////////
@@ -1296,12 +1315,14 @@ void makeCreateWorkspaceVBF(string   inputName,                        // input 
       }
 	
       makeConnectedBinList("WJets_WE_"+suffix,
+			   "WJetsWen_QCD_"+suffix,
 			   *met,
 			   *wspace_WE,
 			   (TH1F*)templatesfile->FindObjectAny(("wencorhist_"+observable).c_str()),
 			   wln_WE_syst,wln_SR_bins,NULL,observable,applyUncertaintyOnNumerator);
 
       makeConnectedBinList("WJets_EWK_WE_"+suffix,
+			   "WJetsWen_EWK_"+suffix,
 			   *met,
 			   *wspace_WE,
 			   (TH1F*)templatesfile->FindObjectAny(("wewkencorhist_"+observable).c_str()),
@@ -1456,7 +1477,9 @@ void makeCreateWorkspaceVBF(string   inputName,                        // input 
 	else
 	  wln_WE_syst.push_back(pair<RooRealVar*,TH1*>(wln_ewk_WCR_pdf,TF_ewk_fac));
       }
-      makeConnectedBinList("WJets_WE_"+suffix,*met,*wspace_WE,TF_nominal,wln_WE_syst,wln_SR_bins,NULL,observable,applyUncertaintyOnNumerator);      
+      makeConnectedBinList("WJets_WE_"+suffix,
+			   "WJetsWen_"+suffix,
+			   *met,*wspace_WE,TF_nominal,wln_WE_syst,wln_SR_bins,NULL,observable,applyUncertaintyOnNumerator);      
     }
 
     outfile->cd();
