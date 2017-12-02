@@ -1,0 +1,131 @@
+imax * number of bins
+jmax * number of processes minus 1
+kmax * number of nuisance parameters
+
+------------------------------------------------------------------------------------------------
+shapes data_obs      WM_MJ   workspace_MJ.root WM_MJ:data_obs_WM_MJ
+shapes qcd_wjets     WM_MJ   workspace_MJ.root WM_MJ:WJets_WM_MJ
+shapes ZJets_WM      WM_MJ   workspace_MJ.root WM_MJ:ZJets_WM_MJ    WM_MJ:ZJets_WM_MJ_$SYSTEMATIC
+shapes Dibosons      WM_MJ   workspace_MJ.root WM_MJ:Dibosons_WM_MJ WM_MJ:Dibosons_WM_MJ_$SYSTEMATIC
+shapes Top           WM_MJ   workspace_MJ.root WM_MJ:Top_WM_MJ      WM_MJ:Top_WM_MJ_$SYSTEMATIC
+shapes FakeM         WM_MJ   workspace_MJ.root WM_MJ:QCD_WM_MJ      WM_MJ:QCD_WM_MJ_$SYSTEMATIC
+------------------------------------------------------------------------------------------------
+bin         WM_MJ
+observation -1
+------------------------------------------------------------------------------------------------
+bin                                 WM_MJ       WM_MJ       WM_MJ           WM_MJ         WM_MJ
+process                             qcd_wjets   ZJets_WM    Dibosons        Top           FakeM
+process                             2           9           4               5             10
+rate                                1          -1           -1              -1            -1
+------------------------------------------------------------------------------------------------
+lumi_13TeV2016            lnN       -           1.025       1.025           1.025         1.025
+CMS_eff2016_m             lnN       1.010       1.010       1.010           1.010         -
+CMS_reco2016_m            lnN       1.010       1.010       1.010           1.010         -			  
+CMS_trigger2016_met       lnN       -           -           1.010           1.010         1.010
+ZJets_WM_Norm13TeV        lnN       -           1.200       -               -             -
+QCDscale_VV               lnN       -           -           1.038           -             -
+QCDscale_VV_ACCEPT        lnN       -           -           1.194           -             -
+QCDscale_ttbar            lnN       -           -           -               0.973/1.035   -
+QCDscale_ttbar_ACCEPT     lnN       -           -           -               0.915/1.091   -
+Top_Reweight13TeV         lnN       -           -           -               1.100         -
+CMS_fake2016_m            lnN       -           -           -               -             1.500
+CMS_scale2016_j           lnN       -           1.040       1.040           1.040         1.040
+CMS_eff2016_b             lnN       -           -           -               0.940         -
+CMS_fake2016_b            lnN       -           0.980       0.980           -             0.980
+CMS_eff2016_Vtag_stat     lnN       -            -         1.01/0.99      1.01/0.99       -        
+CMS_eff2016_Vtag_PS       lnN       -            -         1.01/0.99      1.01/0.99       -         
+Dibosons_WM_MJ_CMS_bin1_stat shape -           -           1           -           -
+Dibosons_WM_MJ_CMS_bin2_stat shape -           -           1           -      	   -
+Dibosons_WM_MJ_CMS_bin3_stat shape -           -           1           -      	   -
+Dibosons_WM_MJ_CMS_bin4_stat shape -           -           1           -           -
+Dibosons_WM_MJ_CMS_bin5_stat shape -           -           1           -      	   -
+Dibosons_WM_MJ_CMS_bin6_stat shape -           -           1           -      	   -
+Dibosons_WM_MJ_CMS_bin7_stat shape -           -           1           -      	   -
+Dibosons_WM_MJ_CMS_bin8_stat shape -           -           1           -      	   -
+Dibosons_WM_MJ_CMS_bin9_stat shape -           -           1           -      	   -
+Dibosons_WM_MJ_CMS_bin10_stat shape -           -           1           -      	   -
+Dibosons_WM_MJ_CMS_bin11_stat shape -           -           1           -      	   -
+Dibosons_WM_MJ_CMS_bin12_stat shape -           -           1           -      	   -
+Dibosons_WM_MJ_CMS_bin13_stat shape -           -           1           -      	   -
+Dibosons_WM_MJ_CMS_bin14_stat shape -           -           1           -      	   -
+Dibosons_WM_MJ_CMS_bin15_stat shape -           -           1           -      	   -
+Dibosons_WM_MJ_CMS_bin16_stat shape -           -           1           -      	   -
+Dibosons_WM_MJ_CMS_bin17_stat shape -           -           1           -      	   -
+Dibosons_WM_MJ_CMS_bin18_stat shape -           -           1           -      	   -
+Dibosons_WM_MJ_CMS_bin19_stat shape -           -           1           -      	   -
+Dibosons_WM_MJ_CMS_bin20_stat shape -           -           1           -      	   -
+Dibosons_WM_MJ_CMS_bin21_stat shape -           -           1           -      	   -
+Dibosons_WM_MJ_CMS_bin22_stat shape -           -           1           -      	   -
+Top_WM_MJ_CMS_bin1_stat shape -           -           -           1                -
+Top_WM_MJ_CMS_bin2_stat shape -           -           -           1      	   -
+Top_WM_MJ_CMS_bin3_stat shape -           -           -           1      	   -
+Top_WM_MJ_CMS_bin4_stat shape -           -           -           1                -
+Top_WM_MJ_CMS_bin5_stat shape -           -           -           1      	   -
+Top_WM_MJ_CMS_bin6_stat shape -           -           -           1      	   -
+Top_WM_MJ_CMS_bin7_stat shape -           -           -           1      	   -
+Top_WM_MJ_CMS_bin8_stat shape -           -           -           1      	   -
+Top_WM_MJ_CMS_bin9_stat shape -           -           -           1      	   -
+Top_WM_MJ_CMS_bin10_stat shape -           -           -           1      	   -
+Top_WM_MJ_CMS_bin11_stat shape -           -           -           1      	   -
+Top_WM_MJ_CMS_bin12_stat shape -           -           -           1      	   -
+Top_WM_MJ_CMS_bin13_stat shape -           -           -           1      	   -
+Top_WM_MJ_CMS_bin14_stat shape -           -           -           1      	   -
+Top_WM_MJ_CMS_bin15_stat shape -           -           -           1      	   -
+Top_WM_MJ_CMS_bin16_stat shape -           -           -           1      	   -
+Top_WM_MJ_CMS_bin17_stat shape -           -           -           1      	   -
+Top_WM_MJ_CMS_bin18_stat shape -           -           -           1      	   -
+Top_WM_MJ_CMS_bin19_stat shape -           -           -           1      	   -
+Top_WM_MJ_CMS_bin20_stat shape -           -           -           1      	   -
+Top_WM_MJ_CMS_bin21_stat shape -           -           -           1      	   -
+Top_WM_MJ_CMS_bin22_stat shape -           -           -           1      	   -
+QCD_WM_MJ_CMS_bin1_stat shape -           -           -           -                1
+QCD_WM_MJ_CMS_bin2_stat shape -           -           -           -      	   1
+QCD_WM_MJ_CMS_bin3_stat shape -           -           -           -      	   1
+QCD_WM_MJ_CMS_bin4_stat shape -           -           -           -                1
+QCD_WM_MJ_CMS_bin5_stat shape -           -           -           -      	   1
+QCD_WM_MJ_CMS_bin6_stat shape -           -           -           -      	   1
+QCD_WM_MJ_CMS_bin7_stat shape -           -           -           -      	   1
+QCD_WM_MJ_CMS_bin8_stat shape -           -           -           -      	   1
+QCD_WM_MJ_CMS_bin9_stat shape -           -           -           -      	   1
+QCD_WM_MJ_CMS_bin10_stat shape -           -           -           -      	   1
+QCD_WM_MJ_CMS_bin11_stat shape -           -           -           -      	   1
+QCD_WM_MJ_CMS_bin12_stat shape -           -           -           -      	   1
+QCD_WM_MJ_CMS_bin13_stat shape -           -           -           -      	   1
+QCD_WM_MJ_CMS_bin14_stat shape -           -           -           -      	   1
+QCD_WM_MJ_CMS_bin15_stat shape -           -           -           -      	   1
+QCD_WM_MJ_CMS_bin16_stat shape -           -           -           -      	   1
+QCD_WM_MJ_CMS_bin17_stat shape -           -           -           -      	   1
+QCD_WM_MJ_CMS_bin18_stat shape -           -           -           -      	   1
+QCD_WM_MJ_CMS_bin19_stat shape -           -           -           -      	   1
+QCD_WM_MJ_CMS_bin20_stat shape -           -           -           -      	   1
+QCD_WM_MJ_CMS_bin21_stat shape -           -           -           -      	   1
+QCD_WM_MJ_CMS_bin22_stat shape -           -           -           -      	   1
+WJetsWmn_MJ_bin1_Runc     param     0     1
+WJetsWmn_MJ_bin2_Runc     param     0     1
+WJetsWmn_MJ_bin3_Runc     param     0     1
+WJetsWmn_MJ_bin4_Runc     param     0     1
+WJetsWmn_MJ_bin5_Runc     param     0     1
+WJetsWmn_MJ_bin6_Runc     param     0     1
+WJetsWmn_MJ_bin7_Runc     param     0     1
+WJetsWmn_MJ_bin8_Runc     param     0     1
+WJetsWmn_MJ_bin9_Runc     param     0     1
+WJetsWmn_MJ_bin10_Runc     param     0     1
+WJetsWmn_MJ_bin11_Runc     param     0     1
+WJetsWmn_MJ_bin12_Runc     param     0     1
+WJetsWmn_MJ_bin13_Runc     param     0     1
+WJetsWmn_MJ_bin14_Runc     param     0     1
+WJetsWmn_MJ_bin15_Runc     param     0     1
+WJetsWmn_MJ_bin16_Runc     param     0     1
+WJetsWmn_MJ_bin17_Runc     param     0     1
+WJetsWmn_MJ_bin18_Runc     param     0     1
+WJetsWmn_MJ_bin19_Runc     param     0     1
+WJetsWmn_MJ_bin20_Runc     param     0     1
+WJetsWmn_MJ_bin21_Runc     param     0     1
+WJetsWmn_MJ_bin22_Runc     param     0     1
+CMS_trigger2016_met        param     0     1
+WJetsWln_MJ_pdf            param     0     1
+CMS_veto2016_m                 param     0     1
+CMS_veto2016_e                 param     0     1
+CMS_veto2016_t                 param     0     1
+------------------------------------------------------------------------------------------------
+

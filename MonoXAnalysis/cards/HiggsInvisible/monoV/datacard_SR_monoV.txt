@@ -1,0 +1,123 @@
+cimax * number of bins
+cmax * number of processes minus 1
+kmax * number of nuisance parameters
+--------------------------------------------------------------------------------------------------------------------------
+shapes data_obs    SR_MV   workspace_MV.root SR_MV:data_obs_SR_MV
+shapes qcd_znunu   SR_MV   workspace_MV.root SR_MV:Znunu_SR_MV 
+shapes qcd_wjets   SR_MV   workspace_MV.root SR_MV:WJets_SR_MV 
+shapes qcd_zll     SR_MV   workspace_MV.root SR_MV:ZJets_SR_MV    SR_MV:ZJets_SR_MV_$SYSTEMATIC
+shapes Dibosons    SR_MV   workspace_MV.root SR_MV:Dibosons_SR_MV SR_MV:Dibosons_SR_MV_$SYSTEMATIC
+shapes Top         SR_MV   workspace_MV.root SR_MV:Top_SR_MV      SR_MV:Top_SR_MV_$SYSTEMATIC
+shapes QCD         SR_MV   workspace_MV.root SR_MV:QCD_SR_MV      SR_MV:QCD_SR_MV_$SYSTEMATIC
+shapes gjets       SR_MV   workspace_MV.root SR_MV:GJets_SR_MV    SR_MV:GJets_SR_MV_$SYSTEMATIC       
+shapes ggH_hinv    SR_MV   workspace_MV_signal.root SR_MV:ggH_SR_MV      SR_MV:ggH_SR_MV_$SYSTEMATIC
+shapes qqH_hinv    SR_MV   workspace_MV_signal.root SR_MV:qqH_SR_MV      SR_MV:qqH_SR_MV_$SYSTEMATIC
+shapes WH_hinv     SR_MV   workspace_MV_signal.root SR_MV:WH_SR_MV       SR_MV:WH_SR_MV_$SYSTEMATIC
+shapes ZH_hinv     SR_MV   workspace_MV_signal.root SR_MV:ZH_SR_MV       SR_MV:ZH_SR_MV_$SYSTEMATIC
+shapes ggZH_hinv   SR_MV   workspace_MV_signal.root SR_MV:ggZH_SR_MV     SR_MV:ggZH_SR_MV_$SYSTEMATIC
+--------------------------------------------------------------------------------------------------------------------------------------------------------
+bin         SR_MV
+observation -1
+--------------------------------------------------------------------------------------------------------------------------------------------------------
+bin                             SR_MV      SR_MV     SR_MV      SR_MV     SR_MV     SR_MV     SR_MV     SR_MV      SR_MV      SR_MV      SR_MV       SR_MV  
+process                         ggH_hinv   qqH_hinv  WH_hinv    ZH_hinv   ggZH_hinv qcd_znunu qcd_wjets qcd_zll    Dibosons   Top        QCD         gjets
+process                         0          -1        -2         -3        -4        1         2         3          4          5          6           7
+rate                            -1         -1        -1         -1        -1        1         1        -1         -1         -1         -1          -1
+--------------------------------------------------------------------------------------------------------------------------------------------------------
+lumi_13TeV2016            lnN   1.025    1.025      1.025      1.025     1.025      -         -        1.025     1.025      1.025        -          1.025
+CMS_trigger2016_met       lnN   1.010    1.010      1.010      1.010     1.010      -         -        1.010     1.010      1.010        -          1.010
+ZJets_Norm13TeV           lnN      -        -         -          -         -        -         -        1.200       -          -          -          -
+QCDscale_VV               lnN      -        -         -          -         -        -         -        -         1.038        -          -          -
+QCDscale_VV_ACCEPT        lnN      -        -         -          -         -        -         -        -         1.194        -          -          -
+QCDscale_ttbar            lnN      -        -         -          -         -        -         -        -           -        0.973/1.035  -          -
+QCDscale_ttbar_ACCEPT     lnN      -        -         -          -         -        -         -        -           -        0.915/1.091  -          -
+Top_Reweight13TeV         lnN      -        -         -          -         -        -         -        -           -        1.100        -          -
+GJets_Norm13TeV           lnN      -        -         -          -         -        -         -        -           -          -          -          1.200
+CMS_scale2016_j           lnN   1.040    1.040      1.040      1.040     1.040      -         -       1.040       1.04      1.040        -          1.040
+CMS_eff2016_b             lnN      -        -         -          -         -        -         -        -           -         0.94        -          -
+CMS_fake2016_b            lnN   0.980    0.980      0.980      0.980     0.980      -         -       0.980       0.980       -          -          0.980
+QCD_SR_monov              shape    -        -         -          -         -        -         -        -           -          -          1          -
+QCD_SR_Norm_monov         lnN      -        -         -          -         -        -         -        -           -          -          1.5        -
+CMS_veto2016_m            lnN 	   -        -         -          -         -        -         -       0.985      0.985      0.985        -          -
+CMS_veto2016_e            lnN 	   -        -         -          -         -        -         -       0.990      0.990      0.990        -          -
+CMS_veto2016_t            lnN 	   -        -         -          -         -        -         -       0.975      0.975      0.975        -          -
+CMS_eff2016_Vtag_stat     lnN      -        -  0.935/1.065  0.935/1.065 0.935/1.065 -         -        -       0.935/1.065  0.935/1.065  -          -
+CMS_eff2016_Vtag_PS       lnN      -        -  0.935/1.065 0.935/1.065  0.935/1.065 -         -        -       0.935/1.065  0.935/1.065  -          -
+QCDscale_ggH              lnN  0.933/1.046  -         -          -         -        -         -        -           -          -          -          -
+QCDscale_qqH              lnN      -    0.997/1.004   -          -         -        -         -        -           -          -          -          -
+QCDscale_VH               lnN      -        -    0.993/1.005  0.969/1.038  -        -         -        -           -          -          -          -
+QCDscale_ggVH             lnN      -        -         -          -    0.811/1.251   -         -        -           -          -          -          -
+ggH_pT                    shape    1        -         -          -         -        -         -        -           -          -          -          -
+QCDscale_qqH_ACCEPT       lnN      -       1.02       -          -         -        -         -        -           -          -          -          -
+QCDscale_VH_ACCEPT        lnN      -        -       1.015      1.021       -        -         -        -           -          -          -          -
+QCDscale_ggVH_ACCEPT      lnN      -        -         -          -       1.025      -         -        -           -          -          -          -
+pdf_Higgs_gg              lnN     1.032     -         -          -       1.024      -         -        -           -          -          -          -
+pdf_Higgs_qqbar           lnN      -       1.021     1.019     1.016       -        -         -        -           -          -          -          -
+pdf_Higgs_gg_ACCEPT       lnN     1.030     -         -          -       1.051      -         -        -           -          -          -          -
+pdf_Higgs_qq_ACCEPT       lnN      -       1.01      1.01      1.01        -        -         -        -           -          -          -          -
+ggH_SR_MV_CMS_bin1_stat   shape    1        -         -    -            -         -        -           -          -          -          -         -
+ggH_SR_MV_CMS_bin2_stat   shape    1        -         -    -            -         -        -           -          -          -          -         -
+ggH_SR_MV_CMS_bin3_stat   shape    1        -         -    -            -         -        -           -          -          -          -         -
+ggH_SR_MV_CMS_bin4_stat   shape    1        -         -    -            -         -        -           -          -          -          -         -
+ggH_SR_MV_CMS_bin5_stat   shape    1        -         -    -            -         -        -           -          -          -          -         -
+ggH_SR_MV_CMS_bin6_stat   shape    1        -         -    -            -         -        -           -          -          -          -         -
+ggH_SR_MV_CMS_bin7_stat   shape    1        -         -    -            -         -        -           -          -          -          -         -
+qqH_SR_MV_CMS_bin1_stat   shape    -        1         -    -            -         -        -           -          -          -          -         -
+qqH_SR_MV_CMS_bin2_stat   shape    -        1         -    -            -         -        -           -          -          -          -         -
+qqH_SR_MV_CMS_bin3_stat   shape    -        1         -    -            -         -        -           -          -          -          -         -
+qqH_SR_MV_CMS_bin4_stat   shape    -        1         -    -            -         -        -           -          -          -          -         -
+qqH_SR_MV_CMS_bin5_stat   shape    -        1         -    -            -         -        -           -          -          -          -         -
+qqH_SR_MV_CMS_bin6_stat   shape    -        1         -    -            -         -        -           -          -          -          -         -
+qqH_SR_MV_CMS_bin7_stat   shape    -        1         -    -            -         -        -           -          -          -          -         -
+WH_SR_MV_CMS_bin1_stat   shape    -        -         1    -            -         -        -           -          -          -          -         -
+WH_SR_MV_CMS_bin2_stat   shape    -        -         1    -            -         -        -           -          -          -          -         -
+WH_SR_MV_CMS_bin3_stat   shape    -        -         1    -            -         -        -           -          -          -          -         -
+WH_SR_MV_CMS_bin4_stat   shape    -        -         1    -            -         -        -           -          -          -          -         -
+WH_SR_MV_CMS_bin5_stat   shape    -        -         1    -            -         -        -           -          -          -          -         -
+WH_SR_MV_CMS_bin6_stat   shape    -        -         1    -            -         -        -           -          -          -          -         -
+WH_SR_MV_CMS_bin7_stat   shape    -        -         1    -            -         -        -           -          -          -          -         -
+ZH_SR_MV_CMS_bin1_stat   shape    -        -         -    1            -         -        -           -          -          -          -         -
+ZH_SR_MV_CMS_bin2_stat   shape    -        -         -    1            -         -        -           -          -          -          -         -
+ZH_SR_MV_CMS_bin3_stat   shape    -        -         -    1            -         -        -           -          -          -          -         -
+ZH_SR_MV_CMS_bin4_stat   shape    -        -         -    1            -         -        -           -          -          -          -         -
+ZH_SR_MV_CMS_bin5_stat   shape    -        -         -    1            -         -        -           -          -          -          -         -
+ZH_SR_MV_CMS_bin6_stat   shape    -        -         -    1            -         -        -           -          -          -          -         -
+ZH_SR_MV_CMS_bin7_stat   shape    -        -         -    1            -         -        -           -          -          -          -         -
+ZJets_SR_MV_CMS_bin1_stat shape   -        -         -    -            -         -        -           1          -          -          -         -
+ZJets_SR_MV_CMS_bin2_stat shape   -        -         -    -            -         -        -           1          -          -          -         -
+ZJets_SR_MV_CMS_bin3_stat shape   -        -         -    -            -         -        -           1          -          -          -         -
+ZJets_SR_MV_CMS_bin4_stat shape   -        -         -    -            -         -        -           1          -          -          -         -
+ZJets_SR_MV_CMS_bin5_stat shape   -        -         -    -            -         -        -           1          -          -          -         -
+ZJets_SR_MV_CMS_bin6_stat shape   -        -         -    -            -         -        -           1          -          -          -         -
+ZJets_SR_MV_CMS_bin7_stat shape   -        -         -    -            -         -        -           1          -          -          -         -
+Dibosons_SR_MV_CMS_bin1_stat shape   -        -         -    -            -         -        -           -          1          -          -         -
+Dibosons_SR_MV_CMS_bin2_stat shape   -        -         -    -            -         -        -           -          1          -          -         -
+Dibosons_SR_MV_CMS_bin3_stat shape   -        -         -    -            -         -        -           -          1          -          -         -
+Dibosons_SR_MV_CMS_bin4_stat shape   -        -         -    -            -         -        -           -          1          -          -         -
+Dibosons_SR_MV_CMS_bin5_stat shape   -        -         -    -            -         -        -           -          1          -          -         -
+Dibosons_SR_MV_CMS_bin6_stat shape   -        -         -    -            -         -        -           -          1          -          -         -
+Dibosons_SR_MV_CMS_bin7_stat shape   -        -         -    -            -         -        -           -          1          -          -         -
+Top_SR_MV_CMS_bin1_stat shape   -        -         -    -            -         -        -           -          -          1          -         -
+Top_SR_MV_CMS_bin2_stat shape   -        -         -    -            -         -        -           -          -          1          -         -
+Top_SR_MV_CMS_bin3_stat shape   -        -         -    -            -         -        -           -          -          1          -         -
+Top_SR_MV_CMS_bin4_stat shape   -        -         -    -            -         -        -           -          -          1          -         -
+Top_SR_MV_CMS_bin5_stat shape   -        -         -    -            -         -        -           -          -          1          -         -
+Top_SR_MV_CMS_bin6_stat shape   -        -         -    -            -         -        -           -          -          1          -         -
+Top_SR_MV_CMS_bin7_stat shape   -        -         -    -            -         -        -           -          -          1          -         -
+ZnunuWJets_MV_bin1_Runc    param     0     1
+ZnunuWJets_MV_bin2_Runc    param     0     1
+ZnunuWJets_MV_bin3_Runc    param     0     1
+ZnunuWJets_MV_bin4_Runc    param     0     1
+ZnunuWJets_MV_bin5_Runc    param     0     1
+ZnunuWJets_MV_bin6_Runc    param     0     1
+ZnunuWJets_MV_bin7_Runc    param     0     1
+ZnunuWJets_MJ_QCDscale     param     0     1
+ZnunuWJets_MJ_QCDshape     param     0     1
+ZnunuWJets_MJ_QCDprocess   param     0     1
+ZnunuWJets_MJ_pdf          param     0     1
+ZnunuWJets_MJ_nnloewk      param     0     1
+Znunu_MJ_sudakov           param     0     1
+WJets_MJ_sudakov           param     0     1
+Znunu_MJ_nnlomiss          param     0     1
+WJets_MJ_nnlomiss          param     0     1
+ZnunuWJets_MJ_qcdewkmix    param     0     1

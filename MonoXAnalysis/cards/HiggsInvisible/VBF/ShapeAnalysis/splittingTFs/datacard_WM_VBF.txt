@@ -1,0 +1,112 @@
+imax * number of bins
+jmax * number of processes minus 1
+kmax * number of nuisance parameters
+
+------------------------------------------------------------------------------------------------------------------
+shapes data_obs      onemuon_VBF   workspace_VBF.root WM_VBF:data_obs_WM_VBF
+shapes qcd_wjets     onemuon_VBF   workspace_VBF.root WM_VBF:WJets_WM_VBF
+shapes ewk_wjets     onemuon_VBF   workspace_VBF.root WM_VBF:WJets_EWK_WM_VBF
+shapes ZJets_WM      onemuon_VBF   workspace_VBF.root WM_VBF:ZJets_WM_VBF     WM_VBF:ZJets_WM_VBF_$SYSTEMATIC
+shapes ZJets_EWK_WM  onemuon_VBF   workspace_VBF.root WM_VBF:ZJets_EWK_WM_VBF WM_VBF:ZJets_EWK_WM_VBF_$SYSTEMATIC
+shapes Dibosons      onemuon_VBF   workspace_VBF.root WM_VBF:Dibosons_WM_VBF  WM_VBF:Dibosons_WM_VBF_$SYSTEMATIC
+shapes Top           onemuon_VBF   workspace_VBF.root WM_VBF:Top_WM_VBF       WM_VBF:Top_WM_VBF_$SYSTEMATIC
+shapes FakeM         onemuon_VBF   workspace_VBF.root WM_VBF:QCD_WM_VBF       WM_VBF:QCD_WM_VBF_$SYSTEMATIC
+shapes VGamma        onemuon_VBF   workspace_VBF.root WM_VBF:VGamma_WM_VBF    WM_VBF:VGamma_WM_VBF_$SYSTEMATIC
+------------------------------------------------------------------------------------------------------------------
+bin         onemuon_VBF
+observation -1
+----------------------------------------------------------------------------------------------------------------------------------
+bin                                 onemuon_VBF  onemuon_VBF  onemuon_VBF  onemuon_VBF   onemuon_VBF     onemuon_VBF   onemuon_VBF onemuon_VBF 
+process                             qcd_wjets    ewk_wjets    ZJets_WM     ZJets_EWK_WM  Dibosons        Top           FakeM       VGamma
+process                             3            4            11           12            6               7             13          9
+rate                                1            1            -1           -1           -1              -1             -1          -1
+---------------------------------------------------------------------------------------------------------------------------------- 
+lumi_13TeV2016                lnN       -            -            1.025        1.025         1.025           1.025         1.025       1.025
+CMS_eff2016_m                 lnN       1.010       1.010         1.010        1.010         1.010           1.010         1.010       1.010
+CMS_reco2016_m                lnN       1.010       1.010         1.010        1.010         1.010           1.010         1.010       1.010
+CMS_trigger2016_met           lnN       1.020       1.020         1.020        1.020         1.020           1.020         1.020       1.020
+CMS_veto2016_m                lnN       1.015       1.020         0.985        0.985          -              -             -           -
+CMS_veto2016_e                lnN       1.010       1.015         0.990        0.990          -              -             -           -
+CMS_veto2016_t                lnN       1.030       1.035         0.970        0.970          -              -             -           -
+QCDscale_Z_ACCEPT             lnN       -           -             1.200         -             -              -             -           -
+QCDscale_Z_EWK_ACCEPT         lnN       -           -             -            1.200          -              -             -           -
+QCDscale_VV_ACCEPT            lnN       -           -             -             -           1.150            -             -           -
+QCDscale_Vg_ACCEPT            lnN       -           -             -             -             -              -             -           1.150
+QCDscale_tt_ACCEPT            lnN       -           -             -             -             -              1.100         -           -
+Top_Reweight13TeV             lnN       -           -             -             -             -              1.100         -           -
+CMS_fake2016_m                lnN       -           -             -             -             -              -            1.500        -
+CMS_scale2016_j_vbf           lnN    0.97/1.02   0.97/1.02     0.88/1.10    0.88/1.10      0.88/1.10      0.88/1.10      0.88/1.10    0.88/1.10
+CMS_eff2016_b                 lnN       -           -             -            -              -            0.970           -           -
+CMS_fake2016_b                lnN       -           -            0.990       0.990           0.990           -            0.990       0.990
+Dibosons_WM_VBF_CMS_bin1_stat shape -           -             -             -             1              -             -           -
+Dibosons_WM_VBF_CMS_bin2_stat shape -           -             -             -             1              -             -           -
+Dibosons_WM_VBF_CMS_bin3_stat shape -           -             -             -             1              -             -           - 
+Dibosons_WM_VBF_CMS_bin4_stat shape -           -             -             -             1              -             -           -
+Dibosons_WM_VBF_CMS_bin5_stat shape -           -             -             -             1              -             -           -
+Dibosons_WM_VBF_CMS_bin6_stat shape -           -             -             -             1              -             -           -
+Dibosons_WM_VBF_CMS_bin7_stat shape -           -             -             -             1              -             -           -
+Dibosons_WM_VBF_CMS_bin8_stat shape -           -             -             -             1              -             -           -
+Dibosons_WM_VBF_CMS_bin9_stat shape -           -             -             -             1              -             -           -
+Top_WM_VBF_CMS_bin1_stat shape      -           -             -             -             -              1             -           -
+Top_WM_VBF_CMS_bin2_stat shape      -           -             -             -             -              1             -      	   - 
+Top_WM_VBF_CMS_bin3_stat shape      -           -             -             -             -              1             -           - 
+Top_WM_VBF_CMS_bin4_stat shape      -           -             -             -             -              1             -           -
+Top_WM_VBF_CMS_bin5_stat shape      -           -             -             -             -              1             -           -
+Top_WM_VBF_CMS_bin6_stat shape      -           -             -             -             -              1             -           -
+Top_WM_VBF_CMS_bin7_stat shape      -           -             -             -             -              1             -           -
+Top_WM_VBF_CMS_bin8_stat shape      -           -             -             -             -              1             -           -
+Top_WM_VBF_CMS_bin9_stat shape      -           -             -             -             -              1             -           -
+QCD_WM_VBF_CMS_bin1_stat shape      -           -             -             -             -              -             1           -
+QCD_WM_VBF_CMS_bin2_stat shape      -           -             -             -             -              -             1           -
+QCD_WM_VBF_CMS_bin3_stat shape      -           -             -             -             -              -             1           - 
+QCD_WM_VBF_CMS_bin4_stat shape      -           -             -             -             -              -             1           -
+QCD_WM_VBF_CMS_bin5_stat shape      -           -             -             -             -              -             1           -
+QCD_WM_VBF_CMS_bin6_stat shape      -           -             -             -             -              -             1           -
+QCD_WM_VBF_CMS_bin7_stat shape      -           -             -             -             -              -             1           -
+QCD_WM_VBF_CMS_bin8_stat shape      -           -             -             -             -              -             1           -
+QCD_WM_VBF_CMS_bin9_stat shape      -           -             -             -             -              -             1           -
+ZJets_WM_VBF_CMS_bin1_stat shape      -           -             1            -               -             -             -         -
+ZJets_WM_VBF_CMS_bin2_stat shape      -           -             1            -               -             -             -         -
+ZJets_WM_VBF_CMS_bin3_stat shape      -           -             1            -               -             -             -         -
+ZJets_WM_VBF_CMS_bin4_stat shape      -           -             1            -               -             -             -         -
+ZJets_WM_VBF_CMS_bin5_stat shape      -           -             1            -               -             -             -         -
+ZJets_WM_VBF_CMS_bin6_stat shape      -           -             1            -               -             -             -         -
+ZJets_WM_VBF_CMS_bin7_stat shape      -           -             1            -               -             -             -         -
+ZJets_WM_VBF_CMS_bin8_stat shape      -           -             1            -               -             -             -         -
+ZJets_WM_VBF_CMS_bin9_stat shape      -           -             1            -               -             -             -         -
+VGamma_WM_VBF_CMS_bin1_stat shape      -           -             -            -               -             -             -         1
+VGamma_WM_VBF_CMS_bin2_stat shape      -           -             -            -               -             -             -         1
+VGamma_WM_VBF_CMS_bin3_stat shape      -           -             -            -               -             -             -         1
+VGamma_WM_VBF_CMS_bin4_stat shape      -           -             -            -               -             -             -         1
+VGamma_WM_VBF_CMS_bin5_stat shape      -           -             -            -               -             -             -         1
+VGamma_WM_VBF_CMS_bin6_stat shape      -           -             -            -               -             -             -         1
+VGamma_WM_VBF_CMS_bin7_stat shape      -           -             -            -               -             -             -         1
+VGamma_WM_VBF_CMS_bin8_stat shape      -           -             -            -               -             -             -         1
+VGamma_WM_VBF_CMS_bin9_stat shape      -           -             -            -               -             -             -         1
+WJetsWmn_QCD_VBF_bin1_Runc     param     0     1
+WJetsWmn_QCD_VBF_bin2_Runc     param     0     1
+WJetsWmn_QCD_VBF_bin3_Runc     param     0     1
+WJetsWmn_QCD_VBF_bin4_Runc     param     0     1
+WJetsWmn_QCD_VBF_bin5_Runc     param     0     1
+WJetsWmn_QCD_VBF_bin6_Runc     param     0     1
+WJetsWmn_QCD_VBF_bin7_Runc     param     0     1
+WJetsWmn_QCD_VBF_bin8_Runc     param     0     1
+WJetsWmn_QCD_VBF_bin9_Runc     param     0     1
+WJetsWmn_EWK_VBF_bin1_Runc param     0     1
+WJetsWmn_EWK_VBF_bin2_Runc param     0     1
+WJetsWmn_EWK_VBF_bin3_Runc param     0     1
+WJetsWmn_EWK_VBF_bin4_Runc param     0     1
+WJetsWmn_EWK_VBF_bin5_Runc param     0     1
+WJetsWmn_EWK_VBF_bin6_Runc param     0     1
+WJetsWmn_EWK_VBF_bin7_Runc param     0     1
+WJetsWmn_EWK_VBF_bin8_Runc param     0     1
+WJetsWmn_EWK_VBF_bin9_Runc param     0     1
+WJetsWln_QCD_VBF_FactScale           param     0     1
+WJetsWln_QCD_VBF_RenScale            param     0     1
+WJetsWln_QCD_VBF_PDF                 param     0     1
+WJetsWln_EWK_VBF_FactScale           param     0     1
+WJetsWln_EWK_VBF_RenScale            param     0     1
+WJetsWln_EWK_VBF_PDF                 param     0     1
+------------------------------------------------------------------------------------------------
+
+
