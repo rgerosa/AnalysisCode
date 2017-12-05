@@ -33,14 +33,14 @@ void makeLikelihoodScan(string outputPlots, string postfix){
   TFile* file_scan_monoj_obs = new TFile("../makeWorkspace/HiggsInvisible/HiggsInvisibleCombination/EXO-16-048/MonoJ/higgsCombine_scan_mu_obs.MultiDimFit.mH120.root","READ");
   TFile* file_scan_monov_obs = new TFile("../makeWorkspace/HiggsInvisible/HiggsInvisibleCombination/EXO-16-048/MonoV/higgsCombine_scan_mu_obs.MultiDimFit.mH120.root","READ");
   TFile* file_scan_monoz_obs = new TFile("../makeWorkspace/HiggsInvisible/HiggsInvisibleCombination/EXO-16-052/higgsCombine_scan_mu_obs.MultiDimFit.mH120.root","READ");
-  TFile* file_scan_vbf_obs = new TFile("","READ");
-  TFile* file_scan_combined_obs = new TFile("","READ");
+  TFile* file_scan_vbf_obs = new TFile("../makeWorkspace/HiggsInvisible/HiggsInvisibleCombination/HIG-17-023_UCSD/higgsCombine_scan_mu_obs.MultiDimFit.mH120.root","READ");
+  TFile* file_scan_combined_obs = new TFile("../makeWorkspace/HiggsInvisible/HiggsInvisibleCombination/Combination/higgsCombine_scan_mu_obs.MultiDimFit.mH120.root","READ");
 
   TFile* file_scan_monoj_exp = new TFile("../makeWorkspace/HiggsInvisible/HiggsInvisibleCombination/EXO-16-048/MonoJ/higgsCombine_scan_mu_exp.MultiDimFit.mH120.root","READ");
   TFile* file_scan_monov_exp = new TFile("../makeWorkspace/HiggsInvisible/HiggsInvisibleCombination/EXO-16-048/MonoV/higgsCombine_scan_mu_exp.MultiDimFit.mH120.root","READ");
   TFile* file_scan_monoz_exp = new TFile("../makeWorkspace/HiggsInvisible/HiggsInvisibleCombination/EXO-16-052/higgsCombine_scan_mu_exp.MultiDimFit.mH120.root","READ");
-  TFile* file_scan_vbf_exp = new TFile("","READ");
-  TFile* file_scan_combined_exp = new TFile("","READ");
+  TFile* file_scan_vbf_exp = new TFile("../makeWorkspace/HiggsInvisible/HiggsInvisibleCombination/HIG-17-023_UCSD/higgsCombine_scan_mu_exp.MultiDimFit.mH120.root","READ");
+  TFile* file_scan_combined_exp = new TFile("../makeWorkspace/HiggsInvisible/HiggsInvisibleCombination/Combination/higgsCombine_scan_mu_exp.MultiDimFit.mH120.root","READ");
 
   //////
   TGraph* scan_monoj_obs = new TGraph();
@@ -226,14 +226,24 @@ void makeLikelihoodScan(string outputPlots, string postfix){
   scan_monoj_exp->SetLineStyle(7);
   scan_monoj_exp->Draw("Lsame");
 
-  TLegend leg (0.65,0.2,0.9,0.4);
+  TLegend leg (0.68,0.17,0.93,0.37);
   leg.SetFillColor(0);
   leg.SetFillStyle(0);
   leg.SetBorderSize(0);
+  leg.AddEntry(scan_combined_obs,"qqH-tagged","L");
+  leg.AddEntry(scan_vbf_obs,"qqH-tagged","L");
   leg.AddEntry(scan_monoz_obs,"Z(ll)H-tagged","L");
   leg.AddEntry(scan_monov_obs,"V(qq')H-tagged","L");
   leg.AddEntry(scan_monoj_obs,"ggH-tagged","L");
   leg.Draw("same");
+
+  TLegend leg2 (0.50,0.17,0.66,0.24);
+  leg2.SetFillColor(0);
+  leg2.SetFillStyle(0);
+  leg2.SetBorderSize(0);
+  leg2.AddEntry(scan_combined_obs,"Observed","L");
+  leg2.AddEntry(scan_combined_exp,"Expected","L");
+  leg2.Draw("same");
 
   CMS_lumi(canvas,"35.9");
   canvas->SaveAs((outputPlots+"/scan_profile_likelihood.png").c_str(),"png");

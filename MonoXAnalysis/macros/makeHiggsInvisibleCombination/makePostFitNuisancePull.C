@@ -21,7 +21,7 @@ void plotNuisance(TCanvas* canvas, map<TString,RooRealVar*> & listParamPreFit, m
     histopull_band_2s->SetBinError(iBin+1,2*listParamPreFit[postfit.first]->getError());
     TString name (listParamPreFit[postfit.first]->GetName());
     name.ReplaceAll("StatBounding","");
-    name.ReplaceAll("13TeV2016","");
+    name.ReplaceAll("_13TeV2016","");
     name.ReplaceAll("2016","");
     name.ReplaceAll("MVA","");
     name.ReplaceAll("_Runc","");
@@ -30,7 +30,7 @@ void plotNuisance(TCanvas* canvas, map<TString,RooRealVar*> & listParamPreFit, m
     histopull_band_2s->GetXaxis()->SetBinLabel(iBin+1,name);      
     iBin++;
   }
-  
+
   histopull_band_2s->GetXaxis()->SetTitle("");
   histopull_band_2s->GetYaxis()->SetTitle("(#theta_{post}-#theta_{pre})/#sigma_{post}");
   histopull_band_2s->SetFillColor(kOrange);
@@ -65,7 +65,6 @@ void plotNuisance(TCanvas* canvas, map<TString,RooRealVar*> & listParamPreFit, m
   canvas->SaveAs((outputDIR+"/pull_nuisance_"+postfix+".pdf").c_str(),"pdf");
   canvas->SaveAs((outputDIR+"/pull_nuisance_"+postfix+".root").c_str(),"root");
 
-
 }
 
 //////
@@ -86,7 +85,7 @@ void makePostFitNuisancePull(string inputFileName, string outputDIR, Category ca
 
   RooArgList parlist_final = res->floatParsFinal();
   RooArgList parlist_init  = RooArgList(*((RooArgSet*) inputFile->Get("nuisances_prefit")));
-  
+
   //// Look at experimental nuisances
   map<TString,RooRealVar*> listParamPreFit_experimental;
   map<TString,RooRealVar*> listParamPostFit_experimental;
@@ -124,7 +123,7 @@ void makePostFitNuisancePull(string inputFileName, string outputDIR, Category ca
        name.Contains("CMS_met") or
        name.Contains("CMS_veto") or
        name.Contains("lumi") or
-       name.Contains("CMS_pileup"))
+       name.Contains("CMS_pu"))
       
       listParamPreFit_experimental[name] = (RooRealVar*) parlist_init.at(isize);
 
@@ -152,20 +151,24 @@ void makePostFitNuisancePull(string inputFileName, string outputDIR, Category ca
 
       listParamPreFit_theory[name] = (RooRealVar*) parlist_init.at(isize);
     }
-    
+
     ///////////
     if((category == Category::monojet or category == Category::combined) and (name.Contains("ZnunuZmm_MJ") or name.Contains("ZnunuZee_MJ")))
       listParamPreFit_ZoverZ[name] = (RooRealVar*) parlist_init.at(isize);
     else if((category == Category::monoV or category == Category::combined) and (name.Contains("ZnunuZmm_MV") or name.Contains("ZnunuZee_MV")))
       listParamPreFit_ZoverZ[name] = (RooRealVar*) parlist_init.at(isize);
-    else if((category == Category::VBF or category == Category::combined) and (name.Contains("ZnunuZmm_VBF") or name.Contains("ZnunuZee_VBF")))
+    else if((category == Category::VBF or category == Category::combined) and (name.Contains("ZnunuZmm_QCD_VBF") or name.Contains("ZnunuZee_QCD_VBF")))
       listParamPreFit_ZoverZ[name] = (RooRealVar*) parlist_init.at(isize);
-    
+    else if((category == Category::VBF or category == Category::combined) and (name.Contains("ZnunuZmm_EWK_VBF") or name.Contains("ZnunuZee_EWK_VBF")))
+      listParamPreFit_ZoverZ[name] = (RooRealVar*) parlist_init.at(isize);
+
     if((category == Category::monojet or category == Category::combined) and (name.Contains("WJetsWmn_MJ") or name.Contains("WJetsWen_MJ")))
       listParamPreFit_WoverW[name] = (RooRealVar*) parlist_init.at(isize);
     else if((category == Category::monoV or category == Category::combined) and (name.Contains("WJetsWmn_MV") or name.Contains("WJetsWen_MV")))
       listParamPreFit_WoverW[name] = (RooRealVar*) parlist_init.at(isize);
-    else if((category == Category::VBF or category == Category::combined) and (name.Contains("WJetsWmn_VBF") or name.Contains("WJetsWen_VBF")))
+    else if((category == Category::VBF or category == Category::combined) and (name.Contains("WJetsWmn_QCD_VBF") or name.Contains("WJetsWen_QCD_VBF")))
+      listParamPreFit_WoverW[name] = (RooRealVar*) parlist_init.at(isize);
+    else if((category == Category::VBF or category == Category::combined) and (name.Contains("WJetsWmn_EWK_VBF") or name.Contains("WJetsWen_EWK_VBF")))
       listParamPreFit_WoverW[name] = (RooRealVar*) parlist_init.at(isize);
 
     
@@ -173,7 +176,9 @@ void makePostFitNuisancePull(string inputFileName, string outputDIR, Category ca
       listParamPreFit_ZoverW[name] = (RooRealVar*) parlist_init.at(isize);
     else if((category == Category::monoV or category == Category::combined) and name.Contains("ZnunuWJets_MV"))
       listParamPreFit_ZoverW[name] = (RooRealVar*) parlist_init.at(isize);
-    else if((category == Category::VBF or category == Category::combined) and name.Contains("ZnunuWJets_VBF"))
+    else if((category == Category::VBF or category == Category::combined) and name.Contains("ZnunuWJets_QCD_VBF"))
+      listParamPreFit_ZoverW[name] = (RooRealVar*) parlist_init.at(isize);
+    else if((category == Category::VBF or category == Category::combined) and name.Contains("ZnunuWJets_EWK_VBF"))
       listParamPreFit_ZoverW[name] = (RooRealVar*) parlist_init.at(isize);
     
     if((category == Category::monojet or category == Category::combined) and name.Contains("ZnunuGamma_MJ"))
@@ -187,9 +192,9 @@ void makePostFitNuisancePull(string inputFileName, string outputDIR, Category ca
       listParamPreFit_ZZ4l[name] = (RooRealVar*) parlist_init.at(isize);
     if((category == Category::monoZ or category == Category::combined) and name.Contains("CMS_zllhinvll1j"))
       listParamPreFit_ZZSR[name] = (RooRealVar*) parlist_init.at(isize);
+    
   }
 
-  
   ////
   for(int isize = 0; isize < parlist_final.getSize(); isize++){
     TString name (parlist_final.at(isize)->GetName());
@@ -238,21 +243,27 @@ void makePostFitNuisancePull(string inputFileName, string outputDIR, Category ca
       listParamPostFit_ZoverZ[name] = (RooRealVar*) parlist_final.at(isize);
     else if((category == Category::monoV or category == Category::combined) and (name.Contains("ZnunuZmm_MV") or name.Contains("ZnunuZee_MV")))
       listParamPostFit_ZoverZ[name] = (RooRealVar*) parlist_final.at(isize);
-    else if((category == Category::VBF or category == Category::combined) and (name.Contains("ZnunuZmm_VBF") or name.Contains("ZnunuZee_VBF")))
+    else if((category == Category::VBF or category == Category::combined) and (name.Contains("ZnunuZmm_QCD_VBF") or name.Contains("ZnunuZee_QCD_VBF")))
+      listParamPostFit_ZoverZ[name] = (RooRealVar*) parlist_final.at(isize);
+    else if((category == Category::VBF or category == Category::combined) and (name.Contains("ZnunuZmm_EWK_VBF") or name.Contains("ZnunuZee_EWK_VBF")))
       listParamPostFit_ZoverZ[name] = (RooRealVar*) parlist_final.at(isize);
     
     if((category == Category::monojet or category == Category::combined) and (name.Contains("WJetsWmn_MJ") or name.Contains("WJetsWen_MJ")))
       listParamPostFit_WoverW[name] = (RooRealVar*) parlist_final.at(isize);
     else if((category == Category::monoV or category == Category::combined) and (name.Contains("WJetsWmn_MV") or name.Contains("WJetsWen_MV")))
       listParamPostFit_WoverW[name] = (RooRealVar*) parlist_final.at(isize);
-    else if((category == Category::VBF or category == Category::combined) and (name.Contains("WJetsWmn_VBF") or name.Contains("WJetsWen_VBF")))
+    else if((category == Category::VBF or category == Category::combined) and (name.Contains("WJetsWmn_QCD_VBF") or name.Contains("WJetsWen_QCD_VBF")))
+      listParamPostFit_WoverW[name] = (RooRealVar*) parlist_final.at(isize);
+    else if((category == Category::VBF or category == Category::combined) and (name.Contains("WJetsWmn_EWK_VBF") or name.Contains("WJetsWen_EWK_VBF")))
       listParamPostFit_WoverW[name] = (RooRealVar*) parlist_final.at(isize);
 
     if((category == Category::monojet or category == Category::combined) and name.Contains("ZnunuWJets_MJ"))
       listParamPostFit_ZoverW[name] = (RooRealVar*) parlist_final.at(isize);
     else if((category == Category::monoV or category == Category::combined) and name.Contains("ZnunuWJets_MV"))
       listParamPostFit_ZoverW[name] = (RooRealVar*) parlist_final.at(isize);
-    else if((category == Category::VBF or category == Category::combined) and name.Contains("ZnunuWJets_VBF"))
+    else if((category == Category::VBF or category == Category::combined) and name.Contains("ZnunuWJets_QCD_VBF"))
+      listParamPostFit_ZoverW[name] = (RooRealVar*) parlist_final.at(isize);
+    else if((category == Category::VBF or category == Category::combined) and name.Contains("ZnunuWJets_EWK_VBF"))
       listParamPostFit_ZoverW[name] = (RooRealVar*) parlist_final.at(isize);
     
     if((category == Category::monojet or category == Category::combined) and name.Contains("ZnunuGamma_MJ"))
@@ -271,7 +282,6 @@ void makePostFitNuisancePull(string inputFileName, string outputDIR, Category ca
   /////////////// ------ 
   TCanvas* canvas = new TCanvas ("canvas","canvas",900,600);
   canvas->SetBottomMargin(0.35);
-
   plotNuisance(canvas,listParamPreFit_experimental,listParamPostFit_experimental,outputDIR,"experimental");
   plotNuisance(canvas,listParamPreFit_theory,listParamPostFit_theory,outputDIR,"theory");
 

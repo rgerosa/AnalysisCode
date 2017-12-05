@@ -68,9 +68,9 @@ void makePostFit_MJMV(string   fitFilename,
   TH1* tphist = NULL;
   TH1* sighist = NULL;
 
-  znhist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/Znunu").c_str());    
+  znhist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/qcd_znunu").c_str());    
   zlhist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/ZJets").c_str());    
-  wlhist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/WJets").c_str());    
+  wlhist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/qcd_wjets").c_str());    
   tthist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/Top").c_str());    
   dihist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/Dibosons").c_str());    
   qchist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/QCD").c_str());    
