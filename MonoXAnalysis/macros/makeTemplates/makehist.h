@@ -193,9 +193,9 @@ void makehist4(TTree* tree,            /*input tree*/
   TFile* sffile_muLoose  = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/leptonSF_Moriond/muon_scalefactors.root");
     
   TH2*  msfloose_id   = (TH2*) sffile_muLoose->Get("scalefactors_MuonLooseId_Muon");
-  TH2*  msftight_id   = (TH2*) sffile_muLoose->Get("scalefactors_Iso_MuonLooseId");
+  TH2*  msftight_id   = (TH2*) sffile_muTight->Get("scalefactors_TightId_Muon");
   TH2*  msfloose_iso  = (TH2*) sffile_muLoose->Get("scalefactors_Iso_MuonLooseId");
-  TH2*  msftight_iso  = (TH2*) sffile_muLoose->Get("scalefactors_Iso_MuonTightId");
+  TH2*  msftight_iso  = (TH2*) sffile_muTight->Get("scalefactors_Iso_MuonTightId");
   TH2*  esfveto       = (TH2*) sffile_eleVeto->Get("scalefactors_Veto_Electron");
   TH2*  esftight      = (TH2*) sffile_eleTight->Get("scalefactors_Tight_Electron");
 
@@ -603,7 +603,7 @@ void makehist4(TTree* tree,            /*input tree*/
        (*fhbhe == 0 or *fhbiso == 0 or *feeb == 0 or *fetp == 0 or *fvtx == 0 or *fcsc == 0 or *fbadmu == 0 or *fbadch == 0)) continue;
     if(category == Category::VBF or category == Category::VBFrelaxed){
       if(not isMC and (*fhbhe == 0 or *fhbiso == 0 or *feeb == 0 or *fetp == 0 or *fvtx == 0 or *fcsc == 0 or *fbadmu == 0 or *fbadch == 0)) continue;
-      else if(isMC and sample != Sample::sig and (*fhbhe == 0 or *fhbiso == 0 or *feeb == 0 or *fetp == 0 or *fvtx == 0 or *fcsc == 0 or *fbadmu == 0 or *fbadch == 0)) continue;
+      else if(isMC and (*fhbhe == 0 or *fhbiso == 0 or *feeb == 0 or *fetp == 0 or *fvtx == 0 or *fcsc == 0 or *fbadmu == 0 or *fbadch == 0)) continue;
     }
 
     // check dphi jet-met
@@ -640,7 +640,7 @@ void makehist4(TTree* tree,            /*input tree*/
       pt1  = *mu1pt;  pt2  = *mu2pt;
       pid1 = *mu1pid; pid2 = *mu2pid;
       eta1 = *mu1eta; eta2 = *mu2eta;
-      phi1 = *el1phi; phi2 = *el2phi;
+      phi1 = *mu1phi; phi2 = *mu2phi;
     }
     else if (sample == Sample::zee || sample == Sample::wen || sample == Sample::topel) {
       id1  = *el1id; id2  = *el2id;
@@ -1028,7 +1028,6 @@ void makehist4(TTree* tree,            /*input tree*/
       jet2.SetPtEtaPhiM(jetpt->at(1),jeteta->at(1),jetphi->at(1),jetm->at(1));
       if((jet1+jet2).M() < mjjrelaxed) continue;
       if(fabs(deltaPhi(jetphi->at(0),jetphi->at(1))) > dphijjrelaxed) continue;
-
       goodVBF = true;
     }
     else if(category == Category::twojet){
@@ -1048,7 +1047,6 @@ void makehist4(TTree* tree,            /*input tree*/
     if(category == Category::monoV and goodMonoV == false) continue;
     if(category == Category::monojet and goodMonoJet == false) continue;
 
-        
     /// re-miniADO specific to adjust lumi
     Double_t sfwgt_reco = 1.0;
     // apply tracking efficiency for electrons from POGs / private files
@@ -1199,15 +1197,18 @@ void makehist4(TTree* tree,            /*input tree*/
       }
 
       //////////////
-      if (pt1 > 40. && id1 == 1 and id2 == 1)
-	sfwgt_trig *= min(1.,double(sf1+sf2-sf1*sf2));
-      else if(pt1 > 40 and id1 == 1 and id2 != 1)
+      if(sample == Sample::zee){
+	if (pt1 > 40. && id1 == 1 and id2 == 1)
+	  sfwgt_trig *= min(1.,double(sf1+sf2-sf1*sf2));
+	else if(pt1 > 40 and id1 == 1 and id2 != 1)
+	  sfwgt_trig *= sf1;
+	else if(pt2 > 40 and id2 == 1 and id1 != 1)
+	  sfwgt_trig *= sf2;
+      }
+      else if(sample == Sample::topel || sample == Sample::wen)
 	sfwgt_trig *= sf1;
-      else if(pt2 > 40 and id2 == 1 and id1 != 1)
-	sfwgt_trig *= sf2;
     }
     
-
     // met trigger scale factor
     if (isMC && (sample == Sample::sig || sample == Sample::wmn || sample == Sample::zmm || sample == Sample::topmu || sample == Sample::qcd || sample == Sample::taun)) {
       // single trigger turn on to be applied
@@ -1285,9 +1286,6 @@ void makehist4(TTree* tree,            /*input tree*/
     
     // B-tag weight to be adjusted
     double btagw = *wgtbtag;
-    // in case of VBF re-scale zmm for trigger efficiency (PF-muon online ineffiency --> 1% downshift flat vs Mjj)
-    if((sample == Sample::zmm or sample == Sample::wmn) and (category == Category::VBFrelaxed or category == Category::VBF))
-      btagw *= 0.98;
 
     /// loose lepton veto weight
     double veto_wgt = 1;
@@ -1361,94 +1359,84 @@ void makehist4(TTree* tree,            /*input tree*/
 
     //V-tagging scale factor --> only for mono-V
     double sfwgt_vtag = 1;
-    if(isMC && category == Category::monoV && isWJet)
+    if(isMC and category == Category::monoV and isWJet)
       sfwgt_vtag *= getVtaggingScaleFactor(tau2tau1,sysName);
     
     //Gen level info --> NLO re-weight    
     Double_t kwgt = 1.0;    
+    Double_t kewkgt = 1.0;
     double genpt = *wzpt;
 
-    for (size_t i = 0; i < khists.size(); i++) {      
-
-      if (khists[i]) {// good histograms
-	TString name (khists[i]->GetName());
-	if((category == Category::VBFrelaxed or category == Category::VBF) and (name.Contains("mjj") or name.Contains("Mjj"))){ // standard weights vs boson pt 
-	  ///////
-	  TLorentzVector jet1 ;
-	  TLorentzVector jet2 ;
-	  vector<TLorentzVector> genjet;
-	  for(int igen = 0; igen < genjetpt->size(); igen++){
-	    TLorentzVector temp; temp.SetPtEtaPhiM(genjetpt->at(igen),genjeteta->at(igen),genjetphi->at(igen),genjetm->at(igen));
-	    genjet.push_back(temp);
-	  }
-	  sort(genjet.begin(),genjet.end(),jet_sort);
-	  
-	  if(genjet.size() >= 2){
-	    jet1 = genjet.at(0);
-	    jet2 = genjet.at(1);
-	  }
-	  else{
-	    jet1.SetPtEtaPhiM(jetpt->at(0),jeteta->at(0),jetphi->at(0),jetm->at(0));
-	    jet2.SetPtEtaPhiM(jetpt->at(1),jeteta->at(1),jetphi->at(1),jetm->at(1));
-	  }
-	  // measurement is binned in mjj
-	  std::stringstream name_tmp(khists[i]->GetName());
-	  std::string segment;
-	  std::vector<std::string> seglist;	 
-	  while(std::getline(name_tmp, segment, '_')){
-	    seglist.push_back(segment);
-	  }
-
-	  float mjj_max = 0;
-	  float mjj_min = 0;
-	  
-	  if(name.Contains("smoothed")){
-	      mjj_max = atof(seglist.at(seglist.size()-2).c_str());
-	      mjj_min = atof(seglist.at(seglist.size()-3).c_str());
-	  }
-	  else{
-	      mjj_max = atof(seglist.at(seglist.size()-1).c_str());
-	      mjj_min = atof(seglist.at(seglist.size()-2).c_str());
-	  }
-
-	  if((jet1+jet2).M() > mjj_min and (jet1+jet2).M() <= mjj_max){	    
-	    if(genpt <= khists[i]->GetXaxis()->GetBinLowEdge(1)) genpt = khists[i]->GetXaxis()->GetBinLowEdge(1) + 1;
-	    if(genpt >= khists[i]->GetXaxis()->GetBinLowEdge(khists[i]->GetNbinsX()+1)) genpt = khists[i]->GetXaxis()->GetBinLowEdge(khists[i]->GetNbinsX()+1)-1;
-	    kwgt *= khists[i]->GetBinContent(khists[i]->FindBin(genpt));
-	  }	    
-	}
-	else{ // standard weights vs boson pt 
-	  if(genpt <= khists[i]->GetXaxis()->GetBinLowEdge(1)) genpt = khists[i]->GetXaxis()->GetBinLowEdge(1) + 1;
-	  if(genpt >= khists[i]->GetXaxis()->GetBinLowEdge(khists[i]->GetNbinsX()+1)) genpt = khists[i]->GetXaxis()->GetBinLowEdge(khists[i]->GetNbinsX()+1)-1;
-	  kwgt *= khists[i]->GetBinContent(khists[i]->FindBin(genpt));
-	}
-      }
-    }
-    
-    //Gen level info --> kfactor NLO for V-EWK processes
-    Double_t kewkgt = 1.0;
     if((category == Category::VBF or category == Category::VBFrelaxed or category == Category::twojet) and isMC){
-      double genpt = *wzpt;
-      ///////
+      /////// --- Loop on gen jets
       TLorentzVector jet1 ;
       TLorentzVector jet2 ;
+      TLorentzVector jet1_reco ;
+      TLorentzVector jet2_reco ;
+      jet1_reco.SetPtEtaPhiM(jetpt->at(0),jeteta->at(0),jetphi->at(0),jetm->at(0));
+      jet2_reco.SetPtEtaPhiM(jetpt->at(1),jeteta->at(1),jetphi->at(1),jetm->at(1));
       vector<TLorentzVector> genjet;
       for(int igen = 0; igen < genjetpt->size(); igen++){
 	TLorentzVector temp; temp.SetPtEtaPhiM(genjetpt->at(igen),genjeteta->at(igen),genjetphi->at(igen),genjetm->at(igen));
+	// check if overlaps with a gen lepton
 	genjet.push_back(temp);
       }
       sort(genjet.begin(),genjet.end(),jet_sort);
       
+      // set jets
       if(genjet.size() >= 2){
 	jet1 = genjet.at(0);
 	jet2 = genjet.at(1);
       }
       else{
-	jet1.SetPtEtaPhiM(jetpt->at(0),jeteta->at(0),jetphi->at(0),jetm->at(0));
-	jet2.SetPtEtaPhiM(jetpt->at(1),jeteta->at(1),jetphi->at(1),jetm->at(1));
+	jet1 = jet1_reco;
+	jet2 = jet2_reco;	
       }
-      
+
       double mjj = (jet1+jet2).M();
+      if(mjj < mjjrelaxed) mjj = mjjrelaxed+1;
+
+      // NLO-QCD k-factors : first hist 
+      for (size_t i = 0; i < khists.size(); i++) {      
+	if (khists[i]) {// good histograms
+	  TString name (khists[i]->GetName());
+	  if(name.Contains("mjj") or name.Contains("Mjj")){ // standard weights vs boson pt 
+	    // measurement is binned in mjj
+	    std::stringstream name_tmp(khists[i]->GetName());
+	    std::string segment;
+	    std::vector<std::string> seglist;	 
+	    while(std::getline(name_tmp, segment, '_')){
+	      seglist.push_back(segment);
+	    }
+	    
+	    float mjj_max = 0;
+	    float mjj_min = 0;
+	    
+	    if(name.Contains("smoothed")){
+	      mjj_max = atof(seglist.at(seglist.size()-2).c_str());
+	      mjj_min = atof(seglist.at(seglist.size()-3).c_str());
+	    }
+	    else{
+	      mjj_max = atof(seglist.at(seglist.size()-1).c_str());
+	      mjj_min = atof(seglist.at(seglist.size()-2).c_str());
+	    }
+
+	    if(mjj > mjj_min and mjj <= mjj_max){	    
+	      if(genpt <= khists[i]->GetXaxis()->GetBinLowEdge(1)) genpt = khists[i]->GetXaxis()->GetBinLowEdge(1) + 1;
+	      if(genpt >= khists[i]->GetXaxis()->GetBinLowEdge(khists[i]->GetNbinsX()+1)) genpt = khists[i]->GetXaxis()->GetBinLowEdge(khists[i]->GetNbinsX()+1)-1;	      	      
+	      kwgt *= khists[i]->GetBinContent(khists[i]->FindBin(genpt));
+	    }	    
+	  }
+	  else{ // standard weights vs boson pt 
+	    if(genpt <= khists[i]->GetXaxis()->GetBinLowEdge(1)) genpt = khists[i]->GetXaxis()->GetBinLowEdge(1) + 1;
+	    if(genpt >= khists[i]->GetXaxis()->GetBinLowEdge(khists[i]->GetNbinsX()+1)) genpt = khists[i]->GetXaxis()->GetBinLowEdge(khists[i]->GetNbinsX()+1)-1;
+	    kwgt *= khists[i]->GetBinContent(khists[i]->FindBin(genpt));
+	  }
+	}
+      }
+    
+      //Gen level info --> kfactor NLO for V-EWK processes      
+      mjj = (jet1+jet2).M();
       for(size_t i = 0; i < kVEWKhists.size(); i++){
 	if(kVEWKhists[i]){// good histogram
 	  if(genpt <= kVEWKhists[i]->GetXaxis()->GetBinLowEdge(1)) genpt = kVEWKhists[i]->GetXaxis()->GetBinLowEdge(1) + 1;
@@ -1459,7 +1447,7 @@ void makehist4(TTree* tree,            /*input tree*/
 	}
       }
     }
-
+    
     // Higgs pT uncertainty
     Double_t hwgt = 1.0;
     if(isHiggsInvisible and hhist and isMC){
@@ -1929,14 +1917,10 @@ void makehist4(TTree* tree,            /*input tree*/
       Double_t puwgt = 0.;
       if (isMC and not reweightNVTX){
 
-	if(fabs(*wgtpu) > 100)  puwgt = 1;
-	else if(fabs(*wgtpu) < 0.01) puwgt = 1;
-	else puwgt = *wgtpu;
-
 	if(XSEC != -1)
 	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt_reco*sfwgt_id*sfwgt_trig*veto_wgt*topptwgt*sfwgt_vtag*ggZHwgt*kwgt*kewkgt*hwgt*hnnlowgt/(**wgtsum); 
 	else
-	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt_reco*sfwgt_id*sfwgt_trig*veto_wgt*topptwgt*sfwgt_vtag*ggZHwgt*kwgt*kewkgt*hwgt*hnnlowgt/(**wgtsum);	
+	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(*wgtpu)*(btagw)*hltw*sfwgt_trig*sfwgt_reco*sfwgt_id*veto_wgt*topptwgt*sfwgt_vtag*ggZHwgt*hwgt*kwgt*kewkgt*hnnlowgt/(**wgtsum);	     
       }
       else if (isMC and reweightNVTX){
 

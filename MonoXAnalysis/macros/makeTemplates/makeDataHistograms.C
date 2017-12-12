@@ -685,7 +685,6 @@ void sigdatamchist(TFile* outfile,
     isWJet = true;
 
   cout<<"signal region --> Znunu sample "<<endl;
-
   if(not nloSamples.useZJetsNLO)
     makehist4(zntree,znhist,znhist_2D,true,Sample::sig,category,false,1.00,lumi,zhists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
   else
@@ -701,6 +700,7 @@ void sigdatamchist(TFile* outfile,
     cout<<"signal region --> W+jets sample  wta-gen "<<endl;
     makehist4(wltree,wlhist_ta,wlhist_ta_2D,true,Sample::sig,category,false,1.00,lumi,whists,"",false,reweightNVTX,0,isHInv,applyPFWeight,ehists2D,-1,NULL,NULL,NULL,"tau");
   }
+
   cout<<"signal region --> Z+jets sample "<<endl;
   makehist4(zltree,zlhist,zlhist_2D,true,Sample::sig,category,false,1.00,lumi,dyhists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
   cout<<"signal region --> gamma+jets sample "<<endl;
@@ -2356,8 +2356,10 @@ void lepdatamchist(TFile* outfile,
   makehist4(qctree,qchist,qchist_2D,true,sample,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
   cout<<"lepton+jets control region --> EWK W"<<endl;
   makehist4(ewkwtree,ewkwhist,ewkwhist_2D,true,sample,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,isHInv,applyPFWeight, wewkhists);
+
   cout<<"lepton+jets control region --> EWK Z"<<endl;
   makehist4(ewkztree,ewkzhist,ewkzhist_2D,true,sample,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,isHInv,applyPFWeight, zewkhists);
+
   cout<<"lepton+jets control region --> ZllGamma"<<endl;
   makehist4(zgtree,vghist,vghist_2D,true,sample,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
   cout<<"lepton+jets control region --> Wgamma"<<endl;
