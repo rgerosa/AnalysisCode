@@ -13,7 +13,8 @@ void plotCorrelationMatrix(string inputFile, Category category, bool isZeynep, s
   initializeBinning();
   gROOT->SetBatch(kTRUE);
   setTDRStyle();  
-  gStyle->SetPalette(kBird);
+  //gStyle->SetPalette(kBird);
+  gStyle->SetPalette(kThermometer);
   gStyle->SetNumberContours(999);
 
   TFile *file = new TFile(inputFile.c_str(),"READ");

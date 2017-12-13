@@ -192,6 +192,8 @@ void makePlot(TH1* histoData, TH1* histoMC, const string & observable, const Cat
 // make the data-validation plot from the mlfit.root given by combine --> using the prefit shapes
 void makeDataValidationPlotsMLFit(string inputFileName, Category category, string observable, string observableLatex, int rebinFactor = 1, bool doBackgroundSubtraction = false, bool isCombination = false){
 
+  if (category == Category::VBF) totalUncFromTheory = 0.08;
+
   gROOT->SetBatch(kTRUE);
   gROOT->ForceStyle(kTRUE);
   setTDRStyle();
@@ -288,7 +290,7 @@ void makeDataValidationPlotsMLFit(string inputFileName, Category category, strin
   }
 
   // Get backgrounds for Zmm CR
-  TH1* zjet_zmm = (TH1*) inputFile->Get(("shapes_prefit/"+dir_zmm+"/Znunu").c_str());
+  TH1* zjet_zmm = (TH1*) inputFile->Get(("shapes_prefit/"+dir_zmm+"/qcd_zll").c_str());
   TH1* wjet_zmm = (TH1*) inputFile->Get(("shapes_prefit/"+dir_zmm+"/WJets_ZM").c_str());
   TH1* diboson_zmm = (TH1*) inputFile->Get(("shapes_prefit/"+dir_zmm+"/Dibosons").c_str());
   TH1* top_zmm     = (TH1*) inputFile->Get(("shapes_prefit/"+dir_zmm+"/Top").c_str());
@@ -306,14 +308,14 @@ void makeDataValidationPlotsMLFit(string inputFileName, Category category, strin
   TH1* wjet_zmm_ewk = NULL;
   if(category == Category::VBF or category == Category::VBFrelaxed){
     zjet_zmm_ewk = (TH1*) inputFile->Get(("shapes_prefit/"+dir_zmm+"/WJets_EWK_ZM").c_str());
-    wjet_zmm_ewk = (TH1*) inputFile->Get(("shapes_prefit/"+dir_zmm+"/Znunu_EWK").c_str());
+    wjet_zmm_ewk = (TH1*) inputFile->Get(("shapes_prefit/"+dir_zmm+"/ewk_zll").c_str());
     zjet_zmm->Add(zjet_zmm_ewk);
     if(doBackgroundSubtraction)
       data_zmm_hist->Add(wjet_zmm_ewk,-1);    
   }
 
   // Get backgrounds for Zee CR
-  TH1* zjet_zee = (TH1*) inputFile->Get(("shapes_prefit/"+dir_zee+"/Znunu").c_str());
+  TH1* zjet_zee = (TH1*) inputFile->Get(("shapes_prefit/"+dir_zee+"/qcd_zll").c_str());
   TH1* wjet_zee = (TH1*) inputFile->Get(("shapes_prefit/"+dir_zee+"/WJets_ZE").c_str());
   TH1* diboson_zee = (TH1*) inputFile->Get(("shapes_prefit/"+dir_zee+"/Dibosons").c_str());
   TH1* top_zee     = (TH1*) inputFile->Get(("shapes_prefit/"+dir_zee+"/Top").c_str());
@@ -330,7 +332,7 @@ void makeDataValidationPlotsMLFit(string inputFileName, Category category, strin
   TH1* wjet_zee_ewk = NULL;
   if(category == Category::VBF or category == Category::VBFrelaxed){
     zjet_zee_ewk = (TH1*) inputFile->Get(("shapes_prefit/"+dir_zee+"/WJets_EWK_ZE").c_str());
-    wjet_zee_ewk = (TH1*) inputFile->Get(("shapes_prefit/"+dir_zee+"/Znunu_EWK").c_str());
+    wjet_zee_ewk = (TH1*) inputFile->Get(("shapes_prefit/"+dir_zee+"/ewk_zll").c_str());
     zjet_zee->Add(zjet_zee_ewk);
     if(doBackgroundSubtraction)
       data_zee_hist->Add(wjet_zee_ewk,-1);
@@ -338,11 +340,11 @@ void makeDataValidationPlotsMLFit(string inputFileName, Category category, strin
 
   // Get backgrounds for Wmn CR
   TH1* zjet_wmn = (TH1*) inputFile->Get(("shapes_prefit/"+dir_wmn+"/ZJets_WM").c_str());
-  TH1* wjet_wmn = (TH1*) inputFile->Get(("shapes_prefit/"+dir_wmn+"/WJets").c_str());
+  TH1* wjet_wmn = (TH1*) inputFile->Get(("shapes_prefit/"+dir_wmn+"/qcd_wjets").c_str());
   TH1* diboson_wmn = (TH1*) inputFile->Get(("shapes_prefit/"+dir_wmn+"/Dibosons").c_str());
   TH1* top_wmn     = (TH1*) inputFile->Get(("shapes_prefit/"+dir_wmn+"/Top").c_str());
   TH1* vgamma_wmn  = (TH1*) inputFile->Get(("shapes_prefit/"+dir_wmn+"/VGamma").c_str());
-  TH1* qcd_wmn     = (TH1*) inputFile->Get(("shapes_prefit/"+dir_wmn+"/QCD_WM").c_str());
+  TH1* qcd_wmn     = (TH1*) inputFile->Get(("shapes_prefit/"+dir_wmn+"/FakeM").c_str());
 
   // data subtraction
   if(doBackgroundSubtraction){
@@ -356,7 +358,7 @@ void makeDataValidationPlotsMLFit(string inputFileName, Category category, strin
   TH1* zjet_wmn_ewk = NULL;
   TH1* wjet_wmn_ewk = NULL;
   if(category == Category::VBF or category == Category::VBFrelaxed){
-    zjet_wmn_ewk = (TH1*) inputFile->Get(("shapes_prefit/"+dir_wmn+"/WJets_EWK").c_str());
+    zjet_wmn_ewk = (TH1*) inputFile->Get(("shapes_prefit/"+dir_wmn+"/ewk_wjets").c_str());
     wjet_wmn_ewk = (TH1*) inputFile->Get(("shapes_prefit/"+dir_wmn+"/ZJets_EWK_WM").c_str());
     wjet_wmn->Add(wjet_wmn_ewk);
     if(doBackgroundSubtraction)
@@ -365,11 +367,11 @@ void makeDataValidationPlotsMLFit(string inputFileName, Category category, strin
 
   // Get backgrounds for Wen CR
   TH1* zjet_wen = (TH1*) inputFile->Get(("shapes_prefit/"+dir_wen+"/ZJets_WE").c_str());
-  TH1* wjet_wen = (TH1*) inputFile->Get(("shapes_prefit/"+dir_wen+"/WJets").c_str());
+  TH1* wjet_wen = (TH1*) inputFile->Get(("shapes_prefit/"+dir_wen+"/qcd_wjets").c_str());
   TH1* diboson_wen = (TH1*) inputFile->Get(("shapes_prefit/"+dir_wen+"/Dibosons").c_str());
   TH1* top_wen     = (TH1*) inputFile->Get(("shapes_prefit/"+dir_wen+"/Top").c_str());
   TH1* vgamma_wen  = (TH1*) inputFile->Get(("shapes_prefit/"+dir_wen+"/VGamma").c_str());
-  TH1* qcd_wen     = (TH1*) inputFile->Get(("shapes_prefit/"+dir_wen+"/QCD_WE").c_str());
+  TH1* qcd_wen     = (TH1*) inputFile->Get(("shapes_prefit/"+dir_wen+"/FakeE").c_str());
 
   // data subtraction
   if(doBackgroundSubtraction){
@@ -383,7 +385,7 @@ void makeDataValidationPlotsMLFit(string inputFileName, Category category, strin
   TH1* zjet_wen_ewk = NULL;
   TH1* wjet_wen_ewk = NULL;
   if(category == Category::VBF or category == Category::VBFrelaxed){
-    zjet_wen_ewk = (TH1*) inputFile->Get(("shapes_prefit/"+dir_wen+"/WJets_EWK").c_str());
+    zjet_wen_ewk = (TH1*) inputFile->Get(("shapes_prefit/"+dir_wen+"/ewk_wjets").c_str());
     wjet_wen_ewk = (TH1*) inputFile->Get(("shapes_prefit/"+dir_wen+"/ZJets_EWK_WE").c_str());    
     wjet_wen->Add(wjet_wen_ewk);
     if(doBackgroundSubtraction)      
@@ -397,9 +399,9 @@ void makeDataValidationPlotsMLFit(string inputFileName, Category category, strin
   TH1* vgamma_gam  = NULL;
 
   if(useGammaJets){
-    gamma_gam  = (TH1*) inputFile->Get(("shapes_prefit/"+dir_gam+"/Znunu").c_str());
+    gamma_gam  = (TH1*) inputFile->Get(("shapes_prefit/"+dir_gam+"/gjets").c_str());
     wjet_gam   = (TH1*) inputFile->Get(("shapes_prefit/"+dir_gam+"/WJets_GJ").c_str());
-    qcd_gam    = (TH1*) inputFile->Get(("shapes_prefit/"+dir_gam+"/QCD_GJ").c_str());
+    qcd_gam    = (TH1*) inputFile->Get(("shapes_prefit/"+dir_gam+"/FakeG").c_str());
     vgamma_gam = (TH1*) inputFile->Get(("shapes_prefit/"+dir_gam+"/VGamma").c_str());
     
     // data subtraction

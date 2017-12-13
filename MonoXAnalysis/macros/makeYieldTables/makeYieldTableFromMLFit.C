@@ -37,8 +37,8 @@ void makeYieldTableFromMLFit(string inputFileName, Category category, bool isZey
   TH1* totalhist = NULL;
 
   if(not isZeynep and category == Category::monojet){
-    zvvhist  = (TH1*)inputFile->Get((dir+"/ch1_ch1/Znunu").c_str());
-    wjethist = (TH1*)inputFile->Get((dir+"/ch1_ch1/WJets").c_str());
+    zvvhist  = (TH1*)inputFile->Get((dir+"/ch1_ch1/qcd_znunu").c_str());
+    wjethist = (TH1*)inputFile->Get((dir+"/ch1_ch1/qcd_wjets").c_str());
     dyhist   = (TH1*)inputFile->Get((dir+"/ch1_ch1/ZJets").c_str());
     tophist  = (TH1*)inputFile->Get((dir+"/ch1_ch1/Top").c_str());
     dibosonhist = (TH1*)inputFile->Get((dir+"/ch1_ch1/Dibosons").c_str());
@@ -48,8 +48,8 @@ void makeYieldTableFromMLFit(string inputFileName, Category category, bool isZey
     totalhist = (TH1*)inputFile->Get((dir+"/ch1_ch1/total_background").c_str());
   }
   else if(not isZeynep and category == Category::monoV){
-    zvvhist = (TH1*)inputFile->Get((dir+"/ch2_ch1/Znunu").c_str());
-    wjethist = (TH1*)inputFile->Get((dir+"/ch2_ch1/WJets").c_str());
+    zvvhist = (TH1*)inputFile->Get((dir+"/ch2_ch1/qcd_znunu").c_str());
+    wjethist = (TH1*)inputFile->Get((dir+"/ch2_ch1/qcd_wjets").c_str());
     dyhist = (TH1*)inputFile->Get((dir+"/ch2_ch1/ZJets").c_str());
     vghist   = (TH1*)inputFile->Get((dir+"/ch2_ch1/VGamma").c_str());
     tophist = (TH1*)inputFile->Get((dir+"/ch2_ch1/Top").c_str());
@@ -80,17 +80,17 @@ void makeYieldTableFromMLFit(string inputFileName, Category category, bool isZey
   }
 
   else if(category == Category::VBF or category == Category::VBFrelaxed){
-    zvvhist  = (TH1*)inputFile->Get((dir+"/ch1/Znunu").c_str());
-    wjethist = (TH1*)inputFile->Get((dir+"/ch1/WJets").c_str());
-    dyhist   = (TH1*)inputFile->Get((dir+"/ch1/ZJets").c_str());
+    zvvhist  = (TH1*)inputFile->Get((dir+"/ch1/qcd_znunu").c_str());
+    wjethist = (TH1*)inputFile->Get((dir+"/ch1/qcd_wjets").c_str());
+    dyhist   = (TH1*)inputFile->Get((dir+"/ch1/qcd_zll").c_str());
     tophist  = (TH1*)inputFile->Get((dir+"/ch1/Top").c_str());
     dibosonhist = (TH1*)inputFile->Get((dir+"/ch1/Dibosons").c_str());
     vghist   = (TH1*)inputFile->Get((dir+"/ch1/VGamma").c_str());
     qcdhist = (TH1*)inputFile->Get((dir+"/ch1/QCD").c_str());
     gammahist = (TH1*)inputFile->Get((dir+"/ch1/GJets").c_str());
     totalhist = (TH1*)inputFile->Get((dir+"/ch1/total_background").c_str());
-    ewkzhist = (TH1*)inputFile->Get((dir+"/ch1/Znunu_EWK").c_str()); 
-    ewkwhist = (TH1*)inputFile->Get((dir+"/ch1/WJets_EWK").c_str()); 
+    ewkzhist = (TH1*)inputFile->Get((dir+"/ch1/ewk_znunu").c_str()); 
+    ewkwhist = (TH1*)inputFile->Get((dir+"/ch1/ewk_wjets").c_str()); 
     
   }
 
