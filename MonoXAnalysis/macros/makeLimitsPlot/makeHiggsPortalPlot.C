@@ -112,20 +112,20 @@ void makeHiggsPortalPlot(float observedBR, string outputDIR){
   gPad->SetLeftMargin(0.14);
   frame->Draw();
 
-  observedBound_fermion->SetLineColor(kRed);
+  observedBound_fermion->SetLineColor(kBlack);
   observedBound_fermion->SetLineWidth(3);
-  observedBound_fermion_min->SetLineColor(kRed);
+  observedBound_fermion_min->SetLineColor(kBlack);
   observedBound_fermion_min->SetLineWidth(2);
   observedBound_fermion_min->SetLineStyle(9);
-  observedBound_fermion_max->SetLineColor(kRed);
+  observedBound_fermion_max->SetLineColor(kBlack);
   observedBound_fermion_max->SetLineWidth(2);
   observedBound_fermion_max->SetLineStyle(9);
-  observedBound_scalar->SetLineColor(kGreen+2);
+  observedBound_scalar->SetLineColor(kRed+1);
   observedBound_scalar->SetLineWidth(3);
-  observedBound_scalar_min->SetLineColor(kGreen+2);
+  observedBound_scalar_min->SetLineColor(kRed+1);
   observedBound_scalar_min->SetLineWidth(2);
   observedBound_scalar_min->SetLineStyle(9);
-  observedBound_scalar_max->SetLineColor(kGreen+2);
+  observedBound_scalar_max->SetLineColor(kRed+1);
   observedBound_scalar_max->SetLineWidth(2);
   observedBound_scalar_max->SetLineStyle(9);
 
@@ -164,12 +164,12 @@ void makeHiggsPortalPlot(float observedBR, string outputDIR){
   tex->DrawLatex(0.9,0.86,"90% CL Limits");
   tex->DrawLatex(0.9,0.80,Form("B(H#rightarrow inv) < %.2f",observedBR));
 
-  TLegend *leg = new TLegend(0.67,0.45,0.90,0.75,NULL,"brNDC");
+  TLegend *leg = new TLegend(0.65,0.45,0.92,0.75,NULL,"brNDC");
   leg->SetFillStyle(0);
   leg->SetBorderSize(0);
   leg->SetFillColor(0);
-  leg->AddEntry(observedBound_fermion,"Fermion DM","L");
-  leg->AddEntry(observedBound_scalar,"Scalar DM","L");
+  leg->AddEntry(observedBound_fermion,"CMS Fermion DM","L");
+  leg->AddEntry(observedBound_scalar,"CMS Scalar DM","L");
   leg->AddEntry(lM0 ,"LUX","L");
   leg->AddEntry(lM1 ,"CDMSLite","L");
   leg->AddEntry(lM2 ,"XENON-1T","L");

@@ -183,7 +183,6 @@ void makeHiggsInvisiblePlotVsMass(string inputFileName, string outputDIR, bool m
 
   graph_obs->SetLineColor(kBlack);
   graph_obs->SetLineWidth(2);
-  graph_obs->SetLineStyle(2);
   graph_obs->SetMarkerStyle(20);
   graph_obs->SetMarkerSize(1);
   graph_obs->Draw("PE0Lsame");
