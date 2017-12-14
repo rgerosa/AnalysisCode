@@ -98,7 +98,7 @@ void plotComparison(TH1* histo_1, TH1* histo_2, const string & observable, const
     frame2->GetXaxis()->SetNdivisions(505);
   else
     frame2->GetXaxis()->SetNdivisions(210);
-  frame2->GetYaxis()->SetNdivisions(5);
+  frame2->GetYaxis()->SetNdivisions(510);
 
   frame2->GetXaxis()->SetTitle("E_{T}^{miss} [GeV]");
   if((category == Category::VBF or category == Category::VBFrelaxed) and TString(observable).Contains("mjj"))
@@ -106,7 +106,7 @@ void plotComparison(TH1* histo_1, TH1* histo_2, const string & observable, const
   frame2->GetYaxis()->SetTitle("CR-only/(CR+SR)");
   frame2->GetYaxis()->CenterTitle();
   frame2->GetYaxis()->SetTitleOffset(1.5);
-  frame2->GetYaxis()->SetLabelSize(0.04);
+  frame2->GetYaxis()->SetLabelSize(0.03);
   frame2->GetYaxis()->SetTitleSize(0.04);
   frame2->GetXaxis()->SetLabelSize(0.04);
   frame2->GetXaxis()->SetTitleSize(0.05);
@@ -119,7 +119,7 @@ void plotComparison(TH1* histo_1, TH1* histo_2, const string & observable, const
   ratio->SetMarkerColor(kBlack);
   ratio->SetMarkerSize(1);
   ratio->SetMarkerStyle(20);
-  ratio->Draw("PEsame");
+  ratio->Draw("hist same");
 
   canvas->SaveAs(("comparison_"+postfix+".pdf").c_str());
   canvas->SaveAs(("comparison_"+postfix+".png").c_str());
