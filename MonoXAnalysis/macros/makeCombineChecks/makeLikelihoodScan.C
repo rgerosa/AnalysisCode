@@ -60,6 +60,7 @@ void makeLikelihoodScan(string inputDirectory, string nameToGrep, string outputP
   TGraph* positiveMu  = new TGraph();
   TGraph* negativeMu  = new TGraph();
   
+  double minimum = 10000;
 
   int ifile = 0;
   for(auto file: inputFiles){
@@ -71,9 +72,19 @@ void makeLikelihoodScan(string inputDirectory, string nameToGrep, string outputP
     limit->SetBranchAddress("r",&r);
     limit->SetBranchAddress("deltaNLL",&deltaNLL);
     vector<likelihoodPoint> point;
+    float muref = 0;
     for(int ientry = 0; ientry < limit->GetEntries(); ientry++){
       limit->GetEntry(ientry);
       point.push_back(likelihoodPoint(r,2*deltaNLL));      
+      if(2*deltaNLL < minimum){
+	muref = r;
+	minimum = 2*deltaNLL;
+      }
+    }
+
+    for(size_t i = 0; i < point.size(); i++){
+      if(minimum > 0 ) point.at(i).nll_ -= minimum;
+      else point.at(i).nll_ += fabs(minimum);
     }
     sort(point.begin(),point.end());
 
@@ -84,9 +95,6 @@ void makeLikelihoodScan(string inputDirectory, string nameToGrep, string outputP
       likelihoodScan->SetPoint(ipoint,p.r_,p.nll_);
       ipoint++;
     }
-
-    limit->GetEntry(0);
-    float muref = r;
 
     vector<likelihoodPoint> pointBelow;    
     vector<likelihoodPoint> pointAbove;

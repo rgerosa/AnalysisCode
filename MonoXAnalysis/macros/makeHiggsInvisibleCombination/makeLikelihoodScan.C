@@ -33,13 +33,13 @@ void makeLikelihoodScan(string outputPlots, string postfix){
   TFile* file_scan_monoj_obs = new TFile("../makeWorkspace/HiggsInvisible/HiggsInvisibleCombination/EXO-16-048/MonoJ/higgsCombine_scan_mu_obs.MultiDimFit.mH120.root","READ");
   TFile* file_scan_monov_obs = new TFile("../makeWorkspace/HiggsInvisible/HiggsInvisibleCombination/EXO-16-048/MonoV/higgsCombine_scan_mu_obs.MultiDimFit.mH120.root","READ");
   TFile* file_scan_monoz_obs = new TFile("../makeWorkspace/HiggsInvisible/HiggsInvisibleCombination/EXO-16-052/higgsCombine_scan_mu_obs.MultiDimFit.mH120.root","READ");
-  TFile* file_scan_vbf_obs = new TFile("../makeWorkspace/HiggsInvisible/HiggsInvisibleCombination/HIG-17-023_UCSD/higgsCombine_scan_mu_obs.MultiDimFit.mH120.root","READ");
+  TFile* file_scan_vbf_obs = new TFile("../makeWorkspace/HiggsInvisible/HiggsInvisibleCombination/HIG-17-023/higgsCombine_scan_mu_obs.MultiDimFit.mH125.root","READ");
   TFile* file_scan_combined_obs = new TFile("../makeWorkspace/HiggsInvisible/HiggsInvisibleCombination/Combination/higgsCombine_scan_mu_obs.MultiDimFit.mH120.root","READ");
 
   TFile* file_scan_monoj_exp = new TFile("../makeWorkspace/HiggsInvisible/HiggsInvisibleCombination/EXO-16-048/MonoJ/higgsCombine_scan_mu_exp.MultiDimFit.mH120.root","READ");
   TFile* file_scan_monov_exp = new TFile("../makeWorkspace/HiggsInvisible/HiggsInvisibleCombination/EXO-16-048/MonoV/higgsCombine_scan_mu_exp.MultiDimFit.mH120.root","READ");
   TFile* file_scan_monoz_exp = new TFile("../makeWorkspace/HiggsInvisible/HiggsInvisibleCombination/EXO-16-052/higgsCombine_scan_mu_exp.MultiDimFit.mH120.root","READ");
-  TFile* file_scan_vbf_exp = new TFile("../makeWorkspace/HiggsInvisible/HiggsInvisibleCombination/HIG-17-023_UCSD/higgsCombine_scan_mu_exp.MultiDimFit.mH120.root","READ");
+  TFile* file_scan_vbf_exp = new TFile("../makeWorkspace/HiggsInvisible/HiggsInvisibleCombination/HIG-17-023/higgsCombine_scan_mu_exp.MultiDimFit.mH120.root","READ");
   TFile* file_scan_combined_exp = new TFile("../makeWorkspace/HiggsInvisible/HiggsInvisibleCombination/Combination/higgsCombine_scan_mu_exp.MultiDimFit.mH120.root","READ");
 
   //////
@@ -180,23 +180,23 @@ void makeLikelihoodScan(string outputPlots, string postfix){
   scan_combined_exp->Sort();
 
   //// Produce the final plot
-  scan_combined_obs->GetXaxis()->SetTitle("BR(H #rightarrow inv)");
-  scan_combined_obs->GetXaxis()->SetTitleOffset(1.1);
-  scan_combined_obs->GetYaxis()->SetTitle("-2 #Delta Log(L)");
-  scan_combined_obs->GetYaxis()->SetTitleOffset(1.1);
-  scan_combined_obs->GetYaxis()->SetRangeUser(0,10);
-  scan_combined_obs->GetXaxis()->SetRangeUser(0,1);
-  scan_combined_obs->SetLineColor(kBlack);
-  scan_combined_obs->SetLineWidth(3);
-  scan_combined_obs->Draw("AL");
+  scan_combined_exp->GetXaxis()->SetTitle("BR(H #rightarrow inv)");
+  scan_combined_exp->GetXaxis()->SetTitleOffset(1.1);
+  scan_combined_exp->GetYaxis()->SetTitle("-2 #Delta Log(L)");
+  scan_combined_exp->GetYaxis()->SetTitleOffset(1.1);
+  scan_combined_exp->GetYaxis()->SetRangeUser(0,10);
+  scan_combined_exp->GetXaxis()->SetRangeUser(0,1);
   scan_combined_exp->SetLineColor(kBlack);
   scan_combined_exp->SetLineWidth(3);
   scan_combined_exp->SetLineStyle(7);
-  scan_combined_exp->Draw("Lsame");
+  scan_combined_obs->SetLineColor(kBlack);
+  scan_combined_obs->SetLineWidth(3);
+  scan_combined_exp->Draw("AL");
+  //scan_combined_obs->Draw("Lsame");
 
   scan_vbf_obs->SetLineColor(kRed);
   scan_vbf_obs->SetLineWidth(2);
-  scan_vbf_obs->Draw("Lsame");
+  //scan_vbf_obs->Draw("Lsame");
   scan_vbf_exp->SetLineColor(kRed);
   scan_vbf_exp->SetLineWidth(2);
   scan_vbf_exp->SetLineStyle(7);

@@ -294,14 +294,12 @@ void makeDataValidationPlotsMLFit(string inputFileName, Category category, strin
   TH1* wjet_zmm = (TH1*) inputFile->Get(("shapes_prefit/"+dir_zmm+"/WJets_ZM").c_str());
   TH1* diboson_zmm = (TH1*) inputFile->Get(("shapes_prefit/"+dir_zmm+"/Dibosons").c_str());
   TH1* top_zmm     = (TH1*) inputFile->Get(("shapes_prefit/"+dir_zmm+"/Top").c_str());
-  TH1* vgamma_zmm  = (TH1*) inputFile->Get(("shapes_prefit/"+dir_zmm+"/VGamma").c_str());
 
   // data subtraction
   if(doBackgroundSubtraction){
     data_zmm_hist->Add(wjet_zmm,-1);
     data_zmm_hist->Add(diboson_zmm,-1);
     data_zmm_hist->Add(top_zmm,-1);
-    data_zmm_hist->Add(vgamma_zmm,-1);
   }
 
   TH1* zjet_zmm_ewk = NULL;
@@ -319,14 +317,12 @@ void makeDataValidationPlotsMLFit(string inputFileName, Category category, strin
   TH1* wjet_zee = (TH1*) inputFile->Get(("shapes_prefit/"+dir_zee+"/WJets_ZE").c_str());
   TH1* diboson_zee = (TH1*) inputFile->Get(("shapes_prefit/"+dir_zee+"/Dibosons").c_str());
   TH1* top_zee     = (TH1*) inputFile->Get(("shapes_prefit/"+dir_zee+"/Top").c_str());
-  TH1* vgamma_zee  = (TH1*) inputFile->Get(("shapes_prefit/"+dir_zee+"/VGamma").c_str());
 
   // data subtraction
   if(doBackgroundSubtraction){
     data_zee_hist->Add(wjet_zee,-1);
     data_zee_hist->Add(diboson_zee,-1);
     data_zee_hist->Add(top_zee,-1);
-    data_zee_hist->Add(vgamma_zee,-1);
   }
   TH1* zjet_zee_ewk = NULL;
   TH1* wjet_zee_ewk = NULL;
@@ -343,7 +339,6 @@ void makeDataValidationPlotsMLFit(string inputFileName, Category category, strin
   TH1* wjet_wmn = (TH1*) inputFile->Get(("shapes_prefit/"+dir_wmn+"/qcd_wjets").c_str());
   TH1* diboson_wmn = (TH1*) inputFile->Get(("shapes_prefit/"+dir_wmn+"/Dibosons").c_str());
   TH1* top_wmn     = (TH1*) inputFile->Get(("shapes_prefit/"+dir_wmn+"/Top").c_str());
-  TH1* vgamma_wmn  = (TH1*) inputFile->Get(("shapes_prefit/"+dir_wmn+"/VGamma").c_str());
   TH1* qcd_wmn     = (TH1*) inputFile->Get(("shapes_prefit/"+dir_wmn+"/FakeM").c_str());
 
   // data subtraction
@@ -351,7 +346,6 @@ void makeDataValidationPlotsMLFit(string inputFileName, Category category, strin
     data_wmn_hist->Add(zjet_wmn,-1);
     data_wmn_hist->Add(diboson_wmn,-1);
     data_wmn_hist->Add(top_wmn,-1);
-    data_wmn_hist->Add(vgamma_wmn,-1);
     data_wmn_hist->Add(qcd_wmn,-1);
   }
 
@@ -370,7 +364,6 @@ void makeDataValidationPlotsMLFit(string inputFileName, Category category, strin
   TH1* wjet_wen = (TH1*) inputFile->Get(("shapes_prefit/"+dir_wen+"/qcd_wjets").c_str());
   TH1* diboson_wen = (TH1*) inputFile->Get(("shapes_prefit/"+dir_wen+"/Dibosons").c_str());
   TH1* top_wen     = (TH1*) inputFile->Get(("shapes_prefit/"+dir_wen+"/Top").c_str());
-  TH1* vgamma_wen  = (TH1*) inputFile->Get(("shapes_prefit/"+dir_wen+"/VGamma").c_str());
   TH1* qcd_wen     = (TH1*) inputFile->Get(("shapes_prefit/"+dir_wen+"/FakeE").c_str());
 
   // data subtraction
@@ -378,7 +371,6 @@ void makeDataValidationPlotsMLFit(string inputFileName, Category category, strin
     data_wen_hist->Add(zjet_wen,-1);
     data_wen_hist->Add(diboson_wen,-1);
     data_wen_hist->Add(top_wen,-1);
-    data_wen_hist->Add(vgamma_wen,-1);
     data_wen_hist->Add(qcd_wen,-1);
   }
   
@@ -395,21 +387,21 @@ void makeDataValidationPlotsMLFit(string inputFileName, Category category, strin
   // Get backgrounds for Gamma CR
   TH1* gamma_gam = NULL;
   TH1* wjet_gam  = NULL;
-  TH1* qcd_gam   = NULL;
   TH1* vgamma_gam  = NULL;
+  TH1* qcd_gam   = NULL;
 
   if(useGammaJets){
     gamma_gam  = (TH1*) inputFile->Get(("shapes_prefit/"+dir_gam+"/gjets").c_str());
     wjet_gam   = (TH1*) inputFile->Get(("shapes_prefit/"+dir_gam+"/WJets_GJ").c_str());
     qcd_gam    = (TH1*) inputFile->Get(("shapes_prefit/"+dir_gam+"/FakeG").c_str());
-    vgamma_gam = (TH1*) inputFile->Get(("shapes_prefit/"+dir_gam+"/VGamma").c_str());
+    vgamma_gam = (TH1*) inputFile->Get(("shapes_prefit/"+dir_gam+"/VGamma_GJ").c_str());
     
     // data subtraction
     if(doBackgroundSubtraction){
 
       data_gam_hist->Add(wjet_gam,-1);
-      data_gam_hist->Add(vgamma_gam,-1);
       data_gam_hist->Add(qcd_gam,-1);
+      data_gam_hist->Add(vgamma_gam,-1);
     }
   }
 

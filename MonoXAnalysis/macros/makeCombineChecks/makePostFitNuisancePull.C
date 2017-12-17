@@ -24,6 +24,7 @@ void plotNuisance(TCanvas* canvas, map<TString,RooRealVar*> & listParamPreFit, m
     name.ReplaceAll("2016","");
     name.ReplaceAll("MVA","");
     name.ReplaceAll("_Runc","");
+    name.ReplaceAll("stat_error","");
     name.ReplaceAll("__","_");
     name.ReplaceAll("__","_");
     histopull_band_2s->GetXaxis()->SetBinLabel(iBin+1,name);
