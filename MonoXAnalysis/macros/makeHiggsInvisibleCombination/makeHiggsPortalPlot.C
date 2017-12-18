@@ -7,7 +7,7 @@ static float maxDM = 62.49;
 static float minX = 1;
 static float maxX = 1000;
 static double minY_dd = 1e-48;
-static double maxY_dd = 1e-37;
+static double maxY_dd = 1e-36;
 // step in DM mass for making the plot
 static float stepDM = 0.2; // 100 MeV
 double const CV = 1e-36;
@@ -54,6 +54,7 @@ TGraph* superCDMS();
 TGraph* lux();
 TGraph* cdmslite();
 TGraph* xenon();
+TGraph* panda();
 TGraph* cresst();
 
 
@@ -104,7 +105,6 @@ void makeHiggsPortalPlot(float observedBR, string outputDIR){
   frame->GetYaxis()->SetTitleSize(0.042);
   frame->GetYaxis()->SetTitleOffset(1.65);
   frame->GetXaxis()->SetTitleOffset(1.15);
-  frame->GetYaxis()->CenterTitle();
   frame->GetYaxis()->SetRangeUser(minY_dd,maxY_dd);
   canvas->SetLogx();
   canvas->SetLogy();
@@ -112,22 +112,66 @@ void makeHiggsPortalPlot(float observedBR, string outputDIR){
   gPad->SetLeftMargin(0.14);
   frame->Draw();
 
-  observedBound_fermion->SetLineColor(kBlack);
+  observedBound_fermion->SetLineColor(kOrange-1);
   observedBound_fermion->SetLineWidth(3);
-  observedBound_fermion_min->SetLineColor(kBlack);
+  observedBound_fermion_min->SetLineColor(kOrange-1);
   observedBound_fermion_min->SetLineWidth(2);
-  observedBound_fermion_min->SetLineStyle(9);
-  observedBound_fermion_max->SetLineColor(kBlack);
+  observedBound_fermion_max->SetLineColor(kOrange-1);
   observedBound_fermion_max->SetLineWidth(2);
-  observedBound_fermion_max->SetLineStyle(9);
   observedBound_scalar->SetLineColor(kRed+1);
   observedBound_scalar->SetLineWidth(3);
   observedBound_scalar_min->SetLineColor(kRed+1);
   observedBound_scalar_min->SetLineWidth(2);
-  observedBound_scalar_min->SetLineStyle(9);
   observedBound_scalar_max->SetLineColor(kRed+1);
   observedBound_scalar_max->SetLineWidth(2);
-  observedBound_scalar_max->SetLineStyle(9);
+
+  TGraph* observed_scalar_shade = new TGraph();
+  TGraph* observed_fermion_shade = new TGraph();
+  
+  int ipoint_offset = 0;
+  for(int n = 0; n < observedBound_fermion_max->GetN(); n++){
+    double x,y ;
+    observedBound_fermion_max->GetPoint(n,x,y);
+    observed_fermion_shade->SetPoint(n,x,y);
+    ipoint_offset++;
+  }
+
+  int ipoint = 0;
+  for(int n = observedBound_fermion_min->GetN() -1; n >= 0; n--){
+    double x,y ;
+    observedBound_fermion_min->GetPoint(n,x,y);
+    observed_fermion_shade->SetPoint(ipoint+ipoint_offset,x,y);    
+    ipoint++;
+  }
+
+  ipoint_offset = 0;
+  for(int n = 0; n < observedBound_scalar_max->GetN(); n++){
+    double x,y ;
+    observedBound_scalar_max->GetPoint(n,x,y);
+    observed_scalar_shade->SetPoint(n,x,y);
+    ipoint_offset++;
+  }
+
+  ipoint = 0;
+  for(int n = observedBound_scalar_min->GetN() -1; n >= 0; n--){
+    double x,y ;
+    observedBound_scalar_min->GetPoint(n,x,y);
+    observed_scalar_shade->SetPoint(ipoint+ipoint_offset,x,y);    
+    ipoint++;
+  }
+    
+
+  observed_fermion_shade->SetFillStyle(3001);
+  observed_fermion_shade->SetFillColor(kOrange-1);
+  observed_fermion_shade->SetLineColor(kOrange-1);
+  observed_fermion_shade->SetLineWidth(3);
+  observed_scalar_shade->SetFillStyle(3001);
+  observed_scalar_shade->SetFillColor(kRed+1);
+  observed_scalar_shade->SetLineColor(kRed+1);
+  observed_scalar_shade->SetLineWidth(3);
+  
+  observed_fermion_shade->Draw("F same");
+  observed_scalar_shade->Draw("F same");
 
   observedBound_fermion->Draw("L SAME");
   observedBound_fermion_min->Draw("L SAME");
@@ -141,40 +185,57 @@ void makeHiggsPortalPlot(float observedBR, string outputDIR){
   TGraph *lM1 = cdmslite();
   TGraph *lM2 = xenon();
   TGraph *lM3 = cresst();
+  TGraph *lM4 = panda();
 
   lM0->SetLineColor(kBlue);
   lM1->SetLineColor(kBlue+2);
   lM2->SetLineColor(kAzure+1);
   lM3->SetLineColor(kAzure+8);
+  lM4->SetLineColor(kBlue+3);
 
   lM0->Draw("L SAME");
   lM1->Draw("L SAME");
   lM2->Draw("L SAME");
   lM3->Draw("L SAME");
+  lM4->Draw("L SAME");
 
   observedBound_fermion->Draw("L SAME");
   observedBound_scalar->Draw("L SAME");
 
   TLatex* tex = new TLatex();
   tex->SetNDC();
-  tex->SetTextFont(42);
+  tex->SetTextFont(72);
   tex->SetLineWidth(2);
-  tex->SetTextSize(0.04);
-  tex->SetTextAlign(31);
-  tex->DrawLatex(0.9,0.86,"90% CL Limits");
-  tex->DrawLatex(0.9,0.80,Form("B(H#rightarrow inv) < %.2f",observedBR));
+  tex->SetTextSize(0.034);
+  tex->DrawLatex(0.65,0.86,"90% CL Limits");
+  tex->DrawLatex(0.65,0.81,Form("B(H#rightarrow inv) < %.2f",observedBR));
 
-  TLegend *leg = new TLegend(0.65,0.45,0.92,0.75,NULL,"brNDC");
-  leg->SetFillStyle(0);
-  leg->SetBorderSize(0);
-  leg->SetFillColor(0);
-  leg->AddEntry(observedBound_fermion,"CMS Fermion DM","L");
-  leg->AddEntry(observedBound_scalar,"CMS Scalar DM","L");
-  leg->AddEntry(lM0 ,"LUX","L");
-  leg->AddEntry(lM1 ,"CDMSLite","L");
-  leg->AddEntry(lM2 ,"XENON-1T","L");
-  leg->AddEntry(lM3 ,"CRESST-II","L");
-  leg->Draw("same");
+  TLegend *leg_1 = new TLegend(0.65,0.69,0.87,0.78,NULL,"brNDC");
+  leg_1->SetFillStyle(0);
+  leg_1->SetBorderSize(0);
+  leg_1->SetFillColor(0);
+  leg_1->AddEntry(observed_fermion_shade,"Fermion DM","FL");
+  leg_1->AddEntry(observed_scalar_shade,"Scalar DM","FL");
+  leg_1->Draw("same");
+
+  TLatex* tex2 = new TLatex();
+  tex2->SetNDC();
+  tex2->SetTextFont(72);
+  tex2->SetLineWidth(2);
+  tex2->SetTextSize(0.034);
+  tex2->DrawLatex(0.68,0.61,"Direct Detection");
+  
+  TLegend *leg_2 = new TLegend(0.68,0.39,0.92,0.59,NULL,"brNDC");
+  leg_2->SetFillStyle(0);
+  leg_2->SetBorderSize(0);
+  leg_2->SetFillColor(0);
+  leg_2->AddEntry(lM0 ,"LUX","L");
+  leg_2->AddEntry(lM1 ,"CDMSLite","L");
+  leg_2->AddEntry(lM2 ,"XENON-1T","L");
+  leg_2->AddEntry(lM3 ,"CRESST-II","L");
+  leg_2->AddEntry(lM4 ,"PandaX-II","L");
+  leg_2->Draw("same");
+  
 
   CMS_lumi(canvas,"35.9");
   canvas->RedrawAxis("samesaxis");
@@ -333,9 +394,6 @@ TGraph *cdmslite(){
   int i0 = -1;
   double *lX = new double[1000];
   double *lY = new double[1000];
-  //i0++; lX[i0] =1.429 ; lY[i0]= 9.880e-38;
-  //i0++; lX[i0] =1.473 ; lY[i0]= 3.162e-38;
-  //i0++; lX[i0] =1.574 ; lY[i0]= 1.075e-38;
   i0++; lX[i0] =1.654 ; lY[i0]= 4.334e-39;
   i0++; lX[i0] =1.731 ; lY[i0]= 1.924e-39;
   i0++; lX[i0] =1.838 ; lY[i0]= 8.338e-40;
@@ -425,4 +483,55 @@ TGraph *xenon(){
   lLimit->SetLineWidth(3.);
   return lLimit;
 
+}
+
+TGraph *panda(){
+
+  int i0 = -1;
+  double *lX = new double[1000];
+  double *lY = new double[1000];
+
+  i0++; lX[i0] = 8.047; lY[i0]=  9.798e-45;
+  i0++; lX[i0] = 8.461; lY[i0]=  6.708e-45;
+  i0++; lX[i0] = 8.928; lY[i0]=  4.787e-45;
+  i0++; lX[i0] = 9.387; lY[i0]=  3.399e-45;
+  i0++; lX[i0] = 9.421; lY[i0]=  3.399e-45;
+  i0++; lX[i0] = 9.764; lY[i0]=  2.805e-45;
+  i0++; lX[i0] = 12.856; lY[i0]=  7.239e-46;
+  i0++; lX[i0] = 16.737; lY[i0]=  2.890e-46;
+  i0++; lX[i0] = 18.758; lY[i0]=  2.084e-46;
+  i0++; lX[i0] = 21.322; lY[i0]=  1.543e-46;
+  i0++; lX[i0] = 25.468; lY[i0]=  1.190e-46;
+  i0++; lX[i0] = 29.148; lY[i0]=  1.035e-46;
+  i0++; lX[i0] = 32.424; lY[i0]=  9.577e-47;
+  i0++; lX[i0] = 35.559; lY[i0]=  8.907e-47;
+  i0++; lX[i0] = 38.174; lY[i0]=  8.680e-47;
+  i0++; lX[i0] = 40.691; lY[i0]=  8.614e-47;
+  i0++; lX[i0] = 44.938; lY[i0]=  8.706e-47;
+  i0++; lX[i0] = 49.981; lY[i0]=  8.868e-47;
+  i0++; lX[i0] = 54.806; lY[i0]=  9.103e-47;
+  i0++; lX[i0] = 60.955; lY[i0]=  9.296e-47;
+  i0++; lX[i0] = 68.274; lY[i0]=  9.845e-47;
+  i0++; lX[i0] = 77.561; lY[i0]=  1.065e-46;
+  i0++; lX[i0] = 88.110; lY[i0]=  1.169e-46;
+  i0++; lX[i0] = 103.701; lY[i0]=  1.325e-46;
+  i0++; lX[i0] = 129.162; lY[i0]=  1.606e-46;
+  i0++; lX[i0] = 193.418; lY[i0]=  2.173e-46;
+  i0++; lX[i0] = 246.077; lY[i0]=  2.717e-46;
+  i0++; lX[i0] = 313.057; lY[i0]=  3.507e-46;
+  i0++; lX[i0] = 401.093; lY[i0]=  4.596e-46;
+  i0++; lX[i0] = 483.863; lY[i0]=  5.703e-46;
+  i0++; lX[i0] = 626.596; lY[i0]=  7.227e-46;
+  i0++; lX[i0] = 855.682; lY[i0]=  9.723e-46;
+  i0++; lX[i0] = 1236.581; lY[i0]=  1.422e-45;
+  i0++; lX[i0] = 1724.982; lY[i0]=  1.923e-45;
+  i0++; lX[i0] = 2306.110; lY[i0]=  2.546e-45;
+  i0++; lX[i0] = 3428.606; lY[i0]=  3.685e-45;
+  i0++; lX[i0] = 4748.818; lY[i0]=  5.088e-45;
+  i0++; lX[i0] = 6484.752; lY[i0]=  7.024e-45;
+  i0++; lX[i0] = 8792.397; lY[i0]=  9.902e-45;
+
+  TGraph *lLimit = new TGraph(i0,lX,lY);
+  lLimit->SetLineWidth(3.);
+  return lLimit;
 }
