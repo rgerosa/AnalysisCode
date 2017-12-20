@@ -54,7 +54,7 @@ void rzmm(string fileName, Category category, string observable, bool isEWK) {
       }
       else if(TString(observable).Contains("mjj")){
 	if(not isEWK)
-	  frame = canvas->DrawFrame(bins.front(), 4.0, bins.back(), 25., "");
+	  frame = canvas->DrawFrame(bins.front(), 4.0, bins.back(), 30., "");
 	else
 	  frame = canvas->DrawFrame(bins.front(), 4.0, bins.back(), 25., "");
 
@@ -302,7 +302,11 @@ void rwmn(string fileName, Category category, string observable, bool isEWK) {
 	frame->GetXaxis()->SetTitle("Recoil [GeV]");
       }
       else if(TString(observable).Contains("mjj")){
-        frame = canvas->DrawFrame(bins.front(), 0, bins.back(), 1.5, "");
+	if(not isEWK)
+	  frame = canvas->DrawFrame(bins.front(), 0, bins.back(), 1.5, "");
+	else
+	  frame = canvas->DrawFrame(bins.front(), 0, bins.back(), 1.0, "");
+
 	frame->GetXaxis()->SetTitle("M_{jj} [GeV]");
       }
       else if(TString(observable).Contains("jetmetdphi")){
@@ -420,7 +424,10 @@ void rwen(string fileName, Category category, string observable, bool isEWK) {
 	frame->GetXaxis()->SetTitle("Recoil [GeV]");
       }
       else if(TString(observable).Contains("mjj")){
-        frame = canvas->DrawFrame(bins.front(), 0, bins.back(), 2.5, "");
+	if(not isEWK)
+	  frame = canvas->DrawFrame(bins.front(), 0, bins.back(), 2.5, "");
+	else
+	  frame = canvas->DrawFrame(bins.front(), 0, bins.back(), 1.5, "");
 	frame->GetXaxis()->SetTitle("M_{jj} [GeV]");
       }
       else if(TString(observable).Contains("jetmetdphi")){
@@ -778,7 +785,7 @@ void rzwj(string fileName, Category category, string observable, bool isEWK, boo
       }
       else if(TString(observable).Contains("mjj")){
 	if(not isEWK)
-	  frame = canvas->DrawFrame(bins.front(), 0, bins.back(), 3.0, "");
+	  frame = canvas->DrawFrame(bins.front(), 0.5, bins.back(), 3.0, "");
 	else
 	  frame = canvas->DrawFrame(bins.front(), 1.0, bins.back(), 4.0, "");
 

@@ -32,7 +32,11 @@ void initializeBinning2D(){
   bins_monoJ_2D["mT"] = {200.,300,400.,500,600.,800,1100,1400,2000.};
   bins_monoJ_2D["dphiJJ"] = {-0.2,0.0,0.6,1.5,3.14};
   bins_monoJ_2D["QGL"] = {0.,0.15,0.50,0.85,1.};
- 
+  bins_monoJ_2D["jeteta"]  = {-4.5,-3.0,-2.5,-2.0,-1.0,0,1.0,2.0,2.5,3.0,4.5};
+  bins_monoJ_2D["jet2eta"] = {-4.5,-3.0,-2.5,-2.0,-1.0,0,1.0,2.0,2.5,3.0,4.5};
+  bins_monoJ_2D["jetphi"]  = {-3.1,-2.5,-1.5,0,1.5,2.5,3.14};
+  bins_monoJ_2D["jet2phi"] = {-3.1,-2.5,-1.5,0,1.5,2.5,3.14};
+
 }
 
 //// 2D binning
@@ -47,15 +51,13 @@ bin2D selectBinning2D (const string & observable, const Category & category){
 
   bin2D bins;
   std::string varX = observable.substr(std::distance(observable.begin(),observable.begin()),observable.find("_"));
-  std::string varY = observable.substr(observable.find("_"),std::distance(observable.end(),observable.begin())); 
-
-  if(category == Category::monojet or category == Category::inclusive){
+  std::string var  = observable.substr(observable.find("_"),std::distance(observable.begin(),observable.end()));   
+  TString varY (var); varY.ReplaceAll("_","");
+  if(varX != "")
     bins.binX = bins_monoJ_2D[varX];
-    bins.binY = bins_monoJ_2D[varY];
-    return bins;
-  }
-  else
-    return bins;
+  if(varY != "")
+    bins.binY = bins_monoJ_2D[string(varY)];
+  return bins;
 }
 
 // to smooth empty bins in TH2

@@ -44,6 +44,7 @@ static float mjjrelaxed      = 200.;
 static float jetmetdphiVBF   = 0.5;
 static float pfMetVBFLower   = 250.;
 static float pfMetVBFUpper   = 8000.;
+static float dphijj_min      = 0.0;
 static float dphijj          = 1.5;
 static float dphijjrelaxed   = 1.5;
 static bool  removeVBF       = false;
@@ -887,7 +888,7 @@ void makehist4(TTree* tree,            /*input tree*/
 	jet1.SetPtEtaPhiM(jetpt->at(0),jeteta->at(0),jetphi->at(0),jetm->at(0));
 	jet2.SetPtEtaPhiM(jetpt->at(1),jeteta->at(1),jetphi->at(1),jetm->at(1));
 	if((jet1+jet2).M() > mjjrelaxed and 
-	   fabs(deltaPhi(jetphi->at(0),jetphi->at(1))) < dphijjrelaxed){
+	   fabs(deltaPhi(jetphi->at(0),jetphi->at(1))) < dphijjrelaxed and fabs(deltaPhi(jetphi->at(0),jetphi->at(1))) > dphijj_min){
 	  if(removeVBF) goodMonoJet = false;
 	}
       }
@@ -973,7 +974,7 @@ void makehist4(TTree* tree,            /*input tree*/
         jet1.SetPtEtaPhiM(jetpt->at(0),jeteta->at(0),jetphi->at(0),jetm->at(0));
         jet2.SetPtEtaPhiM(jetpt->at(1),jeteta->at(1),jetphi->at(1),jetm->at(1));
         if((jet1+jet2).M() > mjjrelaxed and 
-	   fabs(deltaPhi(jetphi->at(0),jetphi->at(1))) < dphijjrelaxed){
+	   fabs(deltaPhi(jetphi->at(0),jetphi->at(1))) < dphijjrelaxed and fabs(deltaPhi(jetphi->at(0),jetphi->at(1))) > dphijj_min){
           if(removeVBF) goodMonoV = false;
 	}
       }             
@@ -1002,7 +1003,7 @@ void makehist4(TTree* tree,            /*input tree*/
       jet1.SetPtEtaPhiM(jetpt->at(0),jeteta->at(0),jetphi->at(0),jetm->at(0));
       jet2.SetPtEtaPhiM(jetpt->at(1),jeteta->at(1),jetphi->at(1),jetm->at(1));
       if((jet1+jet2).M() < mjj) continue;
-      if(fabs(deltaPhi(jetphi->at(0),jetphi->at(1))) > dphijj) continue;
+      if(fabs(deltaPhi(jetphi->at(0),jetphi->at(1))) > dphijj or fabs(deltaPhi(jetphi->at(0),jetphi->at(1))) < dphijj_min) continue;
       goodVBF = true;
     }
 
@@ -1027,7 +1028,7 @@ void makehist4(TTree* tree,            /*input tree*/
       jet1.SetPtEtaPhiM(jetpt->at(0),jeteta->at(0),jetphi->at(0),jetm->at(0));
       jet2.SetPtEtaPhiM(jetpt->at(1),jeteta->at(1),jetphi->at(1),jetm->at(1));
       if((jet1+jet2).M() < mjjrelaxed) continue;
-      if(fabs(deltaPhi(jetphi->at(0),jetphi->at(1))) > dphijjrelaxed) continue;
+      if(fabs(deltaPhi(jetphi->at(0),jetphi->at(1))) > dphijjrelaxed or fabs(deltaPhi(jetphi->at(0),jetphi->at(1))) < dphijj_min) continue;
       goodVBF = true;
     }
     else if(category == Category::twojet){
@@ -1198,11 +1199,11 @@ void makehist4(TTree* tree,            /*input tree*/
 
       //////////////
       if(sample == Sample::zee){
-	if (pt1 > 40. && id1 == 1 and id2 == 1)
+	if (id1 == 1 and id2 == 1)
 	  sfwgt_trig *= min(1.,double(sf1+sf2-sf1*sf2));
-	else if(pt1 > 40 and id1 == 1 and id2 != 1)
+	else if(id1 == 1 and id2 != 1)
 	  sfwgt_trig *= sf1;
-	else if(pt2 > 40 and id2 == 1 and id1 != 1)
+	else if(id2 == 1 and id1 != 1)
 	  sfwgt_trig *= sf2;
       }
       else if(sample == Sample::topel || sample == Sample::wen)
@@ -1914,13 +1915,13 @@ void makehist4(TTree* tree,            /*input tree*/
 
       // total event weight
       double evtwgt  = 1.0;
-      Double_t puwgt = 0.;
+      Double_t puwgt = *wgtpu;
       if (isMC and not reweightNVTX){
 
 	if(XSEC != -1)
 	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt_reco*sfwgt_id*sfwgt_trig*veto_wgt*topptwgt*sfwgt_vtag*ggZHwgt*kwgt*kewkgt*hwgt*hnnlowgt/(**wgtsum); 
 	else
-	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(*wgtpu)*(btagw)*hltw*sfwgt_trig*sfwgt_reco*sfwgt_id*veto_wgt*topptwgt*sfwgt_vtag*ggZHwgt*hwgt*kwgt*kewkgt*hnnlowgt/(**wgtsum);	     
+	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt_trig*sfwgt_reco*sfwgt_id*veto_wgt*topptwgt*sfwgt_vtag*ggZHwgt*hwgt*kwgt*kewkgt*hnnlowgt/(**wgtsum);	     
       }
       else if (isMC and reweightNVTX){
 
@@ -1956,6 +1957,14 @@ void makehist4(TTree* tree,            /*input tree*/
       if(name.Contains("met_jetpt")){ 
 	fillvarX = pfmet;
 	fillvarY = jetpt->at(0);
+      }
+      if(name.Contains("jeteta_jetphi")){ 
+	fillvarX = jeteta->at(0);
+	fillvarY = jetphi->at(0);
+      }
+      if(name.Contains("jet2eta_jet2phi") and jeteta->size() > 1){ 
+	fillvarX = jeteta->at(1);
+	fillvarY = jetphi->at(1);
       }
       else if(name.Contains("met_bosonpt")){
 	fillvarX = pfmet;
