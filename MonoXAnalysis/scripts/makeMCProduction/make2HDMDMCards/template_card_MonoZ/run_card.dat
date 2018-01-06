@@ -23,13 +23,13 @@
 #*********************************************************************
 # Run to generate the grid pack                                      *
 #*********************************************************************
-  .true.     = gridpack  !True = setting up the grid pack
-#*********************************************************************
+  False     = gridpack  !True = setting up the grid pack
+#******************************************************************
 # Number of events and rnd seed                                      *
 # Warning: Do not generate more than 1M events in a single run       *
 # If you want to run Pythia, avoid more than 50k events in a run.    *
 #*********************************************************************
-    1500      = nevents ! Number of unweighted events requested 
+    10000     = nevents ! Number of unweighted events requested 
       0       = iseed   ! rnd seed (0=assigned automatically=default))
 #*********************************************************************
 # Collider type and energy                                           *
@@ -59,6 +59,7 @@
  91.1880  = dsqrt_q2fact1    ! fixed fact scale for pdf1
  91.1880  = dsqrt_q2fact2    ! fixed fact scale for pdf2
  1        = scalefact        ! scale factor for event-by-event scales
+ -1       = dynamical_scale_choice ! Choose one of the preselected dynamical choices
 #*********************************************************************
 # Matching - Warning! ickkw > 1 is still beta
 #*********************************************************************
@@ -109,7 +110,7 @@
 #*********************************************************************
   20 = ptj       ! minimum pt for the jets 
   0  = ptb       ! minimum pt for the b 
-  10  = pta       ! minimum pt for the photons 
+  10 = pta       ! minimum pt for the photons 
   10 = ptl       ! minimum pt for the charged leptons 
   0  = misset    ! minimum missing Et (sum of neutrino's momenta)
   0  = ptheavy   ! minimum pt for one heavy final state
@@ -145,9 +146,9 @@
 #*********************************************************************
 # Minimum and maximum DeltaR distance                                *
 #*********************************************************************
- 0   = drjj    ! min distance between jets 
- 0   = drbb    ! min distance between b's 
- 0   = drll    ! min distance between leptons 
+ 0.1  = drjj    ! min distance between jets 
+ 0    = drbb    ! min distance between b's 
+ 0.01 = drll    ! min distance between leptons 
  0   = draa    ! min distance between gammas 
  0   = drbj    ! min distance between b and jet 
  0.1 = draj    ! min distance between gamma and jet 
