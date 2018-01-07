@@ -35,7 +35,7 @@ if __name__ == '__main__':
     
 
     mass_scan = { 'mh4' : [100,200,300,400,500,600,700,800,900],
-                  'mh3' : [100,200,300,400,500,600,700,800,900],
+                  'mh3' : [100,200,300,400,500,600,700,800,900,1000,1100,1200,1300],
                   'tanbeta': 1,
                   'sinp': 0.35,
                   'lam3' : 3,
@@ -60,8 +60,19 @@ if __name__ == '__main__':
                   'Mxd' : [1,50,100,150,200,250,300,350,400,450,500]
                   };
 
-    if len(mass_scan['mh4']) != len(mass_scan['mh3']) :
-        sys.exit("Problem with the mass scan lenght --> exit");
+    tanb_scan   = { 'mh4' : [100,150,200,250,300,350,400,450,500],
+                    'mh3' : [600],
+                    'mh1' : 125,
+                    'tanbeta': [0.5,1,1.5,2,2.5,3,3.5,4,5,6,7,8,9,10],
+                    'sinp': 0.35,
+                    'lam3' : 3,
+                    'laP1' : 3,
+                    'laP2' : 3,
+                    'gPXd' : 1,
+                    'sinbma' : 1,
+                    'Mxd' : 10,
+                    };
+
 
     if len(dm_scan['mh4']) != len(dm_scan['mh3']) :
         sys.exit("Problem with the DM mass scan lenght --> exit");
@@ -105,7 +116,7 @@ if __name__ == '__main__':
                 os.system("sed -i -e 's/@MODEL/Pseudoscalar_2HDM-bbMET_5FS/g' "+options.outputBaseDIR+"/"+name+"/"+name+"_proc_card.dat");
                 process = "define p =  g u c d s u~ c~ d~ s~ b b~\\n";
                 process += "define j = g u c d s b u~ c~ d~ s~ b~ \\n";
-                process += "generate g g  > xd xd~ z [QCD] \/ h1 \\n";
+                process += "generate g g  > xd xd~ z [QCD] \\n";
                 os.system("sed -i -e 's/@PROCESS/"+process+"/g' "+options.outputBaseDIR+"/"+name+"/"+name+"_proc_card.dat");
                 os.system("sed -i -e 's/@OUTPUT/"+name+" -nojpeg/g' "+options.outputBaseDIR+"/"+name+"/"+name+"_proc_card.dat");
 
@@ -113,8 +124,8 @@ if __name__ == '__main__':
                 os.system("sed -i -e 's/@MODEL/Pseudoscalar_2HDM-WMET/g' "+options.outputBaseDIR+"/"+name+"/"+name+"_proc_card.dat");
                 process = "define p = g u c d s u~ c~ d~ s~ b b~ \\n";
                 process += "define j =  g u c d s b u~ c~ d~ s~ b~ \\n";
-                process += "generate p p  > xd xd~ w+ [QCD] \/ h1 \\n";
-                process += "add process p p  > xd xd~ w- [QCD] \/ h1 \\n";
+                process += "generate p p  > xd xd~ w+ [QCD]  \\n";
+                process += "add process p p  > xd xd~ w- [QCD]  \\n";
                 os.system("sed -i -e 's/@PROCESS/"+process+"/g' "+options.outputBaseDIR+"/"+name+"/"+name+"_proc_card.dat");
                 os.system("sed -i -e 's/@OUTPUT/"+name+" -nojpeg/g' "+options.outputBaseDIR+"/"+name+"/"+name+"_proc_card.dat");
 
@@ -122,7 +133,7 @@ if __name__ == '__main__':
                 os.system("sed -i -e 's/@MODEL/Pseudoscalar_2HDM-bbMET_5FS/g' "+options.outputBaseDIR+"/"+name+"/"+name+"_proc_card.dat");
                 process = "define p = g u c d s u~ c~ d~ s~ b b~ \\n";
                 process += "define j =  g u c d s b u~ c~ d~ s~ b~ \\n";
-                process += "generate p p  > xd xd~ j \/ h1 [QCD] \\n";
+                process += "generate p p  > xd xd~ j  [QCD] \\n";
                 os.system("sed -i -e 's/@PROCESS/"+process+"/g' "+options.outputBaseDIR+"/"+name+"/"+name+"_proc_card.dat");
                 os.system("sed -i -e 's/@OUTPUT/"+name+" -nojpeg/g' "+options.outputBaseDIR+"/"+name+"/"+name+"_proc_card.dat");
 
@@ -167,7 +178,7 @@ if __name__ == '__main__':
             os.system("sed -i -e 's/@MODEL/Pseudoscalar_2HDM-bbMET_5FS/g' "+options.outputBaseDIR+"/"+name+"/"+name+"_proc_card.dat");
             process = "define p = g u c d s u~ c~ d~ s~ b b~ \\n";
             process += "define j =  g u c d s b u~ c~ d~ s~ b~ \\n";
-            process += "generate g g  > xd xd~ z \/ h1 [QCD] \\n";
+            process += "generate g g  > xd xd~ z  [QCD] \\n";
             os.system("sed -i -e 's/@PROCESS/"+process+"/g' "+options.outputBaseDIR+"/"+name+"/"+name+"_proc_card.dat");
             os.system("sed -i -e 's/@OUTPUT/"+name+" -nojpeg/g' "+options.outputBaseDIR+"/"+name+"/"+name+"_proc_card.dat");
 
@@ -175,8 +186,8 @@ if __name__ == '__main__':
             os.system("sed -i -e 's/@MODEL/Pseudoscalar_2HDM-WMET/g' "+options.outputBaseDIR+"/"+name+"/"+name+"_proc_card.dat");
             process = "define p =  g u c d s u~ c~ d~ s~ b b~ \\n";
             process += "define j =  g u c d s b u~ c~ d~ s~ b~ \\n";
-            process += "generate p p  > xd xd~ w+ \/ h1 [QCD] \\n";
-            process += "add process p p  > xd xd~ w- \/ h1 [QCD] \\n";
+            process += "generate p p  > xd xd~ w+  [QCD] \\n";
+            process += "add process p p  > xd xd~ w-  [QCD] \\n";
             os.system("sed -i -e 's/@PROCESS/"+process+"/g' "+options.outputBaseDIR+"/"+name+"/"+name+"_proc_card.dat");
             os.system("sed -i -e 's/@OUTPUT/"+name+" -nojpeg/g' "+options.outputBaseDIR+"/"+name+"/"+name+"_proc_card.dat");
 
@@ -184,6 +195,66 @@ if __name__ == '__main__':
             os.system("sed -i -e 's/@MODEL/Pseudoscalar_2HDM-bbMET_5FS/g' "+options.outputBaseDIR+"/"+name+"/"+name+"_proc_card.dat");
             process = "define p = g u c d s u~ c~ d~ s~ b b~ \\n";
             process += "define j = g u c d s b u~ c~ d~ s~ b~ \\n";
-            process += "generate p p  > xd xd~ j \/ h1 [QCD] \\n";
+            process += "generate p p  > xd xd~ j  [QCD] \\n";
             os.system("sed -i -e 's/@PROCESS/"+process+"/g' "+options.outputBaseDIR+"/"+name+"/"+name+"_proc_card.dat");
             os.system("sed -i -e 's/@OUTPUT/"+name+" -nojpeg/g' "+options.outputBaseDIR+"/"+name+"/"+name+"_proc_card.dat");
+
+
+    #### make the output task name
+    for mh4 in tanb_scan['mh4']:
+        for tanb in tanb_scan['tanbeta']:
+        
+            name = options.processType+"_mh4_"+str(mh4)+"_tanb_"+str(tanb);
+            os.system("mkdir -p "+options.outputBaseDIR+"/"+name);
+            os.system("cp "+options.inputTemplateDIR+"/customizecards.dat "+options.outputBaseDIR+"/"+name+"/"+name+"_customizecards.dat");
+            
+            ### make customized card
+            os.system("sed -i -e 's/@gPXd/"+str(tanb_scan['gPXd'])+"/g' "+options.outputBaseDIR+"/"+name+"/"+name+"_customizecards.dat");
+            os.system("sed -i -e 's/@Mxd/"+str(tanb_scan['Mxd'])+"/g' "+options.outputBaseDIR+"/"+name+"/"+name+"_customizecards.dat");
+            os.system("sed -i -e 's/@sinbma/"+str(tanb_scan['sinbma'])+"/g' "+options.outputBaseDIR+"/"+name+"/"+name+"_customizecards.dat");
+            os.system("sed -i -e 's/@laP1/"+str(tanb_scan['laP1'])+"/g' "+options.outputBaseDIR+"/"+name+"/"+name+"_customizecards.dat");
+            os.system("sed -i -e 's/@laP2/"+str(tanb_scan['laP2'])+"/g' "+options.outputBaseDIR+"/"+name+"/"+name+"_customizecards.dat");
+            os.system("sed -i -e 's/@lam3/"+str(tanb_scan['lam3'])+"/g' "+options.outputBaseDIR+"/"+name+"/"+name+"_customizecards.dat");
+            os.system("sed -i -e 's/@tanbeta/"+str(tanb)+"/g' "+options.outputBaseDIR+"/"+name+"/"+name+"_customizecards.dat");
+            os.system("sed -i -e 's/@sinp/"+str(tanb_scan['sinp'])+"/g' "+options.outputBaseDIR+"/"+name+"/"+name+"_customizecards.dat");
+            os.system("sed -i -e 's/@mh1/"+str(tanb_scan['mh1'])+"/g' "+options.outputBaseDIR+"/"+name+"/"+name+"_customizecards.dat");
+            os.system("sed -i -e 's/@mh2/"+str(tanb_scan['mh3'])+"/g' "+options.outputBaseDIR+"/"+name+"/"+name+"_customizecards.dat");
+            os.system("sed -i -e 's/@mh3/"+str(tanb_scan['mh3'])+"/g' "+options.outputBaseDIR+"/"+name+"/"+name+"_customizecards.dat");
+            os.system("sed -i -e 's/@mhc/"+str(tanb_scan['mh3'])+"/g' "+options.outputBaseDIR+"/"+name+"/"+name+"_customizecards.dat");
+            os.system("sed -i -e 's/@mh4/"+str(mh4)+"/g' "+options.outputBaseDIR+"/"+name+"/"+name+"_customizecards.dat");
+
+            ### make extramodel
+            os.system("cp "+options.inputTemplateDIR+"/extramodels.dat "+options.outputBaseDIR+"/"+name+"/"+name+"_extramodels.dat");
+            os.system("cp "+options.inputTemplateDIR+"/*tgz "+options.outputBaseDIR+"/"+name+"/");
+            os.system("cp "+options.inputTemplateDIR+"/*zip "+options.outputBaseDIR+"/"+name+"/");
+            ### make run card
+            os.system("cp "+options.inputTemplateDIR+"/run_card.dat "+options.outputBaseDIR+"/"+name+"/"+name+"_run_card.dat");
+            ### make madsping card
+            os.system("cp "+options.inputTemplateDIR+"/madspin_card.dat "+options.outputBaseDIR+"/"+name+"/"+name+"_madspin_card.dat");
+            ### make proc card
+            os.system("cp "+options.inputTemplateDIR+"/proc_card.dat "+options.outputBaseDIR+"/"+name+"/"+name+"_proc_card.dat");
+            
+            if options.processType == "MonoZ":
+                os.system("sed -i -e 's/@MODEL/Pseudoscalar_2HDM-bbMET_5FS/g' "+options.outputBaseDIR+"/"+name+"/"+name+"_proc_card.dat");
+                process = "define p =  g u c d s u~ c~ d~ s~ b b~\\n";
+                process += "define j = g u c d s b u~ c~ d~ s~ b~ \\n";
+                process += "generate g g  > xd xd~ z [QCD] \\n";
+                os.system("sed -i -e 's/@PROCESS/"+process+"/g' "+options.outputBaseDIR+"/"+name+"/"+name+"_proc_card.dat");
+                os.system("sed -i -e 's/@OUTPUT/"+name+" -nojpeg/g' "+options.outputBaseDIR+"/"+name+"/"+name+"_proc_card.dat");
+
+            elif options.processType == "MonoW":
+                os.system("sed -i -e 's/@MODEL/Pseudoscalar_2HDM-WMET/g' "+options.outputBaseDIR+"/"+name+"/"+name+"_proc_card.dat");
+                process = "define p = g u c d s u~ c~ d~ s~ b b~ \\n";
+                process += "define j =  g u c d s b u~ c~ d~ s~ b~ \\n";
+                process += "generate p p  > xd xd~ w+ [QCD]  \\n";
+                process += "add process p p  > xd xd~ w- [QCD]  \\n";
+                os.system("sed -i -e 's/@PROCESS/"+process+"/g' "+options.outputBaseDIR+"/"+name+"/"+name+"_proc_card.dat");
+                os.system("sed -i -e 's/@OUTPUT/"+name+" -nojpeg/g' "+options.outputBaseDIR+"/"+name+"/"+name+"_proc_card.dat");
+
+            elif options.processType == "MonoJ":
+                os.system("sed -i -e 's/@MODEL/Pseudoscalar_2HDM-bbMET_5FS/g' "+options.outputBaseDIR+"/"+name+"/"+name+"_proc_card.dat");
+                process = "define p = g u c d s u~ c~ d~ s~ b b~ \\n";
+                process += "define j =  g u c d s b u~ c~ d~ s~ b~ \\n";
+                process += "generate p p  > xd xd~ j  [QCD] \\n";
+                os.system("sed -i -e 's/@PROCESS/"+process+"/g' "+options.outputBaseDIR+"/"+name+"/"+name+"_proc_card.dat");
+                os.system("sed -i -e 's/@OUTPUT/"+name+" -nojpeg/g' "+options.outputBaseDIR+"/"+name+"/"+name+"_proc_card.dat");
