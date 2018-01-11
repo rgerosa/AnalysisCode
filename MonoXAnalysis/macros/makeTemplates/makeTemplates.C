@@ -79,6 +79,7 @@ void makeTemplates(const bool & doCorrectionHistograms   = false,  // calculate 
   system(("mkdir -p "+outDir).c_str());
   // to initialize the binning map
   initializeBinning();
+  initializeBinning2D();
 
   // find all possible mass pont to use in the analysis for each Model: Vector, Axial, Scalar and Pseudoscalar .. if onlyMonoJetSignal is true just use all the available mono-j signal
   vector<signalSample> signalMassPoint;

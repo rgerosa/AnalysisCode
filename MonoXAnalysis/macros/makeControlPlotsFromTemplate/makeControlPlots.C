@@ -32,6 +32,7 @@ void makeControlPlots(string templateFileName,
   gStyle->SetOptStat(0);
 
   initializeBinning();
+  initializeBinning2D();
 
   TCanvas* canvas = new TCanvas("canvas", "canvas", 600, 700);
   canvas->SetTickx(1);
@@ -624,7 +625,8 @@ void makeControlPlots(string templateFileName,
       ewkwhist->Add(ewkzhist);
       stack->Add(ewkwhist);
     }
-    if(vghist and addVgamma) dbhist->Add(vghist);
+    if(vghist and addVgamma) 
+      dbhist->Add(vghist);
     stack->Add(dbhist);
     stack->Add(vlhist);
     stack->Add(tophist_unmatched);    
@@ -650,15 +652,15 @@ void makeControlPlots(string templateFileName,
     if(not isnan(float(qcdhist->Integral())))    
       stack->Add(qcdhist);
   }
-  else if(controlRegion == "SR"){
-    
+  else if(controlRegion == "SR"){        
     stack->Add(qcdhist);
     // sum Zll and gamma+jets together
     vllhist->Add(gamhist);
     stack->Add(vllhist);
     stack->Add(tophist);
     // sum VV and Vgamma
-    dbhist->Add(vghist);
+    if(addVgamma)
+      dbhist->Add(vghist);
     stack->Add(dbhist);
     if(category == Category::VBF or category == Category::VBFrelaxed or category == Category::twojet or addEWKBkg){
       ewkwhist->Add(ewkzhist);
@@ -670,19 +672,7 @@ void makeControlPlots(string templateFileName,
 
   TH1* frame = (TH1*) datahist->Clone("frame");
   frame->Reset();  
-  vector<double> bins ;
-  if(observable == "bosonPt")
-    bins = selectBinning("bosonpt",category);
-  else
-    bins = selectBinning(observable,category);
-
-  float xMin = bins.front();
-  if(observable == "tau2tau1")
-    xMin = minTau2Tau1;
-  if(TString(observable).Contains("btag"))
-    xMin = 0.01;
-  float xMax = bins.back();
-
+  
   // set Y-axis range
   if(category == Category::monojet and isLog)
     frame->GetYaxis()->SetRangeUser(1.5e-3,datahist->GetMaximum()*500);  
