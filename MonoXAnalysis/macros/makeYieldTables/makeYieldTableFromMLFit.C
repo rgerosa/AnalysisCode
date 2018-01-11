@@ -20,8 +20,11 @@ void makeYieldTableFromMLFit(string inputFileName, Category category, bool isZey
   else if(not isZeynep and category == Category::monoV){
     datahist = (TGraphAsymmErrors*) inputFile->Get((dir+"/ch2_ch1/data").c_str());
   }
-  else if(category == Category::VBF or category == Category::VBFrelaxed){
+  else if(not isZeynep and (category == Category::VBF or category == Category::VBFrelaxed)){
     datahist = (TGraphAsymmErrors*) inputFile->Get((dir+"/ch1/data").c_str());
+  }
+  else if(isZeynep and (category == Category::VBF or category == Category::VBFrelaxed)){
+    datahist = (TGraphAsymmErrors*) inputFile->Get((dir+"/vbf_signal/data").c_str());
   }
 
   TH1* zvvhist = NULL;
@@ -35,7 +38,7 @@ void makeYieldTableFromMLFit(string inputFileName, Category category, bool isZey
   TH1* dyhist = NULL;
   TH1* gammahist = NULL;
   TH1* totalhist = NULL;
-
+  TH1* totalsignal = NULL;
   if(not isZeynep and category == Category::monojet){
     zvvhist  = (TH1*)inputFile->Get((dir+"/ch1_ch1/qcd_znunu").c_str());
     wjethist = (TH1*)inputFile->Get((dir+"/ch1_ch1/qcd_wjets").c_str());
@@ -79,7 +82,7 @@ void makeYieldTableFromMLFit(string inputFileName, Category category, bool isZey
     totalhist = (TH1*)inputFile->Get((dir+"/monov_signal/total_background").c_str());
   }
 
-  else if(category == Category::VBF or category == Category::VBFrelaxed){
+  else if(not isZeynep and (category == Category::VBF or category == Category::VBFrelaxed)){
     zvvhist  = (TH1*)inputFile->Get((dir+"/ch1/qcd_znunu").c_str());
     wjethist = (TH1*)inputFile->Get((dir+"/ch1/qcd_wjets").c_str());
     dyhist   = (TH1*)inputFile->Get((dir+"/ch1/qcd_zll").c_str());
@@ -91,8 +94,22 @@ void makeYieldTableFromMLFit(string inputFileName, Category category, bool isZey
     totalhist = (TH1*)inputFile->Get((dir+"/ch1/total_background").c_str());
     ewkzhist = (TH1*)inputFile->Get((dir+"/ch1/ewk_znunu").c_str()); 
     ewkwhist = (TH1*)inputFile->Get((dir+"/ch1/ewk_wjets").c_str()); 
-    
+    totalsignal = (TH1*)inputFile->Get("shapes_prefit/ch1/total_signal");
   }
+
+  else if(isZeynep and (category == Category::VBF or category == Category::VBFrelaxed)){
+    zvvhist  = (TH1*)inputFile->Get((dir+"/vbf_signal/qcd_znunu").c_str());
+    wjethist = (TH1*)inputFile->Get((dir+"/vbf_signal/qcd_wjets").c_str());
+    dyhist   = (TH1*)inputFile->Get((dir+"/vbf_signal/zll").c_str());
+    tophist  = (TH1*)inputFile->Get((dir+"/vbf_signal/Top").c_str());
+    dibosonhist = (TH1*)inputFile->Get((dir+"/vbf_signal/Dibosons").c_str());
+    qcdhist = (TH1*)inputFile->Get((dir+"/vbf_signal/QCD").c_str());
+    totalhist = (TH1*)inputFile->Get((dir+"/vbf_signal/total_background").c_str());
+    ewkzhist = (TH1*)inputFile->Get((dir+"/vbf_signal/ewk_znunu").c_str()); 
+    ewkwhist = (TH1*)inputFile->Get((dir+"/vbf_signal/ewk_wjets").c_str()); 
+    totalsignal = (TH1*)inputFile->Get("shapes_prefit/vbf_signal/total_signal");
+  }
+  
 
   if(mergeEWQCD){
     if(ewkzhist)
@@ -101,11 +118,11 @@ void makeYieldTableFromMLFit(string inputFileName, Category category, bool isZey
       wjethist->Add(ewkwhist);
   }
 
+  // Add / merge some histograms
   TH1* other = (TH1*) qcdhist->Clone("other");
   if(gammahist)
     other->Add(gammahist);
-  other->Add(dyhist);
-
+  other->Add(dyhist);  
   if(vghist)
     dibosonhist->Add(vghist);
 
@@ -127,30 +144,31 @@ void makeYieldTableFromMLFit(string inputFileName, Category category, bool isZey
       datahist->GetPoint(ibin,x,y);
       outputfile<<Form("%d-%d",int(totalhist->GetXaxis()->GetBinLowEdge(ibin+1)),int(totalhist->GetXaxis()->GetBinLowEdge(ibin+2)))<<" & ";
       outputfile<<Form("%d",int(y*(int(totalhist->GetXaxis()->GetBinLowEdge(ibin+2))-int(totalhist->GetXaxis()->GetBinLowEdge(ibin+1)))))<<" & ";
-      outputfile<<Form("%.3f $\\pm$ %.3f",zvvhist->GetBinContent(ibin+1)*zvvhist->GetBinWidth(ibin+1),zvvhist->GetBinError(ibin+1)*zvvhist->GetBinWidth(ibin+1))<<" & ";
-      outputfile<<Form("%.3f $\\pm$ %.3f",wjethist->GetBinContent(ibin+1)*wjethist->GetBinWidth(ibin+1),wjethist->GetBinError(ibin+1)*wjethist->GetBinWidth(ibin+1))<<" & ";
-      outputfile<<Form("%.3f $\\pm$ %.3f",tophist->GetBinContent(ibin+1)*tophist->GetBinWidth(ibin+1),tophist->GetBinError(ibin+1)*tophist->GetBinWidth(ibin+1))<<" & ";
-      outputfile<<Form("%.3f $\\pm$ %.3f",dibosonhist->GetBinContent(ibin+1)*dibosonhist->GetBinWidth(ibin+1),dibosonhist->GetBinError(ibin+1)*dibosonhist->GetBinWidth(ibin+1))<<" & ";
-      outputfile<<Form("%.3f $\\pm$ %.3f",other->GetBinContent(ibin+1)*other->GetBinWidth(ibin+1),other->GetBinError(ibin+1)*other->GetBinWidth(ibin+1))<<" & ";
-      outputfile<<Form("%.3f $\\pm$ %.3f",totalhist->GetBinContent(ibin+1)*totalhist->GetBinWidth(ibin+1),totalhist->GetBinError(ibin+1)*totalhist->GetBinWidth(ibin+1))<<" \\\\ ";
+      outputfile<<Form("%.2f $\\pm$ %.2f",zvvhist->GetBinContent(ibin+1)*zvvhist->GetBinWidth(ibin+1),zvvhist->GetBinError(ibin+1)*zvvhist->GetBinWidth(ibin+1))<<" & ";
+      outputfile<<Form("%.2f $\\pm$ %.2f",wjethist->GetBinContent(ibin+1)*wjethist->GetBinWidth(ibin+1),wjethist->GetBinError(ibin+1)*wjethist->GetBinWidth(ibin+1))<<" & ";
+      outputfile<<Form("%.2f $\\pm$ %.2f",tophist->GetBinContent(ibin+1)*tophist->GetBinWidth(ibin+1),tophist->GetBinError(ibin+1)*tophist->GetBinWidth(ibin+1))<<" & ";
+      outputfile<<Form("%.2f $\\pm$ %.2f",dibosonhist->GetBinContent(ibin+1)*dibosonhist->GetBinWidth(ibin+1),dibosonhist->GetBinError(ibin+1)*dibosonhist->GetBinWidth(ibin+1))<<" & ";
+      outputfile<<Form("%.2f $\\pm$ %.2f",other->GetBinContent(ibin+1)*other->GetBinWidth(ibin+1),other->GetBinError(ibin+1)*other->GetBinWidth(ibin+1))<<" & ";
+      outputfile<<Form("%.2f $\\pm$ %.2f",totalhist->GetBinContent(ibin+1)*totalhist->GetBinWidth(ibin+1),totalhist->GetBinError(ibin+1)*totalhist->GetBinWidth(ibin+1))<<" \\\\ ";
       outputfile<<"\n";
     }
   }
   else if((category == Category::VBF or category == Category::VBFrelaxed) and not mergeEWQCD){
-    outputfile<<"$m_{jj} (GeV) & Observed & Znunu-QCD & Znunu-EWK & W+jets QCD & W+jets EWK & Top & VV+Vgamma & Other & Total Bkg. \\\\ "<<endl;
+    outputfile<<"$m_{jj} (GeV) & Data & Signal & Znunu-QCD & Znunu-EWK & W+jets QCD & W+jets EWK & Top & VV+Vgamma & Other & Total Bkg. \\\\ "<<endl;
     for(int ibin = 0; ibin < totalhist->GetNbinsX(); ibin++){
       double x,y;
       datahist->GetPoint(ibin,x,y);
       outputfile<<Form("%d-%d",int(totalhist->GetXaxis()->GetBinLowEdge(ibin+1)),int(totalhist->GetXaxis()->GetBinLowEdge(ibin+2)))<<" & ";
       outputfile<<Form("%d",int(y*(int(totalhist->GetXaxis()->GetBinLowEdge(ibin+2))-int(totalhist->GetXaxis()->GetBinLowEdge(ibin+1)))))<<" & ";
-      outputfile<<Form("%.3f $\\pm$ %.3f",zvvhist->GetBinContent(ibin+1)*zvvhist->GetBinWidth(ibin+1),zvvhist->GetBinError(ibin+1)*zvvhist->GetBinWidth(ibin+1))<<" & ";
-      outputfile<<Form("%.3f $\\pm$ %.3f",ewkzhist->GetBinContent(ibin+1)*ewkzhist->GetBinWidth(ibin+1),ewkzhist->GetBinError(ibin+1)*ewkzhist->GetBinWidth(ibin+1))<<" & ";
-      outputfile<<Form("%.3f $\\pm$ %.3f",wjethist->GetBinContent(ibin+1)*wjethist->GetBinWidth(ibin+1),wjethist->GetBinError(ibin+1)*wjethist->GetBinWidth(ibin+1))<<" & ";
-      outputfile<<Form("%.3f $\\pm$ %.3f",ewkwhist->GetBinContent(ibin+1)*ewkwhist->GetBinWidth(ibin+1),ewkwhist->GetBinError(ibin+1)*ewkwhist->GetBinWidth(ibin+1))<<" & ";
-      outputfile<<Form("%.3f $\\pm$ %.3f",tophist->GetBinContent(ibin+1)*tophist->GetBinWidth(ibin+1),tophist->GetBinError(ibin+1)*tophist->GetBinWidth(ibin+1))<<" & ";
-      outputfile<<Form("%.3f $\\pm$ %.3f",dibosonhist->GetBinContent(ibin+1)*dibosonhist->GetBinWidth(ibin+1),dibosonhist->GetBinError(ibin+1)*dibosonhist->GetBinWidth(ibin+1))<<" & ";
-      outputfile<<Form("%.3f $\\pm$ %.3f",other->GetBinContent(ibin+1)*other->GetBinWidth(ibin+1),other->GetBinError(ibin+1)*other->GetBinWidth(ibin+1))<<" & ";
-      outputfile<<Form("%.3f $\\pm$ %.3f",totalhist->GetBinContent(ibin+1)*totalhist->GetBinWidth(ibin+1),totalhist->GetBinError(ibin+1)*totalhist->GetBinWidth(ibin+1))<<" \\\\ ";
+      outputfile<<Form("%.2f $\\pm$ %.2f",totalsignal->GetBinContent(ibin+1)*totalsignal->GetBinWidth(ibin+1),totalsignal->GetBinError(ibin+1)*totalsignal->GetBinWidth(ibin+1))<<" & ";
+      outputfile<<Form("%.2f $\\pm$ %.2f",zvvhist->GetBinContent(ibin+1)*zvvhist->GetBinWidth(ibin+1),zvvhist->GetBinError(ibin+1)*zvvhist->GetBinWidth(ibin+1))<<" & ";
+      outputfile<<Form("%.2f $\\pm$ %.2f",ewkzhist->GetBinContent(ibin+1)*ewkzhist->GetBinWidth(ibin+1),ewkzhist->GetBinError(ibin+1)*ewkzhist->GetBinWidth(ibin+1))<<" & ";
+      outputfile<<Form("%.2f $\\pm$ %.2f",wjethist->GetBinContent(ibin+1)*wjethist->GetBinWidth(ibin+1),wjethist->GetBinError(ibin+1)*wjethist->GetBinWidth(ibin+1))<<" & ";
+      outputfile<<Form("%.2f $\\pm$ %.2f",ewkwhist->GetBinContent(ibin+1)*ewkwhist->GetBinWidth(ibin+1),ewkwhist->GetBinError(ibin+1)*ewkwhist->GetBinWidth(ibin+1))<<" & ";
+      outputfile<<Form("%.2f $\\pm$ %.2f",tophist->GetBinContent(ibin+1)*tophist->GetBinWidth(ibin+1),tophist->GetBinError(ibin+1)*tophist->GetBinWidth(ibin+1))<<" & ";
+      outputfile<<Form("%.2f $\\pm$ %.2f",dibosonhist->GetBinContent(ibin+1)*dibosonhist->GetBinWidth(ibin+1),dibosonhist->GetBinError(ibin+1)*dibosonhist->GetBinWidth(ibin+1))<<" & ";
+      outputfile<<Form("%.2f $\\pm$ %.2f",other->GetBinContent(ibin+1)*other->GetBinWidth(ibin+1),other->GetBinError(ibin+1)*other->GetBinWidth(ibin+1))<<" & ";
+      outputfile<<Form("%.2f $\\pm$ %.2f",totalhist->GetBinContent(ibin+1)*totalhist->GetBinWidth(ibin+1),totalhist->GetBinError(ibin+1)*totalhist->GetBinWidth(ibin+1))<<" \\\\ ";
       outputfile<<"\n";      
     }
   }

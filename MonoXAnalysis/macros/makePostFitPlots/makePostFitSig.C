@@ -739,7 +739,7 @@ void makePostFitSig(string   fitFilename,
  
   tohist->Draw("E2 SAME");
   unhist->Draw("SAME");
-  if(!blind and not addPullPlot)
+  if(!blind)
     dphist->Draw("P0E1 SAME");
   dahist->Draw("P0E1 SAME");  
   pad2->RedrawAxis("G sameaxis");

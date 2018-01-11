@@ -25,8 +25,10 @@ void plotCorrelationMatrix(string inputFile, Category category, bool isZeynep, s
     dir = "monojet_signal";
   else if(category == Category::monoV and isZeynep)
     dir = "monov_signal";
-  else if(category == Category::VBF or category == Category::VBFrelaxed)
+  else if(not isZeynep and (category == Category::VBF or category == Category::VBFrelaxed))
     dir = "ch1";
+  else if(isZeynep and (category == Category::VBF or category == Category::VBFrelaxed))
+    dir = "vbf_signal";
     
     
   TCanvas* canvas = NULL;
