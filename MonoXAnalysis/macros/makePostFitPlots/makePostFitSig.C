@@ -39,7 +39,6 @@ void makePostFitSig(string   fitFilename,
     pad2->SetTopMargin(0.7);
     pad2->SetRightMargin(0.06);
     pad2->SetFillColor(0);
-    //    pad2->SetGridy(1);
     pad2->SetFillStyle(0);
   }
   else{
@@ -64,7 +63,6 @@ void makePostFitSig(string   fitFilename,
     pad2->SetFillColor(0);
     pad2->SetFillStyle(0);
     pad2->SetLineColor(0);
-    //    pad2->SetGridy();
 
     pad3 = new TPad("pad3","pad3",0,0.,1,1.);
     pad3->SetTopMargin(0.76);
@@ -72,7 +70,6 @@ void makePostFitSig(string   fitFilename,
     pad3->SetFillColor(0);
     pad3->SetFillStyle(0);
     pad3->SetLineColor(0);
-    //    pad3->SetGridy();
   }
 
   TColor *color; // for color definition with alpha                                                                                                                             
@@ -139,7 +136,6 @@ void makePostFitSig(string   fitFilename,
   TH1* ewkzhist = NULL;
   TH1* tohist = NULL;
   TH1* tphist = NULL;
-  TH1* sighist = NULL;
 
   znhist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/qcd_znunu").c_str());    
   zlhist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/qcd_zll").c_str());    
@@ -158,8 +154,18 @@ void makePostFitSig(string   fitFilename,
   tohist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/total_background").c_str());    
   tphist = (TH1*)pfile->Get(("shapes_prefit/"+dir+"/total_background").c_str());    
 
-  if(plotSBFit)
-    sighist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/total_signal").c_str());
+  if(plotSBFit and isHiggsInvisible){ // post fit signal
+    ggHhist  = (TH1*) pfile->Get((fit_dir+"/"+dir+"/ggH_hinv").c_str());
+    vbfhist = (TH1*) pfile->Get((fit_dir+"/"+dir+"/qqH_hinv").c_str());
+    wHhist   = (TH1*) pfile->Get((fit_dir+"/"+dir+"/WH_hinv").c_str());
+    zHhist   = (TH1*) pfile->Get((fit_dir+"/"+dir+"/ZH_hinv").c_str());
+    ggZHhist = (TH1*) pfile->Get((fit_dir+"/"+dir+"/ggZH_hinv").c_str());
+  }
+  else if(plotSBFit and not isHiggsInvisible){
+    mjhist = (TH1*) pfile->Get((fit_dir+"/"+dir+"/MonoJ").c_str());
+    mwhist = (TH1*) pfile->Get((fit_dir+"/"+dir+"/MonoW").c_str());
+    mzhist = (TH1*) pfile->Get((fit_dir+"/"+dir+"/MonoZ").c_str());
+  }
 
   ////////////////
   TGraphAsymmErrors* dthist = NULL;
@@ -442,14 +448,6 @@ void makePostFitSig(string   fitFilename,
     }
   }
   
-  if(sighist){
-    sighist->SetFillColor(kBlack);
-    sighist->SetLineColor(kBlack);
-    sighist->SetLineWidth(3);
-    sighist->SetFillColor(0);
-    sighist->SetFillStyle(0);
-  }
-
   // make the stack for backgrounds
   THStack* stack = new THStack("stack", "stack");
   if(qchist)
@@ -511,33 +509,35 @@ void makePostFitSig(string   fitFilename,
 
   stack ->Draw("HIST SAME");
 
-  if(mwhist and mzhist and !plotSBFit){
+  if(mwhist and mzhist){
     mwhist->Add(mzhist);
     mwhist->SetLineStyle(2);
     mwhist->Draw("HIST SAME");
   }
 
-  if(mjhist and !plotSBFit)
+  if(mjhist)
     mjhist->Draw("HIST SAME");
 
-  if(vbfhist and !plotSBFit){
+  if(vbfhist){
     if(category == Category::VBF or category == Category::VBFrelaxed){
+      vbfhist->SetLineStyle(7);
       vbfhist->Draw("HIST SAME");
     }
     else{
-      vbfhist->SetLineStyle(7);
+      vbfhist->SetLineStyle(2);
       vbfhist->Draw("HIST SAME");
     }
   }
 
-  if(wHhist and !plotSBFit){
+  if(wHhist){
     wHhist->SetLineStyle(2);
     wHhist->Draw("HIST SAME");
   }
 
-  if(ggHhist and !plotSBFit){
+  if(ggHhist){
     if(category == Category::VBF or category == Category::VBFrelaxed){
-      ggHhist->SetLineStyle(2);      
+      ggHhist->SetLineStyle(7);      
+      ggHhist->SetLineColor(kBlue);      
       ggHhist->Draw("HIST SAME");
     }
     else{
@@ -545,9 +545,6 @@ void makePostFitSig(string   fitFilename,
     }
   }
   
-  if(plotSBFit)
-    sighist->Draw("HIST same");
-
   dthist->SetMarkerSize(1.2);
   dthist->SetMarkerStyle(20);
   dthist->SetFillStyle(0);
@@ -569,44 +566,37 @@ void makePostFitSig(string   fitFilename,
   leg->SetBorderSize(0);
     
   leg->AddEntry(dthist, "Data", "PEL");
+  leg->AddEntry(znhist, "Z+jets QCD", "F");
+  leg->AddEntry(wlhist, "W+jets EW", "F");
 
-  leg->AddEntry(znhist,    "QCD Z(#nu#nu)", "F");
-  leg->AddEntry(wlhist,    "QCD W(l#nu)", "F");
   if(category == Category::VBF or category == Category::VBFrelaxed){
     if(ewkzhist)
-      leg->AddEntry(ewkzhist,"EW Z(#nu#nu)", "F");
+      leg->AddEntry(ewkzhist,"Z+jets EW", "F");
     if(ewkwhist)
-      leg->AddEntry(ewkwhist,"EW W(l#nu)", "F");
+      leg->AddEntry(ewkwhist,"W+jets EW", "F");
   }
   if(not vghist)
-    leg->AddEntry(dihist,  "WW/WZ/ZZ", "F");
+    leg->AddEntry(dihist,"Diboson", "F");
   else
-    leg->AddEntry(dihist,  "VV, V#gamma", "F");
+    leg->AddEntry(dihist,"VV, V#gamma", "F");
 
-  leg->AddEntry(tthist,  "Top quark", "F");
-  leg->AddEntry(zlhist,  "Z/#gamma(ll), #gamma+jets", "F");
+  leg->AddEntry(tthist,"Top quark", "F");
+  leg->AddEntry(zlhist,"Z/#gamma(ll), #gamma+jets", "F");
   if(qchist)
-    leg->AddEntry(qchist,  "QCD", "F");
-  if(mjhist and !plotSBFit)
-    leg->AddEntry(mjhist,"Vector mono-jet, m_{med} = 2 TeV","L");
-  if(mwhist and !plotSBFit)
-    leg->AddEntry(mjhist,"Vector mono-W, m_{med} = 2 TeV","L");
-  if(mzhist and !plotSBFit)
-    leg->AddEntry(mjhist,"Vector mono-Z, m_{med} = 2 TeV","L");
+    leg->AddEntry(qchist,"QCD multijet", "F");
 
-  if(sighist && plotSBFit)
-    leg->AddEntry(sighist, "Fitted signal", "L");
-  else if(not plotSBFit){
-    if(category == Category::VBF or category == Category::VBFrelaxed){
-      leg->AddEntry(vbfhist, "qqH_{inv} m_{h} = 125 GeV", "L");
-      leg->AddEntry(ggHhist, "ggH_{inv} m_{h} = 125 GeV", "L");
-    }
-    else{
-      leg->AddEntry(ggHhist, "ggH_{inv} m_{h} = 125 GeV", "L");
-      leg->AddEntry(vbfhist, "qqH_{inv} m_{h} = 125 GeV", "L");
-      leg->AddEntry(wHhist, "VH_{inv} m_{h} = 125 GeV", "L");
-    }
-  }
+  if(mjhist)
+    leg->AddEntry(mjhist,"Vector mono-jet, m_{med} = 2 TeV","L");
+  if(mwhist)
+    leg->AddEntry(mjhist,"Vector mono-W, m_{med} = 2 TeV","L");
+  if(mzhist)
+    leg->AddEntry(mjhist,"Vector mono-Z, m_{med} = 2 TeV","L");
+  if(vbfhist)
+    leg->AddEntry(vbfhist, "qqH_{inv} m_{h} = 125 GeV", "L");
+  if(ggHhist)
+    leg->AddEntry(ggHhist, "ggH_{inv} m_{h} = 125 GeV", "L");
+  if(wHhist)
+    leg->AddEntry(wHhist, "VH_{inv} m_{h} = 125 GeV", "L");
 
   leg->Draw("SAME");    
   canvas->RedrawAxis("sameaxis");
@@ -710,12 +700,13 @@ void makePostFitSig(string   fitFilename,
 
   
   TH1F* band = (TH1F*) tohist->Clone("band");
+  TH1F* total_temp = (TH1F*) tohist->Clone("total_temp");
 
-  tohist->Divide(mchist);
-  tohist->SetLineColor(0);
-  tohist->SetMarkerColor(0);
-  tohist->SetMarkerSize(0);
-  tohist->SetFillColor(kGray);
+  total_temp->Divide(mchist);
+  total_temp->SetLineColor(0);
+  total_temp->SetMarkerColor(0);
+  total_temp->SetMarkerSize(0);
+  total_temp->SetFillColor(kGray);
 
   dahist->SetMarkerSize(1);
   dphist->SetMarkerSize(1);
@@ -737,7 +728,7 @@ void makePostFitSig(string   fitFilename,
   dahist->GetXaxis()->SetTitleSize(0);
 
  
-  tohist->Draw("E2 SAME");
+  total_temp->Draw("E2 SAME");
   unhist->Draw("SAME");
   if(!blind)
     dphist->Draw("P0E1 SAME");
@@ -852,24 +843,24 @@ void makePostFitSig(string   fitFilename,
     canvas->SaveAs(("postfit_sig"+postfix+"_pull.png").c_str());
   }
   
-  
+
+
+  ////// Significance plot
   if(plotSignificance and not addPullPlot) {
     // ratio post fit at 1 with uncertaitny
     TH1* htemp = (TH1*) tohist->Clone("postfit_over_prefit");
     TH1* totalSignal = NULL;
     
-    if(isHiggsInvisible and not plotSBFit){
+    if(isHiggsInvisible){
       totalSignal = (TH1*) ggHhist->Clone("totalSignal");
       totalSignal->Add(vbfhist);
       totalSignal->Add(wHhist);
     }
-    else if(not isHiggsInvisible and not plotSBFit){
+    else if(not isHiggsInvisible){
       totalSignal = (TH1*) mjhist->Clone("totalSignal");
       totalSignal->Add(mwhist);
       totalSignal->Add(mzhist);
     }
-    else if(plotSBFit)
-      totalSignal = (TH1*) sighist->Clone("totalSignal");
     
     canvas->cd();
     pad2->Draw();
@@ -926,5 +917,89 @@ void makePostFitSig(string   fitFilename,
       outFile->Close();
     }
   }
+
+  /// make data - background plot
+  if(plotSBFit){ // make data - background plot
+    
+    TH1F* dataSubtracted = (TH1F*) tohist->Clone("dataSubtracted");
+    TH1F* uncertainty    = (TH1F*) tohist->Clone("uncertainty");
+    TH1F* signalhist     = (TH1F*) (TH1*)pfile->Get((fit_dir+"/"+dir+"/total_signal").c_str()); // total post-fit signal
+
+    double error_max;
+    for(int iBin = 0; iBin < dataSubtracted->GetNbinsX(); iBin++){
+      double x,y;
+      dthist->GetPoint(iBin,x,y);
+      dataSubtracted->SetBinContent(iBin+1,y-tohist->GetBinContent(iBin+1));
+      dataSubtracted->SetBinError(iBin+1,dthist->GetErrorYlow(iBin)+dthist->GetErrorYhigh(iBin)/2);
+      uncertainty->SetBinContent(iBin+1,0);
+      if(uncertainty->GetBinError(iBin+1) > error_max) error_max = uncertainty->GetBinError(iBin+1);
+    }
+    
+    dataSubtracted->SetLineColor(kBlack);
+    dataSubtracted->SetMarkerColor(kBlack);
+    dataSubtracted->SetMarkerStyle(20);
+    dataSubtracted->SetMarkerSize(1.2);
+    
+    TCanvas* canvas2 = new TCanvas("canvas2", "canvas2", 600, 600);
+    canvas2->SetTickx(1);
+    canvas2->SetTicky(1);
+    canvas2->cd();
+    canvas2->SetRightMargin(0.06);
+
+    TH1* frame_4 = (TH1*) tohist->Clone("frame");
+    frame_4->Reset();  
+    frame_4->GetXaxis()->SetTitle("E_{T}^{miss} [GeV]");
+    if((category == Category::VBF or category == Category::VBFrelaxed) and TString(observable).Contains("mjj"))
+      frame_4->GetXaxis()->SetTitle("M_{jj} [GeV]");
+    frame_4->GetYaxis()->SetTitle("Events / GeV");    
+
+    frame_4->GetYaxis()->SetLabelSize(0.045);
+    frame_4->GetYaxis()->SetTitleSize(0.055);
+    frame_4->GetYaxis()->SetTitleOffset(1.15);
+    frame_4->GetYaxis()->SetLabelSize(0.040);
+    frame_4->GetYaxis()->SetTitleSize(0.050);
+    frame_4->GetXaxis()->SetLabelSize(0.045);
+    frame_4->GetXaxis()->SetTitleSize(0.055);
+    frame_4->GetXaxis()->SetTitleOffset(1.15);
+    frame_4->GetXaxis()->SetLabelSize(0.040);
+    frame_4->GetXaxis()->SetTitleSize(0.050);
+
+    if(category == Category::monojet)
+      frame_4->GetXaxis()->SetNdivisions(510);
+    else
+      frame_4->GetXaxis()->SetNdivisions(505);
+    
+    frame_4->GetYaxis()->SetRangeUser(min(-error_max,dataSubtracted->GetMinimum())*1.5,max(error_max,dataSubtracted->GetMaximum())*2.5);    
+    frame_4->Draw();
+
+    dataSubtracted->Draw("EPsame");      
+    uncertainty->SetLineColor(0);
+    uncertainty->SetMarkerColor(0);
+    uncertainty->SetMarkerSize(0);
+    uncertainty->SetFillColor(kGray);
+    uncertainty->SetLineColor(kBlack);
+    uncertainty->Draw("E2Lsame");
+    signalhist->SetLineColor(kRed);
+    signalhist->SetLineWidth(2);
+    signalhist->Draw("hist same");
+    dataSubtracted->Draw("EPsame");
+
+    TLegend* leg2 = new TLegend(0.6,0.6,0.92,0.92);
+    leg2->SetBorderSize(0);
+    leg2->SetFillColor(0);
+    leg2->SetFillStyle(0);
+    leg2->AddEntry(dataSubtracted,"Data - Background","PE");
+    leg2->AddEntry(uncertainty,"Uncertainty","F");
+    leg2->AddEntry(signalhist,"Fitted signal","L");
+    leg2->Draw("same");
+    
+    CMS_lumi(canvas,"35.9");
+    canvas2->cd();
+    canvas2->RedrawAxis("sameaxis");
+
+    canvas2->SaveAs(("postfit"+postfix+"_fitted_signal.png").c_str());
+    canvas2->SaveAs(("postfit"+postfix+"_fitted_signal.pdf").c_str());
+  }
+
 }
 
