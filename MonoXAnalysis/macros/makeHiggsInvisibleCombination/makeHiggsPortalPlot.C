@@ -19,7 +19,7 @@ double dmNucleonXSECScalar(float dmMass, float width, int scale = 0){
   float fN = 0.326;
 
   if(scale == -1)     fN = 0.629;
-  else if(scale == 1) fN = -0.260;
+  else if(scale == 1) fN = 0.260;
   
   float mH = 125;
   float vev = 246;
@@ -38,7 +38,7 @@ double dmNucleonXSECFermion(float dmMass, float width, int scale = 0){
   float fN = 0.326;
 
   if(scale == -1)     fN = 0.629;
-  else if(scale == 1) fN = -0.260;
+  else if(scale == 1) fN = 0.260;
 
   float mH = 125;
   float vev = 246;
@@ -65,7 +65,7 @@ void makeHiggsPortalPlot(float observedBR, string outputDIR){
   system(("mkdir -p "+outputDIR).c_str());
 
   
-  TCanvas* canvas = new TCanvas("canvas","",800,700);
+  TCanvas* canvas = new TCanvas("canvas","",700,650);
   canvas->cd();
   
   // from BRinv =  GammaInv/(GammaInv+GammaSM)

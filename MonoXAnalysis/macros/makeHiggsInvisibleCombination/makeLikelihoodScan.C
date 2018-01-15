@@ -33,15 +33,15 @@ void makeLikelihoodScan(string outputPlots, string postfix){
   TFile* file_scan_monoj_obs = new TFile("../makeWorkspace/HiggsInvisible/HiggsInvisibleCombination/EXO-16-048/MonoJ/higgsCombine_scan_mu_obs.MultiDimFit.mH120.root","READ");
   TFile* file_scan_monov_obs = new TFile("../makeWorkspace/HiggsInvisible/HiggsInvisibleCombination/EXO-16-048/MonoV/higgsCombine_scan_mu_obs.MultiDimFit.mH120.root","READ");
   TFile* file_scan_monoz_obs = new TFile("../makeWorkspace/HiggsInvisible/HiggsInvisibleCombination/EXO-16-052/higgsCombine_scan_mu_obs.MultiDimFit.mH120.root","READ");
-  //TFile* file_scan_vbf_obs = new TFile("../makeWorkspace/HiggsInvisible/HiggsInvisibleCombination/HIG-17-023/higgsCombine_scan_mu_obs.MultiDimFit.mH125.root","READ");
-  TFile* file_scan_vbf_obs      = new TFile("../makeWorkspace/HiggsInvisible/VBF/CountingExperiment/unbliding/higgsCombine_scan_mu_obs.MultiDimFit.mH125.root","READ");
+  TFile* file_scan_vbf_obs = new TFile("../makeWorkspace/HiggsInvisible/HiggsInvisibleCombination/HIG-17-023/higgsCombine_scan_mu_obs.MultiDimFit.mH125.root","READ");
+  //TFile* file_scan_vbf_obs      = new TFile("../makeWorkspace/HiggsInvisible/VBF/CountingExperiment/unbliding/higgsCombine_scan_mu_obs.MultiDimFit.mH125.root","READ");
   TFile* file_scan_combined_obs = new TFile("../makeWorkspace/HiggsInvisible/HiggsInvisibleCombination/Combination/higgsCombine_scan_mu_obs.MultiDimFit.mH120.root","READ");
 
   TFile* file_scan_monoj_exp = new TFile("../makeWorkspace/HiggsInvisible/HiggsInvisibleCombination/EXO-16-048/MonoJ/higgsCombine_scan_mu_exp.MultiDimFit.mH120.root","READ");
   TFile* file_scan_monov_exp = new TFile("../makeWorkspace/HiggsInvisible/HiggsInvisibleCombination/EXO-16-048/MonoV/higgsCombine_scan_mu_exp.MultiDimFit.mH120.root","READ");
   TFile* file_scan_monoz_exp = new TFile("../makeWorkspace/HiggsInvisible/HiggsInvisibleCombination/EXO-16-052/higgsCombine_scan_mu_exp.MultiDimFit.mH120.root","READ");
-  //TFile* file_scan_vbf_exp = new TFile("../makeWorkspace/HiggsInvisible/HiggsInvisibleCombination/HIG-17-023/higgsCombine_scan_mu_exp.MultiDimFit.mH120.root","READ");
-  TFile* file_scan_vbf_exp      = new TFile("../makeWorkspace/HiggsInvisible/VBF/CountingExperiment/unbliding/higgsCombine_scan_mu_exp_aposteriori.MultiDimFit.mH125.root","READ");
+  TFile* file_scan_vbf_exp = new TFile("../makeWorkspace/HiggsInvisible/HiggsInvisibleCombination/HIG-17-023/higgsCombine_scan_mu_exp.MultiDimFit.mH120.root","READ");
+  //TFile* file_scan_vbf_exp      = new TFile("../makeWorkspace/HiggsInvisible/VBF/CountingExperiment/unbliding/higgsCombine_scan_mu_exp_aposteriori.MultiDimFit.mH125.root","READ");
   TFile* file_scan_combined_exp = new TFile("../makeWorkspace/HiggsInvisible/HiggsInvisibleCombination/Combination/higgsCombine_scan_mu_exp.MultiDimFit.mH120.root","READ");
 
   //////
@@ -250,65 +250,55 @@ void makeLikelihoodScan(string outputPlots, string postfix){
   scan_combined_exp->Sort();
 
   //// Produce the final plot
-  //scan_combined_exp->GetXaxis()->SetTitle("BR(H #rightarrow inv)");
-  //scan_combined_exp->GetXaxis()->SetTitleOffset(1.1);
-  //scan_combined_exp->GetYaxis()->SetTitle("-2 #Delta Log(L)");
-  //scan_combined_exp->GetYaxis()->SetTitleOffset(1.1);
-  //scan_combined_exp->GetYaxis()->SetRangeUser(0,10);
-  //scan_combined_exp->GetXaxis()->SetRangeUser(0,1);
-  //scan_combined_exp->SetLineColor(kBlack);
-  //scan_combined_exp->SetLineWidth(3);
-  //scan_combined_exp->SetLineStyle(7);
-  //scan_combined_obs->SetLineColor(kBlack);
-  //scan_combined_obs->SetLineWidth(3);
-  //scan_combined_exp->Draw("AL");
+  scan_combined_exp->GetXaxis()->SetTitle("BR(H #rightarrow inv)");
+  scan_combined_exp->GetXaxis()->SetTitleOffset(1.1);
+  scan_combined_exp->GetYaxis()->SetTitle("-2 #Delta Log(L)");
+  scan_combined_exp->GetYaxis()->SetTitleOffset(1.1);
+  scan_combined_exp->GetYaxis()->SetRangeUser(0,10);
+  scan_combined_exp->GetXaxis()->SetRangeUser(0,1);
+  scan_combined_exp->SetLineColor(kBlack);
+  scan_combined_exp->SetLineWidth(3);
+  scan_combined_exp->SetLineStyle(7);
+  scan_combined_obs->SetLineColor(kBlack);
+  scan_combined_obs->SetLineWidth(3);
+  scan_combined_exp->Draw("AL");
   //scan_combined_obs->Draw("Lsame");
-
-  //scan_vbf_obs->SetLineColor(kRed);
-  //scan_vbf_obs->SetLineWidth(2);
-  //scan_vbf_obs->Draw("Lsame");
-  //scan_vbf_exp->SetLineColor(kRed);
-  //scan_vbf_exp->SetLineWidth(2);
-  //scan_vbf_exp->SetLineStyle(7);
-  //scan_vbf_exp->Draw("Lsame");
-
-  scan_vbf_exp->GetXaxis()->SetTitle("BR(H #rightarrow inv)");
-  scan_vbf_exp->GetXaxis()->SetTitleOffset(1.1);
-  scan_vbf_exp->GetYaxis()->SetTitle("-2 #Delta Log(L)");
-  scan_vbf_exp->GetYaxis()->SetTitleOffset(1.1);
-  scan_vbf_exp->GetYaxis()->SetRangeUser(0,10);
-  scan_vbf_exp->GetXaxis()->SetRangeUser(0,1);
-  scan_vbf_exp->SetLineColor(kBlack);
-  scan_vbf_exp->SetLineWidth(3);
-  scan_vbf_exp->SetLineStyle(7);
-  scan_vbf_obs->SetLineColor(kBlack);
-  scan_vbf_obs->SetLineWidth(3);
-  scan_vbf_exp->Draw("AL");
-  scan_vbf_obs->Draw("Lsame");
-
-  scan_monoz_obs->SetLineColor(kBlue);
-  scan_monoz_obs->SetLineWidth(2);
-  //scan_monoz_obs->Draw("Lsame");
-  scan_monoz_exp->SetLineColor(kBlue);
-  scan_monoz_exp->SetLineWidth(2);
-  scan_monoz_exp->SetLineStyle(7);
-  //scan_monoz_exp->Draw("Lsame");
-
-  scan_monov_obs->SetLineColor(kGreen+2);
-  scan_monov_obs->SetLineWidth(2);
-  //scan_monov_obs->Draw("Lsame");
-  scan_monov_exp->SetLineColor(kGreen+2);
-  scan_monov_exp->SetLineWidth(2);
-  scan_monov_exp->SetLineStyle(7);
-  //scan_monov_exp->Draw("Lsame");
 
   scan_monoj_obs->SetLineColor(kOrange);
   scan_monoj_obs->SetLineWidth(2);
-  //scan_monoj_obs->Draw("Lsame");
+  scan_monoj_obs->Draw("Lsame");
   scan_monoj_exp->SetLineColor(kOrange);
   scan_monoj_exp->SetLineWidth(2);
   scan_monoj_exp->SetLineStyle(7);
-  //scan_monoj_exp->Draw("Lsame");
+  scan_monoj_exp->Draw("Lsame");
+
+  scan_monov_obs->SetLineColor(kGreen+2);
+  scan_monov_obs->SetLineWidth(2);
+  scan_monov_obs->Draw("Lsame");
+  scan_monov_exp->SetLineColor(kGreen+2);
+  scan_monov_exp->SetLineWidth(2);
+  scan_monov_exp->SetLineStyle(7);
+  scan_monov_exp->Draw("Lsame");
+
+  scan_monoz_obs->SetLineColor(kBlue);
+  scan_monoz_obs->SetLineWidth(2);
+  scan_monoz_obs->Draw("Lsame");
+  scan_monoz_exp->SetLineColor(kBlue);
+  scan_monoz_exp->SetLineWidth(2);
+  scan_monoz_exp->SetLineStyle(7);
+  scan_monoz_exp->Draw("Lsame");
+
+  scan_vbf_obs->SetLineColor(kRed);
+  scan_vbf_obs->SetLineWidth(2);
+  scan_vbf_obs->Draw("Lsame");
+  scan_vbf_exp->SetLineColor(kRed);
+  scan_vbf_exp->SetLineWidth(2);
+  scan_vbf_exp->SetLineStyle(7);
+  scan_vbf_exp->Draw("Lsame");
+
+  scan_combined_exp->Draw("Lsame");
+  //scan_combined_obs->Draw("Lsame");
+
 
   TLegend leg (0.68,0.17,0.93,0.37);
   leg.SetFillColor(0);
@@ -319,23 +309,16 @@ void makeLikelihoodScan(string outputPlots, string postfix){
   leg.AddEntry(scan_monoz_obs,"Z(ll)H-tagged","L");
   leg.AddEntry(scan_monov_obs,"V(qq')H-tagged","L");
   leg.AddEntry(scan_monoj_obs,"ggH-tagged","L");
-  //leg.Draw("same");
+  leg.Draw("same");
 
-  //TLegend leg2 (0.50,0.17,0.66,0.24);
-  //leg2.SetFillColor(0);
-  //leg2.SetFillStyle(0);
-  //leg2.SetBorderSize(0);
-  //leg2.AddEntry(scan_combined_obs,"Observed","L");
-  //leg2.AddEntry(scan_combined_exp,"Expected","L");
-  //leg2.Draw("same");
-
-  TLegend leg2 (0.2,0.6,0.4,0.75);
+  TLegend leg2 (0.50,0.17,0.66,0.24);
   leg2.SetFillColor(0);
   leg2.SetFillStyle(0);
   leg2.SetBorderSize(0);
-  leg2.AddEntry(scan_vbf_obs,"Observed","L");
-  leg2.AddEntry(scan_vbf_exp,"Expected","L");
+  leg2.AddEntry(scan_combined_obs,"Observed","L");
+  leg2.AddEntry(scan_combined_exp,"Expected","L");
   leg2.Draw("same");
+
 
   CMS_lumi(canvas,"35.9");
   canvas->SaveAs((outputPlots+"/scan_profile_likelihood.png").c_str(),"png");

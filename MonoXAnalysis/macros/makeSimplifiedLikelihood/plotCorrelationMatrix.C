@@ -14,7 +14,8 @@ void plotCorrelationMatrix(string inputFile, Category category, bool isZeynep, s
   gROOT->SetBatch(kTRUE);
   setTDRStyle();  
   //gStyle->SetPalette(kBird);
-  gStyle->SetPalette(kThermometer);
+  //gStyle->SetPalette(kThermometer);
+  gStyle->SetPalette(kLightTemperature);
   gStyle->SetNumberContours(999);
 
   TFile *file = new TFile(inputFile.c_str(),"READ");

@@ -53,7 +53,7 @@ void makeHiggsInvisibleLimit(string outputDIR){
   TFile* file_monoj = new TFile("../makeWorkspace/HiggsInvisible/HiggsInvisibleCombination/EXO-16-048/MonoJ/higgsCombine_limit_unblind.AsymptoticLimits.mH125.root","READ");
   TFile* file_monov = new TFile("../makeWorkspace/HiggsInvisible/HiggsInvisibleCombination/EXO-16-048/MonoV/higgsCombine_limit_unblind.AsymptoticLimits.mH125.root","READ");
   TFile* file_monoz = new TFile("../makeWorkspace/HiggsInvisible/HiggsInvisibleCombination/EXO-16-052/higgsCombine_limit_unblind.AsymptoticLimits.mH125.root","READ");
-  TFile* file_vbf   = new TFile("../makeWorkspace/HiggsInvisible/HiggsInvisibleCombination/HIG-17-023/higgsCombine_limit_apriori.AsymptoticLimits.mH125.root","READ");
+  TFile* file_vbf   = new TFile("../makeWorkspace/HiggsInvisible/HiggsInvisibleCombination/HIG-17-023/higgsCombine_limit_unblind.AsymptoticLimits.mH125.root","READ");
   TFile* file_combined = new TFile("../makeWorkspace/HiggsInvisible/HiggsInvisibleCombination/Combination/higgsCombine_limit_apriori.AsymptoticLimits.mH125.root","READ");
 
   /////                                                                                                                                                                                                
