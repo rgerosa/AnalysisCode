@@ -33,7 +33,7 @@ void plotNuisance(TCanvas* canvas, map<TString,RooRealVar*> & listParamPreFit, m
   }
 
   histopull_band_2s->GetXaxis()->SetTitle("");
-  histopull_band_2s->GetYaxis()->SetTitle("(#theta_{post}-#theta_{pre})/#sigma_{post}");
+  histopull_band_2s->GetYaxis()->SetTitle("(#theta_{post}-#theta_{pre})/#sigma_{pre}");
   histopull_band_2s->SetFillColor(kOrange);
   histopull_band_2s->SetMarkerColor(kOrange);
   histopull_band_2s->SetLineColor(kOrange);
