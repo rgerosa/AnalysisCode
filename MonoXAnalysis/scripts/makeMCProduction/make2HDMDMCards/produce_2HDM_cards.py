@@ -104,7 +104,6 @@ if __name__ == '__main__':
             ### make extramodel
             os.system("cp "+options.inputTemplateDIR+"/extramodels.dat "+options.outputBaseDIR+"/"+name+"/"+name+"_extramodels.dat");
             os.system("cp "+options.inputTemplateDIR+"/*tgz "+options.outputBaseDIR+"/"+name+"/");
-            os.system("cp "+options.inputTemplateDIR+"/*zip "+options.outputBaseDIR+"/"+name+"/");
             ### make run card
             os.system("cp "+options.inputTemplateDIR+"/run_card.dat "+options.outputBaseDIR+"/"+name+"/"+name+"_run_card.dat");
             ### make madsping card
@@ -163,7 +162,6 @@ if __name__ == '__main__':
         ### make extramodel
         os.system("cp "+options.inputTemplateDIR+"/extramodels.dat "+options.outputBaseDIR+"/"+name+"/"+name+"_extramodels.dat");
         os.system("cp "+options.inputTemplateDIR+"/*tgz "+options.outputBaseDIR+"/"+name+"/");
-        os.system("cp "+options.inputTemplateDIR+"/*zip "+options.outputBaseDIR+"/"+name+"/");
 
         ### make run card
         os.system("cp "+options.inputTemplateDIR+"/run_card.dat "+options.outputBaseDIR+"/"+name+"/"+name+"_run_card.dat");
@@ -226,7 +224,6 @@ if __name__ == '__main__':
             ### make extramodel
             os.system("cp "+options.inputTemplateDIR+"/extramodels.dat "+options.outputBaseDIR+"/"+name+"/"+name+"_extramodels.dat");
             os.system("cp "+options.inputTemplateDIR+"/*tgz "+options.outputBaseDIR+"/"+name+"/");
-            os.system("cp "+options.inputTemplateDIR+"/*zip "+options.outputBaseDIR+"/"+name+"/");
             ### make run card
             os.system("cp "+options.inputTemplateDIR+"/run_card.dat "+options.outputBaseDIR+"/"+name+"/"+name+"_run_card.dat");
             ### make madsping card
