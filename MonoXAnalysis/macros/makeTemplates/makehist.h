@@ -874,7 +874,7 @@ void makehist4(TTree* tree,            /*input tree*/
     
       // VBF selection
       if(goodMonoJet and 
-	 centralJets.size()+forwardJets.size() > 2 and 
+	 centralJets.size()+forwardJets.size() >= 2 and 
 	 fabs(jeteta->at(0)) < 4.7 and 
 	 fabs(jeteta->at(1)) < 4.7 and 
 	 jetpt->at(0) > leadingJetPtCutVBF and 
@@ -960,7 +960,7 @@ void makehist4(TTree* tree,            /*input tree*/
 
       // remove VBF overlap
       if(goodMonoV and category == Category::monoV and 
-	 centralJets.size()+forwardJets.size() > 2 and 
+	 centralJets.size()+forwardJets.size() >= 2 and 
 	 fabs(jeteta->at(0)) < 4.7 and fabs(jeteta->at(1)) < 4.7 and
          jetpt->at(0) > leadingJetPtCutVBF and 
 	 jetpt->at(1) > trailingJetPtCutVBF and

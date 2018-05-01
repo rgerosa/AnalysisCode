@@ -14,13 +14,13 @@ void makeGoodnessOfFit(string observedFileName,
   TTree* limit_exp = (TTree*) expectedFile->Get("limit");
   TTree* limit_obs = (TTree*) observedFile->Get("limit");
 
-  TH1F* expected_statistics = new TH1F("expected_statistics","",250,0,100);
+  TH1F* expected_statistics = new TH1F("expected_statistics","",150,20,500);
   limit_exp->Draw("limit >> expected_statistics","","goff");
 
-  TH1F* observed_statistics = new TH1F("observed_statistics","",250,0,100);
+  TH1F* observed_statistics = new TH1F("observed_statistics","",150,20,500);
   limit_obs->Draw("limit >> observed_statistics","","goff");
 
-  float uppervalue = 100;
+  float uppervalue = 500;
   for(int iBin = 0; iBin < expected_statistics->GetNbinsX(); iBin++){
     if(expected_statistics->GetBinContent(iBin+1) != 0) uppervalue = expected_statistics->GetBinCenter(iBin+2);
   }
@@ -36,11 +36,18 @@ void makeGoodnessOfFit(string observedFileName,
   line->SetLineColor(kRed);
   line->SetLineWidth(2);
 
+  //TF1* func = new TF1("func","gaus",expected_statistics->GetBinCenter(1),uppervalue);
+  TF1* func = new TF1("func","landau",expected_statistics->GetBinCenter(1),uppervalue);
+  func->SetLineColor(kBlue);
+  func->SetLineWidth(2);
+  expected_statistics->Fit(func,"RME");
+
   expected_statistics->GetXaxis()->SetTitle("Test statistics");
   expected_statistics->GetYaxis()->SetTitle("Entries");
   expected_statistics->GetXaxis()->SetRangeUser(0.,uppervalue);
   expected_statistics->GetYaxis()->SetRangeUser(0.,expected_statistics->GetMaximum()*1.2);
   expected_statistics->Draw("hist");
+  func->Draw("L same");
   line->Draw("same");
 
   CMS_lumi(canvas,"35.9");

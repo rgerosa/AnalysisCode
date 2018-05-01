@@ -233,6 +233,7 @@ void plotCorrelationMatrix(string inputFile, Category category, bool isZeynep, s
     corr->SetMarkerColor(kBlack);
     canvas->SaveAs((outputDIR+"/correlation_VBF.pdf").c_str());
     canvas->SaveAs((outputDIR+"/correlation_VBF.png").c_str());
+    canvas->SaveAs((outputDIR+"/correlation_VBF.C").c_str());
     //    canvas->SetLogz();
     //    canvas->SaveAs((outputDIR+"/correlation_monov_log.pdf").c_str());
     //    canvas->SaveAs((outputDIR+"/correlation_monov_log.png").c_str());
