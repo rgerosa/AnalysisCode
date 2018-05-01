@@ -11,7 +11,7 @@
 #include "TLorentzVector.h"
 
 //#### selections
-static float recoil         = 200;
+static float recoil         = 250;
 static float recoilMonoV    = 250;
 static float prunedMassMin  = 65.;
 static float prunedMassMax  = 105.;
