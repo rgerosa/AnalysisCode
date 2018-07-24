@@ -4,6 +4,11 @@
 static float luminosity = 35.9;
 static int reductionFactor = 1;
 
+// jet sorting                                                                                                                                                                                      
+bool jet_sort(const TLorentzVector & a, const TLorentzVector & b){
+  return a.Pt() > b.Pt();
+}
+
 void plotFraction(TH1* histo_total, TH1* histo_tau, TH1* histo_mu, TH1* histo_el, const string & outputDIR, const string & observable){
 
   TCanvas* canvas = new TCanvas("canvas","",600,700);
@@ -204,6 +209,126 @@ void plotAcceptance(TH1* histo1, TH1* histo2, TH1* histo3, const string & output
 
 
 
+
+
+void plotAcceptance(TH1* histo1, TH1* histo2, TH1* histo3, TH1* histo4, const string & outputDIR, const string & plot, const string & observable){
+
+  TCanvas* canvas = new TCanvas("canvas","",600,700);
+  canvas->cd();
+  canvas->SetTickx(1);
+  canvas->SetTicky(1);
+  canvas->cd();
+  canvas->SetBottomMargin(0.3);
+  canvas->SetRightMargin(0.06);
+
+  TPad* pad2 = new TPad("pad2","pad2",0,0.,1,0.9);
+  pad2->SetTopMargin(0.7);
+  pad2->SetRightMargin(0.06);
+  pad2->SetFillColor(0);
+  pad2->SetFillStyle(0);
+
+  //                                                                                                                                                                                                  
+  TH1* ratio_1 =  (TH1*) histo2->Clone("ratio_1");
+  TH1* ratio_2 =  (TH1*) histo3->Clone("ratio_2");
+  TH1* ratio_3 =  (TH1*) histo4->Clone("ratio_3");
+  ratio_1->Divide(histo1);
+  ratio_2->Divide(histo1);
+  ratio_3->Divide(histo1);
+  histo1->GetXaxis()->SetLabelSize(0);
+  histo1->GetXaxis()->SetTitleSize(0);
+
+  if(TString(observable).Contains("mjj"))
+    ratio_1->GetXaxis()->SetTitle("M_{jj} [GeV]");
+  else if(TString(observable).Contains("met"))
+    ratio_1->GetXaxis()->SetTitle("E_{T}^{miss} [GeV]");
+
+  if(min(histo1->GetMinimum(),min(histo2->GetMinimum(),histo3->GetMinimum())) == 0) 
+    histo1->GetYaxis()->SetRangeUser(0.01, max(histo1->GetMaximum(),max(histo2->GetMaximum(),histo3->GetMaximum()))*100);
+  else
+    histo1->GetYaxis()->SetRangeUser(min(histo1->GetMinimum(),min(histo2->GetMinimum(),histo3->GetMinimum()))*0.1,
+				     max(histo1->GetMaximum(),max(histo2->GetMaximum(),histo3->GetMaximum()))*100);
+
+  histo1->GetYaxis()->SetTitle("Events");
+  histo1->GetYaxis()->SetTitleOffset(1.2);
+  histo1->SetLineColor(kBlack);
+  histo1->SetLineWidth(2);
+  histo1->SetLineStyle(1);
+  histo2->SetLineColor(kRed);
+  histo2->SetLineWidth(2);
+  histo2->SetLineStyle(7);
+  histo3->SetLineColor(kBlue);
+  histo3->SetLineWidth(2);
+  histo3->SetLineStyle(7);
+  histo4->SetLineColor(kGreen+1);
+  histo4->SetLineWidth(2);
+  histo4->SetLineStyle(7);
+
+  histo1->Draw("hist");
+  histo2->Draw("hist same");
+  histo3->Draw("hist same");
+  histo4->Draw("hist same");
+
+  ///                                                                                                                                                                                                 
+  CMS_lumi(canvas,Form("%.1f",luminosity));
+  
+  TLegend* leg = new TLegend(0.55,0.6,0.9,0.9);
+  leg->SetFillColor(0);
+  leg->SetFillStyle(0);
+  leg->SetBorderSize(0);
+  if(TString(plot).Contains("muonOutAcc")){
+    leg->AddEntry(histo1,"W #rightarrow #mu#nu OUT","L");
+    leg->AddEntry(histo2,"W #rightarrow #mu#nu Low p_{T}","L");
+    leg->AddEntry(histo3,"W #rightarrow #mu#nu |#eta| > 3.0","L");    
+    leg->AddEntry(histo4,"W #rightarrow #mu#nu |#eta| [2.5,3.0]","L");    
+  }
+  else if(TString(plot).Contains("eleOutAcc")){
+    leg->AddEntry(histo1,"W #rightarrow e#nu OUT","L");
+    leg->AddEntry(histo2,"W #rightarrow e#nu Low p_{T}","L");
+    leg->AddEntry(histo3,"W #rightarrow e#nu |#eta| > 3.0","L");    
+    leg->AddEntry(histo4,"W #rightarrow e#nu |#eta| [2.5,3.0]","L");    
+  }
+  else if(TString(plot).Contains("tauOutAcc")){
+    leg->AddEntry(histo1,"W #rightarrow #tau#nu OUT","L");
+    leg->AddEntry(histo2,"W #rightarrow #tau#nu Low p_{T}","L");
+    leg->AddEntry(histo3,"W #rightarrow #tau#nu |#eta| > 3.0","L");    
+    leg->AddEntry(histo4,"W #rightarrow #tau#nu |#eta| [2.3,3.0]","L");    
+  }
+  leg->Draw("same");
+
+  canvas->SetLogy();
+
+  pad2->Draw();
+  pad2->cd();
+  ratio_1->GetYaxis()->SetTitle("fraction");
+  ratio_1->GetYaxis()->SetTitleOffset(1.30);
+  ratio_1->GetYaxis()->SetTitleSize(0.04);
+  ratio_1->GetYaxis()->SetLabelSize(0.03);
+  ratio_1->GetYaxis()->SetNdivisions(505);
+  ratio_1->GetXaxis()->SetTitleOffset(1.10);
+  ratio_1->GetXaxis()->SetNdivisions(505);
+  ratio_1->SetLineColor(kRed);
+  ratio_1->SetLineWidth(2);
+  ratio_1->SetLineStyle(7);
+  ratio_2->SetLineColor(kBlue);
+  ratio_2->SetLineWidth(2);
+  ratio_2->SetLineStyle(7);
+  ratio_3->SetLineColor(kGreen+1);
+  ratio_3->SetLineWidth(2);
+  ratio_3->SetLineStyle(7);
+  ratio_1->Draw("hist");
+  ratio_2->Draw("hist same");
+  ratio_3->Draw("hist same");
+  ratio_1->GetYaxis()->SetRangeUser(min(ratio_1->GetMinimum(),min(ratio_2->GetMinimum(),ratio_3->GetMinimum()))*0.8,
+				    max(ratio_1->GetMaximum(),max(ratio_2->GetMaximum(),ratio_3->GetMaximum()))*1.2);
+  canvas->SaveAs((outputDIR+"/"+plot+"_"+observable+".png").c_str(),"png");
+  canvas->SaveAs((outputDIR+"/"+plot+"_"+observable+".pdf").c_str(),"pdf");
+
+  if(canvas) delete canvas;
+
+}
+
+
+
 void plotUncertainty(TH1* histo_nominal, TH1* histo_up, TH1* histo_dw, const string & outputDIR, const string & plot, const string & observable){
 
   TCanvas* canvas = new TCanvas("canvas","",600,700);
@@ -325,51 +450,10 @@ void makeWJetsFractions(string inputDIR, string outputDIR, Category category, bo
   gROOT->SetBatch(kTRUE);
   initializeBinning();
 
-  // k-factors
-  cout<<"Load k-factors"<<endl;
-  TFile* kffile = NULL;
-  if(not isEWK)
-    kffile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_24bins.root");
-  else
-    kffile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kFactor_WToLNu_pT_Mjj.root");
-  
-  vector<TH1*> khists_qcd;
-  vector<TH2*> khists_ewk;
-  
-  if(not isEWK){
-    TH1* hist_nloqcdewk = NULL;
-    TH1* hist_nloqcd    = NULL;
-    TH1* hist_loqcd     = NULL;
-    
-    hist_nloqcdewk = (TH1*) kffile->Get("EWKcorr/W");
-    hist_nloqcd    = (TH1*) kffile->Get("WJets_012j_NLO/nominal");
-    hist_loqcd     = (TH1*) kffile->Get("WJets_LO/inv_pt");
-    
-    hist_nloqcdewk->Divide(hist_nloqcd);
-    hist_nloqcd->Divide(hist_loqcd);
-    
-    TFile* kfactwjet_vbf = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_wjets_v2.root");
-    ///////////////////                                                                                                                                                                                
-    TH1* wjet_nlo_vbf = (TH1*) kfactwjet_vbf->Get("bosonPt_NLO_vbf");
-    if(category == Category::VBFrelaxed)
-      wjet_nlo_vbf = (TH1*) kfactwjet_vbf->Get("bosonPt_NLO_vbf_relaxed");
-    if(category == Category::VBF)
-      wjet_nlo_vbf->Divide((TH1*) kfactwjet_vbf->Get("bosonPt_LO_vbf"));
-    else if(category == Category::VBFrelaxed)
-      wjet_nlo_vbf->Divide((TH1*) kfactwjet_vbf->Get("bosonPt_LO_vbf_relaxed"));
-    
-    TH1* wjet_nlo_mj  = (TH1*) kfactwjet_vbf->Get("bosonPt_NLO_monojet");
-    wjet_nlo_mj->Divide((TH1*) kfactwjet_vbf->Get("bosonPt_LO_monojet"));
-    
-    wjet_nlo_vbf->Divide(wjet_nlo_mj);    
-    khists_qcd.push_back(hist_nloqcd); khists_qcd.push_back(hist_nloqcdewk); khists_qcd.push_back(wjet_nlo_vbf);
-  }
-  else
-    khists_ewk.push_back((TH2*) kffile->Get("TH2F_kFactor"));
-  
   // histograms
   cout<<"Book histograms"<<endl;
   vector<double> mjj_bin;
+  vector<double> ptgen_bin = {0,3,6,9,12,15,18,21,24,27,30,33,36,40,45,50};
   vector<double> met_bin;
   if(category == Category::VBFrelaxed){
     mjj_bin = selectBinning("mjj",category);
@@ -380,6 +464,43 @@ void makeWJetsFractions(string inputDIR, string outputDIR, Category category, bo
     met_bin = {250,350,500,1000};
   }
 
+  // k-factors
+  cout<<"Load k-factors"<<endl;
+  TFile* kffile = NULL;
+  if(not isEWK)
+    kffile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_24bins.root");
+  else
+    kffile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kFactor_WToLNu_pT_Mjj.root");
+
+  TFile* kfactwjet_vbf = NULL;
+  if(not isEWK)
+    kfactwjet_vbf = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_wjets_v3.root");
+
+  vector<TH1*> khists;
+  vector<TH2*> khists_ewk;
+
+  if(not isEWK){    
+    TH1* wnlohist = (TH1*) kffile->Get("WJets_012j_NLO/nominal");
+    TH1* wewkhist  = (TH1*) kffile->Get("EWKcorr/W");
+
+    if(wewkhist)
+      wewkhist->Divide(wnlohist);
+    khists.push_back(wewkhist); // EW corrections                                                                                                                                                  
+
+    if(category == Category::VBFrelaxed){
+      khists.push_back((TH1*) kfactwjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_200_500_smoothed"));
+      khists.push_back((TH1*) kfactwjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_500_1000_smoothed"));
+      khists.push_back((TH1*) kfactwjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_1000_1500_smoothed"));
+      khists.push_back((TH1*) kfactwjet_vbf->Get("kfactors_shape/kfactor_vbf_mjj_1500_5000_smoothed"));
+    }
+    else if(category == Category::VBF){
+        khists.push_back((TH1*) kfactwjet_vbf->Get("kfactors_cc/kfactor_vbf"));
+    }
+  }
+  else
+    khists_ewk.push_back((TH2*) kffile->Get("TH2F_kFactor"));
+  
+  ////
   TH1F* histo_mjj_total = new TH1F("histo_mjj_total","",mjj_bin.size()-1,&mjj_bin[0]);
   TH1F* histo_mjj_total_muon_up = new TH1F("histo_mjj_total_muon_up","",mjj_bin.size()-1,&mjj_bin[0]);
   TH1F* histo_mjj_total_muon_dw = new TH1F("histo_mjj_total_muon_dw","",mjj_bin.size()-1,&mjj_bin[0]);
@@ -406,6 +527,31 @@ void makeWJetsFractions(string inputDIR, string outputDIR, Category category, bo
   TH1F* histo_mjj_ele_outaccept = new TH1F("histo_mjj_ele_outaccept","",mjj_bin.size()-1,&mjj_bin[0]);
   TH1F* histo_mjj_tau_inaccept  = new TH1F("histo_mjj_tau_inaccept","",mjj_bin.size()-1,&mjj_bin[0]);
   TH1F* histo_mjj_tau_outaccept = new TH1F("histo_mjj_tau_outaccept","",mjj_bin.size()-1,&mjj_bin[0]);
+
+  TH1F* histo_mjj_muon_outaccept_lowpt_central = new TH1F("histo_mjj_muon_outaccept_lowpt_central","",mjj_bin.size()-1,&mjj_bin[0]);
+  TH1F* histo_mjj_muon_outaccept_forward = new TH1F("histo_mjj_muon_outaccept_forward","",mjj_bin.size()-1,&mjj_bin[0]);
+  TH1F* histo_mjj_muon_outaccept_intermediate = new TH1F("histo_mjj_muon_outaccept_intermediate","",mjj_bin.size()-1,&mjj_bin[0]);
+
+  TH1F* histo_mjj_ele_outaccept_lowpt_central = new TH1F("histo_mjj_ele_outaccept_lowpt_central","",mjj_bin.size()-1,&mjj_bin[0]);
+  TH1F* histo_mjj_ele_outaccept_forward = new TH1F("histo_mjj_ele_outaccept_forward","",mjj_bin.size()-1,&mjj_bin[0]);
+  TH1F* histo_mjj_ele_outaccept_intermediate = new TH1F("histo_mjj_ele_outaccept_intermediate","",mjj_bin.size()-1,&mjj_bin[0]);
+
+  TH1F* histo_mjj_tau_outaccept_lowpt_central = new TH1F("histo_mjj_tau_outaccept_lowpt_central","",mjj_bin.size()-1,&mjj_bin[0]);
+  TH1F* histo_mjj_tau_outaccept_forward = new TH1F("histo_mjj_tau_outaccept_forward","",mjj_bin.size()-1,&mjj_bin[0]);
+  TH1F* histo_mjj_tau_outaccept_intermediate = new TH1F("histo_mjj_tau_outaccept_intermediate","",mjj_bin.size()-1,&mjj_bin[0]);
+
+  TH1F* histo_ptgen_muon_outaccept_lowpt_central = new TH1F("histo_ptgen_muon_outaccept_lowpt_central","",ptgen_bin.size()-1,&ptgen_bin[0]);
+  TH1F* histo_ptgen_muon_outaccept_forward = new TH1F("histo_ptgen_muon_outaccept_forward","",ptgen_bin.size()-1,&ptgen_bin[0]);
+  TH1F* histo_ptgen_muon_outaccept_intermediate = new TH1F("histo_ptgen_muon_outaccept_intermediate","",ptgen_bin.size()-1,&ptgen_bin[0]);
+
+  TH1F* histo_ptgen_ele_outaccept_lowpt_central = new TH1F("histo_ptgen_ele_outaccept_lowpt_central","",ptgen_bin.size()-1,&ptgen_bin[0]);
+  TH1F* histo_ptgen_ele_outaccept_forward = new TH1F("histo_ptgen_ele_outaccept_forward","",ptgen_bin.size()-1,&ptgen_bin[0]);
+  TH1F* histo_ptgen_ele_outaccept_intermediate = new TH1F("histo_ptgen_ele_outaccept_intermediate","",ptgen_bin.size()-1,&ptgen_bin[0]);
+
+  TH1F* histo_ptgen_tau_outaccept_lowpt_central = new TH1F("histo_ptgen_tau_outaccept_lowpt_central","",ptgen_bin.size()-1,&ptgen_bin[0]);
+  TH1F* histo_ptgen_tau_outaccept_forward = new TH1F("histo_ptgen_tau_outaccept_forward","",ptgen_bin.size()-1,&ptgen_bin[0]);
+  TH1F* histo_ptgen_tau_outaccept_intermediate = new TH1F("histo_ptgen_tau_outaccept_intermediate","",ptgen_bin.size()-1,&ptgen_bin[0]);
+
 
   histo_mjj_total->Sumw2();
   histo_mjj_total_muon_up->Sumw2();
@@ -434,6 +580,31 @@ void makeWJetsFractions(string inputDIR, string outputDIR, Category category, bo
   histo_mjj_muon_outaccept->Sumw2();
   histo_mjj_ele_outaccept->Sumw2();
   histo_mjj_tau_outaccept->Sumw2();
+
+  histo_mjj_muon_outaccept_lowpt_central->Sumw2();
+  histo_mjj_muon_outaccept_forward->Sumw2();
+  histo_mjj_muon_outaccept_intermediate->Sumw2();
+
+  histo_mjj_ele_outaccept_lowpt_central->Sumw2();
+  histo_mjj_ele_outaccept_forward->Sumw2();
+  histo_mjj_ele_outaccept_intermediate->Sumw2();
+
+  histo_mjj_tau_outaccept_lowpt_central->Sumw2();
+  histo_mjj_tau_outaccept_forward->Sumw2();
+  histo_mjj_tau_outaccept_intermediate->Sumw2();
+
+  histo_ptgen_muon_outaccept_lowpt_central->Sumw2();
+  histo_ptgen_muon_outaccept_forward->Sumw2();
+  histo_ptgen_muon_outaccept_intermediate->Sumw2();
+
+  histo_ptgen_ele_outaccept_lowpt_central->Sumw2();
+  histo_ptgen_ele_outaccept_forward->Sumw2();
+  histo_ptgen_ele_outaccept_intermediate->Sumw2();
+
+  histo_ptgen_tau_outaccept_lowpt_central->Sumw2();
+  histo_ptgen_tau_outaccept_forward->Sumw2();
+  histo_ptgen_tau_outaccept_intermediate->Sumw2();
+  
 
   //////////-
   TH1F* histo_met_total = new TH1F("histo_met_total","",met_bin.size()-1,&met_bin[0]);
@@ -525,6 +696,12 @@ void makeWJetsFractions(string inputDIR, string outputDIR, Category category, bo
   TTreeReaderValue<vector<float> > jetpt   (reader,"combinejetpt");
   TTreeReaderValue<vector<float> > jetphi  (reader,"combinejetphi");
   TTreeReaderValue<vector<float> > jetm    (reader,"combinejetm");
+  TTreeReaderValue<vector<float> > genjeteta  (reader,"combinejetGeneta");
+  TTreeReaderValue<vector<float> > genjetpt   (reader,"combinejetGenpt");
+  TTreeReaderValue<vector<float> > genjetphi  (reader,"combinejetGenphi");
+  TTreeReaderValue<vector<float> > genjetm    (reader,"combinejetGenm");
+
+ 
   TTreeReaderValue<vector<float> > chfrac  (reader,"combinejetCHfrac");
   TTreeReaderValue<vector<float> > nhfrac  (reader,"combinejetNHfrac");
   TTreeReaderValue<unsigned int> nincjets  (reader,"njetsinc");
@@ -541,20 +718,10 @@ void makeWJetsFractions(string inputDIR, string outputDIR, Category category, bo
   
 
 
-  // Met trigger efficiency                                                                                                                                                                         
-  vector<TFile*> triggerfile_MET_binned_Wmn;
-  vector<TF1*> triggermet_func_binned_Wmn;
-  if(category == Category::VBF or category == Category::VBFrelaxed){ // monojet                                                                                    
-    triggerfile_MET_binned_Wmn.push_back(TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/VBF/metTriggerEfficiency_mjj_vbf_0.0_800.0.root"));
-    triggerfile_MET_binned_Wmn.push_back(TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/VBF/metTriggerEfficiency_mjj_vbf_800.0_1200.0.root"));
-    triggerfile_MET_binned_Wmn.push_back(TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/VBF/metTriggerEfficiency_mjj_vbf_1200.0_1700.0.root"));
-    triggerfile_MET_binned_Wmn.push_back(TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/VBF/metTriggerEfficiency_mjj_vbf_1700.0_3000.0.root"));
-    if(triggerfile_MET_binned_Wmn.size() != 0){
-      for(auto ifile : triggerfile_MET_binned_Wmn)
-	triggermet_func_binned_Wmn.push_back((TF1*) ifile->Get("efficiency_func"));
-    }
-  }
-
+  // Trigger efficiency                                                                                                                                                                         
+  TFile* triggerfile_MET_Wmn = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/VBF/metTriggerEfficiency_VBF_htmiss_Wmn.root");
+  TF1* triggermet_func_Wmn   = (TF1*) triggerfile_MET_Wmn->Get("f_eff");
+  
   /// muon and electron loose scale factor
   TFile* muon_looseSF_file = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/leptonSF_Moriond/muon_scalefactors.root");
   TFile* ele_vetoSF_file   = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/leptonSF_Moriond/scalefactors_80x_egpog_37ifb.root");
@@ -629,50 +796,98 @@ void makeWJetsFractions(string inputDIR, string outputDIR, Category category, bo
     // met trigger scale factor                                                                                                                                                                    
     Double_t trig_wgt = 1.;
     if(category == Category::VBF or category == Category::twojet or category == Category::VBFrelaxed){
-      double pfmet = *met;
-      if((jet1+jet2).M() < 800)
-	trig_wgt *= triggermet_func_binned_Wmn.at(0)->Eval(min(pfmet,triggermet_func_binned_Wmn.at(0)->GetXaxis()->GetXmax()));
-      else if((jet1+jet2).M() >= 800 and (jet1+jet2).M() < 1200)
-	trig_wgt *= triggermet_func_binned_Wmn.at(1)->Eval(min(pfmet,triggermet_func_binned_Wmn.at(1)->GetXaxis()->GetXmax()));
-      else if((jet1+jet2).M() >= 1200 and (jet1+jet2).M() < 1700)
-	trig_wgt *= triggermet_func_binned_Wmn.at(2)->Eval(min(pfmet,triggermet_func_binned_Wmn.at(2)->GetXaxis()->GetXmax()));
-      else if((jet1+jet2).M() >= 1700)
-	trig_wgt *= triggermet_func_binned_Wmn.at(3)->Eval(min(pfmet,triggermet_func_binned_Wmn.at(3)->GetXaxis()->GetXmax()));
+      double htmiss = 0;
+      TLorentzVector jet4V_total;
+      for(size_t ijet = 0; ijet < jetpt->size(); ijet++){
+	if(jetpt->at(ijet) < 30) continue;
+	if(fabs(jeteta->at(ijet)) > 3) continue;
+	TLorentzVector jet; jet.SetPtEtaPhiM(jetpt->at(ijet),jeteta->at(ijet),jetphi->at(ijet),jetm->at(ijet));
+	jet4V_total += jet;
+      }
+      htmiss = jet4V_total.Pt();
+      trig_wgt *= triggermet_func_Wmn->Eval(htmiss);
     }
 
     //Gen level info --> NLO re-weight                                                                                                                                                                
     Double_t kwgt = 1.0;
     Double_t kewkgt = 1.0;
-    if(not isEWK){
-      double genpt = *wzpt;
-      for (size_t i = 0; i < khists_qcd.size(); i++) {
-	if (khists_qcd[i]) {
-	  if(genpt <= khists_qcd[i]->GetXaxis()->GetBinLowEdge(1)) genpt = khists_qcd[i]->GetXaxis()->GetBinLowEdge(1) + 1;
-	  if(genpt >= khists_qcd[i]->GetXaxis()->GetBinLowEdge(khists_qcd[i]->GetNbinsX()+1)) genpt = khists_qcd[i]->GetXaxis()->GetBinLowEdge(khists_qcd[i]->GetNbinsX()+1)-1;
-	  kwgt *= khists_qcd[i]->GetBinContent(khists_qcd[i]->FindBin(genpt));
+    
+    double genpt = *wzpt;
+    TLorentzVector jet1_gen ;
+    TLorentzVector jet2_gen ;
+    vector<TLorentzVector> genjet;
+    for(int igen = 0; igen < genjetpt->size(); igen++){
+      TLorentzVector temp; temp.SetPtEtaPhiM(genjetpt->at(igen),genjeteta->at(igen),genjetphi->at(igen),genjetm->at(igen));
+      // check if overlaps with a gen lepton                                                                                                                                                         
+      genjet.push_back(temp);
+    }
+    sort(genjet.begin(),genjet.end(),jet_sort);
+    
+    // set jets                                                                                                                                                                                      
+    if(genjet.size() >= 2){
+      jet1_gen = genjet.at(0);
+      jet2_gen = genjet.at(1);
+    }
+    else{
+      jet1_gen = jet1;
+      jet2_gen = jet2;
+    }
+    
+    double mjj = (jet1_gen+jet2_gen).M();
+    if(mjj < 200) mjj = 201;
+    
+    if(not isEWK){      
+      for (size_t i = 0; i < khists.size(); i++) {
+	if (khists[i]) {// good histograms                                                                                                                                                             
+	  TString name (khists[i]->GetName());
+	  if(name.Contains("mjj") or name.Contains("Mjj")){ // standard weights vs boson pt                                                                                                           
+	    // measurement is binned in mjj                                                                                                                                                            
+	    std::stringstream name_tmp(khists[i]->GetName());
+	    std::string segment;
+	    std::vector<std::string> seglist;
+	    while(std::getline(name_tmp, segment, '_')){
+	      seglist.push_back(segment);
+	    }
+	  
+	    float mjj_max = 0;
+	    float mjj_min = 0;
+	    
+	    if(name.Contains("smoothed")){
+	      mjj_max = atof(seglist.at(seglist.size()-2).c_str());
+	      mjj_min = atof(seglist.at(seglist.size()-3).c_str());
+	    }
+	    else{
+	      mjj_max = atof(seglist.at(seglist.size()-1).c_str());
+	      mjj_min = atof(seglist.at(seglist.size()-2).c_str());
+	    }
+	    
+	    if(mjj > mjj_min and mjj <= mjj_max){
+	      if(genpt <= khists[i]->GetXaxis()->GetBinLowEdge(1)) genpt = khists[i]->GetXaxis()->GetBinLowEdge(1) + 1;
+	      if(genpt >= khists[i]->GetXaxis()->GetBinLowEdge(khists[i]->GetNbinsX()+1)) genpt = khists[i]->GetXaxis()->GetBinLowEdge(khists[i]->GetNbinsX()+1)-1;
+	      kwgt *= khists[i]->GetBinContent(khists[i]->FindBin(genpt));
+	    }
+	  }
+	  else{ // standard weights vs boson pt                                                                                                                                                         
+	    if(genpt <= khists[i]->GetXaxis()->GetBinLowEdge(1)) genpt = khists[i]->GetXaxis()->GetBinLowEdge(1) + 1;
+	    if(genpt >= khists[i]->GetXaxis()->GetBinLowEdge(khists[i]->GetNbinsX()+1)) genpt = khists[i]->GetXaxis()->GetBinLowEdge(khists[i]->GetNbinsX()+1)-1;
+	    kwgt *= khists[i]->GetBinContent(khists[i]->FindBin(genpt));
+	  }
 	}
       }
     }
     else{
-      double genpt = *wzpt;
-      if(jetpt->size() >= 2) {
-	TLorentzVector jet1 ;
-	TLorentzVector jet2 ;
-	jet1.SetPtEtaPhiM(jetpt->at(0),jeteta->at(0),jetphi->at(0),jetm->at(0));
-	jet2.SetPtEtaPhiM(jetpt->at(1),jeteta->at(1),jetphi->at(1),jetm->at(1));
-	double mjj = (jet1+jet2).M();
-	for(size_t i = 0; i < khists_ewk.size(); i++){
-	  if(khists_ewk[i]){// good histogram                                                                                                                                                    
-	      if(genpt <= khists_ewk[i]->GetXaxis()->GetBinLowEdge(1)) 
-		genpt = khists_ewk[i]->GetXaxis()->GetBinLowEdge(1) + 1;
-	      if(genpt >= khists_ewk[i]->GetXaxis()->GetBinLowEdge(khists_ewk[i]->GetNbinsX()+1)) 
-		genpt = khists_ewk[i]->GetXaxis()->GetBinLowEdge(khists_ewk[i]->GetNbinsX()+1)-1;
-	      if(mjj <= khists_ewk[i]->GetYaxis()->GetBinLowEdge(1)) 
-		mjj = khists_ewk[i]->GetYaxis()->GetBinLowEdge(1) + 1;
-	      if(mjj >= khists_ewk[i]->GetYaxis()->GetBinLowEdge(khists_ewk[i]->GetNbinsY()+1)) 
-		mjj = khists_ewk[i]->GetYaxis()->GetBinLowEdge(khists_ewk[i]->GetNbinsY()+1)-1;
-	      kewkgt *= khists_ewk[i]->GetBinContent(khists_ewk[i]->FindBin(genpt,mjj));
-	  }
+      double mjj = (jet1_gen+jet2_gen).M();
+      for(size_t i = 0; i < khists_ewk.size(); i++){
+	if(khists_ewk[i]){// good histogram                                                                                                                                                    
+	  if(genpt <= khists_ewk[i]->GetXaxis()->GetBinLowEdge(1)) 
+	    genpt = khists_ewk[i]->GetXaxis()->GetBinLowEdge(1) + 1;
+	  if(genpt >= khists_ewk[i]->GetXaxis()->GetBinLowEdge(khists_ewk[i]->GetNbinsX()+1)) 
+	    genpt = khists_ewk[i]->GetXaxis()->GetBinLowEdge(khists_ewk[i]->GetNbinsX()+1)-1;
+	  if(mjj <= khists_ewk[i]->GetYaxis()->GetBinLowEdge(1)) 
+	    mjj = khists_ewk[i]->GetYaxis()->GetBinLowEdge(1) + 1;
+	  if(mjj >= khists_ewk[i]->GetYaxis()->GetBinLowEdge(khists_ewk[i]->GetNbinsY()+1)) 
+	    mjj = khists_ewk[i]->GetYaxis()->GetBinLowEdge(khists_ewk[i]->GetNbinsY()+1)-1;
+	  kewkgt *= khists_ewk[i]->GetBinContent(khists_ewk[i]->FindBin(genpt,mjj));
 	}
       }
     }
@@ -686,6 +901,9 @@ void makeWJetsFractions(string inputDIR, string outputDIR, Category category, bo
     // lepton type event
     int leptonPDG = -1;
     bool inAcceptance = false;
+    bool is_lowpt_central = false;
+    bool is_forward = false;
+    bool is_intermediate = false;
     float ptLep   = 0;
     float etaLep  = 0;
 
@@ -728,7 +946,14 @@ void makeWJetsFractions(string inputDIR, string outputDIR, Category category, bo
 	sfwgt_dw *= (1-efficiency*sfmu_dw)/(1-efficiency);
 
       }
-      else{
+      else{ // out of acceptance
+	if(ptLep < 10 and fabs(etaLep) < 2.4)
+	  is_lowpt_central = true;
+	if(fabs(etaLep) >= 2.4 and fabs(etaLep) < 3.0)
+	  is_intermediate =  true;
+        if(fabs(etaLep) > 3.0)
+	  is_forward = true;
+
 	sfwgt *= 1;
 	sfwgt_up *= 1;
 	sfwgt_dw *= 1;
@@ -762,6 +987,14 @@ void makeWJetsFractions(string inputDIR, string outputDIR, Category category, bo
 
       }
       else{
+
+	if(ptLep < 10 and fabs(etaLep) < 2.5)
+	   is_lowpt_central = true;
+	if(fabs(etaLep) > 2.5 and fabs(etaLep) < 3.0)
+	  is_intermediate =  true;
+	if(fabs(etaLep) > 3.0)
+	  is_forward = true;
+
 	sfwgt *= 1;
 	sfwgt_up *= 1;
 	sfwgt_dw *= 1;
@@ -795,12 +1028,24 @@ void makeWJetsFractions(string inputDIR, string outputDIR, Category category, bo
 
       }
       else{
+
+	if(ptLep < 18 and fabs(etaLep) < 2.3)
+	   is_lowpt_central = true;
+	else if(fabs(etaLep) > 2.3 and fabs(etaLep) < 3.0)
+	  is_intermediate =  true;
+	else if(fabs(etaLep) > 3.0)
+	  is_forward = true;
+
 	sfwgt *= 1;
 	sfwgt_up *= 1;
 	sfwgt_dw *= 1;
       }
     }
 
+    if(is_lowpt_central == true and is_forward == true) cout<<"Prolem with exclusive OOA categories "<<endl;
+    if(is_lowpt_central == true and is_intermediate == true) cout<<"Prolem with exclusive OOA categories "<<endl;
+    if(is_forward == true and is_intermediate == true) cout<<"Prolem with exclusive OOA categories "<<endl;
+      
     // Fill histograms
     histo_mjj_total->Fill((jet1+jet2).M(),(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum));
     histo_met_total->Fill(*met,(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum));
@@ -877,6 +1122,19 @@ void makeWJetsFractions(string inputDIR, string outputDIR, Category category, bo
     else if(leptonPDG == 11 and not inAcceptance){
       histo_mjj_ele_outaccept->Fill((jet1+jet2).M(),(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum)); // OUT of acceptance electrons
       histo_met_ele_outaccept->Fill(*met,(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum)); // OUT of acceptance electrons
+      
+      if(is_lowpt_central){
+	histo_mjj_ele_outaccept_lowpt_central->Fill((jet1+jet2).M(),(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum));
+	histo_ptgen_ele_outaccept_lowpt_central->Fill(ptLep,(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum));
+      }
+      if(is_forward){
+	histo_mjj_ele_outaccept_forward->Fill((jet1+jet2).M(),(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum));
+	histo_ptgen_ele_outaccept_forward->Fill(ptLep,(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum));
+      }
+      if(is_intermediate){
+	histo_mjj_ele_outaccept_intermediate->Fill((jet1+jet2).M(),(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum));
+	histo_ptgen_ele_outaccept_intermediate->Fill(ptLep,(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum));
+      }
     }
     else if(leptonPDG == 13 and inAcceptance){      
       histo_mjj_muon_inaccept->Fill((jet1+jet2).M(),(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum)); // IN of acceptance muons
@@ -884,7 +1142,21 @@ void makeWJetsFractions(string inputDIR, string outputDIR, Category category, bo
     }
     else if(leptonPDG == 13 and not inAcceptance){
       histo_mjj_muon_outaccept->Fill((jet1+jet2).M(),(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum)); // OUT of acceptance muons
-      histo_met_muon_outaccept->Fill(*met,(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum)); // OUT of acceptance muons
+      histo_met_muon_outaccept->Fill(*met,(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum)); // OUT of acceptance muons      
+
+      if(is_lowpt_central){
+	histo_mjj_muon_outaccept_lowpt_central->Fill((jet1+jet2).M(),(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum));
+	histo_ptgen_muon_outaccept_lowpt_central->Fill(ptLep,(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum));
+      }
+      if(is_forward){
+	histo_mjj_muon_outaccept_forward->Fill((jet1+jet2).M(),(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum));
+	histo_ptgen_muon_outaccept_forward->Fill(ptLep,(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum));
+      }
+      if(is_intermediate){
+	histo_mjj_muon_outaccept_intermediate->Fill((jet1+jet2).M(),(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum));
+	histo_ptgen_muon_outaccept_intermediate->Fill(ptLep,(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum));
+      }
+
     }
     else if(leptonPDG == 15 and inAcceptance){      
       histo_mjj_tau_inaccept->Fill((jet1+jet2).M(),(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum)); // IN of acceptance taus
@@ -893,6 +1165,19 @@ void makeWJetsFractions(string inputDIR, string outputDIR, Category category, bo
     else if(leptonPDG == 15 and not inAcceptance){
       histo_mjj_tau_outaccept->Fill((jet1+jet2).M(),(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum)); // OUT of acceptance taus
       histo_met_tau_outaccept->Fill(*met,(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum)); // OUT of acceptance taus
+
+      if(is_lowpt_central){
+	histo_mjj_tau_outaccept_lowpt_central->Fill((jet1+jet2).M(),(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum));
+	histo_ptgen_tau_outaccept_lowpt_central->Fill(ptLep,(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum));
+      }
+      if(is_forward){
+	histo_mjj_tau_outaccept_forward->Fill((jet1+jet2).M(),(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum));
+	histo_ptgen_tau_outaccept_forward->Fill(ptLep,(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum));
+      }
+      if(is_intermediate){
+	histo_mjj_tau_outaccept_intermediate->Fill((jet1+jet2).M(),(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum));
+	histo_ptgen_tau_outaccept_intermediate->Fill(ptLep,(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum));
+      }      
     }
   }
   cout<<endl;
@@ -930,6 +1215,10 @@ void makeWJetsFractions(string inputDIR, string outputDIR, Category category, bo
     plotAcceptance(histo_met_muon,histo_met_muon_inaccept,histo_met_muon_outaccept,outputDIR,"muonAcc","met");
     plotAcceptance(histo_met_ele,histo_met_ele_inaccept,histo_met_ele_outaccept,outputDIR,"eleAcc","met");
     plotAcceptance(histo_met_tau,histo_met_tau_inaccept,histo_met_tau_outaccept,outputDIR,"tauAcc","met");  
+
+    plotAcceptance(histo_mjj_muon_outaccept,histo_mjj_muon_outaccept_lowpt_central,histo_mjj_muon_outaccept_forward,histo_mjj_muon_outaccept_intermediate,outputDIR,"muonOutAcc","mjj");
+    plotAcceptance(histo_mjj_ele_outaccept,histo_mjj_ele_outaccept_lowpt_central,histo_mjj_ele_outaccept_forward,histo_mjj_ele_outaccept_intermediate,outputDIR,"eleOutAcc","mjj");
+    plotAcceptance(histo_mjj_tau_outaccept,histo_mjj_tau_outaccept_lowpt_central,histo_mjj_tau_outaccept_forward,histo_mjj_tau_outaccept_intermediate,outputDIR,"tauOutAcc","mjj");  
     
     ///// ---------- ///
     plotUncertainty(histo_mjj_muon_v2,histo_mjj_muon_up,histo_mjj_muon_dw,outputDIR,"muon_uncertainty","mjj");
@@ -951,6 +1240,10 @@ void makeWJetsFractions(string inputDIR, string outputDIR, Category category, bo
     plotAcceptance(histo_met_muon,histo_met_muon_inaccept,histo_met_muon_outaccept,outputDIR,"muonAcc_ewk","met");
     plotAcceptance(histo_met_ele,histo_met_ele_inaccept,histo_met_ele_outaccept,outputDIR,"eleAcc_ewk","met");
     plotAcceptance(histo_met_tau,histo_met_tau_inaccept,histo_met_tau_outaccept,outputDIR,"tauAcc_ewk","met");  
+
+    plotAcceptance(histo_mjj_muon_outaccept,histo_mjj_muon_outaccept_lowpt_central,histo_mjj_muon_outaccept_forward,histo_mjj_muon_outaccept_intermediate,outputDIR,"muonOutAcc_ewk","mjj");
+    plotAcceptance(histo_mjj_ele_outaccept,histo_mjj_ele_outaccept_lowpt_central,histo_mjj_ele_outaccept_forward,histo_mjj_ele_outaccept_intermediate,outputDIR,"eleOutAcc_ewk","mjj");
+    plotAcceptance(histo_mjj_tau_outaccept,histo_mjj_tau_outaccept_lowpt_central,histo_mjj_tau_outaccept_forward,histo_mjj_tau_outaccept_intermediate,outputDIR,"tauOutAcc_ewk","mjj");  
     
     ///// ---------- ///
     plotUncertainty(histo_mjj_muon_v2,histo_mjj_muon_up,histo_mjj_muon_dw,outputDIR,"muon_uncertainty_ewk","mjj");
@@ -1299,5 +1592,20 @@ void makeWJetsFractions(string inputDIR, string outputDIR, Category category, bo
   }
 
   if(canvas2) delete canvas2;
+
+  TFile* outputfile = new TFile("output.root","RECREATE");
+  outputfile->cd();
+  histo_ptgen_ele_outaccept_lowpt_central->Write();
+  histo_ptgen_ele_outaccept_forward->Write();
+  histo_ptgen_ele_outaccept_intermediate->Write();
+
+  histo_ptgen_muon_outaccept_lowpt_central->Write();
+  histo_ptgen_muon_outaccept_forward->Write();
+  histo_ptgen_muon_outaccept_intermediate->Write();
+
+  histo_ptgen_tau_outaccept_lowpt_central->Write();
+  histo_ptgen_tau_outaccept_forward->Write();
+  histo_ptgen_tau_outaccept_intermediate->Write();
   
+  outputfile->Close();
 }

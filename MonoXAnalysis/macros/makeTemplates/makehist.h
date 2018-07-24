@@ -69,6 +69,8 @@ static bool  applyLeptonVetoWeight  = true;
 static bool  runOnlyData      = false;
 // k-factors
 static bool  applyEWKVKfactor = true;
+// pre-firing
+static bool  applyPreFiring = true;
 
 // k-factors
 string kfactorFile       = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_24bins.root";
@@ -344,6 +346,19 @@ void makehist4(TTree* tree,            /*input tree*/
   }  
   TGraphAsymmErrors* triggerphoton_graph       = triggerphoton->CreateGraph();
   TGraphAsymmErrors* triggerphoton_graph_jetHT = triggerphoton_jetHT->CreateGraph();
+
+  // Preifring trigger for VBF
+  TFile* prefiring_jetHT_file = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/prefiringVBF_2016/prefiring_jetHT.root");
+  TFile* prefiring_singleMuon_file = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/prefiringVBF_2016/prefiring_singleMuon.root");
+  
+  vector<TGraphAsymmErrors*> prefiring_singleMuon;
+  vector<TGraphAsymmErrors*> prefiring_jetHT;
+  prefiring_jetHT.push_back((TGraphAsymmErrors*) prefiring_jetHT_file->Get("efficiency_UGT_pt_eta_2p25_2p5"));
+  prefiring_jetHT.push_back((TGraphAsymmErrors*) prefiring_jetHT_file->Get("efficiency_UGT_pt_eta_2p5_2p75"));
+  prefiring_jetHT.push_back((TGraphAsymmErrors*) prefiring_jetHT_file->Get("efficiency_UGT_pt_eta_2p75_3p0"));
+  prefiring_singleMuon.push_back((TGraphAsymmErrors*) prefiring_singleMuon_file->Get("efficiency_UGT_pt_eta_2p25_2p5"));
+  prefiring_singleMuon.push_back((TGraphAsymmErrors*) prefiring_singleMuon_file->Get("efficiency_UGT_pt_eta_2p5_2p75"));
+  prefiring_singleMuon.push_back((TGraphAsymmErrors*) prefiring_singleMuon_file->Get("efficiency_UGT_pt_eta_2p75_3p0"));
 
   // histogram to be filled
   for(size_t ihist  = 0 ; ihist < hist1D.size(); ihist++){
@@ -1285,6 +1300,39 @@ void makehist4(TTree* tree,            /*input tree*/
 	sfwgt_trig *= triggerphoton_graph_jetHT->Eval(min(double(*phpt),triggerphoton_graph->GetXaxis()->GetXmax()));
     }
     
+
+    // pre-firing for VBF
+    double sfwgt_prefiring = 1.;
+    if(applyPreFiring){
+      if(isMC and prefiring_singleMuon.size() == 3 and prefiring_jetHT.size() == 3){      
+	bool skipEvent = false;
+	for(size_t ijet = 0; ijet < jetpt->size(); ijet++){
+	  if(fabs(jeteta->at(ijet)) < 2.25 or fabs(jeteta->at(ijet)) > 3.0) continue; // not in the pre-firing region
+	  int pos = -1;
+	  if(fabs(jeteta->at(ijet)) >= 2.25 and fabs(jeteta->at(ijet)) < 2.5) pos = 0;
+	  if(fabs(jeteta->at(ijet)) >= 2.5 and fabs(jeteta->at(ijet)) < 2.75) pos = 1;
+	  if(fabs(jeteta->at(ijet)) >= 2.75 and fabs(jeteta->at(ijet)) < 3.0) pos = 2;
+	  if(fabs(jeteta->at(ijet)+2.81) < 0.2 and fabs(deltaPhi(jetphi->at(ijet),2.0724)) < 0.2 and jetpt->at(ijet) > 40) skipEvent = true;
+	  if(jetpt->at(ijet) < 400){ // use single-muon
+	    if(prefiring_singleMuon.at(pos)->Eval(jetpt->at(ijet)) < 0.02) continue; // small pre-firing, skip it
+	    sfwgt_prefiring *= (1-prefiring_singleMuon.at(pos)->Eval(jetpt->at(ijet)));
+	  }
+	  else{ // use jet-HT
+	    if(prefiring_jetHT.at(pos)->Eval(jetpt->at(ijet)) < 0.02) continue; // small pre-firing, skip it
+	    sfwgt_prefiring *= (1-prefiring_jetHT.at(pos)->Eval(jetpt->at(ijet)));
+	  }				      
+	}
+	if(skipEvent) continue;
+      }      
+      else if(not isMC){
+	bool skipEvent = false;
+	for(size_t ijet = 0; ijet < jetpt->size(); ijet++){
+	  if(fabs(jeteta->at(ijet)+2.81) < 0.2 and fabs(deltaPhi(jetphi->at(ijet),2.0724)) < 0.2 and jetpt->at(ijet) > 40) skipEvent = true;
+	}
+	if(skipEvent) continue;
+      }
+    }
+
     // B-tag weight to be adjusted
     double btagw = *wgtbtag;
 
@@ -1773,11 +1821,18 @@ void makehist4(TTree* tree,            /*input tree*/
 	if(jetpt->size() >= 2)
 	  fillvar = jeteta->at(1);
       }
+      else if(name.Contains("jetphi2")){
+	if(jetpt->size() >= 2)
+	  fillvar = jetphi->at(1);
+      }
       else if(name.Contains("jetpt")){
 	if(category == Category::VBF or category == Category::twojet or category == Category::VBFrelaxed)
 	  fillvar = jetpt->at(0);
 	else
 	  fillvar = jetpt->at(leadingCentralJetPos);
+      }
+      else if(name.Contains("jetphi")){
+	fillvar = jetphi->at(0);
       }
       else if(name.Contains("jeteta")){
 	if(category == Category::VBF or category == Category::twojet or category == Category::VBFrelaxed)
@@ -1902,11 +1957,15 @@ void makehist4(TTree* tree,            /*input tree*/
 	}
       }
       else if(name.Contains("dphiJJ")){
-	if(jetphi->size() < 2){				
+	if(jetphi->size() < 2){	
 	  fillvar = hist->GetXaxis()->GetBinCenter(1);
 	}
-	else 
-	  fillvar = deltaPhi(jetphi->at(0),jetphi->at(1));
+	else {
+	  TLorentzVector j1,j2; 
+	  j1.SetPtEtaPhiM(jetpt->at(0),jeteta->at(0),jetphi->at(0),jetm->at(0));
+	  j2.SetPtEtaPhiM(jetpt->at(1),jeteta->at(1),jetphi->at(1),jetm->at(1));
+	  fillvar = fabs(j1.DeltaPhi(j2));
+	}
       }
       
       // overflow bin
@@ -1919,9 +1978,9 @@ void makehist4(TTree* tree,            /*input tree*/
       if (isMC and not reweightNVTX){
 
 	if(XSEC != -1)
-	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt_reco*sfwgt_id*sfwgt_trig*veto_wgt*topptwgt*sfwgt_vtag*ggZHwgt*kwgt*kewkgt*hwgt*hnnlowgt/(**wgtsum); 
+	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt_reco*sfwgt_id*sfwgt_trig*veto_wgt*sfwgt_prefiring*topptwgt*sfwgt_vtag*ggZHwgt*kwgt*kewkgt*hwgt*hnnlowgt/(**wgtsum); 
 	else
-	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt_trig*sfwgt_reco*sfwgt_id*veto_wgt*topptwgt*sfwgt_vtag*ggZHwgt*hwgt*kwgt*kewkgt*hnnlowgt/(**wgtsum);	     
+	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt_trig*sfwgt_reco*sfwgt_id*veto_wgt*sfwgt_prefiring*topptwgt*sfwgt_vtag*ggZHwgt*hwgt*kwgt*kewkgt*hnnlowgt/(**wgtsum);	     
       }
       else if (isMC and reweightNVTX){
 
@@ -1931,9 +1990,9 @@ void makehist4(TTree* tree,            /*input tree*/
 	else
 	  puwgt = 1;
 	if(XSEC != -1)
-	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt_vtag*sfwgt_reco*sfwgt_id*sfwgt_trig*veto_wgt*kwgt*kewkgt*hwgt*ggZHwgt*hnnlowgt/(**wgtsum);
+	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt_vtag*sfwgt_reco*sfwgt_id*sfwgt_trig*veto_wgt*sfwgt_prefiring*kwgt*kewkgt*hwgt*ggZHwgt*hnnlowgt/(**wgtsum);
 	else
-	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt_vtag*sfwgt_reco*sfwgt_id*sfwgt_trig*veto_wgt*kwgt*kewkgt*hwgt*ggZHwgt*hnnlowgt/(**wgtsum);
+	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt_vtag*sfwgt_reco*sfwgt_id*sfwgt_trig*veto_wgt*sfwgt_prefiring*kwgt*kewkgt*hwgt*ggZHwgt*hnnlowgt/(**wgtsum);
       }
       
       // for data-based events 
@@ -2111,9 +2170,9 @@ void makehist4(TTree* tree,            /*input tree*/
 	else puwgt = *wgtpu;
 
 	if(XSEC != -1)
-          evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt_vtag*sfwgt_reco*sfwgt_id*sfwgt_trig*veto_wgt*kwgt*kewkgt*hwgt*ggZHwgt*hnnlowgt/(**wgtsum);
+          evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt_vtag*sfwgt_reco*sfwgt_id*sfwgt_trig*veto_wgt*sfwgt_prefiring*kwgt*kewkgt*hwgt*ggZHwgt*hnnlowgt/(**wgtsum);
 	else
-	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt_vtag*sfwgt_reco*sfwgt_id*sfwgt_trig*veto_wgt*kwgt*kewkgt*hwgt*ggZHwgt*hnnlowgt/(**wgtsum);
+	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt_vtag*sfwgt_reco*sfwgt_id*sfwgt_trig*veto_wgt*sfwgt_prefiring*kwgt*kewkgt*hwgt*ggZHwgt*hnnlowgt/(**wgtsum);
       }
       else if (isMC and reweightNVTX){
         // pu-weight                                                                                                                                                                                  
@@ -2125,9 +2184,9 @@ void makehist4(TTree* tree,            /*input tree*/
           puwgt = 1;
 	
 	if(XSEC != -1)
-	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt_reco*sfwgt_id*sfwgt_trig*veto_wgt*topptwgt*sfwgt_vtag*ggZHwgt*kwgt*kewkgt*hwgt*hnnlowgt/(**wgtsum);
+	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt_reco*sfwgt_id*sfwgt_trig*veto_wgt*topptwgt*sfwgt_vtag*sfwgt_prefiring*ggZHwgt*kwgt*kewkgt*hwgt*hnnlowgt/(**wgtsum);
 	else
-	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt_reco*sfwgt_id*sfwgt_trig*veto_wgt*topptwgt*sfwgt_vtag*ggZHwgt*kwgt*kewkgt*hwgt*hnnlowgt/(**wgtsum);	
+	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt_reco*sfwgt_id*sfwgt_trig*veto_wgt*topptwgt*sfwgt_vtag*sfwgt_prefiring*ggZHwgt*kwgt*kewkgt*hwgt*hnnlowgt/(**wgtsum);	
       }
 
       if (!isMC && sample == Sample::qcdgam) 
@@ -2172,5 +2231,3 @@ void makehist4(TTree* tree,            /*input tree*/
 }
 #endif
 
-/*  LocalWords:  detajj
- */
