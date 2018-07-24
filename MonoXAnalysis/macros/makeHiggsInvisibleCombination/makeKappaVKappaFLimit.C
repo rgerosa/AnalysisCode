@@ -158,7 +158,24 @@ void makeKappaVKappaFLimit(string inputFileName, string outputDIR, string postfi
   grlhc_95->Draw("L same");
   grlhc_bf->Draw("Psame");
 
-  CMS_lumi(canvas,"35.9",false,true,false,0,-0.12);
+  TLatex *   tex = new TLatex(0.17,0.85,"CMS");
+  tex->SetNDC();
+  tex->SetTextSize(0.045);
+  tex->SetLineWidth(2);
+  tex->Draw();
+  tex = new TLatex(0.27,0.85,"Preliminary");
+  tex->SetNDC();
+  tex->SetTextSize(0.042);
+  tex->SetTextFont(52);
+  tex->Draw();
+  tex = new TLatex(0.95,0.945,"35.9 fb^{-1} (13 TeV)");
+  tex->SetNDC();
+  tex->SetTextAlign(31);
+  tex->SetTextFont(42);
+  tex->SetTextSize(0.042);
+  tex->SetLineWidth(2);
+  tex->Draw();
+
 
   TLegend *leg =  new TLegend(0.15,0.61,0.39,0.80);
   leg->SetFillColor(0);
@@ -171,7 +188,7 @@ void makeKappaVKappaFLimit(string inputFileName, string outputDIR, string postfi
   leg->AddEntry(sm_value,"SM production","P");
   leg->Draw("same");
 
-  TLatex *   tex = new TLatex();
+  tex = new TLatex();
   tex->SetNDC();
   tex->SetTextFont(42);
   tex->SetLineWidth(2);
@@ -183,7 +200,7 @@ void makeKappaVKappaFLimit(string inputFileName, string outputDIR, string postfi
 
   canvas->SaveAs((outputDIR+"/kappa_limit_"+postfix+".pdf").c_str(),"pdf");
   canvas->SaveAs((outputDIR+"/kappa_limit_"+postfix+".png").c_str(),"png");
-  canvas->SaveAs((outputDIR+"/kappa_limit_"+postfix+".root").c_str(),"root");
+  canvas->SaveAs((outputDIR+"/kappa_limit_"+postfix+".C").c_str(),"C");
 
   system(("rm "+string(file_temp->GetName())).c_str());
   if(file_temp) delete file_temp;

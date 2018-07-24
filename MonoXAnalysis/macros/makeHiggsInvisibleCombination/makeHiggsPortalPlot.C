@@ -6,8 +6,8 @@ static float maxDM = 62.49;
 // for plotting
 static float minX = 1;
 static float maxX = 1000;
-static double minY_dd = 1e-48;
-static double maxY_dd = 1e-36;
+static double minY_dd = 1e-47;
+static double maxY_dd = 1e-37;
 // step in DM mass for making the plot
 static float stepDM = 0.2; // 100 MeV
 double const CV = 1e-36;
@@ -16,15 +16,16 @@ double const CV = 1e-36;
 double dmNucleonXSECScalar(float dmMass, float width, int scale = 0){
 
   float mN = 0.939;
-  float fN = 0.326;
+  //float fN = 0.326;
+  float fN = 0.308;
 
-  if(scale == -1)     fN = 0.629;
-  else if(scale == 1) fN = 0.260;
+  if(scale == -1)     fN = 0.326;
+  else if(scale == 1) fN = 0.290;
   
   float mH = 125;
   float vev = 246;
   float beta = sqrt(1-4*dmMass*dmMass/(mH*mH));
-  float numerator = 4*width*pow(mN,4)*pow(fN,2);
+  float numerator = 8*width*pow(mN,4)*pow(fN,2);
   float denominator = pow(mH,3)*pow(vev,2)*beta*pow(dmMass+mN,2);
 
   return CV*0.3894*1.0e+9*numerator/denominator;
@@ -35,15 +36,15 @@ double dmNucleonXSECScalar(float dmMass, float width, int scale = 0){
 double dmNucleonXSECFermion(float dmMass, float width, int scale = 0){
 
   float mN = 0.939;
-  float fN = 0.326;
+  float fN = 0.308;
 
-  if(scale == -1)     fN = 0.629;
-  else if(scale == 1) fN = 0.260;
+  if(scale == -1)     fN = 0.326;
+  else if(scale == 1) fN = 0.290;
 
   float mH = 125;
   float vev = 246;
   float beta = sqrt(1-4*dmMass*dmMass/(mH*mH));
-  float numerator = (8*width*pow(dmMass,2)*pow(mN,4)*pow(fN,2));
+  float numerator = (16*width*pow(dmMass,2)*pow(mN,4)*pow(fN,2));
   float denominator = pow(mH,5)*pow(vev,2)*pow(beta,3)*pow(dmMass+mN,2);
 
   return CV*0.3894*1.0e+9*numerator/denominator;
@@ -112,18 +113,12 @@ void makeHiggsPortalPlot(float observedBR, string outputDIR){
   gPad->SetLeftMargin(0.14);
   frame->Draw();
 
-  observedBound_fermion->SetLineColor(kOrange-1);
-  observedBound_fermion->SetLineWidth(3);
-  observedBound_fermion_min->SetLineColor(kOrange-1);
-  observedBound_fermion_min->SetLineWidth(2);
-  observedBound_fermion_max->SetLineColor(kOrange-1);
-  observedBound_fermion_max->SetLineWidth(2);
-  observedBound_scalar->SetLineColor(kRed+1);
-  observedBound_scalar->SetLineWidth(3);
-  observedBound_scalar_min->SetLineColor(kRed+1);
-  observedBound_scalar_min->SetLineWidth(2);
-  observedBound_scalar_max->SetLineColor(kRed+1);
-  observedBound_scalar_max->SetLineWidth(2);
+  observedBound_fermion->SetLineColor(TColor::GetColor("#1EE100"));
+  observedBound_scalar->SetLineColor(TColor::GetColor("#FF2C0B"));
+  observedBound_fermion_min->SetLineColor(TColor::GetColor("#1EE100"));
+  observedBound_scalar_min->SetLineColor(TColor::GetColor("#FF2C0B"));
+  observedBound_fermion_max->SetLineColor(TColor::GetColor("#1EE100"));
+  observedBound_scalar_max->SetLineColor(TColor::GetColor("#FF2C0B"));
 
   TGraph* observed_scalar_shade = new TGraph();
   TGraph* observed_fermion_shade = new TGraph();
@@ -161,26 +156,26 @@ void makeHiggsPortalPlot(float observedBR, string outputDIR){
   }
     
 
-  observed_fermion_shade->SetFillStyle(3001);
-  observed_fermion_shade->SetFillColor(kOrange-1);
-  observed_fermion_shade->SetLineColor(kOrange-1);
-  observed_fermion_shade->SetLineWidth(3);
-  observed_scalar_shade->SetFillStyle(3001);
-  observed_scalar_shade->SetFillColor(kRed+1);
-  observed_scalar_shade->SetLineColor(kRed+1);
-  observed_scalar_shade->SetLineWidth(3);
+  observed_fermion_shade->SetFillColorAlpha(TColor::GetColor("#1EE100"),0.4);
+  observed_fermion_shade->SetLineColor(TColor::GetColor("#1EE100"));
+  observed_scalar_shade->SetFillColorAlpha(TColor::GetColor("#FF2C0B"),0.4);
+  observed_scalar_shade->SetLineColor(TColor::GetColor("#FF2C0B"));
+
+  observedBound_fermion_min->SetLineStyle(7);
+  observedBound_fermion_max->SetLineStyle(7);
+  observedBound_fermion->SetLineStyle(7);
+  observed_fermion_shade->SetLineStyle(7);
+
+  observedBound_fermion_min->SetLineWidth(2);
+  observedBound_fermion_max->SetLineWidth(2);
+  observedBound_fermion->SetLineWidth(2);
+  observed_fermion_shade->SetLineWidth(2);
+
+  observedBound_scalar_min->SetLineWidth(2);
+  observedBound_scalar_max->SetLineWidth(2);
+  observedBound_scalar->SetLineWidth(2);
+  observed_scalar_shade->SetLineWidth(2);
   
-  observed_fermion_shade->Draw("F same");
-  observed_scalar_shade->Draw("F same");
-
-  observedBound_fermion->Draw("L SAME");
-  observedBound_fermion_min->Draw("L SAME");
-  observedBound_fermion_max->Draw("L SAME");
-
-  observedBound_scalar->Draw("L SAME");
-  observedBound_scalar_min->Draw("L SAME");
-  observedBound_scalar_max->Draw("L SAME");
-
   TGraph *lM0 = lux();
   TGraph *lM1 = cdmslite();
   TGraph *lM2 = xenon();
@@ -199,49 +194,75 @@ void makeHiggsPortalPlot(float observedBR, string outputDIR){
   lM3->Draw("L SAME");
   lM4->Draw("L SAME");
 
+  observed_fermion_shade->Draw("F same");
+  observed_scalar_shade->Draw("F same");
+
   observedBound_fermion->Draw("L SAME");
   observedBound_scalar->Draw("L SAME");
 
-  TLatex* tex = new TLatex();
+  TLatex *   tex = new TLatex(0.65,0.86,"90% CL Limits");
   tex->SetNDC();
-  tex->SetTextFont(72);
-  tex->SetLineWidth(2);
+  tex->SetTextFont(62);
   tex->SetTextSize(0.034);
-  tex->DrawLatex(0.65,0.86,"90% CL Limits");
-  tex->DrawLatex(0.65,0.81,Form("B(H#rightarrow inv) < %.2f",observedBR));
+  tex->SetLineWidth(2);
+  tex->Draw();
+  tex = new TLatex(0.65,0.81,"B(H#rightarrow inv) < 0.20");
+  tex->SetNDC();
+  tex->SetTextFont(62);
+  tex->SetTextSize(0.034);
+  tex->SetLineWidth(2);
+  tex->Draw();
 
-  TLegend *leg_1 = new TLegend(0.65,0.69,0.87,0.78,NULL,"brNDC");
-  leg_1->SetFillStyle(0);
-  leg_1->SetBorderSize(0);
-  leg_1->SetFillColor(0);
-  leg_1->AddEntry(observed_fermion_shade,"Fermion DM","FL");
-  leg_1->AddEntry(observed_scalar_shade,"Scalar DM","FL");
-  leg_1->Draw("same");
+  TLegend *leg = new TLegend(0.65,0.69,0.95,0.78,NULL,"brNDC");
+  leg->SetBorderSize(0);
+  leg->SetLineColor(1);
+  leg->SetLineStyle(1);
+  leg->SetLineWidth(1);
+  leg->SetFillColor(0);
+  leg->SetFillStyle(0);
+  leg->AddEntry(observed_fermion_shade,"Fermion DM","FL");
+  leg->AddEntry(observed_scalar_shade,"Scalar DM","FL");
+  leg->Draw();
 
-  TLatex* tex2 = new TLatex();
-  tex2->SetNDC();
-  tex2->SetTextFont(72);
-  tex2->SetLineWidth(2);
-  tex2->SetTextSize(0.034);
-  tex2->DrawLatex(0.68,0.61,"Direct Detection");
-  
-  TLegend *leg_2 = new TLegend(0.68,0.39,0.92,0.59,NULL,"brNDC");
-  leg_2->SetFillStyle(0);
-  leg_2->SetBorderSize(0);
-  leg_2->SetFillColor(0);
-  leg_2->AddEntry(lM0 ,"LUX","L");
-  leg_2->AddEntry(lM1 ,"CDMSLite","L");
-  leg_2->AddEntry(lM2 ,"XENON-1T","L");
-  leg_2->AddEntry(lM3 ,"CRESST-II","L");
-  leg_2->AddEntry(lM4 ,"PandaX-II","L");
-  leg_2->Draw("same");
-  
+  tex = new TLatex(0.65,0.61,"Direct Detection");
+  tex->SetNDC();
+  tex->SetTextFont(62);
+  tex->SetTextSize(0.034);
+  tex->SetLineWidth(2);
+  tex->Draw();
 
-  CMS_lumi(canvas,"35.9");
+  leg = new TLegend(0.66,0.39,0.92,0.59,NULL,"brNDC");
+  leg->SetBorderSize(0);
+  leg->SetLineColor(1);
+  leg->SetLineStyle(1);
+  leg->SetLineWidth(1);
+  leg->SetFillColor(0);
+  leg->SetFillStyle(0);
+  leg->AddEntry(lM0,"LUX","L");
+  leg->AddEntry(lM1,"CDMSLite","L");
+  leg->AddEntry(lM2,"XENON-1T","L");
+  leg->AddEntry(lM3,"CRESST-II","L");
+  leg->AddEntry(lM4,"PandaX-II","L");
+  leg->Draw();
+
+  tex = new TLatex(0.19,0.85,"CMS");
+  tex->SetNDC();
+  tex->SetTextSize(0.045);
+  tex->SetLineWidth(2);
+  tex->Draw();
+  tex = new TLatex(0.95,0.945,"35.9 fb^{-1} (13 TeV)");
+  tex->SetNDC();
+  tex->SetTextAlign(31);
+  tex->SetTextFont(42);
+  tex->SetTextSize(0.042);
+  tex->SetLineWidth(2);
+  tex->Draw();
+
   canvas->RedrawAxis("samesaxis");
-   
+
   canvas->SaveAs((outputDIR+"/higgsPortalDM.png").c_str(),"png");
   canvas->SaveAs((outputDIR+"/higgsPortalDM.pdf").c_str(),"pdf");  
+  canvas->SaveAs((outputDIR+"/higgsPortalDM.C").c_str(),"C");  
 }
 
 

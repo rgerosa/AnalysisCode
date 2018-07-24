@@ -158,6 +158,10 @@ void makePostFitNuisancePull(string inputFileName, string outputDIR, Category ca
 	  name.Contains("ZH") or
 	  name.Contains("VH") or
 	  name.Contains("Higgs"))) continue;
+
+      if(plotSBFit and name.Contains("stat")) continue;
+      if(plotSBFit and name.Contains("Bin")) continue;
+
       accepted = true;
       listParamPreFit_theory[name] = (RooRealVar*) parlist_init.at(isize);
     }
@@ -299,6 +303,10 @@ void makePostFitNuisancePull(string inputFileName, string outputDIR, Category ca
 	  name.Contains("ZH") or
 	  name.Contains("VH") or
 	  name.Contains("Higgs"))) continue;
+
+      if(plotSBFit and name.Contains("stat")) continue;
+      if(plotSBFit and name.Contains("Bin")) continue;
+
       accepted = true;
       listParamPostFit_theory[name] = (RooRealVar*) parlist_final.at(isize);
     }

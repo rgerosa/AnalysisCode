@@ -54,7 +54,7 @@ void makeHiggsInvisibleLimit(string outputDIR){
   TFile* file_monov = new TFile("../makeWorkspace/HiggsInvisible/HiggsInvisibleCombination/EXO-16-048/MonoV/higgsCombine_limit_unblind.AsymptoticLimits.mH125.root","READ");
   TFile* file_monoz = new TFile("../makeWorkspace/HiggsInvisible/HiggsInvisibleCombination/EXO-16-052/higgsCombine_limit_unblind.AsymptoticLimits.mH125.root","READ");
   TFile* file_vbf   = new TFile("../makeWorkspace/HiggsInvisible/HiggsInvisibleCombination/HIG-17-023/higgsCombine_limit_unblind.AsymptoticLimits.mH125.root","READ");
-  TFile* file_combined = new TFile("../makeWorkspace/HiggsInvisible/HiggsInvisibleCombination/Combination/higgsCombine_limit_apriori.AsymptoticLimits.mH125.root","READ");
+  TFile* file_combined = new TFile("../makeWorkspace/HiggsInvisible/HiggsInvisibleCombination/Combination/higgsCombine_limit_unblind.AsymptoticLimits.mH125.root","READ");
 
   /////                                                                                                                                                                                                
   TTree* limit_monoj = (TTree*) file_monoj->Get("limit");
@@ -136,6 +136,7 @@ void makeHiggsInvisibleLimit(string outputDIR){
 
   canvas->SaveAs((outputDIR+"/higgsinvisble_summary.png").c_str(),"png");
   canvas->SaveAs((outputDIR+"/higgsinvisble_summary.pdf").c_str(),"pdf");
+  canvas->SaveAs((outputDIR+"/higgsinvisble_summary.C").c_str(),"C");
 
 
 }
